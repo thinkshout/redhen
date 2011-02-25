@@ -1,0 +1,33 @@
+<?php
+
+/**
+ * @file
+ * Defines basic functionality common to all parts of the Redhen CRM.
+ */
+
+function redhen_menu() {
+  $items = array();
+
+  // Menu items that are basically just menu blocks.
+  $items['redhen'] = array(
+    'title' => 'RedHen CRM',
+    'description' => 'RedHen CRM home',
+    'weight' => -8,
+    'page callback' => 'redhen_admin_menu_block_page',
+    'menu_name' => 'navigation',
+    'access arguments' => array('access administration pages'),
+    'file' => 'redhen.admin.inc',
+  );
+  $items['admin/structure/redhen'] = array(
+    'title' => 'RedHen CRM',
+    'description' => 'Administer RedHen CRM items, such as contact, group types, etc.',
+    'weight' => -8,
+    'page callback' => 'redhen_admin_menu_block_page',
+    'menu_name' => 'navigation',
+    'access arguments' => array('access administration pages'),
+    'file' => 'redhen.admin.inc',
+    'menu_name' => 'management',
+  );
+
+  return $items;
+}

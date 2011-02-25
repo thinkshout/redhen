@@ -1,0 +1,491 @@
+<?php
+
+/**
+ * @file
+ * 
+ */
+
+// Definitions
+define('REDHEN_STATUS_ACTIVE', 1);
+define('REDHEN_STATUS_ARCHIVED', 0);
+
+/**
+ * Implements hook_entity_info().
+ */
+function redhen_contact_entity_info() {
+  return array(
+    'redhen_contact' => array(
+      'label' => t('Contact'),
+      'controller class' => 'RedhenContactEntityController',
+      'base table' => 'redhen_contact',
+      'revision table' => 'redhen_contact_revision',
+      'fieldable' => TRUE,
+      'entity keys' => array(
+        'id' => 'contact_id',
+        'revision' => 'revision_id',
+        'bundle' => 'type',
+        'label' => 'title',
+      ),
+      'bundle keys' => array(
+        'bundle' => 'type',
+      ),
+      'bundles' => array(),
+      'view modes' => array(
+        'full' => array(
+          'label' => t('Full contact'),
+          'custom settings' => FALSE,
+        ),
+      ),
+      'uri callback' => 'redhen_contact_uri',
+      'token type' => 'redhen_contact',
+      'managed' => TRUE,
+
+      // The following lines are part of entity_manager integration, do we want to keep this?
+      'managed options' => array(
+        'bundles' => array(
+          'path' => 'admin/structure/redhen/contact-types',
+          'bundle argument' => 4,
+          'field ui' => TRUE,
+        ),
+      ),
+    ),
+  );
+}
+
+/**
+ * Implements hook_menu().
+ */
+function redhen_contact_menu() {
+  $items = array();
+
+  // Add a contact.
+  $items['redhen/contact'] = array(
+    'title' => 'Contacts',
+    'description' => 'View RedHen CRM contacts.',
+    'page callback' => 'redhen_contact_page',
+    'access arguments' => array('view contacts'),
+  );
+
+  // Add a contact.
+  $items['redhen/contact/add'] = array(
+    'title' => 'Add a contact',
+    'description' => 'Add a new contact.',
+    'page callback' => 'redhen_contact_add_page',
+    'access callback' => 'redhen_contact_access',
+    'access arguments' => array('create'),
+    'file' => 'redhen_contact.forms.inc',
+    'type' => MENU_LOCAL_ACTION,
+  );
+
+  $items['redhen/contact/%redhen_contact'] = array(
+    'title callback' => 'redhen_contact_contact_title',
+    'title arguments' => array(2),
+    'page callback' => 'redhen_contact_view',
+    'page arguments' => array(2),
+    'access callback' => 'redhen_contact_access',
+    'access arguments' => array('view', 2),
+    'weight' => 10,
+  );
+  $items['redhen/contact/%redhen_contact/view'] = array(
+    'title' => 'View',
+    'type' => MENU_DEFAULT_LOCAL_TASK,
+    'weight' => -10,
+    'context' => MENU_CONTEXT_PAGE | MENU_CONTEXT_INLINE,
+  );
+
+  $items['redhen/contact/%redhen_contact/delete'] = array(
+    'title' => 'Delete',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('redhen_contact_contact_delete_form', 2),
+    'access callback' => 'redhen_contact_access',
+    'access arguments' => array('delete', 2),
+    'type' => MENU_LOCAL_TASK,
+    'weight' => 10,
+    'file' => 'redhen_contact.forms.inc',
+  );
+  $items['redhen/contact/%redhen_contact/edit'] = array(
+    'title' => 'Edit',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('redhen_contact_contact_form', 2),
+    'access callback' => 'redhen_contact_access',
+    'access arguments' => array('edit', 2),
+    'type' => MENU_LOCAL_TASK,
+    'file' => 'redhen_contact.forms.inc',
+  );
+  
+  $items['redhen/contact/%redhen_contact/archive'] = array(
+    'title' => 'Archive',
+    'page callback' => 'redhen_contact_archive',
+    'page arguments' => array(2),
+    'access callback' => 'redhen_contact_access',
+    'access arguments' => array('edit', 2),
+    'type' => MENU_CALLBACK,
+  );
+
+  return $items;
+}
+
+/**
+ * Implements hook_theme().
+ */
+function redhen_contact_theme() {
+  return array();
+}
+
+/**
+ * Loads a contact by ID.
+ */
+function redhen_contact_load($contact_id) {
+  if (empty($contact_id)) {
+    return FALSE;
+  }
+
+  $contacts = redhen_contact_load_multiple(array($contact_id), array());
+  return $contacts ? reset($contacts) : FALSE;
+}
+
+/**
+ * Loads multiple contacts by ID or based on a set of matching conditions.
+ *
+ * @see entity_load()
+ *
+ * @param $contact_ids
+ *   An array of contact IDs.
+ * @param $conditions
+ *   An array of conditions on the {redhen_contact} table in the form
+ *     'field' => $value.
+ * @param $reset
+ *   Whether to reset the internal contact loading cache.
+ *
+ * @return
+ *   An array of contact objects indexed by contact_id.
+ */
+function redhen_contact_load_multiple($contact_ids = array(), $conditions = array(), $reset = FALSE) {
+  if (empty($contact_ids) && empty($conditions)) {
+    return array();
+  }
+
+  return entity_load('redhen_contact', $contact_ids, $conditions, $reset);
+}
+
+/**
+ * Deletes multiple contacts by ID.
+ *
+ * @param $contact_ids
+ *   An array of contact IDs to delete.
+ *
+ * @return
+ *   TRUE on success, FALSE otherwise.
+ */
+function redhen_contact_delete_multiple($contact_ids) {
+  return entity_get_controller('redhen_contact')->delete($contact_ids);
+}
+
+/**
+ * Saves a contact.
+ *
+ * @param $contact
+ *   The full contact object to save.
+ *
+ * @return
+ *   The saved contact object.
+ */
+function redhen_contact_save($contact) {
+  return entity_get_controller('redhen_contact')->save($contact);
+}
+
+/**
+ * Archive a contact.
+ *
+ * @param $contact
+ *   The full contact object to save.
+ *
+ * @return
+ *   The saved contact object.
+ */
+function redhen_contact_archive($contact) {
+  $contact->status = REDHEN_STATUS_ARCHIVED;
+  redhen_contact_save($contact);
+  drupal_goto(drupal_get_destination());
+}
+
+
+/**
+ * Checks contact access for various operations.
+ *
+ * @param $op
+ *   The operation being performed. One of 'view', 'update', 'create' or
+ *   'delete'.
+ * @param $contact
+ *   Optionally a contact to check access for or for the create operation the
+ *   contact type. If nothing is given access permissions for all contacts are returned.
+ * @param $account
+ *   The user to check for. Leave it to NULL to check for the current user.
+ */
+function redhen_contact_access($op, $contact = NULL, $account = NULL) {
+  global $user;
+  $account = isset($account) ? $account : $user;
+
+  if (user_access('administer contacts', $account)) {
+    return TRUE;
+  }
+
+  if ($op == 'view' && user_access('access contacts', $account)) {
+    return TRUE;
+  }
+
+  if (isset($contact) && is_string($contact) && $op == 'create' && user_access('create ' . $contact . ' contacts', $account)) {
+    return TRUE;
+  }
+
+  return FALSE;
+}
+
+/**
+ * Display a contact.
+ *
+ * @param  $contact
+ *   A Fully loaded contact object.
+ * @return void
+ */
+function redhen_contact_view($contact) {
+  return '<pre>' . print_r($contact, TRUE) . '</pre>';
+}
+
+/**
+ * Title callback for hook_menu().
+ *
+ * @param  $contact
+ *   A loaded contact object.
+ * @return void
+ */
+function redhen_contact_contact_title($contact) {
+  $bundle = entity_manager_type_load($contact->type, 'redhen_contact');
+  $title = token_replace($bundle->title_pattern, array('redhen-contact' => $contact), array('sanitize' => FALSE));
+  return check_plain($title);
+}
+
+/**
+ * Implements hook_views_api().
+ */
+function redhen_contact_views_api() {
+  return array(
+    'api' => 3,
+    'path' => drupal_get_path('module', 'redhen_contact') . '/includes/views',
+  );
+}
+
+/**
+ * Page callback for contact overview page.
+ */
+function redhen_contact_page() {
+  $contacts = array();
+  
+  $query = new EntityFieldQuery();
+
+  // setup the header for both the query and table
+  $header = array(
+    'first_name' => array('field' => 'first_name', 'type' => 'property', 'data' => 'First Name', 'sort' => 'asc', 'specifier' => 'first_name'),
+    'last_name' => array('field' => 'last_name', 'type' => 'property', 'data' => 'Last Name', 'sort' => 'asc', 'specifier' => 'last_name'),
+    'Actions',
+  );
+  
+  // build the query
+  $query
+    ->entityCondition('entity_type', 'redhen_contact', '=')
+    ->propertyCondition('status', REDHEN_STATUS_ACTIVE, '=')
+    ->tablesort($header)
+    ->pager(10);
+
+  $result = $query->execute();
+
+  $rows = array();
+  if ($result) {    
+    $contacts = redhen_contact_load_multiple(array_keys($result['redhen_contact']));
+
+    foreach($contacts as $contact) {
+      $actions = array(
+        l('view', 'redhen/contact/' . $contact->contact_id),
+        l('edit', 'redhen/contact/' . $contact->contact_id . '/edit', array('query' => drupal_get_destination())),
+        l('archive', 'redhen/contact/' . $contact->contact_id . '/archive', array('query' => drupal_get_destination())),
+        l('delete', 'redhen/contact/' . $contact->contact_id . '/delete', array('query' => drupal_get_destination())),
+      );
+      $rows[] = array(
+        'data' => array($contact->first_name, $contact->last_name, implode(' | ', $actions))
+      );
+    }
+  }
+  else {
+    // no results, set a message
+    $rows[] = array(
+      'data' => array(array('data' => t('Sorry, there are no contacts that match your criteria.'), 'colspan' => 3))
+    );
+  }
+
+  // return a themed table
+  return theme('table', array('header' => $header, 'rows' => $rows)) . theme('pager');
+}
+
+/**
+ * Implements hook_token_info().
+ */
+function redhen_contact_token_info() {
+  $type = array(
+    'name' => t('Redhen Contact'),
+    'description' => t('Tokens related to individual contacts.'),
+    'needs-data' => 'redhen-contact',
+  );
+
+  // Core tokens for contacts.
+  $contact['contact-id'] = array(
+    'name' => t('Contact ID'),
+    'description' => t('The unique ID of the contact.'),
+  );
+  $contact['first-name'] = array(
+    'name' => t('First name'),
+    'description' => t("The contact's first name."),
+  );
+  $contact['last-name'] = array(
+    'name' => t('Last name'),
+    'description' => t("The contact's last name."),
+  );
+
+  $contact['created'] = array(
+    'name' => t('Date created'),
+    'description' => t('The date the contact was created.'),
+    'type' => 'date',
+  );
+  $contact['updated'] = array(
+    'name' => t('Date updated'),
+    'description' => t('The date the contact was updated.'),
+    'type' => 'date',
+  );
+  $contact['author'] = array(
+    'name' => t('Author'),
+    'description' => t("The author of the contact."),
+    'type' => 'user',
+  );
+  $contact['user'] = array(
+    'name' => t('User'),
+    'description' => t("The Drupal user connected to the contact."),
+    'type' => 'user',
+  );
+
+  return array(
+    'types' => array('redhen-contact' => $type),
+    'tokens' => array('redhen-contact' => $contact),
+  );
+}
+
+/**
+ * Implements hook_tokens().
+ */
+function redhen_contact_tokens($type, $tokens, $data = array(), $options = array()) {
+  if (isset($options['language'])) {
+    $language_code = $options['language']->language;
+  }
+  else {
+    $language_code = NULL;
+  }
+  $sanitize = !empty($options['sanitize']);
+
+  $replacements = array();
+
+  if ($type == 'redhen-contact' && !empty($data['redhen-contact'])) {
+    $contact = $data['redhen-contact'];
+
+    foreach ($tokens as $name => $original) {
+      switch ($name) {
+        // Simple key values on the node.
+        case 'contact-id':
+          $replacements[$original] = $contact->contact_id;
+          break;
+
+        case 'first-name':
+          $replacements[$original] = $sanitize ? check_plain($contact->first_name) : $contact->first_name;
+          break;
+
+        case 'last-name':
+          $replacements[$original] = $sanitize ? check_plain($contact->last_name) : $contact->last_name;
+          break;
+
+        case 'user':
+          if ($contact->user_uid != 0) {
+            $user = user_load($contact->user_uid);
+            $name = $user->name;
+          }
+          else {
+            $name = '';
+          }
+          $replacements[$original] = $sanitize ? filter_xss($name) : $name;
+          break;
+
+        case 'author':
+          if ($contact->author_uid != 0) {
+            $user = user_load($contact->author_uid);
+            $name = $user->name;
+          }
+          else {
+            $name = variable_get('anonymous', t('Anonymous'));
+          }
+          $replacements[$original] = $sanitize ? filter_xss($name) : $name;
+          break;
+
+        case 'created':
+          $replacements[$original] = format_date($contact->created, 'medium', '', NULL, $language_code);
+          break;
+
+        case 'updated':
+          $replacements[$original] = format_date($contact->updated, 'medium', '', NULL, $language_code);
+          break;
+      }
+    }
+
+    if ($author_tokens = token_find_with_prefix($tokens, 'author')) {
+      $author = user_load($contact->author_uid);
+      $replacements += token_generate('user', $author_tokens, array('user' => $author), $options);
+    }
+
+    if ($user_tokens = token_find_with_prefix($tokens, 'user') && isset($contact->user_uid)) {
+      $user = user_load($contact->user_uid);
+      $replacements += token_generate('user', $user_tokens, array('user' => $user), $options);
+    }
+
+    if ($created_tokens = token_find_with_prefix($tokens, 'created')) {
+      $replacements += token_generate('date', $created_tokens, array('date' => $contact->created), $options);
+    }
+    if ($updated_tokens = token_find_with_prefix($tokens, 'updated')) {
+      $replacements += token_generate('date', $updated_tokens, array('date' => $contact->updated), $options);
+    }
+  }
+
+  return $replacements;
+}
+
+/**
+ * Implements hook_redhen_contact_info().
+ */
+function redhen_contact_redhen_contact_info() {
+  $contact_type = entity_manager_bundle_type_new('redhen_contact');
+
+  $contact_type->type = 'default';
+  $contact_type->name = t('Basic contact');
+  $contact_type->description = t('A basic contact type.');
+  $contact_type->is_new = TRUE;
+  $contact_type->title_pattern = '[redhen-contact:last-name], [redhen-contact:first-name]';
+
+  return array($contact_type->type => $contact_type);
+}
+
+/**
+ * Implements hook_user_delete().
+ */
+function redhen_contact_user_delete($account) {
+  // clear the user relationship from a contact entity
+  $contacts = redhen_contact_load_multiple(array(), array('user_uid' => $account->uid));
+  if($contacts) {
+    $contact = reset($contacts);
+    $contact->user_uid = 0;
+    redhen_contact_save($contact);
+  }
+}

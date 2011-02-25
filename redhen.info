@@ -1,0 +1,6 @@
+; $Id$
+name = RedHen
+description = Defines basic functionality common to all parts of the RedHen CRM.
+package = RedHen
+core = 7.x
+
