@@ -1,0 +1,41 @@
+<?php
+
+/**
+ * @file
+ * Install, update and uninstall functions for the text module.
+ */
+
+/**
+ * Implements hook_field_schema().
+ */
+function redhen_fields_field_schema($field) {
+  switch ($field['type']) {
+    case 'redhen_email':
+      $columns = array(
+        'value' => array(
+          'type' => 'varchar',
+          'length' => 255,
+          'not null' => FALSE,
+        ),
+      );
+      break;
+  }
+  $columns += array(
+    'default' => array(
+      'type' => 'int',
+      'unsigned' => TRUE,
+      'default' => 0,
+    ),
+    'label' => array(
+      'type' => 'int',
+      'unsigned' => TRUE,
+      'default' => 0,
+    ),
+  );
+  return array(
+    'columns' => $columns,
+    'indexes' => array(
+      
+    ),
+  );
+}

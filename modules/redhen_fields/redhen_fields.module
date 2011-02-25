@@ -1,0 +1,209 @@
+<?php
+
+/**
+ * Implements hook_field_info().
+ */
+function redhen_fields_field_info() {
+  return array(
+    'redhen_email' => array(
+      'label' => t('RedHen Email'),
+      'description' => t("This field allows you to store multiple email values with labels "),
+      'settings' => array('allowed_labels' => array()),
+      'default_widget' => 'redhen_email_widget',
+      'default_formatter' => 'redhen_email_formatter',
+    ),
+  );
+}
+
+/**
+ * Implements hook_field_settings_form().
+ */
+function redhen_fields_field_settings_form($field, $instance, $has_data) {
+  $settings = $field['settings'];
+
+  $form = array();
+
+  if ($field['type'] == 'text') {
+    $form['max_length'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Maximum length'),
+      '#default_value' => $settings['max_length'],
+      '#required' => TRUE,
+      '#description' => t('The maximum length of the field in characters.'),
+      '#element_validate' => array('_element_validate_integer_positive'),
+      // @todo: If $has_data, add a validate handler that only allows
+      // max_length to increase.
+      '#disabled' => $has_data,
+    );
+  }
+
+  return $form;
+}
+
+/**
+ * Implements hook_field_instance_settings_form().
+ */
+function redhen_fields_field_instance_settings_form($field, $instance) {
+  $settings = $instance['settings'];
+
+   $form = array();
+
+  return $form;
+}
+
+/**
+ * Implements hook_field_validate().
+ */
+function redhen_fields_field_validate($entity_type, $entity, $field, $instance, $langcode, $items, &$errors) {
+  // @TODO Validaion of field values
+}
+
+/**
+ * Implements hook_field_load().
+ *
+ * Where possible, generate the sanitized version of each field early so that
+ * it is cached in the field cache. This avoids looking up from the filter cache
+ * separately.
+ *
+ * @see text_field_formatter_view()
+ */
+function redhen_fields_field_load($entity_type, $entities, $field, $instances, $langcode, &$items) {
+  foreach ($entities as $id => $entity) {
+    foreach ($items[$id] as $delta => $item) {
+      // @TODO do sanitization here
+    }
+  }
+}
+
+/**
+ * Implements hook_field_is_empty().
+ */
+function redhen_fields_field_is_empty($item, $field) {
+  return (!isset($item['value']) || $item['value'] === '');
+}
+
+/**
+ * Implements hook_field_formatter_info().
+ */
+function redhen_fields_field_formatter_info() {
+  return array(
+    'redhen_email_formatter' => array(
+      'label' => t('Default'),
+      'field types' => array('redhen_email'),
+    ),
+  );
+}
+
+/**
+ * Implements hook_field_formatter_settings_form().
+ */
+function redhen_fields_field_formatter_settings_form($field, $instance, $view_mode, $form, &$form_state) {
+  $display = $instance['display'][$view_mode];
+  $settings = $display['settings'];
+
+  $element = array();
+
+  return $element;
+}
+
+/**
+ * Implements hook_field_formatter_settings_summary().
+ */
+function redhen_fields_field_formatter_settings_summary($field, $instance, $view_mode) {
+  $display = $instance['display'][$view_mode];
+  $settings = $display['settings'];
+
+  $summary = '';
+
+  return $summary;
+}
+
+/**
+ * Implements hook_field_formatter_view().
+ */
+function redhen_fields_field_formatter_view($entity_type, $entity, $field, $instance, $langcode, $items, $display) {
+  $element = array();
+
+  switch ($display['type']) {
+    case 'redhen_email_formatter':
+
+      break;
+  }
+
+  return $element;
+}
+
+/**
+ * Implements hook_field_widget_info().
+ */
+function redhen_fields_field_widget_info() {
+  return array(
+    'redhen_email_widget' => array(
+      'label' => t('Email field'),
+      'field types' => array('redhen_email'),
+      'settings' => array('size' => 60),
+    ),
+  );
+}
+
+/**
+ * Implements hook_field_widget_settings_form().
+ */
+function redhen_fields_field_widget_settings_form($field, $instance) {
+  $widget = $instance['widget'];
+  $settings = $widget['settings'];
+
+  $form = array();
+
+  return $form;
+}
+
+/**
+ * Implements hook_field_widget_form().
+ */
+function redhen_fields_field_widget_form(&$form, &$form_state, $field, $instance, $langcode, $items, $delta, $element) {
+  $summary_widget = array();
+  $main_widget = array();
+
+  switch ($instance['widget']['type']) {
+    case 'redhen_email_widget':
+      $main_widget = $element + array(
+        '#type' => 'textfield',
+        '#default_value' => isset($items[$delta]['value']) ? $items[$delta]['value'] : NULL,
+        '#size' => $instance['widget']['settings']['size'],
+      );
+      break;
+  }
+
+  $element['value'] = $main_widget;
+
+
+  return $element;
+}
+
+/**
+ * Implements hook_field_widget_error().
+ */
+function redhen_fields_field_widget_error($element, $error, $form, &$form_state) {
+  switch ($error['error']) {
+    default:
+      $error_element = $element[$element['#columns'][0]];
+      break;
+  }
+
+  form_error($error_element, $error['message']);
+}
+
+/**
+ * Implements hook_filter_format_update().
+ */
+function redhen_fields_filter_format_update($format) {
+  field_cache_clear();
+}
+
+/**
+ * Implements hook_filter_format_disable().
+ */
+function redhen_fields_filter_format_disable($format) {
+  field_cache_clear();
+}
