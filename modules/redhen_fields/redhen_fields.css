@@ -1,5 +1,9 @@
+
+
 .field-widget-redhen-email-widget .redhen-email-widget-item {
   clear: both;
+  overflow: auto;
+	width: 100%
 }
 
 .field-widget-redhen-email-widget .redhen-email-widget-item .form-type-textfield {
@@ -9,4 +13,5 @@
 
 .field-widget-redhen-email-widget .redhen-email-widget-item .form-type-select {
   float: left;
+  margin-top: 1.6em;
 }
