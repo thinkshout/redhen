@@ -271,6 +271,17 @@ function redhen_fields_field_formatter_view($entity_type, $entity, $field, $inst
 }
 
 /**
+ * Implements hook_theme().
+ */
+function redhen_fields_theme($existing, $type, $theme, $path) {
+  return array(
+    'redhen_email_widget' => array(
+      'render element' => 'element',
+    ),
+  );
+}
+
+/**
  * Implements hook_field_widget_info().
  */
 function redhen_fields_field_widget_info() {
@@ -279,6 +290,10 @@ function redhen_fields_field_widget_info() {
       'label' => t('Email field'),
       'field types' => array('redhen_email'),
       'settings' => array(),
+      'behaviors' => array(
+        'multiple values' => FIELD_BEHAVIOR_CUSTOM,
+        'default value' => FIELD_BEHAVIOR_NONE,
+      ),
     ),
   );
 }
@@ -299,31 +314,50 @@ function redhen_fields_field_widget_settings_form($field, $instance) {
  * Implements hook_field_widget_form().
  */
 function redhen_fields_field_widget_form(&$form, &$form_state, $field, $instance, $langcode, $items, $delta, $element) {
-  switch ($instance['widget']['type']) {
-    case 'redhen_email_widget':
-      $email = $label = $element;
-      $email['#type'] = 'textfield';
-      $email['#default_value'] = isset($items[$delta]['value']) ? $items[$delta]['value'] : NULL;
-      $email['#size'] = 35;
-      $email['#weight'] = -1;
+  $orig_element = $element;
+  $count =  ($field['cardinality'] == -1) ? 50 : $field['cardinality'];
 
-      $label['#type'] = 'select';
-      $label['#multiple'] = FALSE;
-      $label['#title'] = '';
-      $label['#options'] = $field['settings']['labels'];
-      $label['#default_value'] = isset($items[$delta]['value']) ? $items[$delta]['label_id'] : NULL;
-      $label['#weight'] = 1;
+  for ($i = 0; $i < $count; $i++) {
+    switch ($instance['widget']['type']) {
+      case 'redhen_email_widget':
+        $email = $label = $orig_element;
 
-      // Assemble into a single element
-      $element['value'] = $email;
-      $element['label_id'] = $label;
+        // Set the email field
+        $email['#type'] = 'textfield';
+        $email['#default_value'] = isset($items[$i]['value']) ? $items[$i]['value'] : NULL;
+        $email['#size'] = 35;
+        $email['#weight'] = -1;
+        $email['#title'] = '';
 
-      // Handle styling
-      $element['#prefix'] = "<div class=\"redhen-email-widget-item item-$delta\">";
-      $element['#suffix'] = "</div>";
-      $element['#attached']['css'] = array(drupal_get_path('module', 'redhen_fields') . '/redhen_fields.css');
-      break;
+        // Set the label field
+        $label['#type'] = 'select';
+        $label['#multiple'] = FALSE;
+        $label['#title'] = '';
+        $label['#options'] = $field['settings']['labels'];
+        $label['#default_value'] = isset($items[$i]['value']) ? $items[$i]['label_id'] : NULL;
+        $label['#weight'] = 1;
+
+        // Assemble into a single element
+        $element[$i]['value'] = $email;
+        $element[$i]['label_id'] = $label;
+
+        // Handle styling
+        $element['#theme'] = 'redhen_email_widget';
+        break;
+    }
   }
+
+  // Handle default radio button element
+  $element['default'] = array(
+    '#type' => 'radios',
+    '#title' => 'default',
+    '#options' => array_fill(0, $count, ''),
+    '#default_value' => isset($items[$i]['default']) ? $items[$i]['default'] : NULL,
+  );
+
+
+  $element['#attached']['css'] = array(drupal_get_path('module', 'redhen_fields') . '/redhen_fields.css');
+  $element['#attached']['js'] = array(drupal_get_path('module', 'redhen_fields') . '/redhen_fields.js');
 
   return $element;
 }
@@ -342,15 +376,30 @@ function redhen_fields_field_widget_error($element, $error, $form, &$form_state)
 }
 
 /**
- * Implements hook_filter_format_update().
+ * @param  $vars
+ * @return void
  */
-function redhen_fields_filter_format_update($format) {
-  field_cache_clear();
+function theme_redhen_email_widget($vars) {
+  $element = &$vars['element'];
+  $rows = array();
+
+  // setup the header for both the query and table
+  $header = array(
+    'email' => array('data' => 'Email', 'colspan' => 2),
+    'default' => array('data' => 'default'),
+  );
+
+  foreach ($element as $key => $value) {
+    $row = array();
+    if (is_numeric($key)) {
+      $row[] = render($value['value']);
+      $row[] = render($value['label_id']);
+      $row[] = render($element['default'][$key]);
+    }
+
+    $rows[] = $row;
+  }
+
+  return theme('table', array('header' => $header, 'rows' => $rows));
 }
 
-/**
- * Implements hook_filter_format_disable().
- */
-function redhen_fields_filter_format_disable($format) {
-  field_cache_clear();
-}
