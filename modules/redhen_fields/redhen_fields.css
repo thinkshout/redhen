@@ -1,5 +1,3 @@
-
-
 .field-widget-redhen-email-widget .redhen-email-widget-item {
   clear: both;
   overflow: auto;
@@ -13,5 +11,5 @@
 
 .field-widget-redhen-email-widget .redhen-email-widget-item .form-type-select {
   float: left;
-  margin-top: 1.6em;
+  margin-right: 1em;
 }
