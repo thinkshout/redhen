@@ -1,6 +1,12 @@
 <?php
 
 /**
+ * @file
+ * Defines email, phone and address field types for RedHen CRM.
+ */
+
+
+/**
  * Implements hook_field_info().
  */
 function redhen_fields_field_info() {
@@ -8,7 +14,7 @@ function redhen_fields_field_info() {
     'redhen_email' => array(
       'label' => t('RedHen Email'),
       'description' => t("This field allows you to store multiple email values with labels "),
-      'settings' => array('allowed_labels' => array()),
+      'settings' => array('labels' => array()),
       'default_widget' => 'redhen_email_widget',
       'default_formatter' => 'redhen_email_formatter',
     ),
@@ -22,22 +28,153 @@ function redhen_fields_field_settings_form($field, $instance, $has_data) {
   $settings = $field['settings'];
 
   $form = array();
-
-  if ($field['type'] == 'text') {
-    $form['max_length'] = array(
-      '#type' => 'textfield',
-      '#title' => t('Maximum length'),
-      '#default_value' => $settings['max_length'],
+  if ($field['type'] == 'redhen_email') {
+    $form['labels'] = array(
+      '#type' => 'textarea',
+      '#rows' => 10,
+      '#title' => t('Labels'),
+      '#default_value' => redhen_fields_allowed_labels_string($settings['labels']),
       '#required' => TRUE,
-      '#description' => t('The maximum length of the field in characters.'),
-      '#element_validate' => array('_element_validate_integer_positive'),
-      // @todo: If $has_data, add a validate handler that only allows
-      // max_length to increase.
-      '#disabled' => $has_data,
+      '#description' => t('The possible labels for values in this field. Enter one value per line, in the format key|label. Key must be an integer.'),
+      '#element_validate' => array('redhen_fields_allowed_labels_setting_validate'),
+      '#field_has_data' => $has_data,
+      '#field' => $field,
     );
   }
 
   return $form;
+}
+
+/**
+ * Generates a string representation of an array of 'labels'.
+ *
+ * This string format is suitable for edition in a textarea.
+ *
+ * @param $values
+ *   An array of values, where array keys are values and array values are
+ *   labels.
+ *
+ * @return
+ *   The string representation of the $values array:
+ *    - Values are separated by a carriage return.
+ *    - Each value is in the format "value|label" or "value".
+ */
+function redhen_fields_allowed_labels_string($values) {
+  $lines = array();
+  foreach ($values as $key => $value) {
+    $lines[] = "$key|$value";
+  }
+  return implode("\n", $lines);
+}
+
+/**
+ * Element validate callback; check that the entered values are valid.
+ */
+function redhen_fields_allowed_labels_setting_validate($element, &$form_state) {
+  $field = $element['#field'];
+  $has_data = $element['#field_has_data'];
+  $generate_keys = !$has_data;
+
+  $values = redhen_fields_extract_allowed_labels($element['#value'], $generate_keys);
+
+  if (!is_array($values)) {
+    form_error($element, t('Allowed labels list: invalid input.'));
+  }
+  else {
+    // Check that keys are valid for the field type.
+    foreach ($values as $key => $value) {
+      if (!preg_match('/^-?\d+$/', $key)) {
+        form_error($element, t('Allowed labels list: keys must be integers.'));
+        break;
+      }
+    }
+
+    // Prevent removing values currently in use.
+    if ($has_data) {
+      $lost_keys = array_diff(array_keys($field['settings']['labels']), array_keys($values));
+      if (_redhen_fields_labels_in_use($field, $lost_keys)) {
+        form_error($element, t('Allowed labels list: some labels are being removed while currently in use.'));
+      }
+    }
+
+    form_set_value($element, $values, $form_state);
+  }
+}
+
+/**
+ * Parses a string of 'allowed labels' into an array.
+ *
+ * @param $string
+ *   The list of allowed labels in string format descibed in
+ *   redhen_fields_allowed_labels_string().
+ * @param $generate_keys
+ *   Boolean value indicating whether to generate keys based on the position of
+ *   the value if a key is not manually specified, and if the value cannot be
+ *   used as a key.
+ *
+ * @return
+ *   The array of extracted key/value pairs, or NULL if the string is invalid.
+ *
+ * @see redhen_fields_allowed_labels_string()
+ */
+function redhen_fields_extract_allowed_labels($string, $generate_keys) {
+  $values = array();
+
+  $list = explode("\n", $string);
+  $list = array_map('trim', $list);
+  $list = array_filter($list, 'strlen');
+
+  $generated_keys = $explicit_keys = FALSE;
+  foreach ($list as $position => $text) {
+    $value = $key = FALSE;
+
+    // Check for an explicit key.
+    $matches = array();
+    if (preg_match('/(.*)\|(.*)/', $text, $matches)) {
+      $key = $matches[1];
+      $value = $matches[2];
+      $explicit_keys = TRUE;
+    }
+    // Otherwise see if we can use the value as the key. Detecting true integer
+    // strings takes a little trick.
+    elseif ((is_numeric($text) && (float) $text == intval($text))) {
+      $key = $value = $text;
+      $explicit_keys = TRUE;
+    }
+    // Otherwise see if we can generate a key from the position.
+    elseif ($generate_keys) {
+      $key = (string) $position;
+      $value = $text;
+      $generated_keys = TRUE;
+    }
+    else {
+      return;
+    }
+    $values[$key] = $value;
+  }
+
+  // We generate keys only if the list contains no explicit key at all.
+  if ($explicit_keys && $generated_keys) {
+    return;
+  }
+
+  return $values;
+}
+
+/**
+ * Checks if a list of values are being used in actual field values.
+ */
+function _redhen_fields_labels_in_use($field, $values) {
+  if ($values) {
+    $query = new EntityFieldQuery();
+    $found = $query
+      ->fieldCondition($field['field_name'], 'label', $values)
+      ->range(0, 1)
+      ->execute();
+    return !empty($found);
+  }
+
+  return FALSE;
 }
 
 /**
@@ -46,7 +183,7 @@ function redhen_fields_field_settings_form($field, $instance, $has_data) {
 function redhen_fields_field_instance_settings_form($field, $instance) {
   $settings = $instance['settings'];
 
-   $form = array();
+  $form = array();
 
   return $form;
 }
@@ -70,7 +207,7 @@ function redhen_fields_field_validate($entity_type, $entity, $field, $instance, 
 function redhen_fields_field_load($entity_type, $entities, $field, $instances, $langcode, &$items) {
   foreach ($entities as $id => $entity) {
     foreach ($items[$id] as $delta => $item) {
-      // @TODO do sanitization here
+      $items[$id][$delta]['label'] = $field['settings']['labels'][$item['label_id']];
     }
   }
 }
@@ -141,7 +278,7 @@ function redhen_fields_field_widget_info() {
     'redhen_email_widget' => array(
       'label' => t('Email field'),
       'field types' => array('redhen_email'),
-      'settings' => array('size' => 60),
+      'settings' => array(),
     ),
   );
 }
@@ -162,21 +299,31 @@ function redhen_fields_field_widget_settings_form($field, $instance) {
  * Implements hook_field_widget_form().
  */
 function redhen_fields_field_widget_form(&$form, &$form_state, $field, $instance, $langcode, $items, $delta, $element) {
-  $summary_widget = array();
-  $main_widget = array();
-
   switch ($instance['widget']['type']) {
     case 'redhen_email_widget':
-      $main_widget = $element + array(
-        '#type' => 'textfield',
-        '#default_value' => isset($items[$delta]['value']) ? $items[$delta]['value'] : NULL,
-        '#size' => $instance['widget']['settings']['size'],
-      );
+      $email = $label = $element;
+      $email['#type'] = 'textfield';
+      $email['#default_value'] = isset($items[$delta]['value']) ? $items[$delta]['value'] : NULL;
+      $email['#size'] = 35;
+      $email['#weight'] = -1;
+
+      $label['#type'] = 'select';
+      $label['#multiple'] = FALSE;
+      $label['#title'] = '';
+      $label['#options'] = $field['settings']['labels'];
+      $label['#default_value'] = isset($items[$delta]['value']) ? $items[$delta]['label_id'] : NULL;
+      $label['#weight'] = 1;
+
+      // Assemble into a single element
+      $element['value'] = $email;
+      $element['label_id'] = $label;
+
+      // Handle styling
+      $element['#prefix'] = "<div class=\"redhen-email-widget-item item-$delta\">";
+      $element['#suffix'] = "</div>";
+      $element['#attached']['css'] = array(drupal_get_path('module', 'redhen_fields') . '/redhen_fields.css');
       break;
   }
-
-  $element['value'] = $main_widget;
-
 
   return $element;
 }

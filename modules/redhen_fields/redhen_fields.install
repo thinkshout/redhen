@@ -26,7 +26,7 @@ function redhen_fields_field_schema($field) {
       'unsigned' => TRUE,
       'default' => 0,
     ),
-    'label' => array(
+    'label_id' => array(
       'type' => 'int',
       'unsigned' => TRUE,
       'default' => 0,
@@ -34,8 +34,6 @@ function redhen_fields_field_schema($field) {
   );
   return array(
     'columns' => $columns,
-    'indexes' => array(
-      
-    ),
+    'indexes' => array(),
   );
 }
