@@ -168,7 +168,7 @@ function _redhen_fields_labels_in_use($field, $values) {
   if ($values) {
     $query = new EntityFieldQuery();
     $found = $query
-      ->fieldCondition($field['field_name'], 'label', $values)
+      ->fieldCondition($field['field_name'], 'label_id', $values)
       ->range(0, 1)
       ->execute();
     return !empty($found);
