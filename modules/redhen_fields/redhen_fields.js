@@ -7,12 +7,27 @@
    */
   Drupal.behaviors.redhenFieldsDisplayWidget = {
     attach: function (context, settings) {
+      Drupal.behaviors.redhenFieldsDisplayWidget.hidden = 0;
       $('.redhen-email-widget-item').each(function(index, element) {
         if ($(element).find('.form-type-textfield input').attr('value') === '') {
+          Drupal.behaviors.redhenFieldsDisplayWidget.hidden++;
           $(element).hide();
         }
-
-
+        $(element).find('.remove').bind('click', function () {
+          $(element).find('.form-text').attr('value', '');
+          $(element).hide();
+          $(element).appendTo( $('.field-widget-redhen-email-widget') );
+          Drupal.behaviors.redhenFieldsDisplayWidget.hidden++;
+          if (Drupal.behaviors.redhenFieldsDisplayWidget.hidden > 0) {
+            $('.field-widget-redhen-email-widget .add-another').show();
+          }
+          return false;
+        });
+      });
+      
+      $('.field-widget-redhen-email-widget .add-another').bind('click', function() {
+        Drupal.redhenFieldsAddItem();
+        return false;
       });
     }
   };
@@ -21,6 +36,10 @@
     $('.redhen-email-widget-item').each(function(index, element) {
       if ($(element).is(":visible") == false) {
         $(element).show();
+        Drupal.behaviors.redhenFieldsDisplayWidget.hidden--;
+        if (Drupal.behaviors.redhenFieldsDisplayWidget.hidden == 0) {
+          $('.field-widget-redhen-email-widget .add-another').hide();
+        }
         return false;
       }
     });

@@ -4,12 +4,10 @@
 	width: 100%
 }
 
+.field-widget-redhen-email-widget .redhen-email-widget-item .form-type-radio,
+.field-widget-redhen-email-widget .redhen-email-widget-item .form-type-select,
+.field-widget-redhen-email-widget .redhen-email-widget-item .remove,
 .field-widget-redhen-email-widget .redhen-email-widget-item .form-type-textfield {
-  float: left;
-  margin-right: 1em;
-}
-
-.field-widget-redhen-email-widget .redhen-email-widget-item .form-type-select {
   float: left;
   margin-right: 1em;
 }

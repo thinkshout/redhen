@@ -393,9 +393,11 @@ function theme_redhen_email_widget($vars) {
       $output .= render($value['value']);
       $output .= render($value['label_id']);
       $output .= render($element['default'][$key]);
+      $output .= '<a href="#" class="remove">remove</a>';
       $output .= '</div>';
     }
   }
+  $output .= '<a href="#" class="add-another">Add email</a>';
 
   return $output;
 }
