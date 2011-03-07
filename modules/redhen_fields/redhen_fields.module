@@ -361,26 +361,37 @@ function redhen_fields_field_widget_form(&$form, &$form_state, $field, $instance
 
     switch ($instance['widget']['type']) {
       case 'redhen_email_widget':
-        $email = $label = $orig_element;
+        $orig_element['#title_display'] = 'invisible';
+        $email = $label = $bulk = $hold = $orig_element;
 
         // Set the email field
         $email['#type'] = 'textfield';
         $email['#default_value'] = isset($items[$i]['value']) ? $items[$i]['value'] : NULL;
         $email['#size'] = 35;
         $email['#weight'] = -1;
-        $email['#title_display'] = 'invisible';
 
         // Set the label field
         $label['#type'] = 'select';
         $label['#multiple'] = FALSE;
-        $label['#title_display'] = 'invisible';
         $label['#options'] = $field['settings']['labels'];
-        $label['#default_value'] = isset($items[$i]['value']) ? $items[$i]['label_id'] : NULL;
+        $label['#default_value'] = isset($items[$i]['label_id']) ? $items[$i]['label_id'] : NULL;
         $label['#weight'] = 1;
+
+        // Set the hold field
+        $hold['#type'] = 'checkbox';
+        $hold['#default_value'] = isset($items[$i]['hold']) ? $items[$i]['hold'] : FALSE;
+        $hold['#weight'] = 2;
+
+        // Set the bulk field
+        $bulk['#type'] = 'checkbox';
+        $bulk['#default_value'] = isset($items[$i]['bulk']) ? $items[$i]['bulk'] : TRUE;
+        $bulk['#weight'] = 3;
 
         // Assemble into a single element
         $element[$i]['value'] = $email;
         $element[$i]['label_id'] = $label;
+        $element[$i]['hold'] = $hold;
+        $element[$i]['bulk'] = $bulk;
 
         // Handle styling
         $element['#theme'] = 'redhen_email_widget';
@@ -425,19 +436,28 @@ function redhen_fields_field_widget_error($element, $error, $form, &$form_state)
  */
 function theme_redhen_email_widget($vars) {
   $element = &$vars['element'];
-  $output = '';
 
+  $add_another = '<a href="#" class="add-another">' . t('add email') . '</a>';
+
+  $output = '<div class="field-label"><label>' . check_plain($element['#title']) . ' ' . $add_another . '</label></div>';
+  $output .= '<div class="legend"><div class="email-label-section">' . t('Address') . '</div>';
+  $output .= '<div class="bulk-label">' . t('Bulk mailings?') . '</div>';
+  $output .= '<div class="hold-label">' . t('On hold?') . '</div>';
+  $output .= '<div class="primary-label">' . t('Primary') . '</div></div>';
   foreach ($element as $key => $value) {
     if (is_numeric($key)) {
       $output .= "<div class=\"redhen-email-widget-item item-$key\">";
+      $output .= '<div class="email-label-section">';
       $output .= render($value['value']);
       $output .= render($value['label_id']);
-      $output .= render($element['default'][$key]);
+      $output .= '</div>';
+      $output .= '<div class="bulk-label">' . render($value['bulk']) . '</div>';
+      $output .= '<div class="hold-label">' . render($value['hold']) . '</div>';
+      $output .= '<div class="primary-label">' . render($element['default'][$key]) . '</div>';
       $output .= '<a href="#" class="remove">' . t('remove') . '</a>';
       $output .= '</div>';
     }
   }
-  $output .= '<a href="#" class="add-another">' . t('add email') . '</a>';
 
   return $output;
 }

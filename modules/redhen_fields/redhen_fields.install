@@ -17,6 +17,16 @@ function redhen_fields_field_schema($field) {
           'length' => 255,
           'not null' => FALSE,
         ),
+        'hold' => array(
+          'type' => 'int',
+          'unsigned' => TRUE,
+          'default' => 0,
+        ),
+        'bulk' => array(
+          'type' => 'int',
+          'unsigned' => TRUE,
+          'default' => 0,
+        ),
       );
       break;
   }

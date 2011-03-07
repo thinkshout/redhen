@@ -1,10 +1,31 @@
+.field-widget-redhen-email-widget,
 .field-widget-redhen-email-widget .redhen-email-widget-item {
   clear: both;
   overflow: auto;
 	width: 100%
 }
 
+.field-widget-redhen-email-widget .email-label-section {
+  width: 400px;
+  float: left;
+}
+
+.field-widget-redhen-email-widget .bulk-label,
+.field-widget-redhen-email-widget .hold-label {
+  float: left;
+  width: 100px;
+}
+
+.field-widget-redhen-email-widget .primary-label {
+  float: left;
+}
+
+.field-widget-redhen-email-widget .add-another {
+  font-size: .8em;
+}
+
 .field-widget-redhen-email-widget .redhen-email-widget-item .form-type-radio,
+.field-widget-redhen-email-widget .redhen-email-widget-item .form-type-checkbox,
 .field-widget-redhen-email-widget .redhen-email-widget-item .form-type-select,
 .field-widget-redhen-email-widget .redhen-email-widget-item .remove,
 .field-widget-redhen-email-widget .redhen-email-widget-item .form-type-textfield {
