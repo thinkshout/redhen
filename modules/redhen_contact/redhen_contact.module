@@ -135,7 +135,12 @@ function redhen_contact_menu() {
  * Implements hook_theme().
  */
 function redhen_contact_theme() {
-  return array();
+  return array(
+    'redhen_contact' => array(
+      'variables' => array('contact' => NULL),
+      'template' => 'redhen-contact',
+    ),
+  );
 }
 
 /**
@@ -255,18 +260,12 @@ function redhen_contact_access($op, $contact = NULL, $account = NULL) {
  * @return void
  */
 function redhen_contact_view($contact) {
+  if (!isset($langcode)) {
+    $langcode = $GLOBALS['language_content']->language;
+  }
+
   // Populate $contact->content with a render() array.
-  // Remove previously built content, if it exists.
-  $contact->content = array();
-  redhen_contact_build_content($contact);
-
-  // Build fields content.
-  field_attach_prepare_view('redhen_contact', array($contact->contact_id => $contact), 'full');
-  entity_prepare_view('redhen_contact', array($contact->contact_id => $contact));
-  $contact->content += field_attach_view('redhen_contact', $contact, 'full');
-
-  // Allow modules to make their own additions to the contact content.
-  module_invoke_all('redhen_contact_view', $contact, 'full');
+  redhen_contact_build_content($contact, $langcode);
 
   // Remove the content array from the order to avoid duplicate rendering.
   $build = $contact->content;
@@ -279,13 +278,26 @@ function redhen_contact_view($contact) {
   );
 
   // Allow modules to modify the final build array.
-  drupal_alter('redhen_contact_view', $build);
+  $type = 'redhen_contact';
+  drupal_alter(array('redhen_contact_view', 'entity_view'), $build, $type);
 
   return $build;
 }
 
-function redhen_contact_build_content($contact) {
+function redhen_contact_build_content($contact, $langcode) {
+  // Populate $contact->content with a render() array.
+  // Remove previously built content, if it exists.
+  $contact->content = array();
 
+
+  // Build fields content.
+  field_attach_prepare_view('redhen_contact', array($contact->contact_id => $contact), 'full');
+  entity_prepare_view('redhen_contact', array($contact->contact_id => $contact));
+  $contact->content += field_attach_view('redhen_contact', $contact, 'full', $langcode);
+
+  // Allow modules to make their own additions to the contact content.
+  module_invoke_all('redhen_contact_view', $contact, 'full', $langcode);
+  module_invoke_all('entity_view', $contact, 'redhen_contact', 'full', $langcode);
 }
 
 /**
@@ -432,7 +444,7 @@ function redhen_contact_tokens($type, $tokens, $data = array(), $options = array
 
     foreach ($tokens as $name => $original) {
       switch ($name) {
-        // Simple key values on the node.
+        // Simple key values on the contact
         case 'contact-id':
           $replacements[$original] = $contact->contact_id;
           break;
@@ -524,4 +536,12 @@ function redhen_contact_user_delete($account) {
     $contact->user_uid = 0;
     redhen_contact_save($contact);
   }
+}
+
+/**
+ * Preprocess variables for redhen-contact.tpl.php
+ */
+function template_preprocess_redhen_contact(&$vars) {
+  $contact = $vars['contact'];
+  
 }
