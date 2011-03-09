@@ -40,11 +40,28 @@ function redhen_contact_entity_info() {
       'token type' => 'redhen_contact',
       'managed' => TRUE,      
       'properties' => array(
-        'first_name' => t('First name'),
-        'last_name' => t('Last name'),
-        'status' => t('Status'),
-        'type' => t('Type'),
-        'user' => t('Drupal user')
+        'first_name' => array(
+          'title' => t('First name'),
+          'type' => 'textfield',
+        ),
+        'last_name' => array(
+          'title' => t('Last name'),
+          'type' => 'textfield',
+        ),
+        'status' => array(
+          'title' => t('Status'),
+          'type' => 'select',
+          'options' => array(
+            REDHEN_STATUS_ACTIVE => 'Active',
+            REDHEN_STATUS_ARCHIVED => 'Archived'
+          )
+        ),
+        'type' => array(
+          'title' => t('Type'),
+          'type' => 'select',
+          'options' => array('default' => t('Default'))
+        ),
+        //'user' => t('Drupal user')
       ),
       // The following lines are part of entity_manager integration, do we want to keep this?
       'managed options' => array(
@@ -299,9 +316,16 @@ function redhen_contact_page() {
   // build the query
   $query
     ->entityCondition('entity_type', 'redhen_contact', '=')
-    ->propertyCondition('status', REDHEN_STATUS_ACTIVE, '=')
     ->tablesort($header)
     ->pager(10);
+    
+  // add filters
+  $entity_info = entity_get_info('redhen_contact');
+  foreach($entity_info['properties'] as $key => $prop) {
+    if (isset($_GET[$key]) && $_GET[$key] !== '') {
+      $query->propertyCondition($key, $_GET[$key], '=');
+    }
+  }
 
   $result = $query->execute();
 
@@ -327,9 +351,54 @@ function redhen_contact_page() {
       'data' => array(array('data' => t('Sorry, there are no contacts that match your criteria.'), 'colspan' => 3))
     );
   }
-  
+
+  $form = drupal_get_form('redhen_contact_filter_form', $entity_info);
+
   // return a themed table
-  return theme('table', array('header' => $header, 'rows' => $rows)) . theme('pager');
+  return drupal_render($form) . theme('table', array('header' => $header, 'rows' => $rows)) . theme('pager');
+}
+
+function redhen_contact_filter_form($form, $form_state, $entity_info) {
+  $form = array();
+
+  if (!empty($entity_info['properties'])) {
+    
+    $form['filter_fieldset'] = array(
+      '#type' => 'fieldset',
+      '#title' => t('Filters'),
+      '#collapsible' => TRUE,
+      // expand fieldset if the list was filtered
+      '#collapsed' => count(array_intersect_key($entity_info['properties'], $_GET)) == 0
+    );
+    
+    $form['filter_fieldset']['filters'] = array(
+      '#type' => 'container',
+      '#tree' => TRUE
+    );
+    
+    foreach($entity_info['properties'] as $key => $prop) {
+      $form['filter_fieldset']['filters'][$key] = array(
+        '#type' => $prop['type'],
+        '#title' => $prop['title'],
+        '#default_value' => isset($_GET[$key]) ? $_GET[$key] : NULL
+      );
+      
+      if ($prop['type'] == 'select' && !empty($prop['options'])) {
+        $form['filter_fieldset']['filters'][$key]['#options'] = $prop['options'];
+      }
+    }
+    
+    $form['filter_fieldset']['submit'] = array(
+      '#type' => 'submit',
+      '#value' => 'Apply'
+    );
+  }
+
+  return $form;
+}
+
+function redhen_contact_filter_form_submit($form, $form_state) {
+  drupal_goto($_GET['q'], array('query' => $form_state['values']['filters']));
 }
 
 /**
