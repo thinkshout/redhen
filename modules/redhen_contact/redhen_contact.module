@@ -255,7 +255,37 @@ function redhen_contact_access($op, $contact = NULL, $account = NULL) {
  * @return void
  */
 function redhen_contact_view($contact) {
-  return '<pre>' . print_r($contact, TRUE) . '</pre>';
+  // Populate $contact->content with a render() array.
+  // Remove previously built content, if it exists.
+  $contact->content = array();
+  redhen_contact_build_content($contact);
+
+  // Build fields content.
+  field_attach_prepare_view('redhen_contact', array($contact->contact_id => $contact), 'full');
+  entity_prepare_view('redhen_contact', array($contact->contact_id => $contact));
+  $contact->content += field_attach_view('redhen_contact', $contact, 'full');
+
+  // Allow modules to make their own additions to the contact content.
+  module_invoke_all('redhen_contact_view', $contact, 'full');
+
+  // Remove the content array from the order to avoid duplicate rendering.
+  $build = $contact->content;
+  unset($contact->content);
+
+  $build += array(
+    '#theme' => 'redhen_contact',
+    '#contact' => $contact,
+    '#view_mode' => 'full',
+  );
+
+  // Allow modules to modify the final build array.
+  drupal_alter('redhen_contact_view', $build);
+
+  return $build;
+}
+
+function redhen_contact_build_content($contact) {
+
 }
 
 /**
