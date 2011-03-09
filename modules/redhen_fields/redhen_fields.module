@@ -300,7 +300,11 @@ function redhen_fields_field_formatter_view($entity_type, $entity, $field, $inst
 
   switch ($display['type']) {
     case 'redhen_email_formatter':
-
+      foreach ($items as $delta => $item) {
+        $output = theme('redhen_fields_email_formatter_row', array('item' => $item, 'delta' => $delta));
+        $element[$delta] = array('#markup' => $output);
+      }
+      $element['#attached']['css'] = array(drupal_get_path('module', 'redhen_fields') . '/redhen_fields.css');
       break;
   }
 
@@ -314,6 +318,10 @@ function redhen_fields_theme($existing, $type, $theme, $path) {
   return array(
     'redhen_email_widget' => array(
       'render element' => 'element',
+    ),
+    'redhen_fields_email_formatter_row' => array(
+      'variables' => array('item' => NULL, 'delta' => NULL),
+      'template' => 'redhen-fields-email-formatter-row',
     ),
   );
 }

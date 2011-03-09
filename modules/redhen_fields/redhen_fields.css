@@ -1,3 +1,5 @@
+.field-type-redhen-email .redhen-fields-email-formatter-row,
+.redhen-fields-email-formatter-row,
 .field-widget-redhen-email-widget,
 .field-widget-redhen-email-widget .redhen-email-widget-item {
   clear: both;
@@ -5,17 +7,26 @@
 	width: 100%
 }
 
+.field-type-redhen-email .email-address {
+  float: left;
+  width: 300px;
+}
+
+.field-type-redhen-email .email-label-section,
 .field-widget-redhen-email-widget .email-label-section {
   width: 400px;
   float: left;
 }
 
-.field-widget-redhen-email-widget .bulk-label,
-.field-widget-redhen-email-widget .hold-label {
+.field-type-redhen-email .bulk-label,
+.redhen-fields-email-formatter-row .bulk-label,
+.field-type-redhen-email .hold-label,
+.redhen-fields-email-formatter-row .hold-label {
   float: left;
   width: 100px;
 }
 
+.field-type-redhen-email .primary-label,
 .field-widget-redhen-email-widget .primary-label {
   float: left;
 }
