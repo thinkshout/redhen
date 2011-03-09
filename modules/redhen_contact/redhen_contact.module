@@ -38,8 +38,14 @@ function redhen_contact_entity_info() {
       ),
       'uri callback' => 'redhen_contact_uri',
       'token type' => 'redhen_contact',
-      'managed' => TRUE,
-
+      'managed' => TRUE,      
+      'properties' => array(
+        'first_name' => t('First name'),
+        'last_name' => t('Last name'),
+        'status' => t('Status'),
+        'type' => t('Type'),
+        'user' => t('Drupal user')
+      ),
       // The following lines are part of entity_manager integration, do we want to keep this?
       'managed options' => array(
         'bundles' => array(
@@ -321,7 +327,7 @@ function redhen_contact_page() {
       'data' => array(array('data' => t('Sorry, there are no contacts that match your criteria.'), 'colspan' => 3))
     );
   }
-
+  
   // return a themed table
   return theme('table', array('header' => $header, 'rows' => $rows)) . theme('pager');
 }
