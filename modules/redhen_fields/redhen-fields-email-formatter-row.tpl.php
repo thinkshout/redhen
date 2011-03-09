@@ -4,7 +4,6 @@
  * Print the template for a single row of the redhen email widget formatter.
  */
 
-dsm(get_defined_vars());
 ?>
 
 <div class="<?php print implode(' ', $classes_array); ?>">
