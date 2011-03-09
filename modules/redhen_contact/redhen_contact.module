@@ -51,15 +51,12 @@ function redhen_contact_entity_info() {
         'status' => array(
           'title' => t('Status'),
           'type' => 'select',
-          'options' => array(
-            REDHEN_STATUS_ACTIVE => 'Active',
-            REDHEN_STATUS_ARCHIVED => 'Archived'
-          )
+          'options_callback' => 'redhen_contact_get_statuses'
         ),
         'type' => array(
           'title' => t('Type'),
           'type' => 'select',
-          'options' => array('default' => t('Default'))
+          'options_callback' => 'redhen_contact_get_types'
         ),
         //'user' => t('Drupal user')
       ),
@@ -400,6 +397,9 @@ function redhen_contact_page() {
   return drupal_render($form) . theme('table', array('header' => $header, 'rows' => $rows)) . theme('pager');
 }
 
+/**
+ * Returns the form to filter contact lists.
+ */
 function redhen_contact_filter_form($form, $form_state, $entity_info) {
   $form = array();
 
@@ -417,7 +417,8 @@ function redhen_contact_filter_form($form, $form_state, $entity_info) {
       '#type' => 'container',
       '#tree' => TRUE
     );
-    
+
+    // add a form field for each property
     foreach($entity_info['properties'] as $key => $prop) {
       $form['filter_fieldset']['filters'][$key] = array(
         '#type' => $prop['type'],
@@ -425,8 +426,9 @@ function redhen_contact_filter_form($form, $form_state, $entity_info) {
         '#default_value' => isset($_GET[$key]) ? $_GET[$key] : NULL
       );
       
-      if ($prop['type'] == 'select' && !empty($prop['options'])) {
-        $form['filter_fieldset']['filters'][$key]['#options'] = $prop['options'];
+      if ($prop['type'] == 'select' && !empty($prop['options_callback'])) {
+        $options = call_user_func($prop['options_callback'], $entity_info);          
+        $form['filter_fieldset']['filters'][$key]['#options'] = $options;
       }
     }
     
@@ -439,8 +441,34 @@ function redhen_contact_filter_form($form, $form_state, $entity_info) {
   return $form;
 }
 
+/**
+ * Submit handler for redhen_contact_filter_form().
+ */
 function redhen_contact_filter_form_submit($form, $form_state) {
   drupal_goto($_GET['q'], array('query' => $form_state['values']['filters']));
+}
+
+/**
+ * Callback for getting redhen_contact type options.
+ */
+function redhen_contact_get_types($entity_info) {
+  $ret = array('' => t('-- Any --'));
+  foreach($entity_info['bundles'] as $key => $bundle) {
+    $ret[$key] = $bundle['label'];
+  }
+  return $ret;
+}
+
+/**
+ * Callback for getting redhen_contact type options.
+ */
+function redhen_contact_get_statuses($entity_info) {
+  $ret = array(
+    '' => t('-- Any --'),
+    REDHEN_STATUS_ACTIVE => 'Active',
+    REDHEN_STATUS_ARCHIVED => 'Archived'    
+  );
+  return $ret;
 }
 
 /**
