@@ -446,7 +446,6 @@ function theme_redhen_email_widget($vars) {
   $element = &$vars['element'];
 
   $add_another = '<a href="#" class="add-another">' . t('add email') . '</a>';
-
   $output = '<div class="field-label"><label>' . check_plain($element['#title']) . ' ' . $add_another . '</label></div>';
   $output .= '<div class="legend"><div class="email-label-section">' . t('Address') . '</div>';
   $output .= '<div class="bulk-label">' . t('Bulk mailings?') . '</div>';
@@ -470,6 +469,10 @@ function theme_redhen_email_widget($vars) {
   return $output;
 }
 
+/**
+ * Validate the redhen email widget and set the default value for each element
+ * based on the values of the default form element.
+ */
 function redhen_fields_email_widget_validate($element, &$form_state) {
   $parents = $element['#parents'];
   $element_values = drupal_array_get_nested_value($form_state['values'], $parents);

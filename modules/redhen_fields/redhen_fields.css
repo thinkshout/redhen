@@ -7,12 +7,20 @@
 	width: 100%
 }
 
+.redhen-fields-email-formatter-row {
+  margin-bottom: 1em;
+}
+
 .field-type-redhen-email .email-address {
+  float: left;
+  width: 200px;
+}
+
+.field-type-redhen-email .email-label-section {
   float: left;
   width: 300px;
 }
 
-.field-type-redhen-email .email-label-section,
 .field-widget-redhen-email-widget .email-label-section {
   width: 400px;
   float: left;

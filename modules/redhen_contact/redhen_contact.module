@@ -141,6 +141,29 @@ function redhen_contact_menu() {
     'type' => MENU_CALLBACK,
   );
 
+  if (module_exists('devel')) {
+    $items['redhen/contact/%redhen_contact/devel'] = array(
+      'title' => 'Devel',
+      'page callback' => 'redhen_devel_load_object',
+      'page arguments' => array('redhen_contact', 2),
+      'access arguments' => array('access devel information'),
+      'type' => MENU_LOCAL_TASK,
+      'weight' => 100,
+    );
+    $items['redhen/contact/%redhen_contact/devel/load'] = array(
+      'title' => 'Load',
+      'type' => MENU_DEFAULT_LOCAL_TASK,
+    );
+    $items['redhen/contact/%redhen_contact/devel/render'] = array(
+      'title' => 'Render',
+      'page callback' => 'redhen_devel_render_object',
+      'page arguments' => array('redhen_contact', 2),
+      'access arguments' => array('access devel information'),
+      'type' => MENU_LOCAL_TASK,
+      'weight' => 100,
+    );
+  }
+
   return $items;
 }
 
@@ -150,7 +173,7 @@ function redhen_contact_menu() {
 function redhen_contact_theme() {
   return array(
     'redhen_contact' => array(
-      'variables' => array('contact' => NULL),
+      'render element' => 'elements',
       'template' => 'redhen-contact',
     ),
   );
@@ -642,7 +665,26 @@ function redhen_contact_user_delete($account) {
 /**
  * Preprocess variables for redhen-contact.tpl.php
  */
-function template_preprocess_redhen_contact(&$vars) {
-  $contact = $vars['contact'];
-  
+function template_preprocess_redhen_contact(&$variables) {
+  $variables['view_mode'] = $variables['elements']['#view_mode'];
+  $variables['contact'] = $variables['elements']['#contact'];
+  $contact = $variables['contact'];
+
+  $variables['title'] = redhen_contact_contact_title($contact);
+  $variables['first_name'] = check_plain($contact->first_name);
+  $variables['last_name'] = check_plain($contact->last_name);
+
+  $variables['first_name_label'] = t('First name:');
+  $variables['last_name_label'] = t('Last name:');
+
+  // Flatten the node object's member fields.
+  $variables = array_merge((array) $contact, $variables);
+
+  // Helpful $content variable for templates.
+  foreach (element_children($variables['elements']) as $key) {
+    $variables['content'][$key] = $variables['elements'][$key];
+  }
+
+  // Add classes based on the contact type
+  $variables['classes_array'][] = drupal_html_class('redhen-contact-' . $contact->type);
 }
