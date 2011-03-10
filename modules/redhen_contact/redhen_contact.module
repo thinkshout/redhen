@@ -151,7 +151,7 @@ function redhen_contact_menu() {
 function redhen_contact_theme() {
   return array(
     'redhen_contact' => array(
-      'variables' => array('contact' => NULL),
+      'render element' => 'elements',
       'template' => 'redhen-contact',
     ),
   );
@@ -639,6 +639,25 @@ function redhen_contact_user_delete($account) {
  * Preprocess variables for redhen-contact.tpl.php
  */
 function template_preprocess_redhen_contact(&$vars) {
+  $vars['view_mode'] = $vars['elements']['#view_mode'];
+  $vars['contact'] = $vars['elements']['#contact'];
   $contact = $vars['contact'];
-  
+
+  $vars['title'] = redhen_contact_contact_title($contact);
+  $vars['first_name'] = check_plain($contact->first_name);
+  $vars['last_name'] = check_plain($contact->last_name);
+
+  $vars['first_name_label'] = t('First name:');
+  $vars['last_name_label'] = t('Last name:');
+
+  // Flatten the node object's member fields.
+  $vars = array_merge((array) $contact, $vars);
+
+  // Helpful $content variable for templates.
+  foreach (element_children($vars['elements']) as $key) {
+    $vars['content'][$key] = $vars['elements'][$key];
+  }
+
+  // Add classes based on the contact type
+  $vars['classes_array'][] = drupal_html_class('redhen-contact-' . $contact->type);
 }
