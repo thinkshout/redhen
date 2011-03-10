@@ -461,14 +461,14 @@ function redhen_contact_filter_form($form, $form_state, $entity_info) {
       '#type' => 'select',
       '#title' => t('Contact type'),
       '#options' => $type_options,
-      '#default_value' => isset($_GET[$key]) ? $_GET[$key] : NULL,
+      '#default_value' => isset($_GET['type']) ? $_GET['type'] : NULL,
       '#ajax' => array(
-        'callback' => 'redhen_contact_get_fields_js',
+        'callback' => 'redhen_contact_get_fields_callback',
         'wrapper' => 'redhen_contact_fields_container'
       )
     );
     
-    $form['filter_fieldset']['filters']['redhen_contact_fields_container'] = array(
+    $form['filter_fieldset']['filters']['fields'] = array(
       '#prefix' => '<div id="redhen_contact_fields_container">',
       '#suffix' => '</div>'
     );
@@ -478,39 +478,39 @@ function redhen_contact_filter_form($form, $form_state, $entity_info) {
       '#value' => 'Apply'
     );
   }
+  
+  // add the fields on an ajax type change event or if a filter is being passed
+  if (!empty($form_state['values']['filters']['type']) || isset($_GET['type'])) {
+    $type = !empty($form_state['values']['filters']['type']) ? 
+      $form_state['values']['filters']['type'] : $_GET['type'];
+
+    $fields = field_info_instances('redhen_contact', $type);
+    if (!empty($fields)) {
+      $form['filter_fieldset']['filters']['fields'] = array(
+        '#type' => 'fieldset',
+        '#title' => t('Additional Fields for @type', array('@type' => $type)),
+        '#collapsible' => FALSE,
+        '#id' => 'redhen_contact_fields_container'
+      );
+      
+      foreach($fields as $key => $field) {
+        $form['filter_fieldset']['filters']['fields'][$key] = array(
+          '#type' => 'textfield',
+          '#title' => $field['label'],
+          '#default_value' => isset($_GET['fields'][$key]) ? $_GET['fields'][$key] : NULL,
+        );
+      }    
+    }
+  }  
 
   return $form;
 }
 
 /**
- * AJAX callback to return field for a given contact type
+ * AJAX callback to return fields for a given type.
  */
-function redhen_contact_get_fields_js($form, $form_state) {
-  $form = array(
-    '#prefix' => '<div id="redhen_contact_fields_container">',
-    '#suffix' => '</div>'
-  );
-  
-  $type = $form_state['values']['filters']['type'];
-  
-  $fields = field_info_instances('redhen_contact', $type);
-  if (!empty($fields)) {
-    $form['fields'] = array(
-      '#type' => 'fieldset',
-      '#title' => t('Additional Fields for @type', array('@type' => $type)),
-      '#collapsible' => FALSE,
-      '#id' => 'redhen_contact_fields_container'
-    );
-    
-    foreach($fields as $key => $field) {
-      $form['fields'][$key] = array(
-        '#type' => 'textfield',
-        '#title' => $field['label']
-      );
-    }    
-  }
-  
-  return $form;
+function redhen_contact_get_fields_callback($form, $form_state) {
+  return $form['filter_fieldset']['filters']['fields'];
 }
 
 /**
