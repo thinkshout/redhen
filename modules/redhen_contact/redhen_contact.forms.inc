@@ -22,7 +22,8 @@ function redhen_contact_contact_form($form, &$form_state, $contact) {
   $form_state['build_info']['files']['form'] = drupal_get_path('module', 'redhen_contact') . '/redhen_contact.forms.inc';
 
   // Add the default field elements.
-  $form['first_name'] = array(
+  $form['name'] = array();
+  $form['name']['first_name'] = array(
     '#type' => 'textfield',
     '#title' => t('First name'),
     '#default_value' => $contact->first_name,
@@ -30,7 +31,7 @@ function redhen_contact_contact_form($form, &$form_state, $contact) {
     '#required' => TRUE,
     '#weight' => -6,
   );
-  $form['last_name'] = array(
+  $form['name']['last_name'] = array(
     '#type' => 'textfield',
     '#title' => t('Last name'),
     '#default_value' => $contact->last_name,

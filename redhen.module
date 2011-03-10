@@ -42,9 +42,57 @@ function redhen_devel_load_object($type, $object, $name = NULL) {
   }
 }
 
+/**
+ * Wrapper function for devel_render_object which is in an include file.
+ */
 function redhen_devel_render_object($type, $object, $name = NULL) {
   if (module_exists('devel')) {
     module_load_include('inc', 'devel', 'devel.pages');
     return devel_render_object($type, $object, $name);
   }
+}
+
+/**
+ * Implements hook_theme().
+ */
+function redhen_theme() {
+  return array(
+    'redhen_property_field' => array(
+      'variables' => array(
+        'label_hidden' => FALSE,
+        'title_attributes' => NULL,
+        'label' => '',
+        'content_attributes' => NULL,
+        'items' => array(),
+        'item_attributes' => array(),
+        'classes' => '',
+        'attributes' => '',
+      )
+    ),
+  );
+}
+
+/**
+ * Helper function to theme redhen properties
+ */
+function theme_redhen_property_field($variables) {
+  $output = '';
+
+  // Render the label, if it's not hidden.
+  if (!$variables['label_hidden']) {
+    $output .= '<div class="field-label"' . $variables['title_attributes'] . '>' . $variables['label'] . ':&nbsp;</div>';
+  }
+
+  // Render the items.
+  $output .= '<div class="field-items"' . $variables['content_attributes'] . '>';
+  foreach ($variables['items'] as $delta => $item) {
+    $classes = 'field-item ' . ($delta % 2 ? 'odd' : 'even');
+    $output .= '<div class="' . $classes . '"' . $variables['item_attributes'] . '>' . drupal_render($item) . '</div>';
+  }
+  $output .= '</div>';
+
+  // Render the top-level DIV.
+  $output = '<div class="' . $variables['classes'] . '"' . $variables['attributes'] . '>' . $output . '</div>';
+
+  return $output;
 }

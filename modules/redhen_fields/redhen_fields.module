@@ -300,6 +300,7 @@ function redhen_fields_field_formatter_view($entity_type, $entity, $field, $inst
 
   switch ($display['type']) {
     case 'redhen_email_formatter':
+      $element['#theme'] = 'field__redhen_fields_email_formatter';
       foreach ($items as $delta => $item) {
         $output = theme('redhen_fields_email_formatter_row', array('item' => $item, 'delta' => $delta));
         $element[$delta] = array('#markup' => $output);
@@ -322,6 +323,9 @@ function redhen_fields_theme($existing, $type, $theme, $path) {
     'redhen_fields_email_formatter_row' => array(
       'variables' => array('item' => NULL, 'delta' => NULL),
       'template' => 'redhen-fields-email-formatter-row',
+    ),
+    'field__redhen_fields_email_formatter' => array(
+      'render element' => 'element',
     ),
   );
 }
@@ -494,4 +498,122 @@ function redhen_fields_email_widget_validate($element, &$form_state) {
       }
     }
   }
+}
+
+/**
+ * Preprocess variables for redhen-fields-email-formatter-row.tpl.php
+ */
+function template_preprocess_redhen_fields_email_formatter_row(&$variables) {
+  $item = $variables['item'];
+
+  $image = theme('image', array('path' => '/misc/watchdog-ok.png', 'alt' => t('Enabled')));
+
+  $variables['default'] = ($item['default']) ? $image : '&nbsp;';
+  $variables['hold'] = ($item['hold']) ? $image : '&nbsp;';
+  $variables['bulk'] = ($item['bulk']) ? $image : '&nbsp;';
+}
+
+
+/**
+ * Theme preprocess function for theme_field__redhen_fields_email_formatter().
+ *
+ * @see theme_field__redhen_fields_email_formatter()
+ */
+function template_preprocess_field__redhen_fields_email_formatter(&$variables, $hook) {
+  $element = $variables['element'];
+
+  // There's some overhead in calling check_plain() so only call it if the label
+  // variable is being displayed. Otherwise, set it to NULL to avoid PHP
+  // warnings if a theme implementation accesses the variable even when it's
+  // supposed to be hidden. If a theme implementation needs to print a hidden
+  // label, it needs to supply a preprocess function that sets it to the
+  // sanitized element title or whatever else is wanted in its place.
+  $variables['label_hidden'] = ($element['#label_display'] == 'hidden');
+  $variables['label'] = $variables['label_hidden'] ? NULL : check_plain($element['#title']);
+
+  // We want other preprocess functions and the theme implementation to have
+  // fast access to the field item render arrays. The item render array keys
+  // (deltas) should always be a subset of the keys in #items, and looping on
+  // those keys is faster than calling element_children() or looping on all keys
+  // within $element, since that requires traversal of all element properties.
+  $variables['items'] = array();
+  foreach ($element['#items'] as $delta => $item) {
+    if (!empty($element[$delta])) {
+      $variables['items'][$delta] = $element[$delta];
+    }
+  }
+
+  // Add default CSS classes. Since there can be many fields rendered on a page,
+  // save some overhead by calling strtr() directly instead of
+  // drupal_html_class().
+  $variables['field_name_css'] = strtr($element['#field_name'], '_', '-');
+  $variables['field_type_css'] = strtr($element['#field_type'], '_', '-');
+  $variables['classes_array'] = array(
+    'field',
+    'field-name-' . $variables['field_name_css'],
+    'field-type-' . $variables['field_type_css'],
+    'field-label-' . $element['#label_display'],
+  );
+  // Add a "clearfix" class to the wrapper since we float the label and the
+  // field items in field.css if the label is inline.
+  if ($element['#label_display'] == 'inline') {
+    $variables['classes_array'][] = 'clearfix';
+  }
+
+  // Add specific suggestions that can override the default implementation.
+  $variables['theme_hook_suggestions'] = array(
+    'field__' . $element['#field_type'],
+    'field__' . $element['#field_name'],
+    'field__' . $element['#bundle'],
+    'field__' . $element['#field_name'] . '__' . $element['#bundle'],
+  );
+}
+
+/**
+ * Theme process function for theme_field__redhen_fields_email_formatter().
+ *
+ * @see theme_field__redhen_fields_email_formatter()
+ */
+function template_process_field__redhen_fields_email_formatter(&$variables, $hook) {
+  // The default theme implementation is a function, so template_process() does
+  // not automatically run, so we need to flatten the classes and attributes
+  // here. For best performance, only call drupal_attributes() when needed, and
+  // note that template_preprocess_field() does not initialize the
+  // *_attributes_array variables.
+  $variables['classes'] = implode(' ', $variables['classes_array']);
+  $variables['attributes'] = empty($variables['attributes_array']) ? '' : drupal_attributes($variables['attributes_array']);
+  $variables['title_attributes'] = empty($variables['title_attributes_array']) ? '' : drupal_attributes($variables['title_attributes_array']);
+  $variables['content_attributes'] = empty($variables['content_attributes_array']) ? '' : drupal_attributes($variables['content_attributes_array']);
+  foreach ($variables['items'] as $delta => $item) {
+    $variables['item_attributes'][$delta] = empty($variables['item_attributes_array'][$delta]) ? '' : drupal_attributes($variables['item_attributes_array'][$delta]);
+  }
+}
+
+/**
+ * Theme function for redhen_email field formatter
+ */
+function theme_field__redhen_fields_email_formatter($variables) {
+  $output = '';
+
+  // Render the label, if it's not hidden.
+  if (!$variables['label_hidden']) {
+    $output .= '<div class="field-label"' . $variables['title_attributes'] . '>' . $variables['label'] . ':&nbsp;</div>';
+  }
+
+  $output .= '<div class="legend"><div class="email-label-section">' . t('Address') . '</div>';
+  $output .= '<div class="bulk-label">' . t('Bulk mailings?') . '</div>';
+  $output .= '<div class="hold-label">' . t('On hold?') . '</div>';
+  $output .= '<div class="primary-label">' . t('Primary') . '</div></div>';
+  // Render the items.
+  $output .= '<div class="field-items"' . $variables['content_attributes'] . '>';
+  foreach ($variables['items'] as $delta => $item) {
+    $classes = 'field-item ' . ($delta % 2 ? 'odd' : 'even');
+    $output .= '<div class="' . $classes . '"' . $variables['item_attributes'][$delta] . '>' . drupal_render($item) . '</div>';
+  }
+  $output .= '</div>';
+
+  // Render the top-level DIV.
+  $output = '<div class="' . $variables['classes'] . '"' . $variables['attributes'] . '>' . $output . '</div>';
+
+  return $output;
 }

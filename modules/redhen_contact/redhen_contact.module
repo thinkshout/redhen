@@ -43,10 +43,12 @@ function redhen_contact_entity_info() {
         'first_name' => array(
           'title' => t('First name'),
           'type' => 'textfield',
+          'required' => TRUE,
         ),
         'last_name' => array(
           'title' => t('Last name'),
           'type' => 'textfield',
+          'required' => TRUE,
         ),
         'status' => array(
           'title' => t('Status'),
@@ -324,7 +326,6 @@ function redhen_contact_build_content($contact, $langcode) {
   // Populate $contact->content with a render() array.
   // Remove previously built content, if it exists.
   $contact->content = array();
-
 
   // Build fields content.
   field_attach_prepare_view('redhen_contact', array($contact->contact_id => $contact), 'full');
@@ -693,11 +694,29 @@ function template_preprocess_redhen_contact(&$variables) {
   $contact = $variables['contact'];
 
   $variables['title'] = redhen_contact_contact_title($contact);
-  $variables['first_name'] = check_plain($contact->first_name);
-  $variables['last_name'] = check_plain($contact->last_name);
+  $variables['first_name'] = theme('redhen_property_field',
+    array(
+      'label' => t('First Name'),
+      'items' => array(
+        1 => array(
+          '#markup' => check_plain($contact->first_name)
+        )
+      ),
+      'classes' => 'field property-first-name field-label-inline clearfix',
+    )
+  );
+  $variables['last_name'] = theme('redhen_property_field',
+    array(
+      'label' => t('Last Name'),
+      'items' => array(
+        1 => array(
+          '#markup' => check_plain($contact->last_name)
+        )
+      ),
+      'classes' => 'field property-last-name field-label-inline clearfix',
+    )
+  );
 
-  $variables['first_name_label'] = t('First name:');
-  $variables['last_name_label'] = t('Last name:');
 
   // Flatten the node object's member fields.
   $variables = array_merge((array) $contact, $variables);
@@ -709,4 +728,25 @@ function template_preprocess_redhen_contact(&$variables) {
 
   // Add classes based on the contact type
   $variables['classes_array'][] = drupal_html_class('redhen-contact-' . $contact->type);
+}
+
+/**
+ * Implements hook_field_extra_fields().
+ */
+function redhen_contact_field_extra_fields() {
+  $extra = array();
+
+  foreach (entity_manager_types('redhen_contact') as $type) {
+    $extra['redhen_contact'][$type->type] = array(
+      'form' => array(
+        'name' => array(
+          'label' => t('Contact name'),
+          'description' => t('RedHen contact element'),
+          'weight' => -5,
+        ),
+      ),
+    );
+  }
+
+  return $extra;
 }
