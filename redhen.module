@@ -38,6 +38,13 @@ function redhen_menu() {
 function redhen_devel_load_object($type, $object, $name = NULL) {
   if (module_exists('devel')) {
     module_load_include('inc', 'devel', 'devel.pages');
-    return devel_load_object($type, $object, $name) ;
+    return devel_load_object($type, $object, $name);
+  }
+}
+
+function redhen_devel_render_object($type, $object, $name = NULL) {
+  if (module_exists('devel')) {
+    module_load_include('inc', 'devel', 'devel.pages');
+    return devel_render_object($type, $object, $name);
   }
 }

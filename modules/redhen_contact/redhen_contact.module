@@ -151,6 +151,18 @@ function redhen_contact_menu() {
       'type' => MENU_LOCAL_TASK,
       'weight' => 100,
     );
+    $items['redhen/contact/%redhen_contact/devel/load'] = array(
+      'title' => 'Load',
+      'type' => MENU_DEFAULT_LOCAL_TASK,
+    );
+    $items['redhen/contact/%redhen_contact/devel/render'] = array(
+      'title' => 'Render',
+      'page callback' => 'redhen_devel_render_object',
+      'page arguments' => array('redhen_contact', 2),
+      'access arguments' => array('access devel information'),
+      'type' => MENU_LOCAL_TASK,
+      'weight' => 100,
+    );
   }
 
   return $items;
