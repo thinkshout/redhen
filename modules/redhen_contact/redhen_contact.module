@@ -452,7 +452,7 @@ function redhen_contact_filter_form($form, $form_state, $entity_info) {
       }
     }
     
-    // add type
+    // add contact type; will load additional field filters on change
     $type_options = array('' => t('-- Any --'));
     foreach($entity_info['bundles'] as $key => $bundle) {
       $type_options[$key] = $bundle['label'];
@@ -463,14 +463,14 @@ function redhen_contact_filter_form($form, $form_state, $entity_info) {
       '#options' => $type_options,
       '#default_value' => isset($_GET[$key]) ? $_GET[$key] : NULL,
       '#ajax' => array(
-        'callback' => 'redhen_contact_get_fields',
+        'callback' => 'redhen_contact_get_fields_js',
         'wrapper' => 'redhen_contact_fields_container'
       )
     );
-
-    $form['redhen_contact_fields_container'] = array(
-      '#type' => 'container',
-      '#id' => 'redhen_contact_fields_container'
+    
+    $form['filter_fieldset']['filters']['redhen_contact_fields_container'] = array(
+      '#prefix' => '<div id="redhen_contact_fields_container">',
+      '#suffix' => '</div>'
     );
     
     $form['filter_fieldset']['submit'] = array(
@@ -482,11 +482,33 @@ function redhen_contact_filter_form($form, $form_state, $entity_info) {
   return $form;
 }
 
-function redhen_contact_get_fields($form, $form_state) {
-  $form = array();
-  $type = $form_state['values']['type'];
+/**
+ * AJAX callback to return field for a given contact type
+ */
+function redhen_contact_get_fields_js($form, $form_state) {
+  $form = array(
+    '#prefix' => '<div id="redhen_contact_fields_container">',
+    '#suffix' => '</div>'
+  );
   
+  $type = $form_state['values']['filters']['type'];
   
+  $fields = field_info_instances('redhen_contact', $type);
+  if (!empty($fields)) {
+    $form['fields'] = array(
+      '#type' => 'fieldset',
+      '#title' => t('Additional Fields for @type', array('@type' => $type)),
+      '#collapsible' => FALSE,
+      '#id' => 'redhen_contact_fields_container'
+    );
+    
+    foreach($fields as $key => $field) {
+      $form['fields'][$key] = array(
+        '#type' => 'textfield',
+        '#title' => $field['label']
+      );
+    }    
+  }
   
   return $form;
 }
