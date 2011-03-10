@@ -142,6 +142,17 @@ function redhen_contact_menu() {
     'type' => MENU_CALLBACK,
   );
 
+  if (module_exists('devel')) {
+    $items['redhen/contact/%redhen_contact/devel'] = array(
+      'title' => 'Devel',
+      'page callback' => 'redhen_devel_load_object',
+      'page arguments' => array('redhen_contact', 2),
+      'access arguments' => array('access devel information'),
+      'type' => MENU_LOCAL_TASK,
+      'weight' => 100,
+    );
+  }
+
   return $items;
 }
 

@@ -31,3 +31,13 @@ function redhen_menu() {
 
   return $items;
 }
+
+/**
+ * Wrapper for devel_load_object which is in an include file.
+ */
+function redhen_devel_load_object($type, $object, $name = NULL) {
+  if (module_exists('devel')) {
+    module_load_include('inc', 'devel', 'devel.pages');
+    return devel_load_object($type, $object, $name) ;
+  }
+}
