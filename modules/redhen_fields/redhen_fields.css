@@ -7,6 +7,11 @@
 	width: 100%
 }
 
+.field-type-redhen-email .legend {
+  font-weight: bold;
+  font-size: .85em;
+}
+
 .redhen-fields-email-formatter-row {
   margin-bottom: 1em;
 }

@@ -11,8 +11,8 @@
     <div class="email-address"><?php print check_plain($item['value']) ?></div>
     <?php print check_plain($item['label']) ?>
   </div>
-  <div class="bulk-label"><?php print $item['bulk'] ?></div>
-  <div class="hold-label"><?php print $item['hold'] ?></div>
-  <div class="primary-label"><?php print $item['default'] ?></div>
+  <div class="bulk-label"><?php print $bulk ?></div>
+  <div class="hold-label"><?php print $hold ?></div>
+  <div class="primary-label"><?php print $default ?></div>
 
 </div>
