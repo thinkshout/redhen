@@ -374,25 +374,33 @@ function redhen_contact_page() {
     'last_name' => array('field' => 'last_name', 'type' => 'property', 'data' => 'Last Name', 'sort' => 'asc', 'specifier' => 'last_name'),
     'Actions',
   );
-  
+    
   // build the query
   $query
     ->entityCondition('entity_type', 'redhen_contact', '=')
     ->tablesort($header)
     ->pager(10);
-    
-  // add prop filters
-  $entity_info = entity_get_info('redhen_contact');
-  foreach($entity_info['properties'] as $key => $prop) {
-    if (isset($_GET[$key]) && $_GET[$key] !== '') {
-      $query->propertyCondition($key, $_GET[$key], '=');
+
+  // set the contact type
+  if (isset($_GET['type']) && !empty($_GET['type'])) {
+    $query->propertyCondition('type', $_GET['type'], '=');
+  }
+  
+  // add prop filters  
+  if (isset($_GET['properties'])) {
+    foreach($_GET['properties'] as $key => $value) {
+      if (!empty($value)) {
+        $query->propertyCondition($key, $value, '=');
+      }
     }
   }
   
   // add field filters
   if (isset($_GET['fields'])) {
     foreach($_GET['fields'] as $key => $value) {
-      $query->fieldCondition($key, NULL, $value, '=');
+      if (!empty($value)) {
+        $query->fieldCondition($key, NULL, $value, '=');
+      }
     }
   }
 
@@ -420,7 +428,8 @@ function redhen_contact_page() {
       'data' => array(array('data' => t('Sorry, there are no contacts that match your criteria.'), 'colspan' => 3))
     );
   }
-
+  
+  $entity_info = entity_get_info('redhen_contact');
   $form = drupal_get_form('redhen_contact_filter_form', $entity_info);
 
   // return a themed table
@@ -439,7 +448,7 @@ function redhen_contact_filter_form($form, $form_state, $entity_info) {
       '#title' => t('Filters'),
       '#collapsible' => TRUE,
       // expand fieldset if the list was filtered
-      '#collapsed' => count(array_intersect_key($entity_info['properties'], $_GET)) == 0
+      '#collapsed' => (empty($_GET['properties']) && empty($_GET['fields']))
     );
 
     $form['filter_fieldset']['filters'] = array(
@@ -447,16 +456,20 @@ function redhen_contact_filter_form($form, $form_state, $entity_info) {
       '#tree' => TRUE
     );
 
+    $form['filter_fieldset']['filters']['properties'] = array(
+      '#type' => 'container',
+    );
+    
     // add a form field for each property
     foreach($entity_info['properties'] as $key => $prop) {
-      $form['filter_fieldset']['filters'][$key] = array(
+      $form['filter_fieldset']['filters']['properties'][$key] = array(
         '#type' => $prop['type'],
         '#title' => $prop['title'],
         '#default_value' => isset($_GET[$key]) ? $_GET[$key] : NULL
       );
       
       if ($prop['type'] == 'select' && !empty($prop['options'])) {
-        $form['filter_fieldset']['filters'][$key]['#options'] = $prop['options'];
+        $form['filter_fieldset']['filters']['properties'][$key]['#options'] = $prop['options'];
       }
     }
     
