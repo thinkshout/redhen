@@ -381,11 +381,18 @@ function redhen_contact_page() {
     ->tablesort($header)
     ->pager(10);
     
-  // add filters
+  // add prop filters
   $entity_info = entity_get_info('redhen_contact');
   foreach($entity_info['properties'] as $key => $prop) {
     if (isset($_GET[$key]) && $_GET[$key] !== '') {
       $query->propertyCondition($key, $_GET[$key], '=');
+    }
+  }
+  
+  // add field filters
+  if (isset($_GET['fields'])) {
+    foreach($_GET['fields'] as $key => $value) {
+      $query->fieldCondition($key, NULL, $value, '=');
     }
   }
 
@@ -476,7 +483,14 @@ function redhen_contact_filter_form($form, $form_state, $entity_info) {
     
     $form['filter_fieldset']['submit'] = array(
       '#type' => 'submit',
-      '#value' => 'Apply'
+      '#value' => t('Apply')
+    );
+    
+    $form['filter_fieldset']['reset'] = array(
+      '#type' => 'submit',
+      '#value' => t('Reset'),
+      '#limit_validation_errors' => array(),
+      '#submit' => array('redhen_contact_filter_form_reset')
     );
   }
   
@@ -519,6 +533,10 @@ function redhen_contact_get_fields_callback($form, $form_state) {
  */
 function redhen_contact_filter_form_submit($form, $form_state) {
   drupal_goto($_GET['q'], array('query' => $form_state['values']['filters']));
+}
+
+function redhen_contact_filter_form_reset() {
+  drupal_goto('redhen/contact');
 }
 
 /**
