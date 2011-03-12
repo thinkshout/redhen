@@ -5,8 +5,16 @@
  * Forms for creating, editing, and deleting contacts.
  */
 
-function redhen_contact_add_page() {
-  $contact = entity_get_controller('redhen_contact')->create('default');
+/**
+ * Return a form for adding a contact.
+ *
+ * @param string $type 
+ *   The type of contact to return a form for.
+ */
+function redhen_contact_add_page($type = 'default') {
+  $entity_info = entity_get_info('redhen_contact');
+  $contact = entity_get_controller('redhen_contact')->create($type);
+  drupal_set_title(t('Create @type', array('@type' => $entity_info['bundles'][$type]['label'])));
   return drupal_get_form('redhen_contact_contact_form', $contact);
 }
 
