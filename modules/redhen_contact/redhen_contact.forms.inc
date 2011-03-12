@@ -12,9 +12,20 @@
  *   The type of contact to return a form for.
  */
 function redhen_contact_add_page($type = 'default') {
-  $entity_info = entity_get_info('redhen_contact');
+  $item = menu_get_item();
+  $content = system_admin_menu_block($item);
+
+  // Bypass the rehen_contact/add listing if only one contact type is available.
+  if (count($content) == 1) {
+    $item = array_shift($content);
+    drupal_goto($item['href']);
+  }
+  return theme('redhen_contact_add_list', array('content' => $content));
+  
+}
+
+function redhen_contact_add($type) {
   $contact = entity_get_controller('redhen_contact')->create($type);
-  drupal_set_title(t('Create @type', array('@type' => $entity_info['bundles'][$type]['label'])));
   return drupal_get_form('redhen_contact_contact_form', $contact);
 }
 
@@ -171,4 +182,31 @@ function redhen_contact_contact_delete_form_submit($form, &$form_state) {
   else {
     drupal_set_message(t('%title could not be deleted.', array('%title' => $title)), 'error');
   }
+}
+
+/**
+ * Returns HTML for a list of available node types for node creation.
+ *
+ * @param $variables
+ *   An associative array containing:
+ *   - content: An array of content types.
+ *
+ * @ingroup themeable
+ */
+function theme_redhen_contact_add_list($variables) {
+  $content = $variables['content'];
+  $output = '';
+
+  if ($content) {
+    $output = '<dl class="node-type-list">';
+    foreach ($content as $item) {
+      $output .= '<dt>' . l($item['title'], $item['href'], $item['localized_options']) . '</dt>';
+      $output .= '<dd>' . filter_xss_admin($item['description']) . '</dd>';
+    }
+    $output .= '</dl>';
+  }
+  else {
+    $output = '<p>' . t('You have not created any contact types yet. Go to the <a href="@create-content">content type creation page</a> to add a new content type.', array('@create-content' => url('admin/structure/redhen/contact-types'))) . '</p>';
+  }
+  return $output;
 }

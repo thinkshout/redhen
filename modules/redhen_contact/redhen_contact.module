@@ -95,8 +95,23 @@ function redhen_contact_menu() {
     'access callback' => 'redhen_contact_access',
     'access arguments' => array('create'),
     'file' => 'redhen_contact.forms.inc',
-    'type' => MENU_LOCAL_ACTION,
+    'type' => MENU_NORMAL_ITEM,
   );
+  
+  $entity_info = entity_get_info('redhen_contact');
+  foreach($entity_info['bundles'] as $key => $bundle) {
+    $type_url_str = str_replace('_', '-', $key);
+    $items['redhen/contact/add/' . $type_url_str] = array(
+      'title' => $bundle['label'],
+      'title callback' => 'check_plain',
+      'description' => isset($bundle['description']) ? $bundle['description'] : '',
+      'page callback' => 'redhen_contact_add',
+      'page arguments' => array($key),
+      'access callback' => 'redhen_contact_access',
+      'access arguments' => array('create'),
+      'file' => 'redhen_contact.forms.inc',
+    );
+  }  
 
   $items['redhen/contact/%redhen_contact'] = array(
     'title callback' => 'redhen_contact_contact_title',
@@ -178,6 +193,10 @@ function redhen_contact_theme() {
       'render element' => 'elements',
       'template' => 'redhen-contact',
     ),
+    'redhen_contact_add_list' => array(
+      'variables' => array('content' => NULL),
+      'file' => 'redhen_contact.forms.inc',      
+    )
   );
 }
 
