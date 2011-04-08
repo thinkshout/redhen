@@ -708,7 +708,7 @@ function redhen_contact_tokens($type, $tokens, $data = array(), $options = array
 }
 
 /**
- * Implements hook_redhen_contact_info().
+ * Implements hook_ENTITY_TYPE_info().
  */
 function redhen_contact_redhen_contact_info() {
   $contact_type = entity_manager_bundle_type_new('redhen_contact');
