@@ -873,3 +873,29 @@ class RedhenContactTypeUIController extends EntityDefaultUIController {
 function redhen_contact_type_access($op, $type = NULL, $account = NULL) {
   return user_access('administer redhen_contact types', $account);
 }
+
+/**
+ * Menu argument loader; Load a registration type by string.
+ *
+ * @param $type
+ *   The machine-readable name of a registration type to load.
+ * @return
+ *   A registration type array or FALSE if $type does not exist.
+ */
+function redhen_contact_type_load($type) {
+  return redhen_contact_get_types($type);
+}
+
+/**
+ * Saves a model type to the db.
+ */
+function redhen_contact_type_save(RedhenContactType $type) {
+  $type->save();
+}
+
+/**
+ * Deletes a model type from the db.
+ */
+function redhen_contact_type_delete(RedhenContactType $type) {
+  $type->delete();
+}
