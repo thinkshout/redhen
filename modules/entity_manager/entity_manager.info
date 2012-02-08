@@ -1,6 +1,0 @@
-; $Id$
-name = Entity Manager
-description = Provides an API for managing entities, their bundles and fields.
-package = CRM
-dependencies[] = field_ui
-core = 7.x

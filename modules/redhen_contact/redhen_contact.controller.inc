@@ -8,7 +8,7 @@
  * The controller class for contacts contains methods for the contact CRUD
  * operations. The load method is inherited from the default controller.
  */
-class RedhenContactEntityController extends DrupalDefaultEntityController {
+class RedhenContactEntityController extends EntityAPIController {
 
   /**
    * Create a default contact.
@@ -19,12 +19,10 @@ class RedhenContactEntityController extends DrupalDefaultEntityController {
    * @return
    *   A contact object with all default fields initialized.
    */
-  public function create($type = '') {
-    return (object) array(
+  public function create(array $values = array()) {
+    $values += array(
       'contact_id' => '',
       'revision_id' => '',
-      'is_new' => TRUE,
-      'type' => $type,
       'first_name' => '',
       'last_name' => '',
       'user_uid' => '',
@@ -33,6 +31,7 @@ class RedhenContactEntityController extends DrupalDefaultEntityController {
       'created' => '',
       'changed' => '',
     );
+    return parent::create($values);
   }
 
   /**
@@ -49,9 +48,6 @@ class RedhenContactEntityController extends DrupalDefaultEntityController {
 
     try {
       $contact->updated = REQUEST_TIME;
-
-      // give modules the opportunity to alter contact data for saving.
-      module_invoke_all('redhen_contact_persave', $contact);
 
       // Give modules the opportunity to prepare field data for saving.
       field_attach_presave('redhen_contact', $contact);      

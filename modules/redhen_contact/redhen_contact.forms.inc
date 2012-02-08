@@ -21,11 +21,10 @@ function redhen_contact_add_page($type = 'default') {
     drupal_goto($item['href']);
   }
   return theme('redhen_contact_add_list', array('content' => $content));
-  
 }
 
 function redhen_contact_add($type) {
-  $contact = entity_get_controller('redhen_contact')->create($type);
+  $contact = entity_get_controller('redhen_contact')->create(array('type' => $type));
   return drupal_get_form('redhen_contact_contact_form', $contact);
 }
 

@@ -17,6 +17,7 @@ function redhen_contact_entity_info() {
     'redhen_contact' => array(
       'label' => t('Contact'),
       'controller class' => 'RedhenContactEntityController',
+      'entity class' => 'RedhenContact',
       'base table' => 'redhen_contact',
       'revision table' => 'redhen_contact_revision',
       'fieldable' => TRUE,
@@ -38,39 +39,52 @@ function redhen_contact_entity_info() {
       ),
       'uri callback' => 'redhen_contact_uri',
       'token type' => 'redhen_contact',
-      'managed' => TRUE,      
-      'properties' => array(
-        'first_name' => array(
-          'title' => t('First name'),
-          'type' => 'textfield',
-          'required' => TRUE,
-        ),
-        'last_name' => array(
-          'title' => t('Last name'),
-          'type' => 'textfield',
-          'required' => TRUE,
-        ),
-        'status' => array(
-          'title' => t('Status'),
-          'type' => 'select',
-          'options' => array(
-            '' => t('-- Any --'),
-            REDHEN_STATUS_ACTIVE => 'Active',
-            REDHEN_STATUS_ARCHIVED => 'Archived'            
-          )
-        ),
-        //'user' => t('Drupal user')
+      'module' => 'redhen_contact',
+    ),
+    'redhen_contact_type' => array(
+      'label' => t('Contact type'),
+      'entity class' => 'RedhenContactType',
+      'controller class' => 'EntityAPIControllerExportable',
+      'base table' => 'redhen_contact_type',
+      'fieldable' => FALSE,
+      'bundle of' => 'redhen_contact',
+      'exportable' => TRUE,
+      'entity keys' => array(
+        'id' => 'id',
+        'name' => 'name',
+        'label' => 'label',
       ),
-      // The following lines are part of entity_manager integration, do we want to keep this?
-      'managed options' => array(
-        'bundles' => array(
-          'path' => 'admin/structure/redhen/contact-types',
-          'bundle argument' => 4,
-          'field ui' => TRUE,
-        ),
+      'access callback' => 'redhen_contact_type_access',
+      'module' => 'redhen_contact',
+      // Enable the entity API's admin UI.
+      'admin ui' => array(
+        'path' => 'admin/structure/redhen_contact_types',
+        'file' => 'redhen_contact_type.admin.inc',
+        'file path' => drupal_get_path('module', 'redhen_contact') . '/includes',
+        'controller class' => 'RedhenContactTypeUIController',
       ),
     ),
   );
+}
+
+/**
+ * Implements hook_entity_info_alter().
+ *
+ * We are adding the info about the registration types via a hook to avoid a recursion
+ * issue as loading the model types requires the entity info as well.
+ */
+function redhen_contact_entity_info_alter(&$entity_info) {
+  foreach (redhen_contact_get_types() as $type => $info) {
+    $entity_info['redhen_contact']['bundles'][$type] = array(
+      'label' => $info->label,
+      'admin' => array(
+        'path' => 'admin/structure/redhen_contact_types/manage/%registration_type',
+        'real path' => 'admin/structure/redhen_contact_types/manage/' . $type,
+        'bundle argument' => 4,
+        'access arguments' => array('administer redhen_contact types'),
+      ),
+    );
+  }
 }
 
 /**
@@ -363,10 +377,8 @@ function redhen_contact_build_content($contact, $langcode) {
  *   A loaded contact object.
  * @return void
  */
-function redhen_contact_contact_title($contact) {
-  $bundle = entity_manager_type_load($contact->type, 'redhen_contact');
-  $title = token_replace($bundle->title_pattern, array('redhen-contact' => $contact), array('sanitize' => FALSE));
-  return check_plain($title);
+function redhen_contact_contact_title(RedhenContact $contact) {
+  return $contact->label();
 }
 
 /**
@@ -786,8 +798,8 @@ function template_preprocess_redhen_contact(&$variables) {
 function redhen_contact_field_extra_fields() {
   $extra = array();
 
-  foreach (entity_manager_types('redhen_contact') as $type) {
-    $extra['redhen_contact'][$type->type] = array(
+  foreach (redhen_contact_get_types() as $type => $contact_type) {
+    $extra['redhen_contact'][$type] = array(
       'form' => array(
         'name' => array(
           'label' => t('Contact name'),
@@ -799,4 +811,65 @@ function redhen_contact_field_extra_fields() {
   }
 
   return $extra;
+}
+
+/**
+ * Gets an array of all contact types, keyed by the name.
+ *
+ * @param $name
+ *   If set, the type with the given name is returned.
+ */
+function redhen_contact_get_types($name = NULL) {
+  $types = entity_load_multiple_by_name('redhen_contact_type', isset($name) ? array($name) : FALSE);
+  return isset($name) ? reset($types) : $types;
+}
+
+/**
+ * The class used for contact entities.
+ */
+class RedhenContact extends Entity {
+
+  public function __construct($values = array()) {
+    parent::__construct($values, 'redhen_contact');
+  }
+
+}
+
+/**
+ * The class used for model type entities
+ */
+class RedhenContactType extends Entity {
+
+  public $name;
+  public $label;
+  public $locked;
+
+  public function __construct($values = array()) {
+    parent::__construct($values, 'redhen_contact_type');
+  }
+
+}
+
+/**
+ * Redhen Contact Type UI controller.
+ */
+class RedhenContactTypeUIController extends EntityDefaultUIController {
+
+  /**
+   * Overrides hook_menu() defaults.
+   */
+  public function hook_menu() {
+    $items = parent::hook_menu();
+		$items[$this->path]['description'] = 'Manage contact entity types, including
+		  adding and removing fields and the display of fields.';
+    return $items;
+  }
+
+}
+
+/**
+ * Access callback for the entity API.
+ */
+function redhen_contact_type_access($op, $type = NULL, $account = NULL) {
+  return user_access('administer redhen_contact types', $account);
 }
