@@ -39,6 +39,7 @@ function redhen_contact_entity_info() {
       'uri callback' => 'redhen_contact_uri',
       'token type' => 'redhen_contact',
       'module' => 'redhen_contact',
+      'label callback' => 'entity_class_label'
     ),
     'redhen_contact_type' => array(
       'label' => t('Contact type'),
@@ -619,7 +620,7 @@ class RedhenContact extends Entity {
   }
 
   /**
-   * Override buildContent() to add registration properties.
+   * Override buildContent() to add contact properties.
    */
   public function buildContent($view_mode = 'full', $langcode = NULL) {
     $content['name'] = array(
@@ -641,8 +642,8 @@ class RedhenContact extends Entity {
    * Specifies the default label, which is picked up by label() by default.
    */
   protected function defaultLabel() {
-    $type = redhen_contact_get_types($this->name);
-    return $type->label;
+    $type = redhen_contact_get_types($this->type);
+    return $type->label . ': ' . $this->first_name . ' ' . $this->last_name;
   }
 
 }
