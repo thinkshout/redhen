@@ -204,10 +204,6 @@ function redhen_contact_menu() {
  */
 function redhen_contact_theme() {
   return array(
-    'redhen_contact' => array(
-      'render element' => 'elements',
-      'template' => 'redhen-contact',
-    ),
     'redhen_contact_add_list' => array(
       'variables' => array('content' => NULL),
       'file' => 'redhen_contact.forms.inc',      
@@ -331,8 +327,8 @@ function redhen_contact_access($op, $contact = NULL, $account = NULL) {
  *   A Fully loaded contact object.
  * @return void
  */
-function redhen_contact_view($contact) {
-  return entity_build_content('redhen_contact', $contact);
+function redhen_contact_view(RedhenContact $contact) {
+  return $contact->view();
 }
 
 /**
@@ -584,30 +580,6 @@ function template_preprocess_redhen_contact(&$variables) {
   $variables['contact'] = $variables['elements']['#contact'];
   $contact = $variables['contact'];
 
-  $variables['title'] = redhen_contact_contact_title($contact);
-  $variables['first_name'] = theme('redhen_property_field',
-    array(
-      'label' => t('First Name'),
-      'items' => array(
-        1 => array(
-          '#markup' => check_plain($contact->first_name)
-        )
-      ),
-      'classes' => 'field property-first-name field-label-inline clearfix',
-    )
-  );
-  $variables['last_name'] = theme('redhen_property_field',
-    array(
-      'label' => t('Last Name'),
-      'items' => array(
-        1 => array(
-          '#markup' => check_plain($contact->last_name)
-        )
-      ),
-      'classes' => 'field property-last-name field-label-inline clearfix',
-    )
-  );
-
 
   // Flatten the node object's member fields.
   $variables = array_merge((array) $contact, $variables);
@@ -666,7 +638,17 @@ class RedhenContact extends Entity {
    * Override buildContent() to add registration properties.
    */
   public function buildContent($view_mode = 'full', $langcode = NULL) {
-    $content = array();
+    $content['name'] = array(
+      '#theme' => 'redhen_property_field',
+      '#label' => t('Name'),
+      '#items' => array(
+        array(
+          '#markup' => check_plain($this->first_name) . ' ' . check_plain($this->last_name)
+        ),
+       ),
+      '#classes' => 'field field-label-inline clearfix',
+    );
+
     return entity_get_controller($this->entityType)
 			->buildContent($this, $view_mode, $langcode, $content);
   }

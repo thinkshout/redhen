@@ -64,7 +64,7 @@ function redhen_theme() {
         'label' => '',
         'content_attributes' => NULL,
         'items' => array(),
-        'item_attributes' => array(),
+        'item_attributes' => array(array()),
         'classes' => '',
         'attributes' => '',
       )
@@ -73,26 +73,10 @@ function redhen_theme() {
 }
 
 /**
- * Helper function to theme redhen properties
+ * Theme function for redhen properties. Simple wrapper around theme_field
+ * that sets default values and ensures proeprties render consistently with
+ * fields.
  */
 function theme_redhen_property_field($variables) {
-  $output = '';
-
-  // Render the label, if it's not hidden.
-  if (!$variables['label_hidden']) {
-    $output .= '<div class="field-label"' . $variables['title_attributes'] . '>' . $variables['label'] . ':&nbsp;</div>';
-  }
-
-  // Render the items.
-  $output .= '<div class="field-items"' . $variables['content_attributes'] . '>';
-  foreach ($variables['items'] as $delta => $item) {
-    $classes = 'field-item ' . ($delta % 2 ? 'odd' : 'even');
-    $output .= '<div class="' . $classes . '"' . $variables['item_attributes'] . '>' . drupal_render($item) . '</div>';
-  }
-  $output .= '</div>';
-
-  // Render the top-level DIV.
-  $output = '<div class="' . $variables['classes'] . '"' . $variables['attributes'] . '>' . $output . '</div>';
-
-  return $output;
+  return theme_field($variables);
 }
