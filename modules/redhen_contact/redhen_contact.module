@@ -545,21 +545,6 @@ function redhen_contact_filter_form_reset() {
 }
 
 /**
- * Implements hook_ENTITY_TYPE_info().
- */
-function redhen_contact_redhen_contact_info() {
-  $contact_type = entity_manager_bundle_type_new('redhen_contact');
-
-  $contact_type->type = 'default';
-  $contact_type->name = t('Basic contact');
-  $contact_type->description = t('A basic contact type.');
-  $contact_type->is_new = TRUE;
-  $contact_type->title_pattern = '[redhen-contact:last-name], [redhen-contact:first-name]';
-
-  return array($contact_type->type => $contact_type);
-}
-
-/**
  * Implements hook_user_delete().
  */
 function redhen_contact_user_delete($account) {
