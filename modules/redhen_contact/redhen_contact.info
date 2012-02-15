@@ -1,4 +1,3 @@
-; $Id$
 name = RedHen Contacts
 description = Defines the base contact entity and features.
 package = RedHen
@@ -8,6 +7,9 @@ dependencies[] = redhen
 
 files[] = redhen_contact.controller.inc
 files[] = includes/redhen_contact_type.admin.inc
+
+; Classes
+files[] = includes/redhen_contact.entity.inc
 
 ; Views handlers
 files[] = includes/views/handlers/redhen_contact_handler_field_contact_link.inc
