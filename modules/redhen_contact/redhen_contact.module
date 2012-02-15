@@ -109,7 +109,7 @@ function redhen_contact_menu() {
     'page callback' => 'redhen_contact_add_page',
     'access callback' => 'redhen_contact_access',
     'access arguments' => array('create'),
-    'file' => 'redhen_contact.forms.inc',
+    'file' => 'includes/redhen_contact.forms.inc',
     'type' => MENU_NORMAL_ITEM,
   );
   
@@ -124,7 +124,7 @@ function redhen_contact_menu() {
       'page arguments' => array($key),
       'access callback' => 'redhen_contact_access',
       'access arguments' => array('create'),
-      'file' => 'redhen_contact.forms.inc',
+      'file' => 'includes/redhen_contact.forms.inc',
     );
   }  
 
@@ -152,7 +152,7 @@ function redhen_contact_menu() {
     'access arguments' => array('delete', 2),
     'type' => MENU_LOCAL_TASK,
     'weight' => 10,
-    'file' => 'redhen_contact.forms.inc',
+    'file' => 'includes/redhen_contact.forms.inc',
   );
   $items['redhen/contact/%redhen_contact/edit'] = array(
     'title' => 'Edit',
@@ -161,7 +161,7 @@ function redhen_contact_menu() {
     'access callback' => 'redhen_contact_access',
     'access arguments' => array('edit', 2),
     'type' => MENU_LOCAL_TASK,
-    'file' => 'redhen_contact.forms.inc',
+    'file' => 'includes/redhen_contact.forms.inc',
   );
   
   $items['redhen/contact/%redhen_contact/archive'] = array(
@@ -206,7 +206,7 @@ function redhen_contact_theme() {
   return array(
     'redhen_contact_add_list' => array(
       'variables' => array('content' => NULL),
-      'file' => 'redhen_contact.forms.inc',      
+      'file' => 'includes/redhen_contact.forms.inc',
     )
   );
 }

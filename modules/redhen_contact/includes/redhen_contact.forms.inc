@@ -37,7 +37,7 @@ function redhen_contact_add($type) {
  */
 function redhen_contact_contact_form($form, &$form_state, $contact) {
   // Ensure this include file is loaded when the form is rebuilt from the cache.
-  $form_state['build_info']['files']['form'] = drupal_get_path('module', 'redhen_contact') . '/redhen_contact.forms.inc';
+  $form_state['build_info']['files']['form'] = drupal_get_path('module', 'redhen_contact') . '/includes/redhen_contact.forms.inc';
 
   // Add the default field elements.
   $form['name'] = array();
@@ -148,7 +148,7 @@ function redhen_contact_contact_delete_form($form, &$form_state, $contact) {
   $form_state['redhen_contact'] = $contact;
 
   // Ensure this include file is loaded when the form is rebuilt from the cache.
-  $form_state['build_info']['files']['form'] = drupal_get_path('module', 'redhen_contact') . '/redhen_contact.forms.inc';
+  $form_state['build_info']['files']['form'] = drupal_get_path('module', 'redhen_contact') . '/includes/redhen_contact.forms.inc';
 
   $form['#submit'][] = 'redhen_contact_contact_delete_form_submit';
 
