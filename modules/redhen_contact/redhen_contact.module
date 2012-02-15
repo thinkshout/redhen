@@ -558,27 +558,6 @@ function redhen_contact_user_delete($account) {
 }
 
 /**
- * Preprocess variables for redhen-contact.tpl.php
- */
-function template_preprocess_redhen_contact(&$variables) {
-  $variables['view_mode'] = $variables['elements']['#view_mode'];
-  $variables['contact'] = $variables['elements']['#contact'];
-  $contact = $variables['contact'];
-
-
-  // Flatten the node object's member fields.
-  $variables = array_merge((array) $contact, $variables);
-
-  // Helpful $content variable for templates.
-  foreach (element_children($variables['elements']) as $key) {
-    $variables['content'][$key] = $variables['elements'][$key];
-  }
-
-  // Add classes based on the contact type
-  $variables['classes_array'][] = drupal_html_class('redhen-contact-' . $contact->type);
-}
-
-/**
  * Implements hook_field_extra_fields().
  */
 function redhen_contact_field_extra_fields() {
