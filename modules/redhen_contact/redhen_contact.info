@@ -10,6 +10,7 @@ files[] = includes/redhen_contact_type.admin.inc
 ; Classes
 files[] = includes/redhen_contact.entity.inc
 files[] = includes/redhen_contact.controller.inc
+files[] = includes/redhen_contact_type.entity.inc
 
 ; Views handlers
 files[] = includes/views/handlers/redhen_contact_handler_field_contact_link.inc
