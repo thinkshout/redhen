@@ -28,7 +28,7 @@ function redhen_contact_entity_info() {
         'label' => 'title',
       ),
       'bundle keys' => array(
-        'bundle' => 'type',
+        'bundle' => 'name',
       ),
       'bundles' => array(),
       'view modes' => array(
@@ -332,43 +332,7 @@ function redhen_contact_access($op, $contact = NULL, $account = NULL) {
  * @return void
  */
 function redhen_contact_view($contact) {
-  if (!isset($langcode)) {
-    $langcode = $GLOBALS['language_content']->language;
-  }
-
-  // Populate $contact->content with a render() array.
-  redhen_contact_build_content($contact, $langcode);
-
-  // Remove the content array from the order to avoid duplicate rendering.
-  $build = $contact->content;
-  unset($contact->content);
-
-  $build += array(
-    '#theme' => 'redhen_contact',
-    '#contact' => $contact,
-    '#view_mode' => 'full',
-  );
-
-  // Allow modules to modify the final build array.
-  $type = 'redhen_contact';
-  drupal_alter(array('redhen_contact_view', 'entity_view'), $build, $type);
-
-  return $build;
-}
-
-function redhen_contact_build_content($contact, $langcode) {
-  // Populate $contact->content with a render() array.
-  // Remove previously built content, if it exists.
-  $contact->content = array();
-
-  // Build fields content.
-  field_attach_prepare_view('redhen_contact', array($contact->contact_id => $contact), 'full');
-  entity_prepare_view('redhen_contact', array($contact->contact_id => $contact));
-  $contact->content += field_attach_view('redhen_contact', $contact, 'full', $langcode);
-
-  // Allow modules to make their own additions to the contact content.
-  module_invoke_all('redhen_contact_view', $contact, 'full', $langcode);
-  module_invoke_all('entity_view', $contact, 'redhen_contact', 'full', $langcode);
+  return entity_build_content('redhen_contact', $contact);
 }
 
 /**
@@ -694,8 +658,17 @@ function redhen_contact_get_types($name = NULL) {
  */
 class RedhenContact extends Entity {
 
-  public function __construct($values = array()) {
-    parent::__construct($values, 'redhen_contact');
+  public function __construct(array $values = array(), $entityType = NULL) {
+    parent::__construct($values, $entityType);
+  }
+
+  /**
+   * Override buildContent() to add registration properties.
+   */
+  public function buildContent($view_mode = 'full', $langcode = NULL) {
+    $content = array();
+    return entity_get_controller($this->entityType)
+			->buildContent($this, $view_mode, $langcode, $content);
   }
 
 }
