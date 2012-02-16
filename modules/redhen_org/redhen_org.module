@@ -55,7 +55,7 @@ function redhen_org_entity_info() {
       'module' => 'redhen_org',
       // Enable the entity API's admin UI.
       'admin ui' => array(
-        'path' => 'admin/structure/redhen_org_types',
+        'path' => 'admin/structure/redhen/org_types',
         'file' => 'redhen_org_type.admin.inc',
         'file path' => drupal_get_path('module', 'redhen_org') . '/includes',
         'controller class' => 'RedhenOrgTypeUIController',
@@ -75,8 +75,8 @@ function redhen_org_entity_info_alter(&$entity_info) {
     $entity_info['redhen_org']['bundles'][$type] = array(
       'label' => $info->label,
       'admin' => array(
-        'path' => 'admin/structure/redhen_org_types/manage/%redhen_org_type',
-        'real path' => 'admin/structure/redhen_org_types/manage/' . $type,
+        'path' => 'admin/structure/redhen/org_types/manage/%redhen_org_type',
+        'real path' => 'admin/structure/redhen/org_types/manage/' . $type,
         'bundle argument' => 4,
         'access arguments' => array('administer redhen_org types'),
       ),
