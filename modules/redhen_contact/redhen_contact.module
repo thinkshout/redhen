@@ -570,13 +570,23 @@ function redhen_contact_field_extra_fields() {
         'name' => array(
           'label' => t('Contact name'),
           'description' => t('Contact name'),
-          'weight' => -5,
+          'weight' => 0,
+        ),
+        'status' => array(
+          'label' => t('Status'),
+          'description' => t('Contact status'),
+          'weight' => 0,
         ),
       ),
       'display' => array(
         'name' => array(
           'label' => t('Name'),
           'description' => t('Contact name.'),
+          'weight' => 0,
+        ),
+        'status' => array(
+          'label' => t('Status'),
+          'description' => t('Contact status'),
           'weight' => 0,
         ),
       ),
