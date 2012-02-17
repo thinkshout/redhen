@@ -41,3 +41,35 @@ class RedhenOrg extends Entity {
   }
 
 }
+
+/**
+ * Controls metadata for Redhen organizations
+ */
+class RedhenOrgMetadataController extends EntityDefaultMetadataController {
+  public function entityPropertyInfo() {
+    $info = parent::entityPropertyInfo();
+    $properties = &$info[$this->type]['properties'];
+
+    $properties['created'] = array(
+      'label' => t("Created"),
+      'description' => t("The date the organization was created."),
+      'type' => 'date',
+      'schema field' => 'created',
+    );
+    $properties['updated'] = array(
+      'label' => t("Updated"),
+      'description' => t("The date the organization was updated."),
+      'type' => 'date',
+      'schema field' => 'updated',
+    );
+    $properties['author'] = array(
+      'label' => t("Author"),
+      'type' => 'user',
+      'description' => t("The author of the organization record."),
+      'schema field' => 'author_uid'
+    );
+
+    return $info;
+  }
+}
+

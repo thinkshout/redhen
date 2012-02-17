@@ -15,6 +15,7 @@ function redhen_org_entity_info() {
     'redhen_org' => array(
       'label' => t('Org'),
       'controller class' => 'RedhenOrgEntityController',
+      'metadata controller class' => 'RedhenOrgMetadataController',
       'entity class' => 'RedhenOrg',
       'base table' => 'redhen_org',
       'fieldable' => TRUE,
