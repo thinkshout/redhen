@@ -41,3 +41,42 @@ class RedhenContact extends Entity {
   }
 
 }
+
+
+/**
+ * Controls metadata for Redhen contacts
+ */
+class RedhenContactMetadataController extends EntityDefaultMetadataController {
+  public function entityPropertyInfo() {
+    $info = parent::entityPropertyInfo();
+    $properties = &$info[$this->type]['properties'];
+
+    $properties['created'] = array(
+      'label' => t("Created"),
+      'description' => t("The date the registration was created."),
+      'type' => 'date',
+      'schema field' => 'created',
+    );
+    $properties['updated'] = array(
+      'label' => t("Updated"),
+      'description' => t("The date the registration was updated."),
+      'type' => 'date',
+      'schema field' => 'updated',
+    );
+    $properties['user'] = array(
+      'label' => t("User"),
+      'type' => 'user',
+      'description' => t("The Drupal user assocaited with the contact."),
+      'schema field' => 'user_uid'
+    );
+    $properties['author'] = array(
+      'label' => t("Author"),
+      'type' => 'user',
+      'description' => t("The author of the contact record."),
+      'schema field' => 'author_uid'
+    );
+
+    return $info;
+  }
+}
+

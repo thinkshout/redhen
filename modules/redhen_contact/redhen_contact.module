@@ -17,6 +17,7 @@ function redhen_contact_entity_info() {
     'redhen_contact' => array(
       'label' => t('Contact'),
       'controller class' => 'RedhenContactEntityController',
+      'metadata controller class' => 'RedhenContactMetadataController',
       'entity class' => 'RedhenContact',
       'base table' => 'redhen_contact',
       'revision table' => 'redhen_contact_revision',
