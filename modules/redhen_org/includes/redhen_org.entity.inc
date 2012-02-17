@@ -27,6 +27,16 @@ class RedhenOrg extends Entity {
       ),
       '#classes' => 'field field-label-inline clearfix',
     );
+    $content['status'] = array(
+      '#theme' => 'redhen_property_field',
+      '#label' => t('Status'),
+      '#items' => array(
+        array(
+          '#markup' => ($this->status == REDHEN_STATUS_ACTIVE) ? t('Active') : t('Inactive')
+        ),
+      ),
+      '#classes' => 'field field-label-inline clearfix',
+    );
 
     return entity_get_controller($this->entityType)
       ->buildContent($this, $view_mode, $langcode, $content);

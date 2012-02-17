@@ -542,7 +542,12 @@ function redhen_org_field_extra_fields() {
         'name' => array(
           'label' => t('Organization name'),
           'description' => t('Organization name'),
-          'weight' => -5,
+          'weight' => 0,
+        ),
+        'status' => array(
+          'label' => t('Status'),
+          'description' => t('Organization status'),
+          'weight' => 0,
         ),
       ),
       'display' => array(
@@ -551,6 +556,11 @@ function redhen_org_field_extra_fields() {
           'description' => t('Organization name.'),
           'weight' => 0,
         ),
+      ),
+      'status' => array(
+        'label' => t('Status'),
+        'description' => t('Organization status'),
+        'weight' => 0,
       ),
     );
   }
