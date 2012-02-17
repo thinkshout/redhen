@@ -540,9 +540,16 @@ function redhen_org_field_extra_fields() {
     $extra['redhen_org'][$type] = array(
       'form' => array(
         'name' => array(
-          'label' => t('org name'),
-          'description' => t('RedHen org element'),
+          'label' => t('Organization name'),
+          'description' => t('Organization name'),
           'weight' => -5,
+        ),
+      ),
+      'display' => array(
+        'name' => array(
+          'label' => t('Name'),
+          'description' => t('Organization name.'),
+          'weight' => 0,
         ),
       ),
     );

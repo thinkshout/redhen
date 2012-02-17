@@ -1,7 +1,7 @@
 <?php
 /**
  * @file
- * Redhen Group entity class
+ * Redhen Group entity classes
  */
 
 /**
