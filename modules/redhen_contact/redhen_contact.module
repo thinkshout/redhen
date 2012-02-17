@@ -569,8 +569,15 @@ function redhen_contact_field_extra_fields() {
       'form' => array(
         'name' => array(
           'label' => t('Contact name'),
-          'description' => t('RedHen contact element'),
+          'description' => t('Contact name'),
           'weight' => -5,
+        ),
+      ),
+      'display' => array(
+        'name' => array(
+          'label' => t('Name'),
+          'description' => t('Contact name.'),
+          'weight' => 0,
         ),
       ),
     );

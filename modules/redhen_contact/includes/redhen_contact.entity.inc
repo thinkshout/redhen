@@ -1,7 +1,7 @@
 <?php
 /**
  * @file
- * Redhen Contact entity class
+ * Redhen Contact entity classses
  */
 
 /**
