@@ -48,7 +48,7 @@ function redhen_org_entity_info() {
       'exportable' => TRUE,
       'token type' => 'redhen_org_type',
       'entity keys' => array(
-        'id' => 'id',
+        'id' => 'org_type_id',
         'name' => 'name',
         'label' => 'label',
       ),

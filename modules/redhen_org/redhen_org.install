@@ -90,7 +90,7 @@ function redhen_org_schema() {
   $schema['redhen_org_type'] = array(
     'description' => 'Stores information about all defined org types.',
     'fields' => array(
-      'id' => array(
+      'org_type_id' => array(
         'type' => 'serial',
         'not null' => TRUE,
         'description' => 'Primary Key: Unique org type ID.',
@@ -146,7 +146,7 @@ function redhen_org_schema() {
         'not null' => FALSE,
       ),
     ),
-    'primary key' => array('id'),
+    'primary key' => array('org_type_id'),
     'unique keys' => array(
       'name' => array('name'),
     ),
