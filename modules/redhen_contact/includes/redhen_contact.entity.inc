@@ -63,13 +63,13 @@ class RedhenContactMetadataController extends EntityDefaultMetadataController {
 
     $properties['created'] = array(
       'label' => t("Created"),
-      'description' => t("The date the registration was created."),
+      'description' => t("The date the contact was created."),
       'type' => 'date',
       'schema field' => 'created',
     );
     $properties['updated'] = array(
       'label' => t("Updated"),
-      'description' => t("The date the registration was updated."),
+      'description' => t("The date the contact was updated."),
       'type' => 'date',
       'schema field' => 'updated',
     );
