@@ -27,12 +27,12 @@ class RedhenContact extends Entity {
        ),
       '#classes' => 'field field-label-inline clearfix',
     );
-    $content['status'] = array(
+    $content['disposition'] = array(
       '#theme' => 'redhen_property_field',
-      '#label' => t('Status'),
+      '#label' => t('Disposition'),
       '#items' => array(
         array(
-          '#markup' => ($this->status == REDHEN_STATUS_ACTIVE) ? t('Active') : t('Inactive')
+          '#markup' => ($this->disposition == REDHEN_DISPOSITION_ACTIVE) ? t('Active') : t('Inactive')
         ),
        ),
       '#classes' => 'field field-label-inline clearfix',

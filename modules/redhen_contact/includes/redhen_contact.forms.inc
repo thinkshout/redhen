@@ -57,12 +57,12 @@ function redhen_contact_contact_form($form, &$form_state, $contact) {
     '#required' => TRUE,
     '#weight' => 5,
   );
-  $form['status'] = array(
+  $form['disposition'] = array(
     '#type' => 'select',
-    '#title' => t('Status'),
-    '#description' => t('Contact status.'),
+    '#title' => t('Disposition'),
+    '#description' => t('Contact disposition.'),
     '#options' => array(1 => t('Active'), 0 => t('Archived')), //@TODO: these should use the defined constants
-    '#default_value' => $contact->status,
+    '#default_value' => $contact->disposition,
     '#weight' => 10,
   );
   
@@ -121,7 +121,7 @@ function redhen_contact_contact_form_submit($form, &$form_state) {
   // Save default parameters back into the $contact object.
   $contact->first_name = $form_state['values']['first_name'];
   $contact->last_name = $form_state['values']['last_name'];
-  $contact->status = $form_state['values']['status'];
+  $contact->disposition = $form_state['values']['disposition'];
 
   // @TODO Add a log field to existing entries
   $contact->log = '';

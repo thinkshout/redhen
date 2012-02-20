@@ -58,8 +58,8 @@ function redhen_contact_schema() {
         'not null' => TRUE,
         'default' => 0,
       ),
-      'status' => array(
-        'description' => 'The status of this redhen_contact.',
+      'disposition' => array(
+        'description' => 'The disposition of this redhen_contact.',
         'type' => 'int',
         'not null' => TRUE,
         'default' => 1,
@@ -82,7 +82,7 @@ function redhen_contact_schema() {
       'redhen_contact_created'       => array('created'),
       'redhen_contact_type'          => array(array('type', 4)),
       'redhen_contact_author'        => array('author_uid'),
-      'redhen_contact_status'        => array('status'),
+      'redhen_contact_disposition'        => array('disposition'),
     ),
     'unique keys' => array(
       'contact_id' => array('contact_id'),
@@ -151,8 +151,8 @@ function redhen_contact_schema() {
         'not null' => TRUE,
         'default' => '',
       ),
-      'status' => array(
-        'description' => 'The status of this redhen_contact revision.',
+      'disposition' => array(
+        'description' => 'The disposition of this redhen_contact revision.',
         'type' => 'int',
         'not null' => TRUE,
         'default' => 1,
@@ -173,7 +173,7 @@ function redhen_contact_schema() {
     'indexes' => array(
       'redhen_revision_contact_id' => array('contact_id'),
       'redhen_contact_author_revision' => array('author_uid'),
-      'redhen_contact_status_revision' => array('status'),
+      'redhen_contact_disposition_revision' => array('disposition'),
     ),
     'primary key' => array('revision_id'),
     'foreign keys' => array(

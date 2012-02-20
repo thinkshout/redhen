@@ -6,8 +6,8 @@
  */
 
 // Definitions
-define('REDHEN_STATUS_ACTIVE', 1);
-define('REDHEN_STATUS_ARCHIVED', 0);
+define('REDHEN_DISPOSITION_ACTIVE', 1);
+define('REDHEN_DISPOSITION_ARCHIVED', 0);
 
 function redhen_menu() {
   $items = array();

@@ -27,7 +27,7 @@ class RedhenContactEntityController extends EntityAPIController {
       'last_name' => '',
       'user_uid' => '',
       'author_uid' => '',
-      'status' => REDHEN_STATUS_ACTIVE,
+      'disposition' => REDHEN_DISPOSITION_ACTIVE,
       'created' => '',
       'changed' => '',
     );

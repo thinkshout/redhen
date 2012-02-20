@@ -24,7 +24,7 @@ class RedhenOrgEntityController extends EntityAPIController {
       'org_id' => '',
       'label' => '',
       'author_uid' => '',
-      'status' => REDHEN_STATUS_ACTIVE,
+      'disposition' => REDHEN_DISPOSITION_ACTIVE,
       'created' => '',
       'changed' => '',
     );

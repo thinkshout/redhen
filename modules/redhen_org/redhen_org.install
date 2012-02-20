@@ -45,8 +45,8 @@ function redhen_org_schema() {
         'not null' => TRUE,
         'default' => 0,
       ),
-      'status' => array(
-        'description' => 'The status of this redhen_org.',
+      'disposition' => array(
+        'description' => 'The disposition of this redhen_org.',
         'type' => 'int',
         'not null' => TRUE,
         'default' => 1,
@@ -68,7 +68,7 @@ function redhen_org_schema() {
       'redhen_org_updated'       => array('updated'),
       'redhen_org_created'       => array('created'),
       'redhen_org_type'          => array(array('type', 4)),
-      'redhen_org_status'        => array('status'),
+      'redhen_org_disposition'        => array('disposition'),
     ),
     'unique keys' => array(
       'org_id' => array('org_id'),

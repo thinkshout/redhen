@@ -280,7 +280,7 @@ function redhen_contact_save($contact) {
  *   The saved contact object.
  */
 function redhen_contact_archive($contact) {
-  $contact->status = REDHEN_STATUS_ARCHIVED;
+  $contact->disposition = REDHEN_DISPOSITION_ARCHIVED;
   redhen_contact_save($contact);
   drupal_goto(drupal_get_destination());
 }
@@ -568,9 +568,9 @@ function redhen_contact_field_extra_fields() {
           'description' => t('Contact name'),
           'weight' => 0,
         ),
-        'status' => array(
-          'label' => t('Status'),
-          'description' => t('Contact status'),
+        'disposition' => array(
+          'label' => t('Disposition'),
+          'description' => t('Contact disposition'),
           'weight' => 0,
         ),
       ),
@@ -580,9 +580,9 @@ function redhen_contact_field_extra_fields() {
           'description' => t('Contact name.'),
           'weight' => 0,
         ),
-        'status' => array(
-          'label' => t('Status'),
-          'description' => t('Contact status'),
+        'disposition' => array(
+          'label' => t('Disposition'),
+          'description' => t('Contact disposition'),
           'weight' => 0,
         ),
       ),
