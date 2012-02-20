@@ -61,12 +61,12 @@ function redhen_contact_type_form($form, &$form_state, $redhen_contact_type, $op
 function redhen_contact_type_form_submit(&$form, &$form_state) {
   $redhen_contact_type = entity_ui_form_submit_build_entity($form, $form_state);
   $redhen_contact_type->save();
-  $form_state['redirect'] = 'admin/structure/redhen_contact_types';
+  $form_state['redirect'] = 'admin/structure/redhen/contact_types';
 }
 
 /**
  * Form API submit callback for the delete button.
  */
 function redhen_contact_type_form_submit_delete(&$form, &$form_state) {
-  $form_state['redirect'] = 'admin/structure/redhen_contact_types/manage/' . $form_state['redhen_contact_type']->type . '/delete';
+  $form_state['redirect'] = 'admin/structure/redhen/contact_types/manage/' . $form_state['redhen_contact_type']->type . '/delete';
 }

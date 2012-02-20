@@ -56,7 +56,7 @@ function redhen_contact_entity_info() {
       'module' => 'redhen_contact',
       // Enable the entity API's admin UI.
       'admin ui' => array(
-        'path' => 'admin/structure/redhen_contact_types',
+        'path' => 'admin/structure/redhen/contact_types',
         'file' => 'redhen_contact_type.admin.inc',
         'file path' => drupal_get_path('module', 'redhen_contact') . '/includes',
         'controller class' => 'RedhenContactTypeUIController',
@@ -76,8 +76,8 @@ function redhen_contact_entity_info_alter(&$entity_info) {
     $entity_info['redhen_contact']['bundles'][$type] = array(
       'label' => $info->label,
       'admin' => array(
-        'path' => 'admin/structure/redhen_contact_types/manage/%redhen_contact_type',
-        'real path' => 'admin/structure/redhen_contact_types/manage/' . $type,
+        'path' => 'admin/structure/redhen/contact_types/manage/%redhen_contact_type',
+        'real path' => 'admin/structure/redhen/contact_types/manage/' . $type,
         'bundle argument' => 4,
         'access arguments' => array('administer redhen_contact types'),
       ),
