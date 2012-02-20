@@ -195,7 +195,7 @@ function redhen_contact_schema() {
   $schema['redhen_contact_type'] = array(
     'description' => 'Stores information about all defined contact types.',
     'fields' => array(
-      'id' => array(
+      'contact_type_id' => array(
         'type' => 'serial',
         'not null' => TRUE,
         'description' => 'Primary Key: Unique contact type ID.',
@@ -251,7 +251,7 @@ function redhen_contact_schema() {
         'not null' => FALSE,
       ),
     ),
-    'primary key' => array('id'),
+    'primary key' => array('contact_type_id'),
     'unique keys' => array(
       'name' => array('name'),
     ),

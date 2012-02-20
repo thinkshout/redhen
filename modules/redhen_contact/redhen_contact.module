@@ -48,7 +48,7 @@ function redhen_contact_entity_info() {
       'exportable' => TRUE,
       'token type' => 'redhen_contact_type',
       'entity keys' => array(
-        'id' => 'id',
+        'id' => 'contact_type_id',
         'name' => 'name',
         'label' => 'label',
       ),
