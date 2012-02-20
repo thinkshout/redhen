@@ -5,6 +5,10 @@
  * Defines basic functionality common to all parts of the Redhen CRM.
  */
 
+// Definitions
+define('REDHEN_STATUS_ACTIVE', 1);
+define('REDHEN_STATUS_ARCHIVED', 0);
+
 function redhen_menu() {
   $items = array();
 
