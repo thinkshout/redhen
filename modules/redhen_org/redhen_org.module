@@ -556,11 +556,11 @@ function redhen_org_field_extra_fields() {
           'description' => t('Organization name.'),
           'weight' => 0,
         ),
-      ),
-      'status' => array(
-        'label' => t('Status'),
-        'description' => t('Organization status'),
-        'weight' => 0,
+        'status' => array(
+          'label' => t('Status'),
+          'description' => t('Organization status'),
+          'weight' => 0,
+        ),
       ),
     );
   }
