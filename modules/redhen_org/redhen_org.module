@@ -78,7 +78,7 @@ function redhen_org_entity_info_alter(&$entity_info) {
       'admin' => array(
         'path' => 'admin/structure/redhen/org_types/manage/%redhen_org_type',
         'real path' => 'admin/structure/redhen/org_types/manage/' . $type,
-        'bundle argument' => 4,
+        'bundle argument' => 5,
         'access arguments' => array('administer redhen_org types'),
       ),
     );
