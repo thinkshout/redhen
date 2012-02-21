@@ -9,8 +9,8 @@
  */
 class RedhenContact extends Entity {
 
-  public function __construct(array $values = array(), $entityType = NULL) {
-    parent::__construct($values, $entityType);
+  public function __construct(array $values = array()) {
+    parent::__construct($values, 'redhen_contact');
   }
 
   /**
