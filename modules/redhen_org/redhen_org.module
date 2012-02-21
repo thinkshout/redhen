@@ -33,7 +33,7 @@ function redhen_org_entity_info() {
           'custom settings' => FALSE,
         ),
       ),
-      'uri callback' => 'redhen_org_uri',
+      'uri callback' => 'entity_class_uri',
       'token type' => 'redhen_org',
       'module' => 'redhen_org',
       'label callback' => 'entity_class_label'

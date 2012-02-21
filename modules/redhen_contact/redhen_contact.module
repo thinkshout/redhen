@@ -33,7 +33,7 @@ function redhen_contact_entity_info() {
           'custom settings' => FALSE,
         ),
       ),
-      'uri callback' => 'redhen_contact_uri',
+      'uri callback' => 'entity_class_uri',
       'token type' => 'redhen_contact',
       'module' => 'redhen_contact',
       'label callback' => 'entity_class_label'

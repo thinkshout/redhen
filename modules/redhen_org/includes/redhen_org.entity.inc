@@ -50,6 +50,13 @@ class RedhenOrg extends Entity {
     return $type->label . ': ' . $this->label;
   }
 
+  /**
+   * Specifify URI
+   */
+  protected function defaultUri() {
+    return array('path' => 'redhen/org/' . $this->identifier());
+  }
+
 }
 
 /**

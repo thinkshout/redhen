@@ -50,6 +50,12 @@ class RedhenContact extends Entity {
     return $type->label . ': ' . $this->first_name . ' ' . $this->last_name;
   }
 
+  /**
+   * Specifify URI
+   */
+  protected function defaultUri() {
+    return array('path' => 'redhen/contact/' . $this->identifier());
+  }
 }
 
 
