@@ -23,8 +23,8 @@ function redhen_relation_install() {
       'reverse_label' => t('Affiliated with'),
       'directional' => false,
       'r_unique' => true,
-      'source_bundles' => array('redhen_contact:*'),
-      'target_bundles' => array('redhen_org:*'),
+      'source_bundles' => array('redhen_contact:*', 'redhen_org:*'),
+//      'target_bundles' => array('redhen_org:*'),
     ),
   );
   foreach ($relation_types_info as $relation_type_info) {
