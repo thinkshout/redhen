@@ -48,7 +48,7 @@ function redhen_contact_entity_info() {
       'exportable' => TRUE,
       'token type' => 'redhen_contact_type',
       'entity keys' => array(
-        'id' => 'id',
+        'id' => 'contact_type_id',
         'name' => 'name',
         'label' => 'label',
       ),
@@ -68,7 +68,7 @@ function redhen_contact_entity_info() {
 /**
  * Implements hook_entity_info_alter().
  *
- * We are adding the info about the registration types via a hook to avoid a recursion
+ * We are adding the info about the contact types via a hook to avoid a recursion
  * issue as loading the model types requires the entity info as well.
  */
 function redhen_contact_entity_info_alter(&$entity_info) {
@@ -611,12 +611,12 @@ function redhen_contact_type_access($op, $type = NULL, $account = NULL) {
 }
 
 /**
- * Menu argument loader; Load a registration type by string.
+ * Menu argument loader; Load a contact type by string.
  *
  * @param $type
- *   The machine-readable name of a registration type to load.
+ *   The machine-readable name of a contact type to load.
  * @return
- *   A registration type array or FALSE if $type does not exist.
+ *   A contact type array or FALSE if $type does not exist.
  */
 function redhen_contact_type_load($type) {
   return redhen_contact_get_types($type);

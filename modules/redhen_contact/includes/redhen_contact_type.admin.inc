@@ -18,7 +18,7 @@ function redhen_contact_type_form($form, &$form_state, $redhen_contact_type, $op
     '#title' => t('Label'),
     '#type' => 'textfield',
     '#default_value' => $redhen_contact_type->label,
-    '#description' => t('The human-readable name of this model type.'),
+    '#description' => t('The human-readable name of this contact type.'),
     '#required' => TRUE,
     '#size' => 30,
   );
@@ -32,20 +32,20 @@ function redhen_contact_type_form($form, &$form_state, $redhen_contact_type, $op
       'exists' => 'redhen_contact_get_types',
       'source' => array('label'),
     ),
-    '#description' => t('A unique machine-readable name for this redhen_contact type. It must only contain lowercase letters, numbers, and underscores.'),
+    '#description' => t('A unique machine-readable name for this contact type. It must only contain lowercase letters, numbers, and underscores.'),
   );
 
   $form['actions'] = array('#type' => 'actions');
   $form['actions']['submit'] = array(
     '#type' => 'submit',
-    '#value' => t('Save redhen_contact type'),
+    '#value' => t('Save contact type'),
     '#weight' => 40,
   );
 
   if (!$redhen_contact_type->locked && $op != 'add') {
     $form['actions']['delete'] = array(
       '#type' => 'submit',
-      '#value' => t('Delete redhen_contact type'),
+      '#value' => t('Delete contact type'),
       '#weight' => 45,
       '#limit_validation_errors' => array(),
       '#submit' => array('redhen_contact_type_form_submit_delete')

@@ -68,7 +68,7 @@ function redhen_org_entity_info() {
 /**
  * Implements hook_entity_info_alter().
  *
- * We are adding the info about the registration types via a hook to avoid a recursion
+ * We are adding the info about the organization types via a hook to avoid a recursion
  * issue as loading the model types requires the entity info as well.
  */
 function redhen_org_entity_info_alter(&$entity_info) {
@@ -587,12 +587,12 @@ function redhen_org_type_access($op, $type = NULL, $account = NULL) {
 }
 
 /**
- * Menu argument loader; Load a registration type by string.
+ * Menu argument loader; Load an organization type by string.
  *
  * @param $type
- *   The machine-readable name of a registration type to load.
+ *   The machine-readable name of an organization type to load.
  * @return
- *   A registration type array or FALSE if $type does not exist.
+ *   An organization type array or FALSE if $type does not exist.
  */
 function redhen_org_type_load($type) {
   return redhen_org_get_types($type);

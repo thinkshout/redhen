@@ -156,7 +156,7 @@ function redhen_contact_schema() {
         'type' => 'int',
         'not null' => TRUE,
         'default' => 1,
-      ),      
+      ),
       'log' => array(
         'description' => 'The log entry explaining the changes in this version.',
         'type' => 'text',
@@ -180,7 +180,7 @@ function redhen_contact_schema() {
       'revision_redhen_contact' => array(
         'table' => 'redhen_contact',
         'columns' => array('contact_id' => 'contact_id'),
-      ),      
+      ),
       'redhen_contact_revision_author' => array(
         'table' => 'users',
         'columns' => array('author_uid' => 'uid'),
@@ -195,19 +195,19 @@ function redhen_contact_schema() {
   $schema['redhen_contact_type'] = array(
     'description' => 'Stores information about all defined contact types.',
     'fields' => array(
-      'id' => array(
+      'contact_type_id' => array(
         'type' => 'serial',
         'not null' => TRUE,
-        'description' => 'Primary Key: Unique registration type ID.',
+        'description' => 'Primary Key: Unique contact type ID.',
       ),
       'name' => array(
-        'description' => 'The machine-readable name of this registration type.',
+        'description' => 'The machine-readable name of this contact type.',
         'type' => 'varchar',
         'length' => 32,
         'not null' => TRUE,
       ),
       'label' => array(
-        'description' => 'The human-readable name of this registration type.',
+        'description' => 'The human-readable name of this contact type.',
         'type' => 'varchar',
         'length' => 255,
         'not null' => TRUE,
@@ -218,7 +218,7 @@ function redhen_contact_schema() {
         'not null' => TRUE,
         'default' => 0,
         'size' => 'tiny',
-        'description' => 'The weight of this registration type in relation to others.',
+        'description' => 'The weight of this contact type in relation to others.',
       ),
       'locked' => array(
         'description' => 'A boolean indicating whether the administrator may delete this type.',
@@ -251,7 +251,7 @@ function redhen_contact_schema() {
         'not null' => FALSE,
       ),
     ),
-    'primary key' => array('id'),
+    'primary key' => array('contact_type_id'),
     'unique keys' => array(
       'name' => array('name'),
     ),
