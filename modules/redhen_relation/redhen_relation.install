@@ -33,15 +33,18 @@ function redhen_relation_install() {
 
   // add relation fields
   $status_field = array(
-    'field_name' => 'redhen_relation_status',
+    'field_name' => REDHEN_RELATION_STATUS_FIELD,
     'type' => 'list_boolean',
     'locked' => TRUE,
-    'cardinality' => 1
+    'cardinality' => 1,
+    'settings' => array(
+      'allowed_values' => array('','')
+    )
   );
   field_create_field($status_field);
 
   field_create_instance(array(
-    'field_name' => $status_field['field_name'],
+    'field_name' => REDHEN_RELATION_STATUS_FIELD,
     'entity_type' => 'relation',
     'bundle' => 'redhen_affiliation',
     'label' => 'Affiliation Status',
