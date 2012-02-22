@@ -135,7 +135,7 @@ function redhen_org_menu() {
     'weight' => 10,
   );
   $items['redhen/org/%redhen_org/view'] = array(
-    'title' => 'View',
+    'title' => 'Summary',
     'type' => MENU_DEFAULT_LOCAL_TASK,
     'weight' => -10,
     'context' => MENU_CONTEXT_PAGE | MENU_CONTEXT_INLINE,
