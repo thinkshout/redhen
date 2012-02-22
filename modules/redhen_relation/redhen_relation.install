@@ -24,13 +24,34 @@ function redhen_relation_install() {
       'directional' => false,
       'r_unique' => true,
       'source_bundles' => array('redhen_contact:*', 'redhen_org:*'),
-//      'target_bundles' => array('redhen_org:*'),
     ),
   );
   foreach ($relation_types_info as $relation_type_info) {
     $relation_type = relation_type_create($relation_type_info);
     relation_type_save($relation_type);
   }
+
+  // add relation fields
+  $status_field = array(
+    'field_name' => 'redhen_relation_status',
+    'type' => 'list_boolean',
+    'locked' => TRUE,
+    'cardinality' => 1
+  );
+  field_create_field($status_field);
+
+  field_create_instance(array(
+    'field_name' => $status_field['field_name'],
+    'entity_type' => 'relation',
+    'bundle' => 'redhen_affiliation',
+    'label' => 'Affiliation Status',
+    'required' => TRUE,
+    'widget' => array(
+      'type' => 'options_onoff'
+    )
+  ));
+
+  entity_info_cache_clear();
 }
 
 /**
@@ -64,4 +85,9 @@ function redhen_relation_uninstall() {
      // finally delete the relationshp_type
      relation_type_delete($type);
    }
+
+  // delete status field
+  field_delete_field('redhen_relation_status');
+
+  entity_info_cache_clear();
 }
