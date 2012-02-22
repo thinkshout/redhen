@@ -45,7 +45,8 @@ function redhen_relation_install() {
     'entity_type' => 'relation',
     'bundle' => 'redhen_affiliation',
     'label' => 'Affiliation Status',
-    'required' => FALSE,
+    'required' => 0,
+    'default_value' => array(array('value' => 1)),
     'widget' => array(
       'type' => 'options_onoff',
       'settings' => array('display_label' => 1)
