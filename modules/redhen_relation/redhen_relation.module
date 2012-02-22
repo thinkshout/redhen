@@ -1,5 +1,7 @@
 <?php
 
+define('REDHEN_RELATION_STATUS_FIELD', 'redhen_relation_status');
+
 /**
  * Implements hook_menu().
  */
@@ -79,7 +81,7 @@ function redhen_relation_connections_page(RedhenContact $contact) {
           $rows[] = array(
             l($predicate, $relation_uri['path']),
             l($object_label, $object_uri['path']),
-            $relation->field_status[LANGUAGE_NONE][0]['value'],
+            $relation->{REDHEN_RELATION_STATUS_FIELD}[LANGUAGE_NONE][0]['value'],
             $object_entity->entityType(),
             date('m/d/Y', $relation->created),
             $author->name,
