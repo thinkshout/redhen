@@ -1,4 +1,3 @@
-; $Id$
 name = RedHen Fields
 description = Fields specific to RedHen CRM.
 package = RedHen
