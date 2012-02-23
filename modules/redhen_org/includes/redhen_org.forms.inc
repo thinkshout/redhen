@@ -120,8 +120,8 @@ function redhen_org_org_form_submit($form, &$form_state) {
   // Notify field widgets.
   field_attach_submit('redhen_org', $org, $form, $form_state);
 
-  // Save the contact.
-  $org = redhen_org_save($org);
+  // Save the organization.
+  $org->save();
 
   drupal_set_message(t('Organization saved.'));
   $form_state['redirect'] = 'redhen/org/' . $org->org_id;
@@ -165,7 +165,7 @@ function redhen_org_org_delete_form_submit($form, &$form_state) {
 
   $title = $org->label;
 
-  if (redhen_org_delete_multiple(array($org->org_id))) {
+  if ($org->delete()) {
     drupal_set_message(t('%title has been deleted.', array('%title' => $title)));
     watchdog('redhen_org', 'Deleted organization %title.', array('%title' => $title), WATCHDOG_NOTICE);
   }

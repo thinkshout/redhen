@@ -245,32 +245,6 @@ function redhen_org_load_multiple($org_ids = array(), $conditions = array(), $re
 }
 
 /**
- * Deletes multiple orgs by ID.
- *
- * @param $org_ids
- *   An array of org IDs to delete.
- *
- * @return
- *   TRUE on success, FALSE otherwise.
- */
-function redhen_org_delete_multiple($org_ids) {
-  return entity_get_controller('redhen_org')->delete($org_ids);
-}
-
-/**
- * Saves a org.
- *
- * @param $org
- *   The full org object to save.
- *
- * @return
- *   The saved org object.
- */
-function redhen_org_save($org) {
-  return entity_get_controller('redhen_org')->save($org);
-}
-
-/**
  * Archive a org.
  *
  * @param $org
