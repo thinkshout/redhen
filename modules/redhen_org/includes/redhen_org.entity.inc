@@ -9,15 +9,19 @@
  */
 class RedhenOrg extends Entity {
 
+  public $primary_contact;
+
   public function __construct(array $values = array()) {
     parent::__construct($values, 'redhen_org');
+
+    $this->primary_contact = $this->primaryContact();
   }
 
   /**
    * Override buildContent() to add organization properties.
    */
   public function buildContent($view_mode = 'full', $langcode = NULL) {
-    $content['name'] = array(
+    $content['label'] = array(
       '#theme' => 'redhen_property_field',
       '#label' => t('Label'),
       '#items' => array(
@@ -68,12 +72,26 @@ class RedhenOrg extends Entity {
     return array('path' => 'redhen/org/' . $this->identifier());
   }
 
+  /**
+   * Return a primary contact object if possible.
+   *
+   * @return RedhenContact|null
+   */
+  protected function primaryContact() {
+    $contact = NULL;
+    if (isset($this->primary_contact_id)) {
+      $contact = redhen_contact_load($this->primary_contact_id);
+    }
+    return $contact;
+  }
+
 }
 
 /**
  * Controls metadata for Redhen organizations
  */
 class RedhenOrgMetadataController extends EntityDefaultMetadataController {
+
   public function entityPropertyInfo() {
     $info = parent::entityPropertyInfo();
     $properties = &$info[$this->type]['properties'];
@@ -100,10 +118,11 @@ class RedhenOrgMetadataController extends EntityDefaultMetadataController {
       'label' => t("Primary contact"),
       'type' => 'redhen_contact',
       'description' => t("The primary contact for the organization."),
-      'schema field' => 'primary_contact'
+      'schema field' => 'primary_contact_id'
     );
 
     return $info;
   }
+
 }
 
