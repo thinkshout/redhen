@@ -280,7 +280,7 @@ function redhen_membership_save($membership) {
  *   The saved membership object.
  */
 function redhen_membership_archive($membership) {
-  $membership->dispositon = REDHEN_STATE_ARCHIVED;
+  $membership->redhen_state = REDHEN_STATE_ARCHIVED;
   redhen_membership_save($membership);
   drupal_goto(drupal_get_destination());
 }

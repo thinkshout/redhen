@@ -280,7 +280,7 @@ function redhen_org_save($org) {
  *   The saved org object.
  */
 function redhen_org_archive($org) {
-  $org->dispositon = REDHEN_STATE_ARCHIVED;
+  $org->redhen_state = REDHEN_STATE_ARCHIVED;
   redhen_org_save($org);
   drupal_goto(drupal_get_destination());
 }
