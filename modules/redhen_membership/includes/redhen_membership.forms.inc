@@ -49,12 +49,12 @@ function redhen_membership_membership_form($form, &$form_state, $membership) {
     '#required' => TRUE,
     '#weight' => -6,
   );
-  $form['disposition'] = array(
+  $form['redhen_state'] = array(
     '#type' => 'select',
-    '#title' => t('Disposition'),
-    '#description' => t('Membership disposition.'),
+    '#title' => t('State'),
+    '#description' => t('Membership state.'),
     '#options' => array(1 => t('Active'), 0 => t('Archived')), //@TODO: these should use the defined constants
-    '#default_value' => $membership->disposition,
+    '#default_value' => $membership->redhen_state,
     '#weight' => 10,
   );
 
@@ -112,7 +112,7 @@ function redhen_membership_membership_form_submit($form, &$form_state) {
 
   // Save default parameters back into the $membership object.
   $membership->label = $form_state['values']['label'];
-  $membership->disposition = $form_state['values']['disposition'];
+  $membership->redhen_state = $form_state['values']['redhen_state'];
 
   // @TODO Add a log field to existing entries
   $membership->log = '';

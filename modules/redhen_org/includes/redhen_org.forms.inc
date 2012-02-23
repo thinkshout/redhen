@@ -49,12 +49,12 @@ function redhen_org_org_form($form, &$form_state, $org) {
     '#required' => TRUE,
     '#weight' => -6,
   );
-  $form['disposition'] = array(
+  $form['redhen_state'] = array(
     '#type' => 'select',
-    '#title' => t('Disposition'),
-    '#description' => t('Organization disposition.'),
+    '#title' => t('State'),
+    '#description' => t('Organization state.'),
     '#options' => array(1 => t('Active'), 0 => t('Archived')), //@TODO: these should use the defined constants
-    '#default_value' => $org->disposition,
+    '#default_value' => $org->redhen_state,
     '#weight' => 10,
   );
 
@@ -112,7 +112,7 @@ function redhen_org_org_form_submit($form, &$form_state) {
 
   // Save default parameters back into the $org object.
   $org->label = $form_state['values']['label'];
-  $org->disposition = $form_state['values']['disposition'];
+  $org->redhen_state = $form_state['values']['redhen_state'];
 
   // @TODO Add a log field to existing entries
   $org->log = '';

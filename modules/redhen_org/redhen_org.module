@@ -280,7 +280,7 @@ function redhen_org_save($org) {
  *   The saved org object.
  */
 function redhen_org_archive($org) {
-  $org->dispositon = REDHEN_DISPOSITION_ARCHIVED;
+  $org->dispositon = REDHEN_STATE_ARCHIVED;
   redhen_org_save($org);
   drupal_goto(drupal_get_destination());
 }
@@ -544,9 +544,9 @@ function redhen_org_field_extra_fields() {
           'description' => t('Organization name'),
           'weight' => 0,
         ),
-        'disposition' => array(
-          'label' => t('Disposition'),
-          'description' => t('Organization disposition'),
+        'redhen_state' => array(
+          'label' => t('State'),
+          'description' => t('Organization state'),
           'weight' => 0,
         ),
       ),
@@ -556,9 +556,9 @@ function redhen_org_field_extra_fields() {
           'description' => t('Organization name.'),
           'weight' => 0,
         ),
-        'disposition' => array(
-          'label' => t('Disposition'),
-          'description' => t('Organization disposition'),
+        'redhen_state' => array(
+          'label' => t('State'),
+          'description' => t('Organization state'),
           'weight' => 0,
         ),
       ),

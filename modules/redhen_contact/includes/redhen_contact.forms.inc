@@ -8,7 +8,7 @@
 /**
  * Return a form for adding a contact.
  *
- * @param string $type 
+ * @param string $type
  *   The type of contact to return a form for.
  */
 function redhen_contact_add_page($type = 'default') {
@@ -57,15 +57,15 @@ function redhen_contact_contact_form($form, &$form_state, $contact) {
     '#required' => TRUE,
     '#weight' => 5,
   );
-  $form['disposition'] = array(
+  $form['redhen_state'] = array(
     '#type' => 'select',
-    '#title' => t('Disposition'),
-    '#description' => t('Contact disposition.'),
+    '#title' => t('State'),
+    '#description' => t('Contact state.'),
     '#options' => array(1 => t('Active'), 0 => t('Archived')), //@TODO: these should use the defined constants
-    '#default_value' => $contact->disposition,
+    '#default_value' => $contact->redhen_state,
     '#weight' => 10,
   );
-  
+
 
   // Add the field related form elements.
   $form_state['redhen_contact'] = $contact;
@@ -121,7 +121,7 @@ function redhen_contact_contact_form_submit($form, &$form_state) {
   // Save default parameters back into the $contact object.
   $contact->first_name = $form_state['values']['first_name'];
   $contact->last_name = $form_state['values']['last_name'];
-  $contact->disposition = $form_state['values']['disposition'];
+  $contact->redhen_state = $form_state['values']['redhen_state'];
 
   // @TODO Add a log field to existing entries
   $contact->log = '';

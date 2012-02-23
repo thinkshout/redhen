@@ -51,8 +51,8 @@ function redhen_membership_schema() {
         'not null' => TRUE,
         'default' => 0,
       ),
-      'disposition' => array(
-        'description' => 'The disposition of this redhen_membership.',
+      'redhen_state' => array(
+        'description' => 'The redhen_state of this redhen_membership.',
         'type' => 'int',
         'not null' => TRUE,
         'default' => 1,
@@ -74,7 +74,7 @@ function redhen_membership_schema() {
       'redhen_membership_updated'       => array('updated'),
       'redhen_membership_created'       => array('created'),
       'redhen_membership_type'          => array(array('type', 4)),
-      'redhen_membership_disposition'   => array('disposition'),
+      'redhen_membership_redhen_state'   => array('redhen_state'),
       'redhen_membership_org'           => array('org_id'),
     ),
     'unique keys' => array(

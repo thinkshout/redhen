@@ -24,7 +24,7 @@ class RedhenMembershipEntityController extends EntityAPIController {
       'membership_id' => '',
       'label' => '',
       'author_uid' => '',
-      'disposition' => REDHEN_DISPOSITION_ACTIVE,
+      'redhen_state' => REDHEN_STATE_ACTIVE,
       'created' => '',
       'changed' => '',
     );

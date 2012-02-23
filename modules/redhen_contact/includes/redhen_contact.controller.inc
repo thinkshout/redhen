@@ -27,7 +27,7 @@ class RedhenContactEntityController extends EntityAPIController {
       'last_name' => '',
       'user_uid' => '',
       'author_uid' => '',
-      'disposition' => REDHEN_DISPOSITION_ACTIVE,
+      'redhen_state' => REDHEN_STATE_ACTIVE,
       'created' => '',
       'changed' => '',
     );
@@ -50,7 +50,7 @@ class RedhenContactEntityController extends EntityAPIController {
       $contact->updated = REQUEST_TIME;
 
       // Give modules the opportunity to prepare field data for saving.
-      field_attach_presave('redhen_contact', $contact);      
+      field_attach_presave('redhen_contact', $contact);
 
       // If this is a new contact...
       if ((isset($contact->is_new) && $contact->is_new) || empty($contact->contact_id)) {
