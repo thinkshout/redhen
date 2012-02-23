@@ -408,7 +408,8 @@ function redhen_org_page() {
   }
 
   $entity_info = entity_get_info('redhen_org');
-  $form = drupal_get_form('redhen_org_filter_form', $entity_info);
+  $property_info = entity_get_property_info('redhen_org');
+  $form = drupal_get_form('redhen_org_filter_form', $entity_info, $property_info);
 
   // return a themed table
   return drupal_render($form) . theme('table', array('header' => $header, 'rows' => $rows)) . theme('pager');
@@ -417,10 +418,10 @@ function redhen_org_page() {
 /**
  * Returns the form to filter org lists.
  */
-function redhen_org_filter_form($form, $form_state, $entity_info) {
+function redhen_org_filter_form($form, $form_state, $entity_info, $property_info) {
   $form = array();
 
-  if (!empty($entity_info['properties'])) {
+  if (!empty($property_info['properties'])) {
     $form['filter_fieldset'] = array(
       '#type' => 'fieldset',
       '#title' => t('Filters'),
@@ -439,10 +440,10 @@ function redhen_org_filter_form($form, $form_state, $entity_info) {
     );
 
     // add a form field for each property
-    foreach($entity_info['properties'] as $key => $prop) {
+    foreach($property_info['properties'] as $key => $prop) {
       $form['filter_fieldset']['filters']['properties'][$key] = array(
         '#type' => $prop['type'],
-        '#title' => $prop['title'],
+        '#title' => $prop['label'],
         '#default_value' => isset($_GET[$key]) ? $_GET[$key] : NULL
       );
 
@@ -458,7 +459,7 @@ function redhen_org_filter_form($form, $form_state, $entity_info) {
     }
     $form['filter_fieldset']['filters']['type'] = array(
       '#type' => 'select',
-      '#title' => t('org type'),
+      '#title' => t('Organization type'),
       '#options' => $type_options,
       '#default_value' => isset($_GET['type']) ? $_GET['type'] : NULL,
       '#ajax' => array(
