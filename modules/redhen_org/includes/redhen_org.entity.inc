@@ -14,7 +14,7 @@ class RedhenOrg extends Entity {
   }
 
   /**
-   * Override buildContent() to add contact properties.
+   * Override buildContent() to add organization properties.
    */
   public function buildContent($view_mode = 'full', $langcode = NULL) {
     $content['name'] = array(
