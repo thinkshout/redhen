@@ -45,7 +45,7 @@ function redhen_org_schema() {
         'not null' => TRUE,
         'default' => 0,
       ),
-      'primary_contact' => array(
+      'primary_contact_id' => array(
         'description' => 'The redhen_contact.contact_id of the primary contact.',
         'type' => 'int',
         'not null' => TRUE,
@@ -89,9 +89,9 @@ function redhen_org_schema() {
         'table' => 'redhen_org_type',
         'columns' => array('type' => 'name'),
       ),
-      'redhen_org_primary_contact' => array(
+      'redhen_org_primary_contact_id' => array(
         'table' => 'redhen_contact',
-        'columns' => array('primary_contact' => 'contact_id'),
+        'columns' => array('primary_contact_id' => 'contact_id'),
       ),
     ),
     'primary key' => array('org_id'),
