@@ -245,29 +245,17 @@ function redhen_membership_load_multiple($membership_ids = array(), $conditions 
 }
 
 /**
- * Deletes multiple memberships by ID.
- *
- * @param $membership_ids
- *   An array of membership IDs to delete.
- *
- * @return
- *   TRUE on success, FALSE otherwise.
+ * Saves a membership to the db.
  */
-function redhen_membership_delete_multiple($membership_ids) {
-  return entity_get_controller('redhen_membership')->delete($membership_ids);
+function redhen_membership_save(RedhenMembership $membership) {
+  $membership->save();
 }
 
 /**
- * Saves a membership.
- *
- * @param $membership
- *   The full membership object to save.
- *
- * @return
- *   The saved membership object.
+ * Deletes a membership from the db.
  */
-function redhen_membership_save($membership) {
-  return entity_get_controller('redhen_membership')->save($membership);
+function redhen_membership_delete(RedhenMembershipType $membership) {
+  $membership->delete();
 }
 
 /**
