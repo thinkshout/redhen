@@ -434,9 +434,9 @@ function redhen_fields_field_widget_error($element, $error, $form, &$form_state)
 function theme_redhen_email_widget($vars) {
   $element = &$vars['element'];
 
-  $add_another = '<a href="#" class="add-another">' . t('add email') . '</a>';
+  $add_another = '<a href="#" id="redhen-email-add-another">' . t('add email') . '</a>';
   $output = '<div class="field-label"><label>' . check_plain($element['#title']) . ' ' . $add_another . '</label></div>';
-  $output .= '<div class="legend"><div class="email-label-section">' . t('Address') . '</div>';
+  $output .= '<div id="redhen-email-widget-legend"><div class="email-label-section">' . t('Address') . '</div>';
   $output .= '<div class="bulk-label">' . t('Bulk mailings?') . '</div>';
   $output .= '<div class="hold-label">' . t('On hold?') . '</div>';
   $output .= '<div class="primary-label">' . t('Primary') . '</div></div>';

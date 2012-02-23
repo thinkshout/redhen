@@ -28,23 +28,23 @@
           Drupal.behaviors.redhenFieldsDisplayWidget.hidden++;
           Drupal.behaviors.redhenFieldsDisplayWidget.shown--;
           if (Drupal.behaviors.redhenFieldsDisplayWidget.hidden > 0) {
-            $('.field-widget-redhen-email-widget .add-another').show();
+            $('#redhen-email-add-another').show();
           }
           if (Drupal.behaviors.redhenFieldsDisplayWidget.shown > 0) {
-            $('.field-widget-redhen-email-widget .legend').show();
+            $('#redhen-email-widget-legend').show();
           } else {
-            $('.field-widget-redhen-email-widget .legend').hide();
+            $('#redhen-email-widget-legend').hide();
           }
           return false;
         });
       });
       if (Drupal.behaviors.redhenFieldsDisplayWidget.shown > 0) {
-        $('.field-widget-redhen-email-widget .legend').show();
+        $('#redhen-email-widget-legend').show();
       } else {
-        $('.field-widget-redhen-email-widget .legend').hide();
+        $('#redhen-email-widget-legend').hide();
       }
       
-      $('.field-widget-redhen-email-widget .add-another').bind('click', function() {
+      $('#redhen-email-add-another').bind('click', function() {
         Drupal.redhenFieldsAddItem();
         return false;
       });
@@ -58,12 +58,12 @@
         Drupal.behaviors.redhenFieldsDisplayWidget.hidden--;
         Drupal.behaviors.redhenFieldsDisplayWidget.shown++;
         if (Drupal.behaviors.redhenFieldsDisplayWidget.hidden == 0) {
-          $('.field-widget-redhen-email-widget .add-another').hide();
+          $('#redhen-email-add-another').hide();
         }
         if (Drupal.behaviors.redhenFieldsDisplayWidget.shown > 0) {
-          $('.field-widget-redhen-email-widget .legend').show();
+          $('#redhen-email-widget-legend').show();
         } else {
-          $('.field-widget-redhen-email-widget .legend').hide();
+          $('#redhen-email-widget-legend').hide();
         }
         return false;
       }
