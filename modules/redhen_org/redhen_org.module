@@ -280,8 +280,8 @@ function redhen_org_save($org) {
  *   The saved org object.
  */
 function redhen_org_archive($org) {
-  $org->redhen_state = REDHEN_STATE_ARCHIVED;
-  redhen_org_save($org);
+  $org->setState(REDHEN_STATE_ARCHIVED);
+  drupal_set_message(t('@org has been archived.', array('@org' => $org->label)), 'status');
   drupal_goto(drupal_get_destination());
 }
 

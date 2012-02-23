@@ -43,6 +43,17 @@ class RedhenOrg extends Entity {
   }
 
   /**
+   * Set the redhen_state for an organization
+   *
+   * @param $state
+   *  The REDHEN_STATE_* value to use
+   */
+  public function setState($state) {
+    $this->redhen_state = $state;
+    $this->save();
+  }
+
+  /**
    * Specifies the default label, which is picked up by label() by default.
    */
   protected function defaultLabel() {
