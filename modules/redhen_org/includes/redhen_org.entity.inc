@@ -9,7 +9,7 @@
  */
 class RedhenOrg extends Entity {
 
-  public $primary_contact;
+  public $primary_contact, $label, $type, $redhen_state;
 
   public function __construct(array $values = array()) {
     parent::__construct($values, 'redhen_org');
@@ -41,6 +41,13 @@ class RedhenOrg extends Entity {
       ),
       '#classes' => 'field field-label-inline clearfix',
     );
+    if (isset($this->primary_contact->name)) {
+      $content['primary_contact'] = array(
+        '#theme' => 'fieldset',
+        '#title' => t('Primary Contact'),
+        '#children' => drupal_render($this->primary_contact->view('teaser')),
+      );
+    }
 
     return entity_get_controller($this->entityType)
       ->buildContent($this, $view_mode, $langcode, $content);
