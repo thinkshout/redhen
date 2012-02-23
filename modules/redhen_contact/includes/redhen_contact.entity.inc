@@ -9,8 +9,12 @@
  */
 class RedhenContact extends Entity {
 
+  public $first_name = '', $last_name = '', $name;
+
   public function __construct(array $values = array()) {
     parent::__construct($values, 'redhen_contact');
+
+    $this->name = $this->name();
   }
 
   /**
@@ -22,7 +26,7 @@ class RedhenContact extends Entity {
       '#label' => t('Name'),
       '#items' => array(
         array(
-          '#markup' => check_plain($this->first_name) . ' ' . check_plain($this->last_name)
+          '#markup' => $this->name
         ),
        ),
       '#classes' => 'field field-label-inline clearfix',
@@ -47,7 +51,7 @@ class RedhenContact extends Entity {
    */
   protected function defaultLabel() {
     $type = redhen_contact_get_types($this->type);
-    return $type->label . ': ' . $this->first_name . ' ' . $this->last_name;
+    return $type->label . ': ' . $this->name;
   }
 
   /**
@@ -56,6 +60,23 @@ class RedhenContact extends Entity {
   protected function defaultUri() {
     return array('path' => 'redhen/contact/' . $this->identifier());
   }
+
+  /**
+   * Return the contact formatted name, by default a concatenation of first and
+   * last names. Can be changed by overriding this class or implementing
+   * hook_redhen_contact_name_alter().
+   *
+   * @return string
+   */
+  protected function name() {
+    $name =  $this->first_name . ' ' . $this->last_name;
+    $context = array(
+      'contact' => clone $this,
+    );
+    drupal_alter('redhen_contact_name', $name, $context);
+    return $name;
+  }
+
 }
 
 

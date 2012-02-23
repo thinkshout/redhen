@@ -57,3 +57,14 @@ function hook_redhen_contact_update($contact) {
 function hook_redhen_contact_delete($contact) {
   
 }
+
+/**
+ * Alter the display name for a contact.
+ *
+ * @param string $name
+ * @param RedhenContact $contact
+ * @return string
+ */
+function hook_redhen_contact_name_alter(&$name, RedhenContact $contact) {
+  return $contact->last_name . ', ' . $contact->last_name;
+}

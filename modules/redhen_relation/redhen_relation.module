@@ -100,7 +100,7 @@ function redhen_relation_connections_page(RedhenContact $contact) {
     );
   }
 
-  return t('%name has no connections.', array('%name' => $contact->first_name));
+  return t('%name has no connections.', array('%name' => $contact->name));
 }
 
 /**
