@@ -9,7 +9,7 @@
  */
 class RedhenOrg extends Entity {
 
-  public $primary_contact;
+  public $primary_contact, $label, $type, $redhen_state;
 
   public function __construct(array $values = array()) {
     parent::__construct($values, 'redhen_org');
