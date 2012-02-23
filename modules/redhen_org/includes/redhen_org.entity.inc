@@ -18,7 +18,7 @@ class RedhenOrg extends Entity {
   }
 
   /**
-   * Override buildContent() to add contact properties.
+   * Override buildContent() to add organization properties.
    */
   public function buildContent($view_mode = 'full', $langcode = NULL) {
     $content['label'] = array(
@@ -44,6 +44,36 @@ class RedhenOrg extends Entity {
 
     return entity_get_controller($this->entityType)
       ->buildContent($this, $view_mode, $langcode, $content);
+  }
+
+  /**
+   * Set the primary contact for an organization
+   *
+   * @param $contact
+   *  The redhen_contact.contact_id to use as the primary contact
+   *
+   * @return bool
+   *  Return FALSE if we are unable to set the primary contact
+   */
+  public function setPrimary($contact) {
+    $return = TRUE;
+    //@TODO check that $contact has a relationship with $this
+    //
+    $this->primary_contact_id = $contact->contact_id;
+    $this->save();
+
+    return $return;
+  }
+
+  /**
+   * Set the redhen_state for an organization
+   *
+   * @param $state
+   *  The REDHEN_STATE_* value to use
+   */
+  public function setState($state) {
+    $this->redhen_state = $state;
+    $this->save();
   }
 
   /**
