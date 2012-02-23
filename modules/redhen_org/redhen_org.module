@@ -170,6 +170,16 @@ function redhen_org_menu() {
     'type' => MENU_CALLBACK,
   );
 
+  $items['redhen/org/%redhen_org/primary/%redhen_contact'] = array(
+    'title callback' => 'Change primary contact',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('redhen_org_set_primary_form', 2, 4),
+    'access callback' => 'redhen_org_access',
+    'access arguments' => array('edit', 2),
+    'type' => MENU_CALLBACK,
+    'file' => 'includes/redhen_org.forms.inc',
+  );
+
   if (module_exists('devel')) {
     $items['redhen/org/%redhen_org/devel'] = array(
       'title' => 'Devel',
@@ -245,7 +255,7 @@ function redhen_org_load_multiple($org_ids = array(), $conditions = array(), $re
 }
 
 /**
- * Archive a org.
+ * Archive an org.
  *
  * @param $org
  *   The full org object to save.
@@ -258,7 +268,6 @@ function redhen_org_archive($org) {
   drupal_set_message(t('@org has been archived.', array('@org' => $org->label)), 'status');
   drupal_goto(drupal_get_destination());
 }
-
 
 /**
  * Checks org access for various operations.

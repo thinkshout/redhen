@@ -175,6 +175,63 @@ function redhen_org_org_delete_form_submit($form, &$form_state) {
 }
 
 /**
+ * Form callback: confirmation form for changing the primary contact.
+ *
+ * @param $org
+ *   The organization object to be deleted.
+ * @param $contact
+ *   The contact being made the primary contact.
+ *
+ * @see confirm_form()
+ */
+function redhen_org_set_primary_form($form, &$form_state, $org, $contact) {
+  $form_state['redhen_org'] = $org;
+  $form_state['redhen_contact'] = $contact;
+
+  // Ensure this include file is loaded when the form is rebuilt from the cache.
+  $form_state['build_info']['files']['form'] = drupal_get_path('module', 'redhen_org') . '/includes/redhen_org.forms.inc';
+
+  $form['#submit'][] = 'redhen_org_set_primary_form_submit';
+
+  $existing = '';
+
+  if (isset($org->primary_contact->name)) {
+    $existing = '<p>' . t('%old_primary will no longer be the primary contact.', array('%old_primary' => $org->primary_contact->name)) . '</p>';
+  }
+
+  $form = confirm_form($form,
+    t('Are you sure you want to change the primary contact for %org to %name?', array('%org' => $org->label, '%name' => $contact->name)),
+    '',
+    $existing,
+    t('Change'),
+    t('Cancel'),
+    'confirm'
+  );
+
+  return $form;
+}
+
+/**
+ * Submit callback for redhen_org_set_primary_form().
+ */
+function redhen_org_set_primary_form_submit($form, &$form_state) {
+  $org = $form_state['redhen_org'];
+  $contact = $form_state['redhen_contact'];
+  $org_name = $org->label;
+  $contact_name = $contact->name;
+
+  if ($org->setPrimary($contact)) {
+    drupal_set_message(t('%contact_name has been set as the primary contact for %org_name.', array('%contact_name' => $contact_name, '%org_name' => $org_name)));
+  }
+  else {
+    drupal_set_message(t('Unable to set %contact_name as the primary contact for %org_name.', array('%contact_name' => $contact_name, '%org_name' => $org_name)));
+  }
+
+  drupal_goto(drupal_get_destination());
+
+}
+
+/**
  * Returns HTML for a list of available org types for org creation.
  *
  * @param $variables
