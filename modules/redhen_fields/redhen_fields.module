@@ -216,6 +216,15 @@ function redhen_fields_field_validate($entity_type, $entity, $field, $instance, 
   }
 }
 
+/**
+ * Helper to ensure an email isn't already in use for a given entity type.
+ *
+ * @param $field
+ * @param $entity_type
+ * @param $entity
+ * @param $value
+ * @return bool
+ */
 function _redhen_fields_email_in_use($field, $entity_type, $entity, $value) {
   if ($value) {
     $entity_info = entity_get_info($entity_type);
@@ -265,31 +274,11 @@ function redhen_fields_field_formatter_info() {
       'label' => t('Default'),
       'field types' => array('redhen_email'),
     ),
+    'redhen_email_primary' => array(
+      'label' => t('Primary email'),
+      'field types' => array('redhen_email'),
+    ),
   );
-}
-
-/**
- * Implements hook_field_formatter_settings_form().
- */
-function redhen_fields_field_formatter_settings_form($field, $instance, $view_mode, $form, &$form_state) {
-  $display = $instance['display'][$view_mode];
-  $settings = $display['settings'];
-
-  $element = array();
-
-  return $element;
-}
-
-/**
- * Implements hook_field_formatter_settings_summary().
- */
-function redhen_fields_field_formatter_settings_summary($field, $instance, $view_mode) {
-  $display = $instance['display'][$view_mode];
-  $settings = $display['settings'];
-
-  $summary = '';
-
-  return $summary;
 }
 
 /**
@@ -306,6 +295,14 @@ function redhen_fields_field_formatter_view($entity_type, $entity, $field, $inst
         $element[$delta] = array('#markup' => $output);
       }
       $element['#attached']['css'] = array(drupal_get_path('module', 'redhen_fields') . '/redhen_fields.css');
+      break;
+    case 'redhen_email_primary':
+      foreach ($items as $delta => $item) {
+        if ($item['default']) {
+          $element[$delta] = array('#markup' => l($item['value'], 'mailto:' . $item['value']));
+          break;
+        }
+      }
       break;
   }
 
@@ -345,18 +342,6 @@ function redhen_fields_field_widget_info() {
       ),
     ),
   );
-}
-
-/**
- * Implements hook_field_widget_settings_form().
- */
-function redhen_fields_field_widget_settings_form($field, $instance) {
-  $widget = $instance['widget'];
-  $settings = $widget['settings'];
-
-  $form = array();
-
-  return $form;
 }
 
 /**
