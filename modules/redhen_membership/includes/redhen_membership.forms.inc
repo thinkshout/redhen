@@ -5,27 +5,9 @@
  * Forms for creating, editing, and deleting memberships.
  */
 
-/**
- * Return a form for adding a membership.
- *
- * @param string $type
- *   The type of membership to return a form for.
- */
-function redhen_membership_add_page($type = 'default') {
-  $item = menu_get_item();
-  $content = system_admin_menu_block($item);
-
-  // Bypass the redhen_membership/add listing if only one membership type is available.
-  if (count($content) == 1) {
-    $item = array_shift($content);
-    drupal_goto($item['href']);
-  }
-  return theme('redhen_membership_add_list', array('content' => $content));
-}
-
-function redhen_membership_add($type) {
-  $membership = entity_get_controller('redhen_membership')->create(array('type' => $type));
-  return drupal_get_form('redhen_membership_membership_form', $membership);
+function redhen_membership_add($org = NULL) {
+  $membership = entity_get_controller('redhen_membership')->create();
+  return drupal_get_form('redhen_membership_membership_form', $org);
 }
 
 /**
@@ -35,9 +17,31 @@ function redhen_membership_add($type) {
  *   The membership object to edit or for a create form an empty membership object
  *     with only a membership type defined.
  */
-function redhen_membership_membership_form($form, &$form_state, $membership) {
+function redhen_membership_membership_form($form, &$form_state, $org, $membership = NULL) {
   // Ensure this include file is loaded when the form is rebuilt from the cache.
   $form_state['build_info']['files']['form'] = drupal_get_path('module', 'redhen_membership') . '/includes/redhen_membership.forms.inc';
+
+  $membership_types = redhen_membership_get_types();
+
+  // instantiate new membership
+  if (!$membership) {
+    $membership = entity_get_controller('redhen_membership')->create(array('type' => key($membership_types)));
+  }
+
+  // Store membership and organization entities for use on submit
+  $form_state['membership'] = $membership;
+  $form_state['org'] = $org;
+
+  $options = array();
+  foreach($membership_types as $type) {
+    $options[$type->name] = $type->label;
+  }
+  $form['membership_type'] = array(
+    '#title' => t('Membership type'),
+    '#type' => 'select',
+    '#options' => $options,
+    '#default value' => isset($membership) ? $membership->type : NULL
+  );
 
   // Add the default field elements.
   $form['name'] = array();
@@ -58,9 +62,7 @@ function redhen_membership_membership_form($form, &$form_state, $membership) {
     '#weight' => 10,
   );
 
-
   // Add the field related form elements.
-  $form_state['redhen_membership'] = $membership;
   field_attach_form('redhen_membership', $membership, $form, $form_state);
 
   $form['actions'] = array(
@@ -94,7 +96,7 @@ function redhen_membership_membership_form($form, &$form_state, $membership) {
  * Validation callback for redhen_membership_membership_form().
  */
 function redhen_membership_membership_form_validate($form, &$form_state) {
-  $membership = $form_state['redhen_membership'];
+  $membership = $form_state['membership'];
 
   // Notify field widgets to validate their data.
   field_attach_form_validate('redhen_membership', $membership, $form, $form_state);
@@ -104,7 +106,8 @@ function redhen_membership_membership_form_validate($form, &$form_state) {
  * Submit callback for redhen_membership_membership_form().
  */
 function redhen_membership_membership_form_submit($form, &$form_state) {
-  $membership = &$form_state['redhen_membership'];
+  $membership = $form_state['membership'];
+  $org = $form_state['org'];
 
   // Set the contact's author uid
   global $user;
@@ -113,18 +116,16 @@ function redhen_membership_membership_form_submit($form, &$form_state) {
   // Save default parameters back into the $membership object.
   $membership->label = $form_state['values']['label'];
   $membership->redhen_state = $form_state['values']['redhen_state'];
-
-  // @TODO Add a log field to existing entries
-  $membership->log = '';
+  $membership->org_id = $org->org_id;
 
   // Notify field widgets.
   field_attach_submit('redhen_membership', $membership, $form, $form_state);
 
   // Save the contact.
-  $membership = redhen_membership_save($membership);
+  redhen_membership_save($membership);
 
   drupal_set_message(t('Membership saved.'));
-  $form_state['redirect'] = 'redhen/membership/' . $membership->membership_id;
+  $form_state['redirect'] = 'redhen/org/' . $org->org_id . '/memberships/' . $membership->membership_id;
 }
 
 /**
