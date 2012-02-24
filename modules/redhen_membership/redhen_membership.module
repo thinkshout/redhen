@@ -91,12 +91,6 @@ function redhen_membership_entity_info_alter(&$entity_info) {
 function redhen_membership_menu() {
   $items = array();
 
-  $items['redhen/membership'] = array(
-    'title' => 'Memberships',
-    'description' => 'View RedHen CRM Memberships.',
-    'page callback' => 'redhen_membership_page',
-    'access arguments' => array('view memberships'),
-  );
   $items['redhen/org/%redhen_org/memberships/add'] = array(
     'title' => 'Add Membership',
     'page callback' => 'drupal_get_form',
@@ -361,8 +355,8 @@ function redhen_membership_page(RedhenOrg $org = NULL) {
       $actions = array(
         l('view', 'redhen/org/' . $membership->org_id . '/memberships/' . $membership->membership_id),
         l('edit', 'redhen/org/' . $membership->org_id . '/memberships/' . $membership->membership_id . '/edit', array('query' => drupal_get_destination())),
-        l('archive', 'redhen/membership/' . $membership->membership_id . '/archive', array('query' => drupal_get_destination())),
-        l('delete', 'redhen/membership/' . $membership->membership_id . '/delete', array('query' => drupal_get_destination())),
+        l('archive', 'redhen/org/' . $membership->org_id . '/memberships/' . $membership->membership_id . '/archive', array('query' => drupal_get_destination())),
+        l('delete', 'redhen/org/' . $membership->org_id . '/memberships/' . $membership->membership_id . '/delete', array('query' => drupal_get_destination())),
       );
       $rows[] = array(
         'data' => array($membership->label, implode(' | ', $actions))

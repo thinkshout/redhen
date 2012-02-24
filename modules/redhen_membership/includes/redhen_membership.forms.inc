@@ -136,7 +136,8 @@ function redhen_membership_membership_form_submit($form, &$form_state) {
  *
  * @see confirm_form()
  */
-function redhen_membership_membership_delete_form($form, &$form_state, $membership) {
+function redhen_membership_membership_delete_form($form, &$form_state, $org, $membership) {
+  $form_state['redhen_org'] = $org;
   $form_state['redhen_membership'] = $membership;
 
   // Ensure this include file is loaded when the form is rebuilt from the cache.
@@ -166,13 +167,11 @@ function redhen_membership_membership_delete_form_submit($form, &$form_state) {
 
   $title = $membership->label;
 
-  if (redhen_membership_delete_multiple(array($membership->membership_id))) {
-    drupal_set_message(t('%title has been deleted.', array('%title' => $title)));
-    watchdog('redhen_membership', 'Deleted membership %title.', array('%title' => $title), WATCHDOG_NOTICE);
-  }
-  else {
-    drupal_set_message(t('%title could not be deleted.', array('%title' => $title)), 'error');
-  }
+   // No return status from delete() unfortunately
+  $membership->delete();
+  drupal_set_message(t('%title has been deleted.', array('%title' => $title)));
+  watchdog('redhen_membership', 'Deleted membership %title.', array('%title' => $title), WATCHDOG_NOTICE);
+
 }
 
 /**
