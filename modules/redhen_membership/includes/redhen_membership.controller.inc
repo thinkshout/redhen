@@ -20,13 +20,15 @@ class RedhenMembershipEntityController extends EntityAPIController {
    *   A membership object with all default fields initialized.
    */
   public function create(array $values = array()) {
+    global $user;
+
     $values += array(
       'membership_id' => '',
       'label' => '',
-      'author_uid' => '',
+      'author_uid' => $user->uid,
       'redhen_state' => REDHEN_STATE_ACTIVE,
-      'created' => '',
-      'changed' => '',
+      'created' => REQUEST_TIME,
+      'changed' => REQUEST_TIME,
     );
     return parent::create($values);
   }
