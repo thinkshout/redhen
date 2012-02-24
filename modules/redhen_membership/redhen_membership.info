@@ -3,7 +3,8 @@ description = Defines the base membership entity and features.
 package = RedHen
 core = 7.x
 
-dependencies[] = redhen
+dependencies[] = redhen_org
+
 
 files[] = includes/redhen_membership_type.admin.inc
 
