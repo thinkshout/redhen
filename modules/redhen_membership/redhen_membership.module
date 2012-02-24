@@ -359,8 +359,8 @@ function redhen_membership_page(RedhenOrg $org = NULL) {
 
     foreach($memberships as $membership) {
       $actions = array(
-        l('view', 'redhen/membership/' . $membership->membership_id),
-        l('edit', 'redhen/membership/' . $membership->membership_id . '/edit', array('query' => drupal_get_destination())),
+        l('view', 'redhen/org/' . $membership->org_id . '/memberships/' . $membership->membership_id),
+        l('edit', 'redhen/org/' . $membership->org_id . '/memberships/' . $membership->membership_id . '/edit', array('query' => drupal_get_destination())),
         l('archive', 'redhen/membership/' . $membership->membership_id . '/archive', array('query' => drupal_get_destination())),
         l('delete', 'redhen/membership/' . $membership->membership_id . '/delete', array('query' => drupal_get_destination())),
       );
