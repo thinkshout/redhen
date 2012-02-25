@@ -9,14 +9,28 @@
  */
 class RedhenMembership extends Entity {
 
+  public $org;
+
   public function __construct(array $values = array()) {
     parent::__construct($values, 'redhen_membership');
+
+    $this->org = $this->organization();
   }
 
   /**
    * Override buildContent() to add contact properties.
    */
   public function buildContent($view_mode = 'full', $langcode = NULL) {
+    $content['org'] = array(
+      '#theme' => 'redhen_property_field',
+      '#label' => t('Organization'),
+      '#items' => array(
+        array(
+          '#markup' => check_plain($this->org->label)
+        ),
+      ),
+      '#classes' => 'field field-label-inline clearfix',
+    );
     $content['name'] = array(
       '#theme' => 'redhen_property_field',
       '#label' => t('Label'),
@@ -54,7 +68,20 @@ class RedhenMembership extends Entity {
    * Specifify URI
    */
   protected function defaultUri() {
-    return array('path' => 'redhen/membership/' . $this->identifier());
+    return array('path' => 'redhen/org/' . $this->org_id . '/memberships/' . $this->identifier());
+  }
+
+  /**
+   * Return an organization object if possible.
+   *
+   * @return RedhenOrg|null
+   */
+  protected function organization() {
+    $org = NULL;
+    if (isset($this->org_id)) {
+      $org = redhen_org_load($this->org_id);
+    }
+    return $org;
   }
 
 }

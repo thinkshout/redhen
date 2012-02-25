@@ -165,13 +165,11 @@ function redhen_org_org_delete_form_submit($form, &$form_state) {
 
   $title = $org->label;
 
-  if ($org->delete()) {
-    drupal_set_message(t('%title has been deleted.', array('%title' => $title)));
-    watchdog('redhen_org', 'Deleted organization %title.', array('%title' => $title), WATCHDOG_NOTICE);
-  }
-  else {
-    drupal_set_message(t('%title could not be deleted.', array('%title' => $title)), 'error');
-  }
+  // No status returned from delete(), assume it worked
+  $org->delete();
+  drupal_set_message(t('%title has been deleted.', array('%title' => $title)));
+  watchdog('redhen_org', 'Deleted organization %title.', array('%title' => $title), WATCHDOG_NOTICE);
+
 }
 
 /**
