@@ -194,6 +194,7 @@ function redhen_fields_field_instance_settings_form($field, $instance) {
 function redhen_fields_field_validate($entity_type, $entity, $field, $instance, $langcode, $items, &$errors) {
   switch ($field['type']) {
     case 'redhen_email':
+      $default = FALSE;
       foreach ($items as $delta => $item) {
         if (!empty($item['value'])) {
           if (filter_var($item['value'], FILTER_VALIDATE_EMAIL) === FALSE) {
@@ -209,6 +210,18 @@ function redhen_fields_field_validate($entity_type, $entity, $field, $instance, 
               'message' => t('%name: Email address already in use.', array('%name' => t($instance['label']))),
               'delta' => $delta,
             );
+          }
+
+          // ensure only a single default email is selected
+          if ($default && $item['default']) {
+            $errors[$field['field_name']][$langcode][$delta][] = array(
+              'error' => 'redhen_fields_multiple_default',
+              'message' => t('Only one email may be marked as default.'),
+              'delta' => $delta,
+            );
+          }
+          if ($item['default']) {
+            $default = TRUE;
           }
         }
       }
@@ -314,9 +327,6 @@ function redhen_fields_field_formatter_view($entity_type, $entity, $field, $inst
  */
 function redhen_fields_theme($existing, $type, $theme, $path) {
   return array(
-    'redhen_email_widget' => array(
-      'render element' => 'element',
-    ),
     'redhen_fields_email_formatter_row' => array(
       'variables' => array('item' => NULL, 'delta' => NULL),
       'template' => 'redhen-fields-email-formatter-row',
@@ -337,7 +347,6 @@ function redhen_fields_field_widget_info() {
       'field types' => array('redhen_email'),
       'settings' => array(),
       'behaviors' => array(
-        'multiple values' => FIELD_BEHAVIOR_CUSTOM,
         'default value' => FIELD_BEHAVIOR_NONE,
       ),
     ),
@@ -348,65 +357,44 @@ function redhen_fields_field_widget_info() {
  * Implements hook_field_widget_form().
  */
 function redhen_fields_field_widget_form(&$form, &$form_state, $field, $instance, $langcode, $items, $delta, $element) {
-  $orig_element = $element;
-  $count =  ($field['cardinality'] == -1) ? 50 : $field['cardinality'];
+  switch ($instance['widget']['type']) {
+    case 'redhen_email_widget':
+      $element['value'] = array(
+        '#type' => 'textfield',
+        '#default_value' => isset($items[$delta]['value']) ? $items[$delta]['value'] : NULL,
+        '#size' => 35,
+        '#weight' => -1
+      );
+      $element['label_id'] = array(
+        '#title' => t('Label'),
+        '#type' => 'select',
+        '#multiple' => FALSE,
+        '#options' => $field['settings']['labels'],
+        '#default_value' => isset($items[$delta]['label_id']) ? $items[$delta]['label_id'] : NULL,
+        '#weight' => 1
+      );
+      $element['hold'] = array(
+        '#title' => t('Hold'),
+        '#type' => 'checkbox',
+        '#default_value' => isset($items[$delta]['hold']) ? $items[$delta]['hold'] : FALSE,
+        '#weight' => 2
+      );
+      $element['bulk'] = array(
+        '#title' => t('Bulk'),
+        '#type' => 'checkbox',
+        '#default_value' => isset($items[$delta]['bulk']) ? $items[$delta]['bulk'] : FALSE,
+        '#weight' => 2
+      );
 
-  for ($i = 0; $i < $count; $i++) {
-    if (isset($items[$i]['default']) && $items[$i]['default'] == 1) {
-      $default_element = $i;
-    }
-
-    switch ($instance['widget']['type']) {
-      case 'redhen_email_widget':
-        $orig_element['#title_display'] = 'invisible';
-        $email = $label = $bulk = $hold = $orig_element;
-
-        // Set the email field
-        $email['#type'] = 'textfield';
-        $email['#default_value'] = isset($items[$i]['value']) ? $items[$i]['value'] : NULL;
-        $email['#size'] = 35;
-        $email['#weight'] = -1;
-
-        // Set the label field
-        $label['#type'] = 'select';
-        $label['#multiple'] = FALSE;
-        $label['#options'] = $field['settings']['labels'];
-        $label['#default_value'] = isset($items[$i]['label_id']) ? $items[$i]['label_id'] : NULL;
-        $label['#weight'] = 1;
-
-        // Set the hold field
-        $hold['#type'] = 'checkbox';
-        $hold['#default_value'] = isset($items[$i]['hold']) ? $items[$i]['hold'] : FALSE;
-        $hold['#weight'] = 2;
-
-        // Set the bulk field
-        $bulk['#type'] = 'checkbox';
-        $bulk['#default_value'] = isset($items[$i]['bulk']) ? $items[$i]['bulk'] : TRUE;
-        $bulk['#weight'] = 3;
-
-        // Assemble into a single element
-        $element[$i]['value'] = $email;
-        $element[$i]['label_id'] = $label;
-        $element[$i]['hold'] = $hold;
-        $element[$i]['bulk'] = $bulk;
-
-        // Handle styling
-        $element['#theme'] = 'redhen_email_widget';
-        $element['#element_validate'] = array('redhen_fields_email_widget_validate');
-        break;
-    }
+      $element['default'] = array(
+        '#title' => t('Primary'),
+        '#type' => 'checkbox',
+        '#default_value' => isset($items[$delta]['default']) ? $items[$delta]['default'] : FALSE,
+        '#weight' => 2,
+      );
+      break;
   }
 
-  // Handle default radio button element
-
-  $element['default'] = array(
-    '#type' => 'radios',
-    '#title' => 'default',
-    '#options' => array_fill(0, $count, ''),
-    '#default_value' => isset($default_element) ? $default_element : 0,
-  );
-
-  $element['#attached']['css'] = array(drupal_get_path('module', 'redhen_fields') . '/redhen_fields.css');
   $element['#attached']['js'] = array(drupal_get_path('module', 'redhen_fields') . '/redhen_fields.js');
 
   return $element;
@@ -418,71 +406,17 @@ function redhen_fields_field_widget_form(&$form, &$form_state, $field, $instance
 function redhen_fields_field_widget_error($element, $error, $form, &$form_state) {
   switch ($error['error']) {
     case 'redhen_fields_invalid_email':
-      $error_element = $element[$error['delta']]['value'];
+      $error_element = $element['value'];
+      break;
+    case 'redhen_fields_multiple_default':
+      $error_element = $element['default'];
       break;
     default:
-      $error_element = $element[$element['#columns'][0]];
+      $error_element = $element;
       break;
   }
 
   form_error($error_element, $error['message']);
-}
-
-/**
- * Theme the email widget.
- */
-function theme_redhen_email_widget($vars) {
-  $element = &$vars['element'];
-
-  $add_another = '<a href="#" id="redhen-email-add-another">' . t('add email') . '</a>';
-  $output = '<div class="field-label"><label>' . check_plain($element['#title']) . ' ' . $add_another . '</label></div>';
-  $output .= '<div id="redhen-email-widget-legend"><div class="email-label-section">' . t('Address') . '</div>';
-  $output .= '<div class="bulk-label">' . t('Bulk mailings?') . '</div>';
-  $output .= '<div class="hold-label">' . t('On hold?') . '</div>';
-  $output .= '<div class="primary-label">' . t('Primary') . '</div></div>';
-  foreach ($element as $key => $value) {
-    if (is_numeric($key)) {
-      $output .= "<div class=\"redhen-email-widget-item item-$key\">";
-      $output .= '<div class="email-label-section">';
-      $output .= render($value['value']);
-      $output .= render($value['label_id']);
-      $output .= '</div>';
-      $output .= '<div class="bulk-label">' . render($value['bulk']) . '</div>';
-      $output .= '<div class="hold-label">' . render($value['hold']) . '</div>';
-      $output .= '<div class="primary-label">' . render($element['default'][$key]) . '</div>';
-      $output .= '<a href="#" class="remove">' . t('remove') . '</a>';
-      $output .= '</div>';
-    }
-  }
-
-  return $output;
-}
-
-/**
- * Validate the redhen email widget and set the default value for each element
- * based on the values of the default form element.
- */
-function redhen_fields_email_widget_validate($element, &$form_state) {
-  $parents = $element['#parents'];
-  $element_values = drupal_array_get_nested_value($form_state['values'], $parents);
-  $default_item = $element_values['default'];
-  drupal_array_set_nested_value($form_state['values'], array_merge($parents, array('default')), NULL);
-  foreach ($element_values as $key => $item) {
-    if (is_numeric($key)) {
-      // Set the default value
-      if ($key == $default_item) {
-        drupal_array_set_nested_value($form_state['values'], array_merge($parents, array($key, 'default')), 1);
-      }
-      else {
-        drupal_array_set_nested_value($form_state['values'], array_merge($parents, array($key, 'default')), 0);
-      }
-
-      // Clear out empty elements
-      if (empty($item['value'])) {
-        drupal_array_set_nested_value($form_state['values'], array_merge($parents, array($key)), NULL);
-      }
-    }
-  }
 }
 
 /**
