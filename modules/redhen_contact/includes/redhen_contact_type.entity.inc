@@ -19,6 +19,20 @@ class RedhenContactType extends Entity {
     parent::__construct($values, 'redhen_contact_type');
   }
 
+  public function save() {
+    $ret = parent::save();
+    if ($ret) {
+      $email_field = array(
+        'field_name' => REDHEN_CONTACT_EMAIL_FIELD,
+        'entity_type' => 'redhen_contact',
+        'bundle' => $this->name,
+        'label' => t('Email'),
+
+      );
+      field_create_instance($email_field);
+    }
+  }
+
 }
 
 /**

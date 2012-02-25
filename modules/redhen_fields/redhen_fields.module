@@ -5,6 +5,7 @@
  * Defines email, phone and address field types for RedHen CRM.
  */
 
+define('REDHEN_CONTACT_EMAIL_FIELD', 'redhen_contact_email');
 
 /**
  * Implements hook_field_info().

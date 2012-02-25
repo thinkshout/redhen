@@ -47,3 +47,27 @@ function redhen_fields_field_schema($field) {
     'indexes' => array(),
   );
 }
+
+/**
+ * Implements hook_install().
+ */
+function redhen_fields_install() {
+  // create required email field to be used with contacts
+  $email_field = array(
+    'field_name' => REDHEN_CONTACT_EMAIL_FIELD,
+    'type' => 'redhen_email',
+    'locked' => TRUE,
+    'cardinality' => FIELD_CARDINALITY_UNLIMITED,
+    'settings' => array(
+      'labels' => array('home', 'work')
+    )
+  );
+  field_create_field($email_field);
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function redhen_fields_uninstall() {
+  field_delete_field(REDHEN_CONTACT_EMAIL_FIELD);
+}
