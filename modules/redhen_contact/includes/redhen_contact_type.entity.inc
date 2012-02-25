@@ -21,6 +21,8 @@ class RedhenContactType extends Entity {
 
   public function save() {
     $ret = parent::save();
+
+    // associate email field instance with contact.
     if ($ret) {
       $email_field = array(
         'field_name' => REDHEN_CONTACT_EMAIL_FIELD,

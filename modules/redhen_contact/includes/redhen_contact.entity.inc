@@ -9,12 +9,17 @@
  */
 class RedhenContact extends Entity {
 
-  public $first_name = '', $last_name = '', $name;
+  public $first_name = '', $last_name = '', $name, $email;
 
   public function __construct(array $values = array()) {
     parent::__construct($values, 'redhen_contact');
 
+    // ensure all field values are loaded.
+    // @todo: Figure out why we need this here.
+    field_attach_load('redhen_contact', array($this->contact_id => $this));
+
     $this->name = $this->name();
+    $this->email = $this->defaultEmail();
   }
 
   /**
@@ -75,6 +80,22 @@ class RedhenContact extends Entity {
     );
     drupal_alter('redhen_contact_name', $name, $context);
     return $name;
+  }
+
+  /**
+   * Return default email from email field.
+   * 
+   * @return string
+   */
+  protected function defaultEmail() {
+    if (!empty($this->{REDHEN_CONTACT_EMAIL_FIELD})) {
+      foreach($this->{REDHEN_CONTACT_EMAIL_FIELD}[LANGUAGE_NONE] as $email) {
+        if ($email['default']) {
+          return $email['value'];
+        }
+      }
+    }
+    return '';
   }
 
 }

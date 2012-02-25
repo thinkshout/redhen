@@ -163,4 +163,5 @@ class RedhenContactEntityController extends EntityAPIController {
 
     return TRUE;
   }
+
 }
