@@ -1,7 +1,5 @@
 .field-type-redhen-email .redhen-fields-email-formatter-row,
-.redhen-fields-email-formatter-row,
-.field-widget-redhen-email-widget,
-.field-widget-redhen-email-widget .redhen-email-widget-item {
+.redhen-fields-email-formatter-row {
   clear: both;
   overflow: auto;
 	width: 100%
@@ -26,11 +24,6 @@
   width: 300px;
 }
 
-.field-widget-redhen-email-widget .email-label-section {
-  width: 400px;
-  float: left;
-}
-
 .field-type-redhen-email .bulk-label,
 .redhen-fields-email-formatter-row .bulk-label,
 .field-type-redhen-email .hold-label,
@@ -39,21 +32,6 @@
   width: 100px;
 }
 
-.field-type-redhen-email .primary-label,
-.field-widget-redhen-email-widget .primary-label {
+.field-type-redhen-email .primary-label {
   float: left;
 }
-
-.field-widget-redhen-email-widget .add-another {
-  font-size: .8em;
-}
-
-.field-widget-redhen-email-widget .redhen-email-widget-item .form-type-radio,
-.field-widget-redhen-email-widget .redhen-email-widget-item .form-type-checkbox,
-.field-widget-redhen-email-widget .redhen-email-widget-item .form-type-select,
-.field-widget-redhen-email-widget .redhen-email-widget-item .remove,
-.field-widget-redhen-email-widget .redhen-email-widget-item .form-type-textfield {
-  float: left;
-  margin-right: 1em;
-}
-
