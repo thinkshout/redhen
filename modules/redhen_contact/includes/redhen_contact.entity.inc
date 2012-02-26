@@ -84,7 +84,7 @@ class RedhenContact extends Entity {
 
   /**
    * Return default email from email field.
-   * 
+   *
    * @return string
    */
   protected function defaultEmail() {
@@ -96,6 +96,23 @@ class RedhenContact extends Entity {
       }
     }
     return '';
+  }
+
+  /**
+   * Determine if contact has a given email.
+   *
+   * @param $email
+   * @return bool
+   */
+  public function hasEmail($email) {
+    if (!empty($this->{REDHEN_CONTACT_EMAIL_FIELD})) {
+      foreach($this->{REDHEN_CONTACT_EMAIL_FIELD}[LANGUAGE_NONE] as $contact_email) {
+        if ($contact_email['value'] === $email) {
+          return TRUE;
+        }
+      }
+    }
+    return FALSE;
   }
 
 }
