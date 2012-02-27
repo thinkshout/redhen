@@ -8,6 +8,7 @@ define('REDHEN_RELATION_STATUS_FIELD', 'redhen_relation_status');
 function redhen_relation_menu() {
   $items = array();
 
+  // contact connections
   $items['redhen/contact/%redhen_contact/connections'] = array(
     'title' => 'Connections',
     'page callback' => 'redhen_relation_connections_page',
@@ -26,6 +27,24 @@ function redhen_relation_menu() {
     'type' => MENU_LOCAL_ACTION,
   );
 
+  // org connections
+  $items['redhen/org/%redhen_org/connections'] = array(
+    'title' => 'Connections',
+    'page callback' => 'redhen_relation_connections_page',
+    'page arguments' => array(2),
+    'access callback' => 'redhen_org_access',
+    'access arguments' => array('view', 2),
+    'type' => MENU_LOCAL_TASK,
+  );
+  $items['redhen/org/%redhen_org/connections/add'] = array(
+    'title' => 'Add Connection',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('redhen_relation_connection_form', 2),
+    'file' => 'includes/redhen_relation.forms.inc',
+    'access callback' => 'redhen_org_access',
+    'access arguments' => array('edit', 2),
+    'type' => MENU_LOCAL_ACTION,
+  );
 
   return $items;
 }
