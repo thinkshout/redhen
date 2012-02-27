@@ -86,8 +86,8 @@ function redhen_relation_connections_page($entity) {
           $object_uri = entity_uri($endpoint['entity_type'], $object_entity);
           $author = user_load($relation->uid);
           $operations = array(
-            l('edit', $relation_uri['path'] . '/edit'),
-            l('delete', $relation_uri['path'] . '/delete'),
+            l('edit', $relation_uri['path'] . '/edit', array('query' => drupal_get_destination())),
+            l('delete', $relation_uri['path'] . '/delete', array('query' => drupal_get_destination())),
           );
 
           $rows[] = array(
