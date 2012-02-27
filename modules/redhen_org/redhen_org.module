@@ -13,7 +13,8 @@
 function redhen_org_entity_info() {
   return array(
     'redhen_org' => array(
-      'label' => t('Org'),
+      'label' => t('Organization'),
+      'plural label' => t('Organizations'),
       'controller class' => 'RedhenOrgEntityController',
       'metadata controller class' => 'RedhenOrgMetadataController',
       'entity class' => 'RedhenOrg',

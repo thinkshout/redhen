@@ -12,6 +12,7 @@ function redhen_contact_entity_info() {
   return array(
     'redhen_contact' => array(
       'label' => t('Contact'),
+      'plural label' => t('Contacts'),
       'controller class' => 'RedhenContactEntityController',
       'metadata controller class' => 'RedhenContactMetadataController',
       'entity class' => 'RedhenContact',

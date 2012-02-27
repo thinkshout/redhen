@@ -12,7 +12,7 @@ function redhen_relation_menu() {
   $items['redhen/contact/%redhen_contact/connections'] = array(
     'title' => 'Connections',
     'page callback' => 'redhen_relation_connections_page',
-    'page arguments' => array(2),
+    'page arguments' => array(2, 'redhen_contact'),
     'access callback' => 'redhen_contact_access',
     'access arguments' => array('view', 2),
     'type' => MENU_LOCAL_TASK,
@@ -31,7 +31,7 @@ function redhen_relation_menu() {
   $items['redhen/org/%redhen_org/connections'] = array(
     'title' => 'Connections',
     'page callback' => 'redhen_relation_connections_page',
-    'page arguments' => array(2),
+    'page arguments' => array(2, 'redhen_org'),
     'access callback' => 'redhen_org_access',
     'access arguments' => array('view', 2),
     'type' => MENU_LOCAL_TASK,
@@ -52,18 +52,17 @@ function redhen_relation_menu() {
 /**
  * Page callback for listing connections.
  *
- * @param RedhenContact $contact
+ * @param RedhenContact|RedhenOrg $entity
  * @return array|null|string
  */
-function redhen_relation_connections_page(RedhenContact $contact) {
-  $query = relation_query('redhen_contact', $contact->contact_id);
+function redhen_relation_connections_page($entity) {
+  $query = relation_query($entity->entityType(), $entity->internalIdentifier());
   $results = $query->execute();
   if ($results) {
     $relations = relation_load_multiple(array_keys($results));
     foreach($relations as $relation) {
       $relation_type = relation_type_load($relation->relation_type);
       $relation_uri = entity_uri('relation', $relation);
-      list($relation_id,,) = entity_extract_ids('relation', $relation);
 
       $duplicate = FALSE; // To make sure duplicates of $entity get included in object list.
 
@@ -72,7 +71,7 @@ function redhen_relation_connections_page(RedhenContact $contact) {
 
       foreach ($relation->endpoints[LANGUAGE_NONE] as $endpoint) {
         // Add all entities that aren't this entity or duplicates
-        if ($endpoint['entity_type'] == $contact->entityType() && $endpoint['entity_id'] == $contact->internalIdentifier() && $duplicate == FALSE) {
+        if ($endpoint['entity_type'] == $entity->entityType() && $endpoint['entity_id'] == $entity->internalIdentifier() && $duplicate == FALSE) {
           $duplicate = TRUE;
           // Use the forward label as sentence predicate if r_index == 0.
           // (only makes a difference if relation is directional).
@@ -114,5 +113,5 @@ function redhen_relation_connections_page(RedhenContact $contact) {
     );
   }
 
-  return t('%name has no connections.', array('%name' => $contact->name));
+  return t('%name has no connections.', array('%name' => $entity->label));
 }
