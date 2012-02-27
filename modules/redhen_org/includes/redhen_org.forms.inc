@@ -218,7 +218,7 @@ function redhen_org_set_primary_form_submit($form, &$form_state) {
   $org_name = $org->label;
   $contact_name = $contact->name;
 
-  if ($org->setPrimary($contact)) {
+  if ($org->setPrimaryContact($contact)) {
     drupal_set_message(t('%contact_name has been set as the primary contact for %org_name.', array('%contact_name' => $contact_name, '%org_name' => $org_name)));
   }
   else {

@@ -56,20 +56,16 @@ class RedhenOrg extends Entity {
   /**
    * Set the primary contact for an organization
    *
-   * @param $contact
-   *  The redhen_contact.contact_id to use as the primary contact
+   * @param RedhenContact $contact
+   *  The RedhenContact to use as the primary contact
    *
    * @return bool
    *  Return FALSE if we are unable to set the primary contact
    */
-  public function setPrimary($contact) {
-    $return = TRUE;
+  public function setPrimaryContact(RedhenContact $contact) {
     //@TODO check that $contact has a relationship with $this
-    //
     $this->primary_contact_id = $contact->contact_id;
-    $this->save();
-
-    return $return;
+    return $this->save();
   }
 
   /**
