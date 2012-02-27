@@ -16,23 +16,17 @@ function redhen_relation_menu() {
     'access arguments' => array('view', 2),
     'type' => MENU_LOCAL_TASK,
   );
-
   $items['redhen/contact/%redhen_contact/connections/add'] = array(
     'title' => 'Add Connection',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('redhen_relation_connection_form', 2),
+    'file' => 'includes/redhen_relation.forms.inc',
     'access callback' => 'redhen_contact_access',
     'access arguments' => array('edit', 2),
     'type' => MENU_LOCAL_ACTION,
   );
-  $items['redhen/contact/%redhen_contact/connections/%relation/edit'] = array(
-    'title' => 'Edit Connection',
-    'page callback' => 'drupal_get_form',
-    'page arguments' => array('redhen_relation_connection_form', 2, 4),
-    'access callback' => 'redhen_contact_access',
-    'access arguments' => array('edit', 2),
-    'type' => MENU_LOCAL_ACTION,
-  );
+
+
   return $items;
 }
 
@@ -74,7 +68,7 @@ function redhen_relation_connections_page(RedhenContact $contact) {
           $object_uri = entity_uri($endpoint['entity_type'], $object_entity);
           $author = user_load($relation->uid);
           $operations = array(
-            l('edit', "redhen/contact/{$contact->internalIdentifier()}/connections/{$relation_id}/edit"),
+            l('edit', $relation_uri['path'] . '/edit'),
             l('delete', $relation_uri['path'] . '/delete'),
           );
 
@@ -91,7 +85,8 @@ function redhen_relation_connections_page(RedhenContact $contact) {
       }
     }
 
-    $header = array(t('Connection'), 'Label', t('Status'), 'Type', 'Created', t('Author'), t('Actions'));
+    $header = array(t('Connection'), t('Label'), t('Status'), t('Type'),
+      t('Created'), t('Author'), t('Actions'));
 
     return array(
       '#theme' => 'table',
@@ -101,100 +96,4 @@ function redhen_relation_connections_page(RedhenContact $contact) {
   }
 
   return t('%name has no connections.', array('%name' => $contact->name));
-}
-
-/**
- * Return a form array for adding/editing a connection.
- *
- * @param $form
- * @param $form_state
- * @param RedhenContact $contact
- * @param stdClass $relation
- * @return array
- */
-function redhen_relation_connection_form($form, &$form_state, RedhenContact $contact, $relation = NULL) {
-  $relation_types = relation_get_available_types('redhen_contact', $contact->bundle());
-
-  // instantiate new relation
-  if (!$relation) {
-    $relation = relation_create(reset($relation_types)->relation_type, array());
-  }
-
-  // store contact and relation entities for use on submit
-  $form_state['contact'] = $contact;
-  $form_state['relation'] = $relation;
-
-  $options = array();
-  foreach($relation_types as $type) {
-    $options[$type->relation_type] = $type->label;
-  }
-  $form['relation_type'] = array(
-    '#title' => t('Connection type'),
-    '#type' => 'select',
-    '#options' => $options,
-    '#default value' => isset($relation) ? $relation->relation_type : NULL
-  );
-
-  $options = array();
-  foreach(entity_load('redhen_org') as $org) {
-    $options[$org->org_id] = $org->label;
-  }
-  $form['org'] = array(
-    '#title' => t('Organization'),
-    '#type' => 'select',
-    '#options' => $options
-  );
-
-  // attach any fields
-  field_attach_form('relation', $relation, $form, $form_state);
-
-  // hide the endpoints field widget. @TODO: Find out why appearing.
-  $form['endpoints']['#access'] = FALSE;
-
-  $form['submit'] = array(
-    '#type' => 'submit',
-    '#value' => t('Save connection'),
-    '#weight' => 999
-  );
-
-  return $form;
-}
-
-/**
- * Validation handler for redhen_relation_connection_form().
- */
-function redhen_relation_connection_form_validate($form, &$form_state) {
-  $contact = $form_state['contact'];
-  $relation = $form_state['relation'];
-
-  // set the endpoints field to the selected values.
-  $endpoints =array (
-    array('entity_type' => 'redhen_contact', 'entity_id' => $contact->contact_id),
-    array('entity_type' => 'redhen_org', 'entity_id' => $form_state['values']['org']),
-  );
-  $form_state['values']['endpoints'][LANGUAGE_NONE] = $endpoints;
-
-  // set the relation type based on selected value before validating
-  $relation->relation_type = $form_state['values']['relation_type'];
-
-  field_attach_form_validate('relation', $relation, $form, &$form_state);
-}
-
-/**
- * Submit handler for redhen_relation_connection_form().
- */
-function redhen_relation_connection_form_submit($form, &$form_state) {
-  $contact = $form_state['contact'];
-  $relation = $form_state['relation'];
-
-  $relation->relation_type = $form_state['values']['relation_type'];
-
-  field_attach_submit('relation', $relation, $form, $form_state);
-  if (relation_save($relation)) {
-    drupal_set_message(t('The connection has been saved.'));
-    $form_state['redirect'] = "redhen/contact/{$contact->contact_id}/connections";
-  }
-  else {
-    drupal_set_message(t('The connection could not be saved.'), 'error');
-  }
 }
