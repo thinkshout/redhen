@@ -9,14 +9,29 @@
  */
 class RedhenContact extends Entity {
 
-  public $first_name = '', $last_name = '', $name, $email;
+  public
+    $first_name = '',
+    $last_name = '',
+    $name,
+    $email,
+    $contact_id = NULL,
+    $revision_id = NULL,
+    $user_uid = NULL,
+    $author_uid = NULL,
+    $redhen_state = REDHEN_STATE_ACTIVE,
+    $type = '',
+    $created = '',
+    $changed = '';
+
 
   public function __construct(array $values = array()) {
     parent::__construct($values, 'redhen_contact');
 
-    // ensure all field values are loaded.
+    // ensure all field values are loaded
     // @todo: Figure out why we need this here.
-    field_attach_load('redhen_contact', array($this->contact_id => $this));
+    if ($this->contact_id) {
+      field_attach_load('redhen_contact', array($this->contact_id => $this));
+    }
 
     $this->name = $this->name();
     $this->email = $this->defaultEmail();

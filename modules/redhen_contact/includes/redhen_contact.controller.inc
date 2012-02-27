@@ -11,30 +11,6 @@
 class RedhenContactEntityController extends EntityAPIController {
 
   /**
-   * Create a default contact.
-   *
-   * @param $type
-   *   The machine-readable type of the contact.
-   *
-   * @return
-   *   A contact object with all default fields initialized.
-   */
-  public function create(array $values = array()) {
-    $values += array(
-      'contact_id' => '',
-      'revision_id' => '',
-      'first_name' => '',
-      'last_name' => '',
-      'user_uid' => '',
-      'author_uid' => '',
-      'redhen_state' => REDHEN_STATE_ACTIVE,
-      'created' => '',
-      'changed' => '',
-    );
-    return parent::create($values);
-  }
-
-  /**
    * Saves a contact.
    *
    * @param $contact
