@@ -113,5 +113,5 @@ function redhen_relation_connections_page($entity) {
     );
   }
 
-  return t('%name has no connections.', array('%name' => $entity->label));
+  return t('%name has no connections.', array('%name' => $entity->label()));
 }
