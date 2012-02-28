@@ -15,7 +15,6 @@ class RedhenContact extends Entity {
     $name,
     $email,
     $contact_id = NULL,
-    $revision_id = NULL,
     $user_uid = NULL,
     $author_uid = NULL,
     $redhen_state = REDHEN_STATE_ACTIVE,
