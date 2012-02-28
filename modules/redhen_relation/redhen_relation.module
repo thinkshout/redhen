@@ -1,6 +1,7 @@
 <?php
 
 define('REDHEN_RELATION_STATUS_FIELD', 'redhen_relation_status');
+define('REDHEN_RELATION_ROLES_FIELD', 'redhen_relation_roles');
 
 /**
  * Implements hook_menu().
