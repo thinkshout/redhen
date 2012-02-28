@@ -14,18 +14,20 @@
  * @param stdClass $relation
  * @return array
  */
-function redhen_relation_connection_form($form, &$form_state, $entity, $relation = NULL) {
+function redhen_relation_connection_form($form, &$form_state, $entity) {
   $relation_types = relation_get_available_types($entity->entityType(), $entity->bundle());
 
-  // instantiate new relation
-  if (!$relation) {
-    $relation = relation_create(reset($relation_types)->relation_type, array());
-  }
+  // instantiate new relation based on default or submitted relation type
+  $relation_type = isset($form_state['values']['relation_type']) ?
+    $form_state['values']['relation_type'] :
+    reset($relation_types)->relation_type;
+  $relation = relation_create($relation_type, array());
 
   // store contact and relation entities for use on submit
   $form_state['entity'] = $entity;
   $form_state['relation'] = $relation;
 
+  // load all available relation types
   $options = array();
   foreach($relation_types as $type) {
     $options[$type->relation_type] = $type->label;
@@ -34,29 +36,51 @@ function redhen_relation_connection_form($form, &$form_state, $entity, $relation
     '#title' => t('Connection type'),
     '#type' => 'select',
     '#options' => $options,
-    '#default value' => isset($relation) ? $relation->relation_type : NULL
+    '#default value' => isset($relation) ? $relation->relation_type : NULL,
+    '#ajax' => array(
+      'callback' => 'redhen_relation_relation_type_callback',
+      'wrapper' => 'redhen_relation_fields',
+      'method' => 'replace',
+      'effect' => 'fade',
+      'progress' => array(
+        'type' => 'throbber',
+        'message' => t('Retrieving fields for this connection type.')
+      )
+    )
   );
 
-  $entity_type_to_relate = $entity->entityType() === 'redhen_org' ? 'redhen_contact' : 'redhen_org';
+  // determine the entity type we're going to relate to
+  $entity_type_to_relate = 'redhen_org';
+  if ($entity->entityType() === 'redhen_org' || $relation->relation_type == 'redhen_connection') {
+    $entity_type_to_relate = 'redhen_contact';
+  }
   $form_state['entity_to_relate_type'] = $entity_type_to_relate;
+
+  $form['fields'] = array(
+    '#type' => 'fieldset',
+    '#id' => 'redhen_relation_fields'
+  );
 
   $options = array();
   foreach(entity_load($entity_type_to_relate) as $option) {
+    if ($option->internalIdentifier() == $entity->internalIdentifier() && $option->entityType() == $entity->entityType()) {
+      break;
+    }
     $options[$option->internalIdentifier()] = $option->label();
   }
   $info = entity_get_info($entity_type_to_relate);
   $plural_label = isset($info['plural label']) ? $info['plural label'] : $info['label'] . 's';
-  $form['entity_to_relate'] = array(
+  $form['fields']['entity_to_relate'] = array(
     '#title' => $plural_label,
     '#type' => 'select',
     '#options' => $options
   );
 
   // attach any fields
-  field_attach_form('relation', $relation, $form, $form_state);
+  field_attach_form('relation', $relation, $form['fields'], $form_state);
 
   // hide the endpoints field widget. @TODO: Find out why appearing.
-  $form['endpoints']['#access'] = FALSE;
+  $form['fields']['endpoints']['#access'] = FALSE;
 
   $form['submit'] = array(
     '#type' => 'submit',
@@ -65,6 +89,13 @@ function redhen_relation_connection_form($form, &$form_state, $entity, $relation
   );
 
   return $form;
+}
+
+/**
+ * AJAX callback to return fields for a given relation type.
+ */
+function redhen_relation_relation_type_callback($form, $form_state) {
+  return $form['fields'];
 }
 
 /**
