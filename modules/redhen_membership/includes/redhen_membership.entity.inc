@@ -9,10 +9,29 @@
  */
 class RedhenMembership extends Entity {
 
-  public $org;
+  public
+    $label = '',
+    $name = '',
+    $org_id,
+    $membership_id = NULL,
+    $org = NULL,
+    $author_uid = NULL,
+    $redhen_state = REDHEN_STATE_ACTIVE,
+    $type = '',
+    $created = '',
+    $updated = '';
 
   public function __construct(array $values = array()) {
+    global $user;
+
     parent::__construct($values, 'redhen_membership');
+
+    // New membership. is_new might not be set so check for id
+    if (!$this->membership_id) {
+      $this->author_uid = $user->uid;
+      $this->redhen_state = REDHEN_STATE_ACTIVE;
+      $this->created = REQUEST_TIME;
+    }
 
     $this->org = $this->organization();
   }
@@ -54,6 +73,17 @@ class RedhenMembership extends Entity {
 
     return entity_get_controller($this->entityType)
       ->buildContent($this, $view_mode, $langcode, $content);
+  }
+
+  /**
+   * Permanently saves the entity.
+   *
+   * @return bool
+   *  Returns FALSE if entity was not saved.
+   */
+  public function save() {
+    $this->updated = REQUEST_TIME;
+    return parent::save();
   }
 
   /**

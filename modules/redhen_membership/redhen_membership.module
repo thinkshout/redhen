@@ -14,7 +14,7 @@ function redhen_membership_entity_info() {
   return array(
     'redhen_membership' => array(
       'label' => t('Membership'),
-      'controller class' => 'RedhenMembershipEntityController',
+      'controller class' => 'EntityAPIController',
       'metadata controller class' => 'RedhenMembershipMetadataController',
       'entity class' => 'RedhenMembership',
       'base table' => 'redhen_membership',
