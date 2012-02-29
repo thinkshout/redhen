@@ -86,6 +86,36 @@ function redhen_membership_membership_form($form, &$form_state, RedhenMembership
     '#weight' => 10,
   );
 
+  $start_date = array();
+  if (isset($membership->start_date)) {
+    $datetime = strtotime($membership->start_date);
+    $start_date = array(
+      'year' => date('Y', $datetime),
+      'month' => date('n', $datetime),
+      'day' => date('d', $datetime),
+    );
+  }
+  $form['start_date'] = array(
+    '#type' => 'date',
+    '#title' => 'Start Date',
+    '#default_value' => $start_date,
+  );
+
+  $expire_date = array();
+  if (isset($membership->expire_date)) {
+    $datetime = strtotime($membership->expire_date);
+    $expire_date = array(
+      'year' => date('Y', $datetime),
+      'month' => date('n', $datetime),
+      'day' => date('d', $datetime),
+    );
+  }
+  $form['expire_date'] = array(
+    '#type' => 'date',
+    '#title' => 'Expiration Date',
+    '#default_value' => $expire_date,
+  );
+
   $form['fields'] = array(
     '#type' => 'fieldset',
     '#id' => 'redhen_membership_fields'
@@ -153,6 +183,8 @@ function redhen_membership_membership_form_submit($form, &$form_state) {
   // Save default parameters back into the $membership object.
   $membership->type = $form_state['values']['type'];
   $membership->label = $form_state['values']['label'];
+  $membership->start_date = $fields['start_date'] = $form_state['values']['start_date']['year'] . '-' . $form_state['values']['start_date']['month'] . '-' . $form_state['values']['start_date']['day'];
+  $membership->expire_date = $fields['expire_date'] = $form_state['values']['expire_date']['year'] . '-' . $form_state['values']['expire_date']['month'] . '-' . $form_state['values']['expire_date']['day'];
   $membership->redhen_state = $form_state['values']['redhen_state'];
   $membership->org_id = $org_id;
 

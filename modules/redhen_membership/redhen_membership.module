@@ -403,6 +403,26 @@ function redhen_membership_type_delete(RedhenMembershipType $type) {
 }
 
 /**
+ * Implements hook_cron().
+ */
+function redhen_membership_cron() {
+
+  // update all memberships that need to be made active on this day
+  $results = db_update('redhen_membership')
+    ->fields(array('redhen_state' => REDHEN_STATE_ACTIVE))
+    ->condition('redhen_state', REDHEN_STATE_ARCHIVED)
+    ->condition('start_date', date('Y-m-d 00:00:00'))
+    ->execute();
+
+  // update all memberships that need to be made INACTIVE on this day
+  $results = db_update('redhen_membership')
+    ->fields(array('redhen_state' => REDHEN_STATE_ARCHIVED))
+    ->condition('redhen_state', REDHEN_STATE_ACTIVE)
+    ->condition('expire_date', date('Y-m-d 00:00:00'))
+    ->execute();
+}
+
+/**
  * Returns HTML for a list of available membership types for membership creation.
  *
  * @param $variables
