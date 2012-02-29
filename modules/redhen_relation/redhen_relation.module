@@ -57,50 +57,30 @@ function redhen_relation_menu() {
  * @return array|null|string
  */
 function redhen_relation_connections_page($entity) {
-  $query = relation_query($entity->entityType(), $entity->internalIdentifier());
-  $results = $query->execute();
-  if ($results) {
-    $relations = relation_load_multiple(array_keys($results));
-    foreach($relations as $relation) {
-      $relation_type = relation_type_load($relation->relation_type);
+  $related = redhen_relation_relations($entity);
+  if (!empty($related)) {
+    foreach ($related as $relation_id => $related_entities) {
+      $relation = relation_load($relation_id);
       $relation_uri = entity_uri('relation', $relation);
+      $relation_type = relation_type_load($relation->relation_type);
+      foreach ($related_entities as $related_entity) {
+        $object_label = entity_label($related_entity->entityType(), $related_entity);
+        $object_uri = entity_uri($related_entity->entityType(), $related_entity);
+        $author = user_load($relation->uid);
+        $operations = array(
+          l('edit', $relation_uri['path'] . '/edit', array('query' => drupal_get_destination())),
+          l('delete', $relation_uri['path'] . '/delete', array('query' => drupal_get_destination())),
+        );
 
-      $duplicate = FALSE; // To make sure duplicates of $entity get included in object list.
-
-      // Gramatical predicate of teh sentence.
-      $predicate = $relation_type->directional ? $relation_type->reverse_label : $relation_type->label;
-
-      foreach ($relation->endpoints[LANGUAGE_NONE] as $endpoint) {
-        // Add all entities that aren't this entity or duplicates
-        if ($endpoint['entity_type'] == $entity->entityType() && $endpoint['entity_id'] == $entity->internalIdentifier() && $duplicate == FALSE) {
-          $duplicate = TRUE;
-          // Use the forward label as sentence predicate if r_index == 0.
-          // (only makes a difference if relation is directional).
-          if ($endpoint['r_index'] == 0) {
-            $predicate = ' ' . $relation_type->label;
-          }
-        }
-        else {
-          $object_entities = entity_load($endpoint['entity_type'], array($endpoint['entity_id']));
-          $object_entity = reset($object_entities);
-          $object_label = entity_label($endpoint['entity_type'], $object_entity);
-          $object_uri = entity_uri($endpoint['entity_type'], $object_entity);
-          $author = user_load($relation->uid);
-          $operations = array(
-            l('edit', $relation_uri['path'] . '/edit', array('query' => drupal_get_destination())),
-            l('delete', $relation_uri['path'] . '/delete', array('query' => drupal_get_destination())),
-          );
-
-          $rows[] = array(
-            l($predicate, $relation_uri['path']),
-            l($object_label, $object_uri['path']),
-            $relation->{REDHEN_RELATION_STATUS_FIELD}[LANGUAGE_NONE][0]['value'],
-            $object_entity->entityType(),
-            date('m/d/Y', $relation->created),
-            $author->name,
-            implode(' | ', $operations)
-          );
-        }
+        $rows[] = array(
+          l($relation_type->label, $relation_uri['path']),
+          l($object_label, $object_uri['path']),
+          $relation->{REDHEN_RELATION_STATUS_FIELD}[LANGUAGE_NONE][0]['value'],
+          $related_entity->entityType(),
+          date('m/d/Y', $relation->created),
+          $author->name,
+          implode(' | ', $operations)
+        );
       }
     }
 
@@ -113,6 +93,87 @@ function redhen_relation_connections_page($entity) {
       '#rows' => $rows
     );
   }
+  else {
+    return t('%name has no connections.', array('%name' => $entity->label()));
+  }
+}
 
-  return t('%name has no connections.', array('%name' => $entity->label()));
+/**
+ * Return entities related to a given entity excluding self and duplicates.
+ *
+ * @param object $entity
+ * @param string $relation_type
+ *   Filter on a givne relation type if provided.
+ *
+ * @return array
+ *   Keyed by the relation id which contains an arrary of entities.
+ *   Array (
+ *     1 => array($entity1, $entity2),
+ *     3 => array($entity3, $entity4)
+ */
+function redhen_relation_relations($entity, $relation_type = NULL) {
+  $related_entities = array();
+  $query = relation_query($entity->entityType(), $entity->internalIdentifier());
+  if ($relation_type) {
+    $query->propertyCondition('relation_type', $relation_type);
+  }
+  $results = $query->execute();
+
+  if ($results) {
+    $relations = relation_load_multiple(array_keys($results));
+    foreach($relations as $relation) {
+      $rid = entity_id('relation', $relation);
+      $related_entities[$rid] = array();
+      $duplicate = FALSE; // To make sure duplicates of $entity get included in object list.
+      foreach ($relation->endpoints[LANGUAGE_NONE] as $endpoint) {
+        // Add all entities that aren't this entity or duplicates
+        if ($endpoint['entity_type'] == $entity->entityType() && $endpoint['entity_id'] == $entity->internalIdentifier() && $duplicate == FALSE) {
+          $duplicate = TRUE;
+        }
+        else {
+          $object_entities = entity_load($endpoint['entity_type'], array($endpoint['entity_id']));
+          $related_entities[$rid][] = reset($object_entities);
+        }
+      }
+    }
+  }
+
+  return $related_entities;
+}
+
+/**
+ * Return a list of entities the given entity can be assocaited with.
+ *
+ * @param $entity
+ * @param $entity_type_to_relate
+ * @param $relation_type
+ * @return array
+ */
+function redhen_relation_get_available_entities($entity, $entity_type_to_relate, $relation_type) {
+  $entities = array();
+
+  $query = new EntityFieldQuery();
+  $query
+    ->entityCondition('entity_type', $entity_type_to_relate)
+    ->propertyCondition('redhen_state', REDHEN_STATE_ACTIVE);
+
+  // exclude existing relationships
+  $existing = redhen_relation_relations($entity, $relation_type);
+  if (!empty($existing)) {
+    $info = entity_get_info($entity_type_to_relate);
+    $idKey = $info['entity keys']['id'];
+    $to_exclude = array();
+    foreach($existing as $relation_id => $related_entities) {
+      foreach ($related_entities as $related_entity) {
+        $to_exclude[] = entity_id($related_entity->entityType(), $related_entity);
+      }
+    }
+    $query->propertyCondition($idKey, $to_exclude, 'NOT IN');
+  }
+
+
+  if ($result = $query->execute()) {
+    $entities = entity_load($entity_type_to_relate, array_keys($result[$entity_type_to_relate]));
+  }
+  return $entities;
 }

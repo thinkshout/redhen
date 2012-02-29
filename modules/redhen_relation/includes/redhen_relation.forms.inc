@@ -61,31 +61,41 @@ function redhen_relation_connection_form($form, &$form_state, $entity) {
     '#id' => 'redhen_relation_fields'
   );
 
-  $options = array();
-  foreach(entity_load($entity_type_to_relate) as $option) {
-    if ($option->internalIdentifier() == $entity->internalIdentifier() && $option->entityType() == $entity->entityType()) {
-      break;
+  $available_entities = redhen_relation_get_available_entities($entity, $entity_type_to_relate, $relation->relation_type);
+
+  if (!empty($available_entities)) {
+    $options = array('' => t('-- Select --'));
+    foreach ($available_entities as $available_entity) {
+      $entity_id = entity_id($available_entity->entityType(), $available_entity);
+      $options[$entity_id] = entity_label($available_entity->entityType(), $available_entity);
     }
-    $options[$option->internalIdentifier()] = $option->label();
+
+    $info = entity_get_info($entity_type_to_relate);
+    $plural_label = isset($info['plural label']) ? $info['plural label'] : $info['label'] . 's';
+    $form['fields']['entity_to_relate'] = array(
+      '#title' => $plural_label,
+      '#type' => 'select',
+      '#options' => $options,
+      '#required' => TRUE
+    );
+
+    // attach any fields
+    field_attach_form('relation', $relation, $form['fields'], $form_state);
+
+    // hide the endpoints field widget. @TODO: Find out why appearing.
+    $form['fields']['endpoints']['#access'] = FALSE;
   }
-  $info = entity_get_info($entity_type_to_relate);
-  $plural_label = isset($info['plural label']) ? $info['plural label'] : $info['label'] . 's';
-  $form['fields']['entity_to_relate'] = array(
-    '#title' => $plural_label,
-    '#type' => 'select',
-    '#options' => $options
-  );
+  else {
+    $form['fields']['no_connections'] = array(
+      '#markup' => t('Sorry, there are no available %type connections.', array('%type' => $relation->relation_type))
+    );
+  }
 
-  // attach any fields
-  field_attach_form('relation', $relation, $form['fields'], $form_state);
-
-  // hide the endpoints field widget. @TODO: Find out why appearing.
-  $form['fields']['endpoints']['#access'] = FALSE;
-
-  $form['submit'] = array(
+  $form['fields']['submit'] = array(
     '#type' => 'submit',
     '#value' => t('Save connection'),
-    '#weight' => 999
+    '#weight' => 999,
+    '#access' => !empty($available_entities)
   );
 
   return $form;
@@ -102,22 +112,25 @@ function redhen_relation_relation_type_callback($form, $form_state) {
  * Validation handler for redhen_relation_connection_form().
  */
 function redhen_relation_connection_form_validate($form, &$form_state) {
-  $entity = $form_state['entity'];
-  $relation = $form_state['relation'];
+  // only validate if a entity to relate has been selected
+  if (isset($form_state['values']['entity_to_relate'])) {
+    $entity = $form_state['entity'];
+    $relation = $form_state['relation'];
 
-  // set the endpoints field to the selected values.
-  $endpoints =array (
-    array('entity_type' => $entity->entityType(),
-      'entity_id' => $entity->internalIdentifier()),
-    array('entity_type' => $form_state['entity_to_relate_type'],
-      'entity_id' => $form_state['values']['entity_to_relate']),
-  );
-  $form_state['values']['endpoints'][LANGUAGE_NONE] = $endpoints;
+    // set the endpoints field to the selected values.
+    $endpoints =array (
+      array('entity_type' => $entity->entityType(),
+        'entity_id' => $entity->internalIdentifier()),
+      array('entity_type' => $form_state['entity_to_relate_type'],
+        'entity_id' => $form_state['values']['entity_to_relate']),
+    );
+    $form_state['values']['endpoints'][LANGUAGE_NONE] = $endpoints;
 
-  // set the relation type based on selected value before validating
-  $relation->relation_type = $form_state['values']['relation_type'];
+    // set the relation type based on selected value before validating
+    $relation->relation_type = $form_state['values']['relation_type'];
 
-  field_attach_form_validate('relation', $relation, $form, &$form_state);
+    field_attach_form_validate('relation', $relation, $form, &$form_state);
+  }
 }
 
 /**
