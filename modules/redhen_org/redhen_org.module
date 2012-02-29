@@ -97,6 +97,7 @@ function redhen_org_menu() {
     'title' => 'Organizations',
     'description' => 'View RedHen CRM Organizations.',
     'page callback' => 'redhen_org_page',
+    'file' => 'includes/redhen_org.pages.inc',
     'access arguments' => array('view orgs'),
   );
 
@@ -104,10 +105,10 @@ function redhen_org_menu() {
   $items['redhen/org/add'] = array(
     'title' => 'Add an organization',
     'description' => 'Add a new organization.',
-    'page callback' => 'redhen_org_add_page',
+    'page callback' => 'redhen_org_types_list_page',
     'access callback' => 'redhen_org_access',
     'access arguments' => array('create'),
-    'file' => 'includes/redhen_org.forms.inc',
+    'file' => 'includes/redhen_org.pages.inc',
     'type' => MENU_NORMAL_ITEM,
   );
 
@@ -118,11 +119,11 @@ function redhen_org_menu() {
       'title' => $bundle['label'],
       'title callback' => 'check_plain',
       'description' => isset($bundle['description']) ? $bundle['description'] : '',
-      'page callback' => 'redhen_org_add',
+      'page callback' => 'redhen_org_add_page',
       'page arguments' => array($key),
       'access callback' => 'redhen_org_access',
       'access arguments' => array('create'),
-      'file' => 'includes/redhen_org.forms.inc',
+      'file' => 'includes/redhen_org.pages.inc',
     );
   }
 
@@ -324,198 +325,6 @@ function redhen_org_org_title(RedhenOrg $org) {
 }
 
 /**
- * Page callback for org overview page.
- */
-function redhen_org_page() {
-  $orgs = array();
-
-  $query = new EntityFieldQuery();
-
-  // setup the header for both the query and table
-  $header = array(
-    'label' => array('field' => 'label', 'type' => 'property', 'data' => 'Label', 'sort' => 'asc', 'specifier' => 'label'),
-    'Actions',
-  );
-
-  // build the query
-  $query
-    ->entityCondition('entity_type', 'redhen_org', '=')
-    ->tablesort($header)
-    ->pager(10);
-
-  // set the org type
-  if (isset($_GET['type']) && !empty($_GET['type'])) {
-    $query->propertyCondition('type', $_GET['type'], '=');
-  }
-
-  // add prop filters
-  if (isset($_GET['properties'])) {
-    foreach($_GET['properties'] as $key => $value) {
-      if (!empty($value)) {
-        $query->propertyCondition($key, $value, '=');
-      }
-    }
-  }
-
-  // add field filters
-  if (isset($_GET['fields'])) {
-    foreach($_GET['fields'] as $key => $value) {
-      if (!empty($value)) {
-        $query->fieldCondition($key, NULL, $value, '=');
-      }
-    }
-  }
-
-  $result = $query->execute();
-
-  $rows = array();
-  if ($result) {
-    $orgs = redhen_org_load_multiple(array_keys($result['redhen_org']));
-
-    foreach($orgs as $org) {
-      $actions = array(
-        l('view', 'redhen/org/' . $org->org_id),
-        l('edit', 'redhen/org/' . $org->org_id . '/edit', array('query' => drupal_get_destination())),
-        l('archive', 'redhen/org/' . $org->org_id . '/archive', array('query' => drupal_get_destination())),
-        l('delete', 'redhen/org/' . $org->org_id . '/delete', array('query' => drupal_get_destination())),
-      );
-      $rows[] = array(
-        'data' => array($org->label, implode(' | ', $actions))
-      );
-    }
-  }
-  else {
-    // no results, set a message
-    $rows[] = array(
-      'data' => array(array('data' => t('Sorry, there are no organizations that match your criteria.'), 'colspan' => 3))
-    );
-  }
-
-  $entity_info = entity_get_info('redhen_org');
-  $property_info = entity_get_property_info('redhen_org');
-  $form = drupal_get_form('redhen_org_filter_form', $entity_info, $property_info);
-
-  // return a themed table
-  return drupal_render($form) . theme('table', array('header' => $header, 'rows' => $rows)) . theme('pager');
-}
-
-/**
- * Returns the form to filter org lists.
- */
-function redhen_org_filter_form($form, $form_state, $entity_info, $property_info) {
-  $form = array();
-
-  if (!empty($property_info['properties'])) {
-    $form['filter_fieldset'] = array(
-      '#type' => 'fieldset',
-      '#title' => t('Filters'),
-      '#collapsible' => TRUE,
-      // expand fieldset if the list was filtered
-      '#collapsed' => (empty($_GET['properties']) && empty($_GET['fields']))
-    );
-
-    $form['filter_fieldset']['filters'] = array(
-      '#type' => 'container',
-      '#tree' => TRUE
-    );
-
-    $form['filter_fieldset']['filters']['properties'] = array(
-      '#type' => 'container',
-    );
-
-    // add a form field for each property
-    foreach($property_info['properties'] as $key => $prop) {
-      $form['filter_fieldset']['filters']['properties'][$key] = array(
-        '#type' => $prop['type'],
-        '#title' => $prop['label'],
-        '#default_value' => isset($_GET[$key]) ? $_GET[$key] : NULL
-      );
-
-      if ($prop['type'] == 'select' && !empty($prop['options'])) {
-        $form['filter_fieldset']['filters']['properties'][$key]['#options'] = $prop['options'];
-      }
-    }
-
-    // add org type; will load additional field filters on change
-    $type_options = array('' => t('-- Any --'));
-    foreach($entity_info['bundles'] as $key => $bundle) {
-      $type_options[$key] = $bundle['label'];
-    }
-    $form['filter_fieldset']['filters']['type'] = array(
-      '#type' => 'select',
-      '#title' => t('Organization type'),
-      '#options' => $type_options,
-      '#default_value' => isset($_GET['type']) ? $_GET['type'] : NULL,
-      '#ajax' => array(
-        'callback' => 'redhen_org_get_fields_callback',
-        'wrapper' => 'redhen_org_fields_container'
-      )
-    );
-
-    $form['filter_fieldset']['filters']['fields'] = array(
-      '#prefix' => '<div id="redhen_org_fields_container">',
-      '#suffix' => '</div>'
-    );
-
-    $form['filter_fieldset']['submit'] = array(
-      '#type' => 'submit',
-      '#value' => t('Apply')
-    );
-
-    $form['filter_fieldset']['reset'] = array(
-      '#type' => 'submit',
-      '#value' => t('Reset'),
-      '#limit_validation_errors' => array(),
-      '#submit' => array('redhen_org_filter_form_reset')
-    );
-  }
-
-  // add the fields on an ajax type change event or if a filter is being passed
-  if (!empty($form_state['values']['filters']['type']) || isset($_GET['type'])) {
-    $type = !empty($form_state['values']['filters']['type']) ?
-      $form_state['values']['filters']['type'] : $_GET['type'];
-
-    $fields = field_info_instances('redhen_org', $type);
-    if (!empty($fields)) {
-      $form['filter_fieldset']['filters']['fields'] = array(
-        '#type' => 'fieldset',
-        '#title' => t('Additional Fields for @type', array('@type' => $type)),
-        '#collapsible' => FALSE,
-        '#id' => 'redhen_org_fields_container'
-      );
-
-      foreach($fields as $key => $field) {
-        $form['filter_fieldset']['filters']['fields'][$key] = array(
-          '#type' => 'textfield',
-          '#title' => $field['label'],
-          '#default_value' => isset($_GET['fields'][$key]) ? $_GET['fields'][$key] : NULL,
-        );
-      }
-    }
-  }
-
-  return $form;
-}
-
-/**
- * AJAX callback to return fields for a given type.
- */
-function redhen_org_get_fields_callback($form, $form_state) {
-  return $form['filter_fieldset']['filters']['fields'];
-}
-
-/**
- * Submit handler for redhen_org_filter_form().
- */
-function redhen_org_filter_form_submit($form, $form_state) {
-  drupal_goto($_GET['q'], array('query' => $form_state['values']['filters']));
-}
-
-function redhen_org_filter_form_reset() {
-  drupal_goto('redhen/org');
-}
-
-/**
  * Implements hook_field_extra_fields().
  */
 function redhen_org_field_extra_fields() {
@@ -595,4 +404,31 @@ function redhen_org_type_save(RedhenOrgType $type) {
  */
 function redhen_org_type_delete(RedhenOrgType $type) {
   $type->delete();
+}
+
+/**
+ * Returns HTML for a list of available org types for org creation.
+ *
+ * @param $variables
+ *   An associative array containing:
+ *   - content: An array of content types.
+ *
+ * @ingroup themeable
+ */
+function theme_redhen_org_add_list($variables) {
+  $content = $variables['content'];
+  $output = '';
+
+  if ($content) {
+    $output = '<dl class="node-type-list">';
+    foreach ($content as $item) {
+      $output .= '<dt>' . l($item['title'], $item['href'], $item['localized_options']) . '</dt>';
+      $output .= '<dd>' . filter_xss_admin($item['description']) . '</dd>';
+    }
+    $output .= '</dl>';
+  }
+  else {
+    $output = '<p>' . t('You have not created any organization types yet. Go to the <a href="@create-org-types">organization type creation page</a> to add a new content type.', array('@create-org-types' => url('admin/structure/redhen/org-types'))) . '</p>';
+  }
+  return $output;
 }
