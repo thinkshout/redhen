@@ -183,8 +183,8 @@ function redhen_membership_membership_form_submit($form, &$form_state) {
   // Save default parameters back into the $membership object.
   $membership->type = $form_state['values']['type'];
   $membership->label = $form_state['values']['label'];
-  $membership->start_date = $fields['start_date'] = $form_state['values']['start_date']['year'] . '-' . $form_state['values']['start_date']['month'] . '-' . $form_state['values']['start_date']['day'];
-  $membership->expire_date = $fields['expire_date'] = $form_state['values']['expire_date']['year'] . '-' . $form_state['values']['expire_date']['month'] . '-' . $form_state['values']['expire_date']['day'];
+  $membership->start_date = $form_state['values']['start_date']['year'] . '-' . $form_state['values']['start_date']['month'] . '-' . $form_state['values']['start_date']['day'];
+  $membership->expire_date = $form_state['values']['expire_date']['year'] . '-' . $form_state['values']['expire_date']['month'] . '-' . $form_state['values']['expire_date']['day'];
   $membership->redhen_state = $form_state['values']['redhen_state'];
   $membership->org_id = $org_id;
 

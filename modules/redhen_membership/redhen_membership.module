@@ -407,19 +407,32 @@ function redhen_membership_type_delete(RedhenMembershipType $type) {
  */
 function redhen_membership_cron() {
 
-  // update all memberships that need to be made active on this day
-  $results = db_update('redhen_membership')
-    ->fields(array('redhen_state' => REDHEN_STATE_ACTIVE))
+  $activate_results = db_select('redhen_membership', 'me')
+    ->fields('me')
     ->condition('redhen_state', REDHEN_STATE_ARCHIVED)
     ->condition('start_date', date('Y-m-d 00:00:00'))
-    ->execute();
+    ->execute()
+    ->fetchAllAssoc('membership_id');
 
-  // update all memberships that need to be made INACTIVE on this day
-  $results = db_update('redhen_membership')
-    ->fields(array('redhen_state' => REDHEN_STATE_ARCHIVED))
+  $memberships = redhen_membership_load_multiple(array_keys($activate_results));
+
+  foreach ($memberships as $membership) {
+    $membership->setState(REDHEN_STATE_ACTIVE);
+  }
+
+  $expire_results = db_select('redhen_membership', 'me')
+    ->fields('me')
     ->condition('redhen_state', REDHEN_STATE_ACTIVE)
     ->condition('expire_date', date('Y-m-d 00:00:00'))
-    ->execute();
+    ->execute()
+    ->fetchAllAssoc('membership_id');
+
+  $memberships = redhen_membership_load_multiple(array_keys($expire_results));
+
+  foreach ($memberships as $membership) {
+    $membership->setState(REDHEN_STATE_ARCHIVED);
+  }
+
 }
 
 /**
