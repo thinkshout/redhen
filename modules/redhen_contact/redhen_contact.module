@@ -97,6 +97,7 @@ function redhen_contact_menu() {
     'title' => 'Contacts',
     'description' => 'View RedHen CRM contacts.',
     'page callback' => 'redhen_contact_page',
+    'file' => 'includes/redhen_contact.pages.inc',
     'access arguments' => array('view contacts'),
   );
 
@@ -104,10 +105,10 @@ function redhen_contact_menu() {
   $items['redhen/contact/add'] = array(
     'title' => 'Add a contact',
     'description' => 'Add a new contact.',
-    'page callback' => 'redhen_contact_add_page',
+    'page callback' => 'redhen_contact_types_list_page',
     'access callback' => 'redhen_contact_access',
     'access arguments' => array('create'),
-    'file' => 'includes/redhen_contact.forms.inc',
+    'file' => 'includes/redhen_contact.pages.inc',
     'type' => MENU_NORMAL_ITEM,
   );
 
@@ -118,11 +119,11 @@ function redhen_contact_menu() {
       'title' => $bundle['label'],
       'title callback' => 'check_plain',
       'description' => isset($bundle['description']) ? $bundle['description'] : '',
-      'page callback' => 'redhen_contact_add',
+      'page callback' => 'redhen_contact_add_page',
       'page arguments' => array($key),
       'access callback' => 'redhen_contact_access',
       'access arguments' => array('create'),
-      'file' => 'includes/redhen_contact.forms.inc',
+      'file' => 'includes/redhen_contact.pages.inc',
     );
   }
 
@@ -351,198 +352,6 @@ function redhen_contact_views_api() {
 }
 
 /**
- * Page callback for contact overview page.
- */
-function redhen_contact_page() {
-  $contacts = array();
-
-  $query = new EntityFieldQuery();
-
-  // setup the header for both the query and table
-  $header = array(
-    'first_name' => array('field' => 'first_name', 'type' => 'property', 'data' => 'First Name', 'sort' => 'asc', 'specifier' => 'first_name'),
-    'last_name' => array('field' => 'last_name', 'type' => 'property', 'data' => 'Last Name', 'sort' => 'asc', 'specifier' => 'last_name'),
-    'Actions',
-  );
-
-  // build the query
-  $query
-    ->entityCondition('entity_type', 'redhen_contact', '=')
-    ->tablesort($header)
-    ->pager(10);
-
-  // set the contact type
-  if (isset($_GET['type']) && !empty($_GET['type'])) {
-    $query->propertyCondition('type', $_GET['type'], '=');
-  }
-
-  // add prop filters
-  if (isset($_GET['properties'])) {
-    foreach($_GET['properties'] as $key => $value) {
-      if (!empty($value)) {
-        $query->propertyCondition($key, $value, '=');
-      }
-    }
-  }
-
-  // add field filters
-  if (isset($_GET['fields'])) {
-    foreach($_GET['fields'] as $key => $value) {
-      if (!empty($value)) {
-        $query->fieldCondition($key, NULL, $value, '=');
-      }
-    }
-  }
-
-  $result = $query->execute();
-
-  $rows = array();
-  if ($result) {
-    $contacts = redhen_contact_load_multiple(array_keys($result['redhen_contact']));
-
-    foreach($contacts as $contact) {
-      $actions = array(
-        l('view', 'redhen/contact/' . $contact->contact_id),
-        l('edit', 'redhen/contact/' . $contact->contact_id . '/edit', array('query' => drupal_get_destination())),
-        l('archive', 'redhen/contact/' . $contact->contact_id . '/archive', array('query' => drupal_get_destination())),
-        l('delete', 'redhen/contact/' . $contact->contact_id . '/delete', array('query' => drupal_get_destination())),
-      );
-      $rows[] = array(
-        'data' => array($contact->first_name, $contact->last_name, implode(' | ', $actions))
-      );
-    }
-  }
-  else {
-    // no results, set a message
-    $rows[] = array(
-      'data' => array(array('data' => t('Sorry, there are no contacts that match your criteria.'), 'colspan' => 3))
-    );
-  }
-
-  $entity_info = entity_get_info('redhen_contact');
-  $form = drupal_get_form('redhen_contact_filter_form', $entity_info);
-
-  // return a themed table
-  return drupal_render($form) . theme('table', array('header' => $header, 'rows' => $rows)) . theme('pager');
-}
-
-/**
- * Returns the form to filter contact lists.
- */
-function redhen_contact_filter_form($form, $form_state, $entity_info) {
-  $form = array();
-
-  if (!empty($entity_info['properties'])) {
-    $form['filter_fieldset'] = array(
-      '#type' => 'fieldset',
-      '#title' => t('Filters'),
-      '#collapsible' => TRUE,
-      // expand fieldset if the list was filtered
-      '#collapsed' => (empty($_GET['properties']) && empty($_GET['fields']))
-    );
-
-    $form['filter_fieldset']['filters'] = array(
-      '#type' => 'container',
-      '#tree' => TRUE
-    );
-
-    $form['filter_fieldset']['filters']['properties'] = array(
-      '#type' => 'container',
-    );
-
-    // add a form field for each property
-    foreach($entity_info['properties'] as $key => $prop) {
-      $form['filter_fieldset']['filters']['properties'][$key] = array(
-        '#type' => $prop['type'],
-        '#title' => $prop['title'],
-        '#default_value' => isset($_GET[$key]) ? $_GET[$key] : NULL
-      );
-
-      if ($prop['type'] == 'select' && !empty($prop['options'])) {
-        $form['filter_fieldset']['filters']['properties'][$key]['#options'] = $prop['options'];
-      }
-    }
-
-    // add contact type; will load additional field filters on change
-    $type_options = array('' => t('-- Any --'));
-    foreach($entity_info['bundles'] as $key => $bundle) {
-      $type_options[$key] = $bundle['label'];
-    }
-    $form['filter_fieldset']['filters']['type'] = array(
-      '#type' => 'select',
-      '#title' => t('Contact type'),
-      '#options' => $type_options,
-      '#default_value' => isset($_GET['type']) ? $_GET['type'] : NULL,
-      '#ajax' => array(
-        'callback' => 'redhen_contact_get_fields_callback',
-        'wrapper' => 'redhen_contact_fields_container'
-      )
-    );
-
-    $form['filter_fieldset']['filters']['fields'] = array(
-      '#prefix' => '<div id="redhen_contact_fields_container">',
-      '#suffix' => '</div>'
-    );
-
-    $form['filter_fieldset']['submit'] = array(
-      '#type' => 'submit',
-      '#value' => t('Apply')
-    );
-
-    $form['filter_fieldset']['reset'] = array(
-      '#type' => 'submit',
-      '#value' => t('Reset'),
-      '#limit_validation_errors' => array(),
-      '#submit' => array('redhen_contact_filter_form_reset')
-    );
-  }
-
-  // add the fields on an ajax type change event or if a filter is being passed
-  if (!empty($form_state['values']['filters']['type']) || isset($_GET['type'])) {
-    $type = !empty($form_state['values']['filters']['type']) ?
-      $form_state['values']['filters']['type'] : $_GET['type'];
-
-    $fields = field_info_instances('redhen_contact', $type);
-    if (!empty($fields)) {
-      $form['filter_fieldset']['filters']['fields'] = array(
-        '#type' => 'fieldset',
-        '#title' => t('Additional Fields for @type', array('@type' => $type)),
-        '#collapsible' => FALSE,
-        '#id' => 'redhen_contact_fields_container'
-      );
-
-      foreach($fields as $key => $field) {
-        $form['filter_fieldset']['filters']['fields'][$key] = array(
-          '#type' => 'textfield',
-          '#title' => $field['label'],
-          '#default_value' => isset($_GET['fields'][$key]) ? $_GET['fields'][$key] : NULL,
-        );
-      }
-    }
-  }
-
-  return $form;
-}
-
-/**
- * AJAX callback to return fields for a given type.
- */
-function redhen_contact_get_fields_callback($form, $form_state) {
-  return $form['filter_fieldset']['filters']['fields'];
-}
-
-/**
- * Submit handler for redhen_contact_filter_form().
- */
-function redhen_contact_filter_form_submit($form, $form_state) {
-  drupal_goto($_GET['q'], array('query' => $form_state['values']['filters']));
-}
-
-function redhen_contact_filter_form_reset() {
-  drupal_goto('redhen/contact');
-}
-
-/**
  * Implements hook_user_delete().
  */
 function redhen_contact_user_delete($account) {
@@ -635,4 +444,31 @@ function redhen_contact_type_save(RedhenContactType $type) {
  */
 function redhen_contact_type_delete(RedhenContactType $type) {
   $type->delete();
+}
+
+/**
+ * Returns HTML for a list of available node types for node creation.
+ *
+ * @param $variables
+ *   An associative array containing:
+ *   - content: An array of content types.
+ *
+ * @ingroup themeable
+ */
+function theme_redhen_contact_add_list($variables) {
+  $content = $variables['content'];
+  $output = '';
+
+  if ($content) {
+    $output = '<dl class="node-type-list">';
+    foreach ($content as $item) {
+      $output .= '<dt>' . l($item['title'], $item['href'], $item['localized_options']) . '</dt>';
+      $output .= '<dd>' . filter_xss_admin($item['description']) . '</dd>';
+    }
+    $output .= '</dl>';
+  }
+  else {
+    $output = '<p>' . t('You have not created any contact types yet. Go to the <a href="@create-content">content type creation page</a> to add a new content type.', array('@create-content' => url('admin/structure/redhen/contact-types'))) . '</p>';
+  }
+  return $output;
 }

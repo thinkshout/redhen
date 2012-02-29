@@ -7,6 +7,8 @@ dependencies[] = redhen
 dependencies[] = redhen_fields
 
 files[] = includes/redhen_contact_type.admin.inc
+files[] = includes/redhen_contact.pages.inc
+files[] = includes/redhen_contact.forms.inc
 
 ; Classes
 files[] = includes/redhen_contact.entity.inc

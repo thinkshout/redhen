@@ -6,29 +6,6 @@
  */
 
 /**
- * Return a form for adding a contact.
- *
- * @param string $type
- *   The type of contact to return a form for.
- */
-function redhen_contact_add_page($type = 'default') {
-  $item = menu_get_item();
-  $content = system_admin_menu_block($item);
-
-  // Bypass the rehen_contact/add listing if only one contact type is available.
-  if (count($content) == 1) {
-    $item = array_shift($content);
-    drupal_goto($item['href']);
-  }
-  return theme('redhen_contact_add_list', array('content' => $content));
-}
-
-function redhen_contact_add($type) {
-  $contact = entity_get_controller('redhen_contact')->create(array('type' => $type));
-  return drupal_get_form('redhen_contact_contact_form', $contact);
-}
-
-/**
  * Form callback: create or edit a contact.
  *
  * @param $contact
@@ -184,28 +161,117 @@ function redhen_contact_contact_delete_form_submit($form, &$form_state) {
 }
 
 /**
- * Returns HTML for a list of available node types for node creation.
- *
- * @param $variables
- *   An associative array containing:
- *   - content: An array of content types.
- *
- * @ingroup themeable
+ * Returns the form to filter contact lists.
  */
-function theme_redhen_contact_add_list($variables) {
-  $content = $variables['content'];
-  $output = '';
+function redhen_contact_filter_form($form, $form_state, $entity_info) {
+  $form = array();
 
-  if ($content) {
-    $output = '<dl class="node-type-list">';
-    foreach ($content as $item) {
-      $output .= '<dt>' . l($item['title'], $item['href'], $item['localized_options']) . '</dt>';
-      $output .= '<dd>' . filter_xss_admin($item['description']) . '</dd>';
+  if (!empty($entity_info['properties'])) {
+    $form['filter_fieldset'] = array(
+      '#type' => 'fieldset',
+      '#title' => t('Filters'),
+      '#collapsible' => TRUE,
+      // expand fieldset if the list was filtered
+      '#collapsed' => (empty($_GET['properties']) && empty($_GET['fields']))
+    );
+
+    $form['filter_fieldset']['filters'] = array(
+      '#type' => 'container',
+      '#tree' => TRUE
+    );
+
+    $form['filter_fieldset']['filters']['properties'] = array(
+      '#type' => 'container',
+    );
+
+    // add a form field for each property
+    foreach($entity_info['properties'] as $key => $prop) {
+      $form['filter_fieldset']['filters']['properties'][$key] = array(
+        '#type' => $prop['type'],
+        '#title' => $prop['title'],
+        '#default_value' => isset($_GET[$key]) ? $_GET[$key] : NULL
+      );
+
+      if ($prop['type'] == 'select' && !empty($prop['options'])) {
+        $form['filter_fieldset']['filters']['properties'][$key]['#options'] = $prop['options'];
+      }
     }
-    $output .= '</dl>';
+
+    // add contact type; will load additional field filters on change
+    $type_options = array('' => t('-- Any --'));
+    foreach($entity_info['bundles'] as $key => $bundle) {
+      $type_options[$key] = $bundle['label'];
+    }
+    $form['filter_fieldset']['filters']['type'] = array(
+      '#type' => 'select',
+      '#title' => t('Contact type'),
+      '#options' => $type_options,
+      '#default_value' => isset($_GET['type']) ? $_GET['type'] : NULL,
+      '#ajax' => array(
+        'callback' => 'redhen_contact_get_fields_callback',
+        'wrapper' => 'redhen_contact_fields_container'
+      )
+    );
+
+    $form['filter_fieldset']['filters']['fields'] = array(
+      '#prefix' => '<div id="redhen_contact_fields_container">',
+      '#suffix' => '</div>'
+    );
+
+    $form['filter_fieldset']['submit'] = array(
+      '#type' => 'submit',
+      '#value' => t('Apply')
+    );
+
+    $form['filter_fieldset']['reset'] = array(
+      '#type' => 'submit',
+      '#value' => t('Reset'),
+      '#limit_validation_errors' => array(),
+      '#submit' => array('redhen_contact_filter_form_reset')
+    );
   }
-  else {
-    $output = '<p>' . t('You have not created any contact types yet. Go to the <a href="@create-content">content type creation page</a> to add a new content type.', array('@create-content' => url('admin/structure/redhen/contact-types'))) . '</p>';
+
+  // add the fields on an ajax type change event or if a filter is being passed
+  if (!empty($form_state['values']['filters']['type']) || isset($_GET['type'])) {
+    $type = !empty($form_state['values']['filters']['type']) ?
+      $form_state['values']['filters']['type'] : $_GET['type'];
+
+    $fields = field_info_instances('redhen_contact', $type);
+    if (!empty($fields)) {
+      $form['filter_fieldset']['filters']['fields'] = array(
+        '#type' => 'fieldset',
+        '#title' => t('Additional Fields for @type', array('@type' => $type)),
+        '#collapsible' => FALSE,
+        '#id' => 'redhen_contact_fields_container'
+      );
+
+      foreach($fields as $key => $field) {
+        $form['filter_fieldset']['filters']['fields'][$key] = array(
+          '#type' => 'textfield',
+          '#title' => $field['label'],
+          '#default_value' => isset($_GET['fields'][$key]) ? $_GET['fields'][$key] : NULL,
+        );
+      }
+    }
   }
-  return $output;
+
+  return $form;
+}
+
+/**
+ * AJAX callback to return fields for a given type.
+ */
+function redhen_contact_get_fields_callback($form, $form_state) {
+  return $form['filter_fieldset']['filters']['fields'];
+}
+
+/**
+ * Submit handler for redhen_contact_filter_form().
+ */
+function redhen_contact_filter_form_submit($form, $form_state) {
+  drupal_goto($_GET['q'], array('query' => $form_state['values']['filters']));
+}
+
+function redhen_contact_filter_form_reset() {
+  drupal_goto('redhen/contact');
 }
