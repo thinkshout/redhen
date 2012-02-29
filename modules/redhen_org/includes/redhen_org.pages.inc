@@ -111,3 +111,40 @@ function redhen_org_add_page($type) {
   module_load_include('inc', 'redhen_org', 'includes/redhen_org.forms');
   return drupal_get_form('redhen_org_org_form', $org);
 }
+
+/**
+ * Autocomplete helper
+ *
+ * @param $string
+ *  String for search
+ */
+function _redhen_org_autocomplete($string) {
+  $matches = array();
+
+  // build the query
+  $query = new EntityFieldQuery();
+
+  $query
+    ->entityCondition('entity_type', 'redhen_org', '=')
+    ->tablesort($header)
+    ->pager(10);
+
+  $query->propertyCondition('label', '%' . db_like($string) .'%', 'LIKE');
+
+  $result =  $query->execute();
+
+  $orgs = redhen_org_load_multiple(array_keys($result['redhen_org']));
+
+  // save the query to matches
+  foreach ($orgs as $row) {
+    $key = "$row->label ($row->org_id)";
+    // Names containing commas or quotes must be wrapped in quotes.
+    if (strpos($key, ',') !== FALSE || strpos($key, '"') !== FALSE) {
+      $key = '"' . str_replace('"', '""', $key) . '"';
+    }
+    $matches[$key] = '<div class="redhen-autocomplete">' . check_plain($row->label) . '</div>';
+  }
+
+  // Return the result to the form in json
+  drupal_json_output($matches);
+}

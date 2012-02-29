@@ -182,6 +182,16 @@ function redhen_org_menu() {
     'file' => 'includes/redhen_org.forms.inc',
   );
 
+  // path with autocomplete function for cities
+  $items['redhen/org/autocomplete'] = array(
+    'title' => 'Autocomplete for RedHen Organizations',
+    'page callback' => '_redhen_org_autocomplete',
+    'access callback' => 'redhen_org_access',
+    'access arguments' => array('edit'),  //or whatever permission makes sense
+    'type' => MENU_CALLBACK,
+    'file' => 'includes/redhen_org.pages.inc',
+  );
+
   if (module_exists('devel')) {
     $items['redhen/org/%redhen_org/devel'] = array(
       'title' => 'Devel',
