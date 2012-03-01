@@ -131,6 +131,12 @@ function redhen_membership_schema() {
         'not null' => TRUE,
         'default' => '',
       ),
+      'role_id' => array(
+        'description' => 'The role id associated with this membership type.',
+        'type' => 'int',
+        'not null' => FALSE,
+        'default' => 0,
+      ),
       'weight' => array(
         'type' => 'int',
         'not null' => TRUE,
@@ -172,6 +178,12 @@ function redhen_membership_schema() {
     'primary key' => array('membership_type_id'),
     'unique keys' => array(
       'name' => array('name'),
+    ),
+    'foreign keys' => array(
+      'role_id' => array(
+        'table' => 'roles',
+        'columns' => array('role_id' => 'rid'),
+      ),
     ),
   );
 

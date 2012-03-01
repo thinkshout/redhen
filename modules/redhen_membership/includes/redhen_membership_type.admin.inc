@@ -35,6 +35,14 @@ function redhen_membership_type_form($form, &$form_state, $redhen_membership_typ
     '#description' => t('A unique machine-readable name for this redhen membership type. It must only contain lowercase letters, numbers, and underscores.'),
   );
 
+  $form['role_id'] = array(
+    '#type' => 'select',
+    '#title' => 'Related user role',
+    '#default_value' => isset($redhen_org_type->role_id) ? $redhen_org_type->role_id : '',
+    '#description' => t('Select a role to associate users with a role when the user or their organization has an active membership of this type.'),
+    '#options' => user_roles(TRUE),
+  );
+
   $form['actions'] = array('#type' => 'actions');
   $form['actions']['submit'] = array(
     '#type' => 'submit',
