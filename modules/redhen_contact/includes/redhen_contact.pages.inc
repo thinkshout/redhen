@@ -15,6 +15,8 @@ function redhen_contact_page() {
   $header = array(
     'first_name' => array('field' => 'first_name', 'type' => 'property', 'data' => 'First Name', 'sort' => 'asc', 'specifier' => 'first_name'),
     'last_name' => array('field' => 'last_name', 'type' => 'property', 'data' => 'Last Name', 'sort' => 'asc', 'specifier' => 'last_name'),
+    'type' => array('field' => 'type', 'type' => 'property', 'data' => 'Type', 'sort' => 'asc', 'specifier' => 'type'),
+    'updated' => array('field' => 'updated', 'type' => 'property', 'data' => 'Updated', 'sort' => 'desc', 'specifier' => 'updated'),
     'Actions',
   );
 
@@ -39,8 +41,15 @@ function redhen_contact_page() {
         l('archive', 'redhen/contact/' . $contact->contact_id . '/archive', array('query' => drupal_get_destination())),
         l('delete', 'redhen/contact/' . $contact->contact_id . '/delete', array('query' => drupal_get_destination())),
       );
+
+      $redhen_contact_type = redhen_contact_type_load($contact->type);
       $rows[] = array(
-        'data' => array($contact->first_name, $contact->last_name, implode(' | ', $actions))
+        'data' => array(
+          $contact->first_name,
+          $contact->last_name,
+          $redhen_contact_type->label,
+          format_date($contact->updated),
+          implode(' | ', $actions))
       );
     }
   }
