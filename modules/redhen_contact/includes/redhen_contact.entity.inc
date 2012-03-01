@@ -134,6 +134,12 @@ class RedhenContact extends Entity {
 
 /**
  * Controls metadata for Redhen contacts
+ *
+ * Redhen utilizes custom property attributes to determine if a property
+ * should be available as a filter on the listing page. These attributes are
+ *   filter: TRUE to add as a filter.
+ *   field_type: textfield, select, etc.
+ *   options: array of options for seelct field types.
  */
 class RedhenContactMetadataController extends EntityDefaultMetadataController {
   public function entityPropertyInfo() {
@@ -145,12 +151,16 @@ class RedhenContactMetadataController extends EntityDefaultMetadataController {
       'description' => t("The date the contact was created."),
       'type' => 'date',
       'schema field' => 'created',
+      'field_type' => 'textfield',
+      'filter' => TRUE,
     );
     $properties['updated'] = array(
       'label' => t("Updated"),
       'description' => t("The date the contact was updated."),
       'type' => 'date',
       'schema field' => 'updated',
+      'field_type' => 'textfield',
+      'filter' => TRUE,
     );
     $properties['user'] = array(
       'label' => t("User"),
@@ -163,6 +173,27 @@ class RedhenContactMetadataController extends EntityDefaultMetadataController {
       'type' => 'user',
       'description' => t("The author of the contact record."),
       'schema field' => 'author_uid'
+    );
+
+    $properties['first_name'] = array_merge($properties['first_name'], array(
+      'label' => t('First Name'),
+      'filter' => TRUE,
+      'field_type' => 'textfield'
+    ));
+    $properties['last_name'] += array(
+      'label' => t('Last Name'),
+      'filter' => TRUE,
+      'field_type' => 'textfield'
+    );
+
+    $properties['redhen_state'] += array(
+      'label' => t('State'),
+      'filter' => TRUE,
+      'field_type' => 'select',
+      'options' => array(
+        REDHEN_STATE_ACTIVE => t('Active'),
+        REDHEN_STATE_ARCHIVED => t('Archived')
+      )
     );
 
     return $info;
