@@ -1,6 +1,11 @@
 <?php
 
 /**
+ * @file
+ * Defines forms shared across the Redhen CRM.
+ */
+
+/**
  * Returns the form to filter redhen entity lists.
  */
 function redhen_filter_form($form, $form_state, $entity_type) {

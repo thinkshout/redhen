@@ -20,7 +20,7 @@ function redhen_menu() {
     'page callback' => 'redhen_admin_menu_block_page',
     'menu_name' => 'navigation',
     'access arguments' => array('access administration pages'),
-    'file' => 'redhen.admin.inc',
+    'file' => 'includes/redhen.admin.inc',
   );
   $items['admin/structure/redhen'] = array(
     'title' => 'RedHen CRM',
@@ -29,7 +29,7 @@ function redhen_menu() {
     'page callback' => 'redhen_admin_menu_block_page',
     'menu_name' => 'navigation',
     'access arguments' => array('access administration pages'),
-    'file' => 'redhen.admin.inc',
+    'file' => 'includes/redhen.admin.inc',
     'menu_name' => 'management',
   );
 
