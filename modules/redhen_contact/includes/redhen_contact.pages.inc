@@ -51,10 +51,19 @@ function redhen_contact_page() {
     );
   }
 
-  $form = drupal_get_form('redhen_filter_form', 'redhen_contact');
+  $render = array(
+    'form' => drupal_get_form('redhen_filter_form', 'redhen_contact'),
+    'table' => array(
+      '#theme' => 'table',
+      '#header' => $header,
+      '#rows' => $rows
+    ),
+    'pager' => array(
+      '#theme' => 'pager'
+    )
+  );
 
-  // return a themed table
-  return drupal_render($form) . theme('table', array('header' => $header, 'rows' => $rows)) . theme('pager');
+  return $render;
 }
 
 /**
