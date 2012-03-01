@@ -5,7 +5,7 @@
  * Page callbacks for redhen contact.
  */
 
-module_load_include('inc', 'redhen_contact', 'includes/redhen_contact.forms');
+module_load_include('inc', 'redhen', 'includes/redhen.forms');
 
 /**
  * Page callback for contact overview page.
@@ -78,7 +78,7 @@ function redhen_contact_page() {
     );
   }
 
-  $form = drupal_get_form('redhen_contact_filter_form', 'redhen_contact');
+  $form = drupal_get_form('redhen_filter_form', 'redhen_contact');
 
   // return a themed table
   return drupal_render($form) . theme('table', array('header' => $header, 'rows' => $rows)) . theme('pager');
