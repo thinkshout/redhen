@@ -5,12 +5,12 @@
  * Page callbacks for redhen contact.
  */
 
+module_load_include('inc', 'redhen_contact', 'includes/redhen_contact.forms');
+
 /**
  * Page callback for contact overview page.
  */
 function redhen_contact_page() {
-  $contacts = array();
-
   $query = new EntityFieldQuery();
 
   // setup the header for both the query and table
@@ -26,15 +26,15 @@ function redhen_contact_page() {
     ->tablesort($header)
     ->pager(10);
 
-  // set the contact type
-  if (isset($_GET['type']) && !empty($_GET['type'])) {
-    $query->propertyCondition('type', $_GET['type'], '=');
+  // set the bundle
+  if (isset($_GET['bundle']) && !empty($_GET['bundle'])) {
+    $query->entityCondition('bundle', $_GET['bundle'], '=');
   }
 
   // add prop filters
   if (isset($_GET['properties'])) {
     foreach($_GET['properties'] as $key => $value) {
-      if (!empty($value)) {
+      if ($value != '') {
         $query->propertyCondition($key, $value, '=');
       }
     }
@@ -43,13 +43,17 @@ function redhen_contact_page() {
   // add field filters
   if (isset($_GET['fields'])) {
     foreach($_GET['fields'] as $key => $value) {
-      if (!empty($value)) {
-        $query->fieldCondition($key, NULL, $value, '=');
+      if ($value != '') {
+        $query->fieldCondition($key, 'value', $value, '=');
       }
     }
   }
 
-  $result = $query->execute();
+  // need to ensure the query doesn't execute when posing the form
+  $result = FALSE;
+  if (!isset($_POST['form_id'])) {
+    $result = $query->execute();
+  }
 
   $rows = array();
   if ($result) {
@@ -74,9 +78,7 @@ function redhen_contact_page() {
     );
   }
 
-  $entity_info = entity_get_info('redhen_contact');
-  module_load_include('inc', 'redhen_contact', 'includes/redhen_contact.forms');
-  $form = drupal_get_form('redhen_contact_filter_form', $entity_info);
+  $form = drupal_get_form('redhen_contact_filter_form', 'redhen_contact');
 
   // return a themed table
   return drupal_render($form) . theme('table', array('header' => $header, 'rows' => $rows)) . theme('pager');
