@@ -16,6 +16,8 @@ class RedhenMembership extends Entity {
     $membership_id = NULL,
     $org = NULL,
     $author_uid = NULL,
+    $start_date = NULL,
+    $expire_date = NULL,
     $redhen_state = REDHEN_STATE_ACTIVE,
     $type = '',
     $created = '',
@@ -84,6 +86,17 @@ class RedhenMembership extends Entity {
   public function save() {
     $this->updated = REQUEST_TIME;
     return parent::save();
+  }
+
+  /**
+   * Set the redhen_state for a membership
+   *
+   * @param $state
+   *  The REDHEN_STATE_* value to use
+   */
+  public function setState($state) {
+    $this->redhen_state = $state;
+    $this->save();
   }
 
   /**

@@ -72,7 +72,7 @@ function redhen_relation_connections_page($entity) {
           l('delete', $relation_uri['path'] . '/delete', array('query' => drupal_get_destination())),
         );
 
-        $rows[] = array(
+        $data = array(
           l($relation_type->label, $relation_uri['path']),
           l($object_label, $object_uri['path']),
           $relation->{REDHEN_RELATION_STATUS_FIELD}[LANGUAGE_NONE][0]['value'],
@@ -81,11 +81,28 @@ function redhen_relation_connections_page($entity) {
           $author->name,
           implode(' | ', $operations)
         );
+        $row_classes = array();
+
+        if ($entity->entityType() == 'redhen_org') {
+          if ($entity->primary_contact_id !== $related_entity->contact_id) {
+            $entity_uri = entity_uri('redhen_org', $entity);
+            $data[] = l('set as primary', $entity_uri['path'] . '/primary/' . $related_entity->contact_id, array('query' => drupal_get_destination()));
+          } else {
+            $data[] = t('Primary');
+            $row_classes[] = 'primary_contact';
+          }
+        }
+
+        $rows[] = array('data' => $data, 'class' => $row_classes);
       }
     }
 
     $header = array(t('Connection'), t('Label'), t('Status'), t('Type'),
       t('Created'), t('Author'), t('Actions'));
+
+    if ($entity->entityType() == 'redhen_org') {
+      $header[] = t('Primary contact');
+    }
 
     return array(
       '#theme' => 'table',

@@ -13,6 +13,7 @@ class RedhenMembershipType extends Entity {
 
   public $name;
   public $label;
+  public $role_id = NULL;
   public $locked;
 
   public function __construct($values = array()) {

@@ -91,10 +91,31 @@ function redhen_membership_entity_info_alter(&$entity_info) {
 function redhen_membership_menu() {
   $items = array();
 
+  // Add a membership.
+  $items['redhen/memberships/add'] = array(
+    'title' => 'Add a membership',
+    'description' => 'Add a new membership.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('redhen_membership_membership_form'),
+    'access callback' => 'redhen_membership_access',
+    'access arguments' => array('create'),
+    'file' => 'includes/redhen_membership.forms.inc',
+    'type' => MENU_NORMAL_ITEM,
+  );
+
+  $items['redhen/memberships'] = array(
+    'title' => 'Memberships',
+    'page callback' => 'redhen_membership_page',
+    'access callback' => 'redhen_membership_access',
+    'access arguments' => array('view'),
+    'type' => MENU_LOCAL_TASK,
+    'file' => 'includes/redhen_membership.pages.inc',
+  );
+
   $items['redhen/org/%redhen_org/memberships/add'] = array(
     'title' => 'Add Membership',
     'page callback' => 'drupal_get_form',
-    'page arguments' => array('redhen_membership_membership_form', 2),
+    'page arguments' => array('redhen_membership_membership_form', NULL, 2),
     'access callback' => 'redhen_membership_access',
     'access arguments' => array('edit', 2),
     'type' => MENU_LOCAL_ACTION,
@@ -103,7 +124,7 @@ function redhen_membership_menu() {
   $items['redhen/org/%redhen_org/memberships/%redhen_membership/edit'] = array(
     'title' => 'Edit Membership',
     'page callback' => 'drupal_get_form',
-    'page arguments' => array('redhen_membership_membership_form', 2, 4),
+    'page arguments' => array('redhen_membership_membership_form', 4),
     'access callback' => 'redhen_membership_access',
     'access arguments' => array('edit', 2),
     'type' => MENU_LOCAL_ACTION,
@@ -116,12 +137,13 @@ function redhen_membership_menu() {
     'access callback' => 'redhen_membership_access',
     'access arguments' => array('view', 4),
     'type' => MENU_LOCAL_TASK,
+    'file' => 'includes/redhen_membership.pages.inc',
   );
   $items['redhen/org/%redhen_org/memberships/%redhen_membership'] = array(
     'title callback' => 'redhen_membership_membership_title',
-    'title arguments' => array(2, 4),
+    'title arguments' => array(4),
     'page callback' => 'redhen_membership_view',
-    'page arguments' => array(2, 4),
+    'page arguments' => array(4),
     'access callback' => 'redhen_membership_access',
     'access arguments' => array('view', 4),
     'weight' => 10,
@@ -136,7 +158,7 @@ function redhen_membership_menu() {
   $items['redhen/org/%redhen_org/memberships/%redhen_membership/delete'] = array(
     'title' => 'Delete',
     'page callback' => 'drupal_get_form',
-    'page arguments' => array('redhen_membership_membership_delete_form', 2, 4),
+    'page arguments' => array('redhen_membership_membership_delete_form', 4),
     'access callback' => 'redhen_membership_access',
     'access arguments' => array('delete', 4),
     'type' => MENU_LOCAL_TASK,
@@ -283,7 +305,7 @@ function redhen_membership_access($op, $membership = NULL, $account = NULL) {
  *   A Fully loaded membership object.
  * @return void
  */
-function redhen_membership_view(RedhenOrg $org, RedhenMembership $membership) {
+function redhen_membership_view(RedhenMembership $membership) {
   return $membership->view();
 }
 
@@ -294,203 +316,8 @@ function redhen_membership_view(RedhenOrg $org, RedhenMembership $membership) {
  *   A loaded membership object.
  * @return void
  */
-function redhen_membership_membership_title(RedhenOrg $org, RedhenMembership $membership) {
+function redhen_membership_membership_title(RedhenMembership $membership) {
   return $membership->label();
-}
-
-/**
- * Page callback for membership overview page.
- */
-function redhen_membership_page(RedhenOrg $org = NULL) {
-  $memberships = array();
-
-  $query = new EntityFieldQuery();
-
-  // setup the header for both the query and table
-  $header = array(
-    'label' => array('field' => 'label', 'type' => 'property', 'data' => 'Label', 'sort' => 'asc', 'specifier' => 'label'),
-    'Actions',
-  );
-
-  // build the query
-  $query
-    ->entityCondition('entity_type', 'redhen_membership', '=')
-    ->tablesort($header)
-    ->pager(10);
-
-  if (isset($org->org_id) && !empty($org->org_id)) {
-    $query->propertyCondition('org_id', $org->org_id, '=');
-  }
-
-  // set the membership type
-  if (isset($_GET['type']) && !empty($_GET['type'])) {
-    $query->propertyCondition('type', $_GET['type'], '=');
-  }
-
-  // add prop filters
-  if (isset($_GET['properties'])) {
-    foreach($_GET['properties'] as $key => $value) {
-      if (!empty($value)) {
-        $query->propertyCondition($key, $value, '=');
-      }
-    }
-  }
-
-  // add field filters
-  if (isset($_GET['fields'])) {
-    foreach($_GET['fields'] as $key => $value) {
-      if (!empty($value)) {
-        $query->fieldCondition($key, NULL, $value, '=');
-      }
-    }
-  }
-
-  $result = $query->execute();
-
-  $rows = array();
-  if ($result) {
-    $memberships = redhen_membership_load_multiple(array_keys($result['redhen_membership']));
-
-    foreach($memberships as $membership) {
-      $actions = array(
-        l('view', 'redhen/org/' . $membership->org_id . '/memberships/' . $membership->membership_id),
-        l('edit', 'redhen/org/' . $membership->org_id . '/memberships/' . $membership->membership_id . '/edit', array('query' => drupal_get_destination())),
-        l('archive', 'redhen/org/' . $membership->org_id . '/memberships/' . $membership->membership_id . '/archive', array('query' => drupal_get_destination())),
-        l('delete', 'redhen/org/' . $membership->org_id . '/memberships/' . $membership->membership_id . '/delete', array('query' => drupal_get_destination())),
-      );
-      $rows[] = array(
-        'data' => array($membership->label, implode(' | ', $actions))
-      );
-    }
-  }
-  else {
-    // no results, set a message
-    $rows[] = array(
-      'data' => array(array('data' => t('Sorry, there are no memberships that match your criteria.'), 'colspan' => 3))
-    );
-  }
-
-  $entity_info = entity_get_info('redhen_membership');
-  $form = drupal_get_form('redhen_membership_filter_form', $entity_info);
-
-  // return a themed table
-  return drupal_render($form) . theme('table', array('header' => $header, 'rows' => $rows)) . theme('pager');
-}
-
-/**
- * Returns the form to filter membership lists.
- */
-function redhen_membership_filter_form($form, $form_state, $entity_info) {
-  $form = array();
-
-  if (!empty($entity_info['properties'])) {
-    $form['filter_fieldset'] = array(
-      '#type' => 'fieldset',
-      '#title' => t('Filters'),
-      '#collapsible' => TRUE,
-      // expand fieldset if the list was filtered
-      '#collapsed' => (empty($_GET['properties']) && empty($_GET['fields']))
-    );
-
-    $form['filter_fieldset']['filters'] = array(
-      '#type' => 'container',
-      '#tree' => TRUE
-    );
-
-    $form['filter_fieldset']['filters']['properties'] = array(
-      '#type' => 'container',
-    );
-
-    // add a form field for each property
-    foreach($entity_info['properties'] as $key => $prop) {
-      $form['filter_fieldset']['filters']['properties'][$key] = array(
-        '#type' => $prop['type'],
-        '#title' => $prop['title'],
-        '#default_value' => isset($_GET[$key]) ? $_GET[$key] : NULL
-      );
-
-      if ($prop['type'] == 'select' && !empty($prop['options'])) {
-        $form['filter_fieldset']['filters']['properties'][$key]['#options'] = $prop['options'];
-      }
-    }
-
-    // add membership type; will load additional field filters on change
-    $type_options = array('' => t('-- Any --'));
-    foreach($entity_info['bundles'] as $key => $bundle) {
-      $type_options[$key] = $bundle['label'];
-    }
-    $form['filter_fieldset']['filters']['type'] = array(
-      '#type' => 'select',
-      '#title' => t('membership type'),
-      '#options' => $type_options,
-      '#default_value' => isset($_GET['type']) ? $_GET['type'] : NULL,
-      '#ajax' => array(
-        'callback' => 'redhen_membership_get_fields_callback',
-        'wrapper' => 'redhen_membership_fields_container'
-      )
-    );
-
-    $form['filter_fieldset']['filters']['fields'] = array(
-      '#prefix' => '<div id="redhen_membership_fields_container">',
-      '#suffix' => '</div>'
-    );
-
-    $form['filter_fieldset']['submit'] = array(
-      '#type' => 'submit',
-      '#value' => t('Apply')
-    );
-
-    $form['filter_fieldset']['reset'] = array(
-      '#type' => 'submit',
-      '#value' => t('Reset'),
-      '#limit_validation_errors' => array(),
-      '#submit' => array('redhen_membership_filter_form_reset')
-    );
-  }
-
-  // add the fields on an ajax type change event or if a filter is being passed
-  if (!empty($form_state['values']['filters']['type']) || isset($_GET['type'])) {
-    $type = !empty($form_state['values']['filters']['type']) ?
-      $form_state['values']['filters']['type'] : $_GET['type'];
-
-    $fields = field_info_instances('redhen_membership', $type);
-    if (!empty($fields)) {
-      $form['filter_fieldset']['filters']['fields'] = array(
-        '#type' => 'fieldset',
-        '#title' => t('Additional Fields for @type', array('@type' => $type)),
-        '#collapsible' => FALSE,
-        '#id' => 'redhen_membership_fields_container'
-      );
-
-      foreach($fields as $key => $field) {
-        $form['filter_fieldset']['filters']['fields'][$key] = array(
-          '#type' => 'textfield',
-          '#title' => $field['label'],
-          '#default_value' => isset($_GET['fields'][$key]) ? $_GET['fields'][$key] : NULL,
-        );
-      }
-    }
-  }
-
-  return $form;
-}
-
-/**
- * AJAX callback to return fields for a given type.
- */
-function redhen_membership_get_fields_callback($form, $form_state) {
-  return $form['filter_fieldset']['filters']['fields'];
-}
-
-/**
- * Submit handler for redhen_membership_filter_form().
- */
-function redhen_membership_filter_form_submit($form, $form_state) {
-  drupal_goto($_GET['q'], array('query' => $form_state['values']['filters']));
-}
-
-function redhen_membership_filter_form_reset() {
-  drupal_goto('redhen/membership');
 }
 
 /**
@@ -573,4 +400,64 @@ function redhen_membership_type_save(RedhenMembershipType $type) {
  */
 function redhen_membership_type_delete(RedhenMembershipType $type) {
   $type->delete();
+}
+
+/**
+ * Implements hook_cron().
+ */
+function redhen_membership_cron() {
+
+  $activate_results = db_select('redhen_membership', 'me')
+    ->fields('me')
+    ->condition('redhen_state', REDHEN_STATE_ARCHIVED)
+    ->condition('start_date', date('Y-m-d 00:00:00'))
+    ->execute()
+    ->fetchAllAssoc('membership_id');
+
+  $memberships = redhen_membership_load_multiple(array_keys($activate_results));
+
+  foreach ($memberships as $membership) {
+    $membership->setState(REDHEN_STATE_ACTIVE);
+  }
+
+  $expire_results = db_select('redhen_membership', 'me')
+    ->fields('me')
+    ->condition('redhen_state', REDHEN_STATE_ACTIVE)
+    ->condition('expire_date', date('Y-m-d 00:00:00'))
+    ->execute()
+    ->fetchAllAssoc('membership_id');
+
+  $memberships = redhen_membership_load_multiple(array_keys($expire_results));
+
+  foreach ($memberships as $membership) {
+    $membership->setState(REDHEN_STATE_ARCHIVED);
+  }
+
+}
+
+/**
+ * Returns HTML for a list of available membership types for membership creation.
+ *
+ * @param $variables
+ *   An associative array containing:
+ *   - content: An array of content types.
+ *
+ * @ingroup themeable
+ */
+function theme_redhen_membership_add_list($variables) {
+  $content = $variables['content'];
+  $output = '';
+
+  if ($content) {
+    $output = '<dl class="node-type-list">';
+    foreach ($content as $item) {
+      $output .= '<dt>' . l($item['title'], $item['href'], $item['localized_options']) . '</dt>';
+      $output .= '<dd>' . filter_xss_admin($item['description']) . '</dd>';
+    }
+    $output .= '</dl>';
+  }
+  else {
+    $output = '<p>' . t('You have not created any membership types yet. Go to the <a href="@create-membership-types">membership type creation page</a> to add a new content type.', array('@create-membership-types' => url('admin/structure/redhen/membership-types'))) . '</p>';
+  }
+  return $output;
 }
