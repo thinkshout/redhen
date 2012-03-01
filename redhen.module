@@ -84,3 +84,48 @@ function redhen_theme() {
 function theme_redhen_property_field($variables) {
   return theme_field($variables);
 }
+
+/**
+ * Executes a filter query return a result set filtered by the provided
+ * attributes. Used to filter Redhen entity list pages.
+ *
+ * @param string $entity_type
+ * @param array $header
+ *   Header array for sorting. Should match the table header used in output.
+ * @param string $bundle
+ * @param array $properties
+ * @param array $fields
+ * @param int $items_page
+ *
+ * @return array
+ */
+function redhen_filter_query($entity_type, $header, $bundle = '', $properties = array(), $fields = array(), $items_page = 10) {
+  $query = new EntityFieldQuery();
+
+    // build the query
+  $query
+    ->entityCondition('entity_type', $entity_type, '=')
+    ->tablesort($header)
+    ->pager($items_page);
+
+  // set the bundle
+  if (!empty($bundle)) {
+    $query->entityCondition('bundle', $bundle, '=');
+  }
+
+  // add prop filters
+  foreach($properties as $key => $value) {
+    if ($value != '') {
+      $query->propertyCondition($key, $value, '=');
+    }
+  }
+
+  // add field filters
+  foreach($fields as $key => $value) {
+    if ($value != '') {
+      $query->fieldCondition($key, 'value', $value, '=');
+    }
+  }
+
+  return $query->execute();
+}

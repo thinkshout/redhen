@@ -11,8 +11,6 @@ module_load_include('inc', 'redhen', 'includes/redhen.forms');
  * Page callback for contact overview page.
  */
 function redhen_contact_page() {
-  $query = new EntityFieldQuery();
-
   // setup the header for both the query and table
   $header = array(
     'first_name' => array('field' => 'first_name', 'type' => 'property', 'data' => 'First Name', 'sort' => 'asc', 'specifier' => 'first_name'),
@@ -20,39 +18,14 @@ function redhen_contact_page() {
     'Actions',
   );
 
-  // build the query
-  $query
-    ->entityCondition('entity_type', 'redhen_contact', '=')
-    ->tablesort($header)
-    ->pager(10);
-
-  // set the bundle
-  if (isset($_GET['bundle']) && !empty($_GET['bundle'])) {
-    $query->entityCondition('bundle', $_GET['bundle'], '=');
-  }
-
-  // add prop filters
-  if (isset($_GET['properties'])) {
-    foreach($_GET['properties'] as $key => $value) {
-      if ($value != '') {
-        $query->propertyCondition($key, $value, '=');
-      }
-    }
-  }
-
-  // add field filters
-  if (isset($_GET['fields'])) {
-    foreach($_GET['fields'] as $key => $value) {
-      if ($value != '') {
-        $query->fieldCondition($key, 'value', $value, '=');
-      }
-    }
-  }
 
   // need to ensure the query doesn't execute when posing the form
   $result = FALSE;
   if (!isset($_POST['form_id'])) {
-    $result = $query->execute();
+    $bundle = isset($_GET['bundle']) ? $_GET['bundle'] : '';
+    $properties = isset($_GET['properties']) ? $_GET['properties'] : array();
+    $fields = isset($_GET['fields']) ? $_GET['fields'] : array();
+    $result = redhen_filter_query('redhen_contact', $header, $bundle, $properties, $fields);
   }
 
   $rows = array();
