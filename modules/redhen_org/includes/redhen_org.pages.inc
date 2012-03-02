@@ -14,7 +14,9 @@ function redhen_org_page() {
 
   // setup the header for both the query and table
   $header = array(
-    'label' => array('field' => 'label', 'type' => 'property', 'data' => 'Label', 'sort' => 'asc', 'specifier' => 'label'),
+    'label' => array('field' => 'label', 'type' => 'property', 'data' => 'Name', 'sort' => 'asc', 'specifier' => 'label'),
+    'type' => array('field' => 'type', 'type' => 'property', 'data' => 'Type', 'sort' => 'asc', 'specifier' => 'type'),
+    'updated' => array('field' => 'updated', 'type' => 'property', 'data' => 'Updated', 'sort' => 'desc', 'specifier' => 'updated'),
     'Actions',
   );
 
@@ -38,15 +40,23 @@ function redhen_org_page() {
         l('archive', 'redhen/org/' . $org->org_id . '/archive', array('query' => drupal_get_destination())),
         l('delete', 'redhen/org/' . $org->org_id . '/delete', array('query' => drupal_get_destination())),
       );
+
+      $redhen_org_type = redhen_org_type_load($org->type);
       $rows[] = array(
-        'data' => array($org->label, implode(' | ', $actions))
+        'data' => array(
+          $org->label,
+          $redhen_org_type->label,
+          format_date($org->updated),
+          implode(' | ', $actions))
       );
     }
   }
   else {
     // no results, set a message
     $rows[] = array(
-      'data' => array(array('data' => t('Sorry, there are no organizations that match your criteria.'), 'colspan' => 3))
+      'data' => array(
+        array(
+          'data' => t('Sorry, there are no organizations that match your criteria.'), 'colspan' => 3))
     );
   }
 
