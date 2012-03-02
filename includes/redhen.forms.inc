@@ -9,6 +9,10 @@
  * Returns the form to filter redhen entity lists.
  */
 function redhen_filter_form($form, $form_state, $entity_type) {
+  // add jquery libs and
+  drupal_add_library('system', 'ui.datepicker');
+  drupal_add_js(drupal_get_path('module', 'redhen') . '/js/redhen.forms.js');
+
   $form = array();
 
   $property_info = entity_get_all_property_info($entity_type);
@@ -34,13 +38,21 @@ function redhen_filter_form($form, $form_state, $entity_type) {
     // add a form field for each property
     foreach($property_info as $key => $prop) {
       if (isset($prop['filter']) && $prop['filter']) {
-        $type = isset($prop['field_type']) ? $prop['field_type'] : $prop['type'];
+        $field_type = isset($prop['field_type']) ? $prop['field_type'] : $prop['type'];
+
+        // conver datetime defaults to date strings
+        $default_value = isset($_GET['properties'][$key]) ? $_GET['properties'][$key] : NULL;
+        if ($prop['type'] == 'date' && !empty($default_value)) {
+          $default_value = date('m/d/Y', $default_value);
+        }
+
         $form['filter_fieldset']['filters']['properties'][$key] = array(
-          '#type' => $type,
+          '#type' => $field_type,
           '#title' => $prop['label'],
-          '#default_value' => isset($_GET['properties'][$key]) ? $_GET['properties'][$key] : NULL
+          '#attributes' => array('class' => array("redhen-field-type-{$prop['type']}")),
+          '#default_value' => $default_value
         );
-        if ($type == 'select' && isset($prop['options'])) {
+        if ($field_type == 'select' && isset($prop['options'])) {
           $form['filter_fieldset']['filters']['properties'][$key]['#options'] = $prop['options'];
         }
       }
@@ -121,10 +133,23 @@ function redhen_filter_fields_callback($form, $form_state) {
   return $form['filter_fieldset']['filters']['fields'];
 }
 
+function redhen_filter_form_validate($form, &$form_state) {
+  foreach ($form_state['values']['filters']['properties'] as $key => $property) {
+    if (!empty($property) && $form['filter_fieldset']['filters']['properties'][$key]['#attributes']['class'][0] == 'redhen-field-type-date') {
+      if ( $time = strtotime($property)) {
+        $form_state['values']['filters']['properties'][$key] = $time;
+      }
+      else {
+        form_set_error($key, t('@key is not a valid date.', array('@key' => $key)));
+      }
+    }
+  }
+}
+
 /**
  * Submit handler for redhen_contact_filter_form().
  */
-function redhen_filter_form_submit($form, $form_state) {
+function redhen_filter_form_submit($form, &$form_state) {
   $filters = $form_state['values']['filters'];
   drupal_goto($_GET['q'], array('query' => $filters));
 }
