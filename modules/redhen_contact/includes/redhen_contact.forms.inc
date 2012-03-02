@@ -38,7 +38,10 @@ function redhen_contact_contact_form($form, &$form_state, $contact) {
     '#type' => 'select',
     '#title' => t('State'),
     '#description' => t('Contact state.'),
-    '#options' => array(1 => t('Active'), 0 => t('Archived')), //@TODO: these should use the defined constants
+    '#options' => array(
+      REDHEN_STATE_ACTIVE => t('Active'),
+      REDHEN_STATE_ARCHIVED => t('Archived')
+    ),
     '#default_value' => $contact->redhen_state,
     '#weight' => 10,
   );

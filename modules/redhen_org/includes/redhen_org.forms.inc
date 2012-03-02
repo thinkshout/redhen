@@ -35,7 +35,10 @@ function redhen_org_org_form($form, &$form_state, $org) {
     '#type' => 'select',
     '#title' => t('State'),
     '#description' => t('Organization state.'),
-    '#options' => array(1 => t('Active'), 0 => t('Archived')), //@TODO: these should use the defined constants
+    '#options' => array(
+      REDHEN_STATE_ACTIVE => t('Active'),
+      REDHEN_STATE_ARCHIVED => t('Archived')
+    ),
     '#default_value' => $org->redhen_state,
     '#weight' => 10,
   );
