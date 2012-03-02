@@ -141,12 +141,24 @@ class RedhenOrg extends Entity {
 
 /**
  * Controls metadata for Redhen organizations
+ *
+ * Redhen utilizes custom property attributes to determine if a property
+ * should be available as a filter on the listing page. These attributes are
+ *   filter: TRUE to add as a filter.
+ *   field_type: textfield, select, etc.
+ *   options: array of options for select field types.
  */
 class RedhenOrgMetadataController extends EntityDefaultMetadataController {
 
   public function entityPropertyInfo() {
     $info = parent::entityPropertyInfo();
     $properties = &$info[$this->type]['properties'];
+
+    $properties['label'] += array(
+      'label' => t('Organization Name'),
+      'filter' => TRUE,
+      'field_type' => 'textfield'
+    );
 
     $properties['created'] = array(
       'label' => t("Created"),
@@ -171,6 +183,16 @@ class RedhenOrgMetadataController extends EntityDefaultMetadataController {
       'type' => 'redhen_contact',
       'description' => t("The primary contact for the organization."),
       'schema field' => 'primary_contact_id'
+    );
+
+    $properties['redhen_state'] += array(
+      'label' => t('State'),
+      'filter' => TRUE,
+      'field_type' => 'select',
+      'options' => array(
+        REDHEN_STATE_ACTIVE => t('Active'),
+        REDHEN_STATE_ARCHIVED => t('Archived')
+      )
     );
 
     return $info;

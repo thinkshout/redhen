@@ -5,13 +5,12 @@
  * Page callbacks for redhen organizations.
  */
 
+module_load_include('inc', 'redhen', 'includes/redhen.forms');
+
 /**
  * Page callback for org overview page.
  */
 function redhen_org_page() {
-  $orgs = array();
-
-  $query = new EntityFieldQuery();
 
   // setup the header for both the query and table
   $header = array(
@@ -19,36 +18,14 @@ function redhen_org_page() {
     'Actions',
   );
 
-  // build the query
-  $query
-    ->entityCondition('entity_type', 'redhen_org', '=')
-    ->tablesort($header)
-    ->pager(10);
-
-  // set the org type
-  if (isset($_GET['type']) && !empty($_GET['type'])) {
-    $query->propertyCondition('type', $_GET['type'], '=');
+  // need to ensure the query doesn't execute when posing the form
+  $result = FALSE;
+  if (!isset($_POST['form_id'])) {
+    $bundle = isset($_GET['bundle']) ? $_GET['bundle'] : '';
+    $properties = isset($_GET['properties']) ? $_GET['properties'] : array();
+    $fields = isset($_GET['fields']) ? $_GET['fields'] : array();
+    $result = redhen_filter_query('redhen_org', $header, $bundle, $properties, $fields);
   }
-
-  // add prop filters
-  if (isset($_GET['properties'])) {
-    foreach($_GET['properties'] as $key => $value) {
-      if (!empty($value)) {
-        $query->propertyCondition($key, $value, '=');
-      }
-    }
-  }
-
-  // add field filters
-  if (isset($_GET['fields'])) {
-    foreach($_GET['fields'] as $key => $value) {
-      if (!empty($value)) {
-        $query->fieldCondition($key, NULL, $value, '=');
-      }
-    }
-  }
-
-  $result = $query->execute();
 
   $rows = array();
   if ($result) {
@@ -73,13 +50,19 @@ function redhen_org_page() {
     );
   }
 
-  $entity_info = entity_get_info('redhen_org');
-  $property_info = entity_get_property_info('redhen_org');
-  module_load_include('inc', 'redhen_org', 'includes/redhen_org.forms');
-  $form = drupal_get_form('redhen_org_filter_form', $entity_info, $property_info);
+  $render = array(
+    'form' => drupal_get_form('redhen_filter_form', 'redhen_org'),
+    'table' => array(
+      '#theme' => 'table',
+      '#header' => $header,
+      '#rows' => $rows
+    ),
+    'pager' => array(
+      '#theme' => 'pager'
+    )
+  );
 
-  // return a themed table
-  return drupal_render($form) . theme('table', array('header' => $header, 'rows' => $rows)) . theme('pager');
+  return $render;
 }
 
 /**
