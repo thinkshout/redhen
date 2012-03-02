@@ -42,7 +42,7 @@ class RedhenOrg extends Entity {
   public function buildContent($view_mode = 'full', $langcode = NULL) {
     $content['label'] = array(
       '#theme' => 'redhen_property_field',
-      '#label' => t('Label'),
+      '#label' => t('Organization Name'),
       '#items' => array(
         array(
           '#markup' => check_plain($this->label)
