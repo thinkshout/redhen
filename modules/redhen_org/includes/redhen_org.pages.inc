@@ -80,7 +80,13 @@ function redhen_org_types_list_page($type = 'default') {
     $item = array_shift($content);
     drupal_goto($item['href']);
   }
-  return theme('redhen_org_add_list', array('content' => $content));
+
+  $render = array(
+    '#theme' => 'redhen_org_add_list',
+    '#content' => $content,
+  );
+
+  return $render;
 }
 
 /**
