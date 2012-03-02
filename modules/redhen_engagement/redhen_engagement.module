@@ -1,0 +1,32 @@
+<?php
+
+/**
+ * Implements hook_menu().
+ */
+function redhen_engagement_menu() {
+
+  foreach (redhen_entity_types() as $entity_type => $path) {
+    $items["redhen/{$path}/%{$entity_type}/log"] = array(
+      'title' => 'Engagements',
+      'page callback' => 'redhen_engagements_page',
+      'page arguments' => array(2, $entity_type),
+      'access callback' => $entity_type . '_access',
+      'access arguments' => array('view', 2),
+      'type' => MENU_DEFAULT_LOCAL_TASK,
+    );
+    $items["redhen/{$path}/%{$entity_type}/log/engagements"] = array(
+      'title' => 'Engagements',
+      'page callback' => 'redhen_engagements_page',
+      'page arguments' => array(2, $entity_type),
+      'access callback' => $entity_type . '_access',
+      'access arguments' => array('view', 2),
+      'type' => MENU_LOCAL_TASK,
+    );
+  }
+
+  return $items;
+}
+
+function redhen_engagements_page($entity, $entity_type) {
+
+}
