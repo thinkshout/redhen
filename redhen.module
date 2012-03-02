@@ -22,9 +22,10 @@ function redhen_menu() {
     'access arguments' => array('access administration pages'),
     'file' => 'includes/redhen.admin.inc',
   );
+
   $items['admin/structure/redhen'] = array(
     'title' => 'RedHen CRM',
-    'description' => 'Administer RedHen CRM items, such as contact, group types, etc.',
+    'description' => 'Administer RedHen CRM items, such as contact, organizations, etc.',
     'weight' => -8,
     'page callback' => 'redhen_admin_menu_block_page',
     'menu_name' => 'navigation',
@@ -128,4 +129,17 @@ function redhen_filter_query($entity_type, $header, $bundle = '', $properties = 
   }
 
   return $query->execute();
+}
+
+/**
+ * Helper to return an array of Redhen entity types keyed by entity type, value
+ * of the entity path. Useful for defining menu callbacks.
+ *
+ * @return array
+ */
+function redhen_entity_types() {
+  return array(
+    'redhen_org' => 'org',
+    'redhen_contact' => 'contact'
+  );
 }
