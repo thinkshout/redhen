@@ -154,11 +154,11 @@ class RedhenOrgMetadataController extends EntityDefaultMetadataController {
     $info = parent::entityPropertyInfo();
     $properties = &$info[$this->type]['properties'];
 
-    $properties['label'] += array(
+    $properties['label'] = array(
       'label' => t('Organization Name'),
       'filter' => TRUE,
       'field_type' => 'textfield'
-    );
+    ) + $properties['label'];
 
     $properties['created'] = array(
       'label' => t("Created"),
@@ -185,7 +185,7 @@ class RedhenOrgMetadataController extends EntityDefaultMetadataController {
       'schema field' => 'primary_contact_id'
     );
 
-    $properties['redhen_state'] += array(
+    $properties['redhen_state'] = array(
       'label' => t('State'),
       'filter' => TRUE,
       'field_type' => 'select',
@@ -193,7 +193,7 @@ class RedhenOrgMetadataController extends EntityDefaultMetadataController {
         REDHEN_STATE_ACTIVE => t('Active'),
         REDHEN_STATE_ARCHIVED => t('Archived')
       )
-    );
+    ) + $properties['redhen_state'];
 
     return $info;
   }
