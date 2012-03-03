@@ -37,9 +37,9 @@ function redhen_contact_page() {
     foreach($contacts as $contact) {
       $actions = array(
         l('view', 'redhen/contact/' . $contact->contact_id),
-        l('edit', 'redhen/contact/' . $contact->contact_id . '/edit', array('query' => drupal_get_destination())),
+        l('edit', 'redhen/contact/' . $contact->contact_id . '/view/edit', array('query' => drupal_get_destination())),
         l('archive', 'redhen/contact/' . $contact->contact_id . '/archive', array('query' => drupal_get_destination())),
-        l('delete', 'redhen/contact/' . $contact->contact_id . '/delete', array('query' => drupal_get_destination())),
+        l('delete', 'redhen/contact/' . $contact->contact_id . '/view/delete', array('query' => drupal_get_destination())),
       );
 
       $redhen_contact_type = redhen_contact_type_load($contact->type);

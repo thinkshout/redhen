@@ -36,9 +36,9 @@ function redhen_org_page() {
     foreach($orgs as $org) {
       $actions = array(
         l('view', 'redhen/org/' . $org->org_id),
-        l('edit', 'redhen/org/' . $org->org_id . '/edit', array('query' => drupal_get_destination())),
+        l('edit', 'redhen/org/' . $org->org_id . '/view/edit', array('query' => drupal_get_destination())),
         l('archive', 'redhen/org/' . $org->org_id . '/archive', array('query' => drupal_get_destination())),
-        l('delete', 'redhen/org/' . $org->org_id . '/delete', array('query' => drupal_get_destination())),
+        l('delete', 'redhen/org/' . $org->org_id . '/view/delete', array('query' => drupal_get_destination())),
       );
 
       $redhen_org_type = redhen_org_type_load($org->type);
