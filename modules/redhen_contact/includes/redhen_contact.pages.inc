@@ -17,6 +17,7 @@ function redhen_contact_page() {
     'last_name' => array('field' => 'last_name', 'type' => 'property', 'data' => 'Last Name', 'sort' => 'asc', 'specifier' => 'last_name'),
     'type' => array('field' => 'type', 'type' => 'property', 'data' => 'Type', 'sort' => 'asc', 'specifier' => 'type'),
     'updated' => array('field' => 'updated', 'type' => 'property', 'data' => 'Updated', 'sort' => 'desc', 'specifier' => 'updated'),
+    'state' => array('field' => 'state', 'type' => 'property', 'data' => 'State', 'sort' => 'desc', 'specifier' => 'redhen_state'),
     'Actions',
   );
 
@@ -49,6 +50,7 @@ function redhen_contact_page() {
           $contact->last_name,
           $redhen_contact_type->label,
           format_date($contact->updated),
+          $contact->redhen_state,
           implode(' | ', $actions))
       );
     }
