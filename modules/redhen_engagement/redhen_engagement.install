@@ -1,0 +1,80 @@
+<?php
+
+/**
+ * Implements hook_schema().
+ */
+function rehen_engagement_schema() {
+  $schema['redhen_engagement'] = array(
+    // example (partial) specification for table "node"
+    'description' => 'The base table for nodes.',
+    'fields' => array(
+      'redhen_engagement_id' => array(
+        'description' => 'The primary identifier for an engagement.',
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE
+      ),
+      'type' => array(
+        'description' => 'The type of this engagement.',
+        'type' => 'varchar',
+        'length' => 32,
+        'not null' => TRUE,
+        'default' => ''
+      ),
+      'description' => array(
+        'description' => 'The description of this engagement.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => ''
+      ),
+      'contact_id' => array(
+        'description' => 'The unique ID of the contact this engagement applies to.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'entity_id' => array(
+        'description' => 'The id of the source entity that triggered this engagement.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'entity_type' => array(
+        'description' => 'The entity type of the source entity that triggered this engagement.',
+        'type' => 'varchar',
+        'length' => 32,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'author_uid' => array(
+        'description' => 'The uid of the user who created this engagement.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'created' => array(
+        'description' => 'The Unix timestamp when the redhen_engagement was created.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+    ),
+    'indexes' => array(
+      'engagement_type' => array('type'),
+    ),
+    'foreign keys' => array(
+      'engagement_redhen_contact' => array(
+        'table' => 'redhen_contact',
+        'columns' => array('contact_id' => 'contact_id'),
+      ),
+      'engagement_author' => array(
+        'table' => 'users',
+        'columns' => array('author_uid' => 'uid')
+      ),
+    ),
+    'primary key' => array('redhen_engagement_id'),
+  );
+
+  return $schema;
+}
