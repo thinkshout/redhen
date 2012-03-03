@@ -1,0 +1,79 @@
+<?php
+
+/**
+ * @file
+ * Schema and installation hooks for redhen_note module.
+ */
+
+/**
+ * Implements hook_schema().
+ */
+function redhen_note_schema() {
+  $schema['redhen_note'] = array(
+    'description' => 'The base table for redhen_note module.',
+    'fields' => array(
+      'note_id' => array(
+        'description' => 'The primary identifier for a redhen_note.',
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'type' => array(
+        'description' => 'The {redhen_note_type}.type of this redhen_note.',
+        'type' => 'varchar',
+        'length' => 32,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'entity_type' => array(
+        'description' => 'The entity bundle associated with this redhen_note.',
+        'type' => 'varchar',
+        'length' => 32,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'entity_id' => array(
+        'description' => 'The id of the entity associated with this redhen_note.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'author_uid' => array(
+        'description' => 'The uid of the user who created this redhen_note.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'created' => array(
+        'description' => 'The Unix timestamp when the redhen_org was created.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'updated' => array(
+        'description' => 'The Unix timestamp when the redhen_org was most recently saved.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+    ),
+    'indexes' => array(
+      'redhen_note_updated'       => array('updated'),
+      'redhen_note_created'       => array('created'),
+      'redhen_note_type'          => array(array('type', 4)),
+    ),
+    'unique keys' => array(
+      'note_id' => array('note_id'),
+    ),
+    'foreign keys' => array(
+      'redhen_note_author' => array(
+        'table' => 'users',
+        'columns' => array('author_uid' => 'uid'),
+      ),
+    ),
+    'primary key' => array('note_id'),
+  );
+
+
+  return $schema;
+}
