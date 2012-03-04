@@ -3,7 +3,7 @@ description = Defines basic functionality common to all parts of the RedHen CRM.
 package = RedHen
 core = 7.x
 
-dependencies[] = entity_api
+dependencies[] = entity
 
 files[] = includes/redhen.admin.inc
 files[] = includes/redhen.forms.inc
