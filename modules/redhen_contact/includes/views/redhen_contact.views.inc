@@ -38,16 +38,15 @@ function redhen_contact_views_data() {
   );
   
   $data['redhen_contact']['redhen_state'] = array(
-    'title' => t('Contact state'),
-    'help' => t('The state of the contact record.'),
+    'title' => t('Contact State'),
+    'help' => t("The state of the contact record."),
     'field' => array(
-      'handler' => 'views_handler_field_numeric',
+      'handler' => 'redhen_contact_handler_field_contact_state',
       'click sortable' => TRUE,
     ),
     'argument' => array(
       'handler' => 'views_handler_argument_numeric',
       'name field' => 'title',
-      'numeric' => TRUE,
     ),
     'filter' => array(
       'handler' => 'views_handler_filter_numeric',
