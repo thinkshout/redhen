@@ -13,6 +13,11 @@
  *     with only a membership type defined.
  */
 function redhen_membership_membership_form($form, &$form_state, RedhenMembership $membership = NULL, RedhenOrg $org = NULL) {
+
+  // add jquery libs and
+  drupal_add_library('system', 'ui.datepicker');
+  drupal_add_js(drupal_get_path('module', 'redhen') . '/js/redhen.forms.js');
+
   // Ensure this include file is loaded when the form is rebuilt from the cache.
   $form_state['build_info']['files']['form'] = drupal_get_path('module', 'redhen_membership') . '/includes/redhen_membership.forms.inc';
 
@@ -89,34 +94,18 @@ function redhen_membership_membership_form($form, &$form_state, RedhenMembership
     '#weight' => 10,
   );
 
-  $start_date = array();
-  if (isset($membership->start_date)) {
-    $datetime = strtotime($membership->start_date);
-    $start_date = array(
-      'year' => date('Y', $datetime),
-      'month' => date('n', $datetime),
-      'day' => date('d', $datetime),
-    );
-  }
   $form['start_date'] = array(
-    '#type' => 'date',
+    '#type' => 'textfield',
     '#title' => 'Start Date',
-    '#default_value' => $start_date,
+    '#default_value' => isset($membership->start_date) ? date('m/d/Y', strtotime($membership->start_date)) : '',
+    '#attributes' => array('class' => array("redhen-field-type-date")),
   );
 
-  $expire_date = array();
-  if (isset($membership->expire_date)) {
-    $datetime = strtotime($membership->expire_date);
-    $expire_date = array(
-      'year' => date('Y', $datetime),
-      'month' => date('n', $datetime),
-      'day' => date('d', $datetime),
-    );
-  }
   $form['expire_date'] = array(
-    '#type' => 'date',
+    '#type' => 'textfield',
     '#title' => 'Expiration Date',
-    '#default_value' => $expire_date,
+    '#default_value' => isset($membership->expire_date) ? date('m/d/Y', strtotime($membership->expire_date)) : '',
+    '#attributes' => array('class' => array("redhen-field-type-date")),
   );
 
   $form['fields'] = array(
@@ -186,8 +175,8 @@ function redhen_membership_membership_form_submit($form, &$form_state) {
   // Save default parameters back into the $membership object.
   $membership->type = $form_state['values']['type'];
   $membership->label = $form_state['values']['label'];
-  $membership->start_date = $form_state['values']['start_date']['year'] . '-' . $form_state['values']['start_date']['month'] . '-' . $form_state['values']['start_date']['day'];
-  $membership->expire_date = $form_state['values']['expire_date']['year'] . '-' . $form_state['values']['expire_date']['month'] . '-' . $form_state['values']['expire_date']['day'];
+  $membership->start_date = date('Y-m-d', strtotime($form_state['values']['start_date']));
+  $membership->expire_date = date('Y-m-d', strtotime($form_state['values']['expire_date']));
   $membership->redhen_state = $form_state['values']['redhen_state'];
   $membership->org_id = $org_id;
 
