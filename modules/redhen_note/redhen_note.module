@@ -48,6 +48,9 @@ function redhen_note_entity_info() {
   );
 }
 
+/**
+ * Implements hook_menu().
+ */
 function redhen_note_menu() {
   $items = array();
 
@@ -58,145 +61,75 @@ function redhen_note_menu() {
     'access arguments' => array('administer redhen notes'), //TODO: add access control
   );
 
+  $note_entity_types = array(
+    'contact' =>'redhen_contact',
+    'org' => 'redhen_org');
 
-  //todo: create loop for note types array('redhen_contact', 'redhen_org')
+  foreach ($note_entity_types as $path => $note_entity_type) {
+    $items['redhen/' . $path .'/%' . $note_entity_type . '/notes'] = array(
+      'title' => 'Notes',
+      'page callback' => 'redhen_note_notes_page',
+      'page arguments' => array(2, $note_entity_type),
+      'access callback' => 'redhen_contact_access',
+      'access arguments' => array('view', 2),
+      'file' => 'includes/redhen_note.pages.inc',
+      'type' => MENU_LOCAL_TASK,
+    );
+    $items['redhen/' . $path .'/%' . $note_entity_type . '/notes/add'] = array(
+      'title' => 'Add Note',
+      'page callback' => redhen_note_add,
+      'page arguments' => array(2, $note_entity_type),
+      'file' => 'includes/redhen_note.pages.inc',
+      'access callback' => 'redhen_note_access',
+      'access arguments' => array('edit', 2),
+      'type' => MENU_LOCAL_ACTION,
+    );
+    $items['redhen/' . $path .'/%' . $note_entity_type . '/note/%redhen_note'] = array(
+      'title callback' => 'redhen_note_title',
+      'title arguments' => array(4),
+      'page callback' => 'redhen_note_view',
+      'page arguments' => array(2, $note_entity_type, 4),
+      'access callback' => 'redhen_note_access',
+      'access arguments' => array('view', 2),
+      'weight' => 10,
+    );
+    $items['redhen/' . $path . '/%' . $note_entity_type . '/note/%redhen_note/view'] = array(
+      'title' => 'Summary',
+      'type' => MENU_DEFAULT_LOCAL_TASK,
+      'weight' => -10,
+      'context' => MENU_CONTEXT_PAGE | MENU_CONTEXT_INLINE,
+    );
+    $items['redhen/' . $path .'/%' . $note_entity_type . '/note/%redhen_note/view/edit'] = array(
+      'title' => 'Edit',
+      'page callback' => 'drupal_get_form',
+      'page arguments' => array('redhen_note_form', 2, $note_entity_type, 4),
+      'access callback' => 'redhen_note_access',
+      'access arguments' => array('edit', 4),
+      'type' => MENU_LOCAL_TASK,
+      'file' => 'includes/redhen_note.forms.inc',
+    );
+    $items['redhen/' . $path .'/%' . $note_entity_type . '/note/%redhen_note/view/delete'] = array(
+      'title' => 'Delete',
+      'page callback' => 'drupal_get_form',
+      'page arguments' => array('redhen_note_delete_form', 4),
+      'access callback' => 'redhen_note_access',
+      'access arguments' => array('delete', 4),
+      'type' => MENU_LOCAL_TASK,
+      'weight' => 10,
+      'file' => 'includes/redhen_note.forms.inc',
+    );
+  }
 
-  // contact notes
-  $items['redhen/contact/%redhen_contact/notes'] = array(
-    'title' => 'Notes',
-    'page callback' => 'redhen_note_notes_page',
-    'page arguments' => array(2, 'redhen_contact'),
-    'access callback' => 'redhen_contact_access',
-    'access arguments' => array('view', 2),
-    'type' => MENU_LOCAL_TASK,
-  );
-  $items['redhen/contact/%redhen_contact/notes/add'] = array(
-    'title' => 'Add Note',
-    'page callback' => 'drupal_get_form',
-    'page arguments' => array('redhen_note_form', 2, 'redhen_contact'),
-    'file' => 'includes/redhen_note.forms.inc',
-    'access callback' => 'redhen_contact_access',
-    'access arguments' => array('edit', 2),
-    'type' => MENU_LOCAL_ACTION,
-  );
-  $items['redhen/contact/%redhen_contact/note/%redhen_note'] = array(
-    'title callback' => 'redhen_note_title',
-    'title arguments' => array(4),
-    'page callback' => 'redhen_note_view',
-    'page arguments' => array(2, 'redhen_contact', 4),
-    'access callback' => 'redhen_note_access',
-    'access arguments' => array('view', 2),
-    'weight' => 10,
-  );
-  $items['redhen/contact/%redhen_contact/note/%redhen_note/view'] = array(
-    'title' => 'Summary',
-    'type' => MENU_DEFAULT_LOCAL_TASK,
-    'weight' => -10,
-    'context' => MENU_CONTEXT_PAGE | MENU_CONTEXT_INLINE,
-  );
-  $items['redhen/contact/%redhen_contact/note/%redhen_note/view/edit'] = array(
-    'title' => 'Edit',
-    'page callback' => 'drupal_get_form',
-    'page arguments' => array('redhen_note_form', 2, 'redhen_contact', 4),
-    'access callback' => 'redhen_note_access',
-    'access arguments' => array('edit', 4),
-    'type' => MENU_LOCAL_TASK,
-    'file' => 'includes/redhen_note.forms.inc',
-  );
-  $items['redhen/contact/%redhen_contact/note/%redhen_note/view/delete'] = array(
-    'title' => 'Delete',
-    'page callback' => 'drupal_get_form',
-    'page arguments' => array('redhen_note_delete_form', 2, 'redhen_contact', 4),
-    'access callback' => 'redhen_note_access',
-    'access arguments' => array('delete', 4),
-    'type' => MENU_LOCAL_TASK,
-    'weight' => 10,
-    'file' => 'includes/redhen_note.forms.inc',
-  );
-
-
-
-  // org notes
-  $items['redhen/org/%redhen_org/notes'] = array(
-    'title' => 'Notes',
-    'page callback' => 'redhen_note_notes_page',
-    'page arguments' => array(2, 'redhen_org'),
-    'access callback' => 'redhen_org_access',
-    'access arguments' => array('view', 2),
-    'type' => MENU_LOCAL_TASK,
-  );
-  $items['redhen/org/%redhen_org/notes/add'] = array(
-    'title' => 'Add Note',
-    'page callback' => 'drupal_get_form',
-    'page arguments' => array('redhen_note_form', 2, 'redhen_org'),
-    'file' => 'includes/redhen_note.forms.inc',
-    'access callback' => 'redhen_org_access',
-    'access arguments' => array('edit', 2),
-    'type' => MENU_LOCAL_ACTION,
-  );
-  $items['redhen/contact/%redhen_org/note/%redhen_note'] = array(
-    'title callback' => 'redhen_note_title',
-    'title arguments' => array(4),
-    'page callback' => 'redhen_note_view',
-    'page arguments' => array(2, 'redhen_org', 4),
-    'access callback' => 'redhen_note_access',
-    'access arguments' => array('view', 2),
-    'weight' => 10,
-  );
-  $items['redhen/contact/%redhen_org/note/%redhen_note/view'] = array(
-    'title' => 'Summary',
-    'type' => MENU_DEFAULT_LOCAL_TASK,
-    'weight' => -10,
-    'context' => MENU_CONTEXT_PAGE | MENU_CONTEXT_INLINE,
-  );
-  $items['redhen/contact/%redhen_org/note/%redhen_note/view/edit'] = array(
-    'title' => 'Edit',
-    'page callback' => 'drupal_get_form',
-    'page arguments' => array('redhen_note_form', 2, 'redhen_org', 4),
-    'access callback' => 'redhen_note_access',
-    'access arguments' => array('edit', 4),
-    'type' => MENU_LOCAL_TASK,
-    'file' => 'includes/redhen_note.forms.inc',
-  );
-  $items['redhen/contact/%redhen_org/note/%redhen_note/view/delete'] = array(
-    'title' => 'Delete',
-    'page callback' => 'drupal_get_form',
-    'page arguments' => array('redhen_note_delete_form', 2, 'redhen_org', 4),
-    'access callback' => 'redhen_note_access',
-    'access arguments' => array('delete', 4),
-    'type' => MENU_LOCAL_TASK,
-    'weight' => 10,
-    'file' => 'includes/redhen_note.forms.inc',
-  );
   return $items;
 }
 
-function redhen_note_notes_page($entity, $entity_type) {
-
-  list($entity_id,,) = entity_extract_ids($entity_type, $entity);
-
-  $query = new EntityFieldQuery();
-  $query
-    ->entityCondition('entity_type', 'redhen_note')
-    ->propertyCondition('entity_id', $entity_id);
-  $result = $query->execute();
-
-  $out = '<h3>List of notes</h3>';
-
-  foreach ($result as $notes) {
-    foreach($notes as $note) {
-      $note_entity = entity_load('redhen_note', array($note->note_id));
-      $note_field = $note_entity[$note->note_id]->field_text_field[LANGUAGE_NONE][0]['value'];
-      $out .= 'Note: ' . $note->note_id . ' - ' . $note_field . l('Edit', 'redhen/contact/ ' . $entity_id . '/note/' . $note->note_id . '/view/edit') . '<br/>';
-    }
-  }
-
-  return $out;
-}
-
+/*
+ * Admin page for Redhen Notes
+ */
 function redhen_note_admin_page() {
-  return 'Administrate Redhen fNote fields and display';
+  return 'Administrate Redhen Note fields and display';
 }
+
 /**
  * Checks note access for various operations.
  *
@@ -223,6 +156,19 @@ function redhen_note_access($op, $note = NULL, $account = NULL) {
 
   return FALSE;
 }
+
+/**
+ * Implements hook_permission().
+ */
+function redhen_note_permission() {
+  return array(
+    'administer redhen notes' =>  array(
+      'title' => t('Administer Redhen Notes'),
+      'description' => t('Perform administration tasks for Redhen Notes.'),
+    ),
+  );
+}
+
 
 
 /**

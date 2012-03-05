@@ -5,7 +5,7 @@
  * Forms for creating, editing, and deleting organizations.
  */
 
-function redhen_org_add($type) {
+  function redhen_org_add($type) {
   $org = entity_get_controller('redhen_org')->create(array('type' => $type));
   return drupal_get_form('redhen_org_org_form', $org);
 }

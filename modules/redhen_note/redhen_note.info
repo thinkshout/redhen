@@ -5,6 +5,7 @@ core = 7.x
 
 dependencies[] = redhen
 
+files[] = includes/redhen_note.forms.inc
 
 ; Classes
 files[] = includes/redhen_note.entity.inc

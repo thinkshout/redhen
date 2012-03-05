@@ -27,6 +27,9 @@ class RedhenNote extends Entity {
       $this->created = REQUEST_TIME;
     }
 
+    $this->entity = $this->entity();
+    $this->author = $this->author();
+
   }
 
   /**
@@ -56,12 +59,30 @@ class RedhenNote extends Entity {
     return parent::save();
   }
 
+  /*
+   * Get entity note is attached to
+   */
+  public function entity() {
+    $entity =  entity_load($this->entity_type, array($this->entity_id));
+    return $entity[$this->entity_id];
+  }
+
+  /*
+   * Get author of note
+   */
+  public function author() {
+    $user =  user_load($this->author_uid);
+    return $user;
+  }
+
   /**
-     * Specifify URI
-     */
-    protected function defaultUri() {
-      return array('path' => 'redhen/note/' . $this->identifier());
-    }
+   * Specifify URI
+   */
+  protected function defaultUri() {
+    return array('path' => 'redhen/note/' . $this->identifier());
+  }
+
+
 
 }
 
