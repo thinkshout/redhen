@@ -78,7 +78,14 @@ function redhen_membership_types_list_page() {
     $item = array_shift($content);
     drupal_goto($item['href']);
   }
-  return theme('redhen_membership_add_list', array('content' => $content));
+
+  $render = array(
+    '#theme' => 'redhen_membership_add_list',
+    '#content' => $content,
+  );
+
+  return $render;
+
 }
 
 /**
