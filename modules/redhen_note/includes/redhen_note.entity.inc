@@ -33,8 +33,16 @@ class RedhenNote extends Entity {
    * Override buildContent() to add note properties.
    */
   public function buildContent($view_mode = 'full', $langcode = NULL) {
+    $content[''] = array();
     return entity_get_controller($this->entityType)
       ->buildContent($this, $view_mode, $langcode, $content);
+  }
+
+  /**
+   * Override label() to add note label.
+   */
+  public function label() {
+    return 'Note ' . $this->note_id;
   }
 
   /**
@@ -49,11 +57,11 @@ class RedhenNote extends Entity {
   }
 
   /**
-   * Specifify URI
-   */
-  protected function defaultUri() {
-    return array('path' => 'redhen/note/' . $this->identifier());
-  }
+     * Specifify URI
+     */
+    protected function defaultUri() {
+      return array('path' => 'redhen/note/' . $this->identifier());
+    }
 
 }
 

@@ -5,6 +5,11 @@
  * Form definition and handling for redhen notes.
  */
 
+function redhen_note_add($form, &$form_state, $entity, $entity_type) {
+  $redhen_note = entity_get_controller('redhen_note')->create(array('type' => 'redhen_note'));
+  return drupal_get_form('redhen_org_org_form', $org);
+}
+
 /**
  * Return a form array for adding/editing a connection.
  *
@@ -14,11 +19,10 @@
  * @param stdClass $relation
  * @return array
  */
-function redhen_note_form($form, &$form_state, $entity, $entity_type) {
-
-  $redhen_note = entity_get_controller('redhen_note')->create(array('type' => 'redhen_note'));
+function redhen_note_form($form, &$form_state, $entity, $entity_type, $redhen_note) {
 
   $form_state['redhen_note'] = $redhen_note;
+
 
   $form_state['entity'] = $entity;
   $form_state['entity_type'] = $entity_type;
