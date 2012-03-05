@@ -10,7 +10,7 @@ module_load_include('inc', 'redhen', 'includes/redhen.forms');
 /**
  * Page callback for membership overview page.
  */
-function redhen_membership_page(RedhenOrg $org = NULL) {
+function redhen_membership_page($entity = NULL, $entity_type = NULL) {
 
   // setup the header for both the query and table
   $header = array(
@@ -24,7 +24,7 @@ function redhen_membership_page(RedhenOrg $org = NULL) {
     $bundle = isset($_GET['bundle']) ? $_GET['bundle'] : '';
     $properties = isset($_GET['properties']) ? $_GET['properties'] : array();
     $fields = isset($_GET['fields']) ? $_GET['fields'] : array();
-    $result = redhen_filter_query('redhen_membership', $header, $bundle, $properties, $fields);
+    $result = redhen_filter_query('redhen_membership', $header, $bundle, $properties, $fields, $entity);
   }
 
   $rows = array();
@@ -32,11 +32,12 @@ function redhen_membership_page(RedhenOrg $org = NULL) {
     $memberships = redhen_membership_load_multiple(array_keys($result['redhen_membership']));
 
     foreach($memberships as $membership) {
+      $entity_uri = entity_uri($membership->entity->entityType(), $membership->entity);
       $actions = array(
-        l('view', 'redhen/org/' . $membership->org_id . '/memberships/' . $membership->membership_id),
-        l('edit', 'redhen/org/' . $membership->org_id . '/memberships/' . $membership->membership_id . '/edit', array('query' => drupal_get_destination())),
-        l('archive', 'redhen/org/' . $membership->org_id . '/memberships/' . $membership->membership_id . '/archive', array('query' => drupal_get_destination())),
-        l('delete', 'redhen/org/' . $membership->org_id . '/memberships/' . $membership->membership_id . '/delete', array('query' => drupal_get_destination())),
+        l('view', $entity_uri['path'] . '/memberships/' . $membership->membership_id),
+        l('edit', $entity_uri['path'] . '/memberships/' . $membership->membership_id . '/view/edit', array('query' => drupal_get_destination())),
+        l('archive', $entity_uri['path'] . '/memberships/' . $membership->membership_id . '/archive', array('query' => drupal_get_destination())),
+        l('delete', $entity_uri['path'] . '/memberships/' . $membership->membership_id . '/view/delete', array('query' => drupal_get_destination())),
       );
       $rows[] = array(
         'data' => array($membership->label, implode(' | ', $actions))
