@@ -15,6 +15,11 @@ function redhen_membership_page($entity = NULL, $entity_type = NULL) {
   // setup the header for both the query and table
   $header = array(
     'label' => array('field' => 'label', 'type' => 'property', 'data' => 'Label', 'sort' => 'asc', 'specifier' => 'label'),
+    'type' => array('field' => 'type', 'type' => 'property', 'data' => 'Type', 'sort' => 'asc', 'specifier' => 'type'),
+    'start_date' => array('field' => 'start_date', 'type' => 'property', 'data' => 'Start Date', 'sort' => 'asc', 'specifier' => 'start_state'),
+    'expire_date' => array('field' => 'expire_date', 'type' => 'property', 'data' => 'Expiration Date', 'sort' => 'asc', 'specifier' => 'expire_date'),
+    'updated' => array('field' => 'updated', 'type' => 'property', 'data' => 'Updated', 'sort' => 'desc', 'specifier' => 'updated'),
+    'state' => array('field' => 'state', 'type' => 'property', 'data' => 'State', 'sort' => 'desc', 'specifier' => 'redhen_state'),
     'Actions',
   );
 
@@ -39,8 +44,17 @@ function redhen_membership_page($entity = NULL, $entity_type = NULL) {
         l('archive', $entity_uri['path'] . '/memberships/' . $membership->membership_id . '/archive', array('query' => drupal_get_destination())),
         l('delete', $entity_uri['path'] . '/memberships/' . $membership->membership_id . '/view/delete', array('query' => drupal_get_destination())),
       );
+
+      $membership_type = redhen_membership_type_load($membership->type);
       $rows[] = array(
-        'data' => array($membership->label, implode(' | ', $actions))
+        'data' => array(
+          $membership->label,
+          $membership_type->label,
+          ($membership->start_date != '') ? format_date(strtotime($membership->start_date)) : '',
+          ($membership->expire_date != '') ? format_date(strtotime($membership->expire_date)) : '',
+          format_date($membership->updated),
+          $membership->redhen_state,
+          implode(' | ', $actions))
       );
     }
   }
