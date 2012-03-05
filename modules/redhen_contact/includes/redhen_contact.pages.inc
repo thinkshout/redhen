@@ -58,7 +58,7 @@ function redhen_contact_page() {
   else {
     // no results, set a message
     $rows[] = array(
-      'data' => array(array('data' => t('Sorry, there are no contacts that match your criteria.'), 'colspan' => 3))
+      'data' => array(array('data' => t('Sorry, there are no contacts that match your criteria.'), 'colspan' => 6))
     );
   }
 
