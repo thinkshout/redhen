@@ -50,9 +50,9 @@ function redhen_membership_page($entity = NULL, $entity_type = NULL) {
         'data' => array(
           $membership->label,
           $membership_type->label,
-          ($membership->start_date != '') ? format_date(strtotime($membership->start_date)) : '',
-          ($membership->expire_date != '') ? format_date(strtotime($membership->expire_date)) : '',
-          format_date($membership->updated),
+          ($membership->start_date != '') ? date('m/d/Y', strtotime($membership->start_date)) : '',
+          ($membership->expire_date != '') ? date('m/d/Y', strtotime($membership->expire_date)) : '',
+          date('m/d/Y g:i a', $membership->updated),
           $membership->redhen_state,
           implode(' | ', $actions))
       );
