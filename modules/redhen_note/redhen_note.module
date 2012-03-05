@@ -22,15 +22,15 @@ function redhen_note_entity_info() {
       'entity keys' => array(
         'id' => 'note_id',
       ),
-//      'bundle keys' => array(
-//        'bundle' => 'note_id',
-//      ),
+      'bundle keys' => array(
+        'bundle' => 'name',
+      ),
       'bundles' => array(
         'redhen_note' => array(
           'label' => 'Notes',
           'admin' => array(
             'path' => 'admin/structure/redhen/redhen_notes',
-            'access arguments' => array('administer redhen note entities'),
+            'access arguments' => array('administer redhen notes'),
           ),
         ),
       ),
@@ -56,7 +56,7 @@ function redhen_note_menu() {
 
   $items['admin/structure/redhen/redhen_notes'] = array(
     'title' => 'Notes',
-    'description' => 'Manage Redhen Notes structure',
+    'description' => 'Manage Redhen notes',
     'page callback' => 'redhen_note_admin_page',
     'access arguments' => array('administer redhen notes'), //TODO: add access control
   );

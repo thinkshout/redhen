@@ -13,6 +13,11 @@
  *     with only a membership type defined.
  */
 function redhen_membership_membership_form($form, &$form_state, RedhenMembership $membership = NULL, RedhenOrg $org = NULL) {
+
+  // add jquery libs and
+  drupal_add_library('system', 'ui.datepicker');
+  drupal_add_js(drupal_get_path('module', 'redhen') . '/js/redhen.forms.js');
+
   // Ensure this include file is loaded when the form is rebuilt from the cache.
   $form_state['build_info']['files']['form'] = drupal_get_path('module', 'redhen_membership') . '/includes/redhen_membership.forms.inc';
 
@@ -89,34 +94,18 @@ function redhen_membership_membership_form($form, &$form_state, RedhenMembership
     '#weight' => 10,
   );
 
-  $start_date = array();
-  if (isset($membership->start_date)) {
-    $datetime = strtotime($membership->start_date);
-    $start_date = array(
-      'year' => date('Y', $datetime),
-      'month' => date('n', $datetime),
-      'day' => date('d', $datetime),
-    );
-  }
   $form['start_date'] = array(
-    '#type' => 'date',
+    '#type' => 'textfield',
     '#title' => 'Start Date',
-    '#default_value' => $start_date,
+    '#default_value' => isset($membership->start_date) ? date('m/d/Y', strtotime($membership->start_date)) : '',
+    '#attributes' => array('class' => array("redhen-field-type-date")),
   );
 
-  $expire_date = array();
-  if (isset($membership->expire_date)) {
-    $datetime = strtotime($membership->expire_date);
-    $expire_date = array(
-      'year' => date('Y', $datetime),
-      'month' => date('n', $datetime),
-      'day' => date('d', $datetime),
-    );
-  }
   $form['expire_date'] = array(
-    '#type' => 'date',
+    '#type' => 'textfield',
     '#title' => 'Expiration Date',
-    '#default_value' => $expire_date,
+    '#default_value' => isset($membership->expire_date) ? date('m/d/Y', strtotime($membership->expire_date)) : '',
+    '#attributes' => array('class' => array("redhen-field-type-date")),
   );
 
   $form['fields'] = array(
@@ -180,14 +169,14 @@ function redhen_membership_membership_form_submit($form, &$form_state) {
   $membership = $form_state['membership'];
   $org_id = $form_state['values']['org_id'];
 
-  // Set the contact's author uid
+  // Set the membership's author uid
   $membership->author_uid = $user->uid;
 
   // Save default parameters back into the $membership object.
   $membership->type = $form_state['values']['type'];
   $membership->label = $form_state['values']['label'];
-  $membership->start_date = $form_state['values']['start_date']['year'] . '-' . $form_state['values']['start_date']['month'] . '-' . $form_state['values']['start_date']['day'];
-  $membership->expire_date = $form_state['values']['expire_date']['year'] . '-' . $form_state['values']['expire_date']['month'] . '-' . $form_state['values']['expire_date']['day'];
+  $membership->start_date = date('Y-m-d', strtotime($form_state['values']['start_date']));
+  $membership->expire_date = date('Y-m-d', strtotime($form_state['values']['expire_date']));
   $membership->redhen_state = $form_state['values']['redhen_state'];
   $membership->org_id = $org_id;
 
@@ -247,122 +236,6 @@ function redhen_membership_membership_delete_form_submit($form, &$form_state) {
 
   drupal_goto('redhen/org/' . $membership->org_id . '/memberships');
 
-}
-
-/**
- * Returns the form to filter membership lists.
- */
-function redhen_membership_filter_form($form, $form_state, $entity_info) {
-  $form = array();
-
-  if (!empty($entity_info['properties'])) {
-    $form['filter_fieldset'] = array(
-      '#type' => 'fieldset',
-      '#title' => t('Filters'),
-      '#collapsible' => TRUE,
-      // expand fieldset if the list was filtered
-      '#collapsed' => (empty($_GET['properties']) && empty($_GET['fields']))
-    );
-
-    $form['filter_fieldset']['filters'] = array(
-      '#type' => 'container',
-      '#tree' => TRUE
-    );
-
-    $form['filter_fieldset']['filters']['properties'] = array(
-      '#type' => 'container',
-    );
-
-    // add a form field for each property
-    foreach($entity_info['properties'] as $key => $prop) {
-      $form['filter_fieldset']['filters']['properties'][$key] = array(
-        '#type' => $prop['type'],
-        '#title' => $prop['title'],
-        '#default_value' => isset($_GET[$key]) ? $_GET[$key] : NULL
-      );
-
-      if ($prop['type'] == 'select' && !empty($prop['options'])) {
-        $form['filter_fieldset']['filters']['properties'][$key]['#options'] = $prop['options'];
-      }
-    }
-
-    // add membership type; will load additional field filters on change
-    $type_options = array('' => t('-- Any --'));
-    foreach($entity_info['bundles'] as $key => $bundle) {
-      $type_options[$key] = $bundle['label'];
-    }
-    $form['filter_fieldset']['filters']['type'] = array(
-      '#type' => 'select',
-      '#title' => t('membership type'),
-      '#options' => $type_options,
-      '#default_value' => isset($_GET['type']) ? $_GET['type'] : NULL,
-      '#ajax' => array(
-        'callback' => 'redhen_membership_get_fields_callback',
-        'wrapper' => 'redhen_membership_fields_container'
-      )
-    );
-
-    $form['filter_fieldset']['filters']['fields'] = array(
-      '#prefix' => '<div id="redhen_membership_fields_container">',
-      '#suffix' => '</div>'
-    );
-
-    $form['filter_fieldset']['submit'] = array(
-      '#type' => 'submit',
-      '#value' => t('Apply')
-    );
-
-    $form['filter_fieldset']['reset'] = array(
-      '#type' => 'submit',
-      '#value' => t('Reset'),
-      '#limit_validation_errors' => array(),
-      '#submit' => array('redhen_membership_filter_form_reset')
-    );
-  }
-
-  // add the fields on an ajax type change event or if a filter is being passed
-  if (!empty($form_state['values']['filters']['type']) || isset($_GET['type'])) {
-    $type = !empty($form_state['values']['filters']['type']) ?
-      $form_state['values']['filters']['type'] : $_GET['type'];
-
-    $fields = field_info_instances('redhen_membership', $type);
-    if (!empty($fields)) {
-      $form['filter_fieldset']['filters']['fields'] = array(
-        '#type' => 'fieldset',
-        '#title' => t('Additional Fields for @type', array('@type' => $type)),
-        '#collapsible' => FALSE,
-        '#id' => 'redhen_membership_fields_container'
-      );
-
-      foreach($fields as $key => $field) {
-        $form['filter_fieldset']['filters']['fields'][$key] = array(
-          '#type' => 'textfield',
-          '#title' => $field['label'],
-          '#default_value' => isset($_GET['fields'][$key]) ? $_GET['fields'][$key] : NULL,
-        );
-      }
-    }
-  }
-
-  return $form;
-}
-
-/**
- * AJAX callback to return fields for a given type.
- */
-function redhen_membership_get_fields_callback($form, $form_state) {
-  return $form['filter_fieldset']['filters']['fields'];
-}
-
-/**
- * Submit handler for redhen_membership_filter_form().
- */
-function redhen_membership_filter_form_submit($form, $form_state) {
-  drupal_goto($_GET['q'], array('query' => $form_state['values']['filters']));
-}
-
-function redhen_membership_filter_form_reset() {
-  drupal_goto('redhen/membership');
 }
 
 function _redhen_membership_autocomplete_validate($element, &$form_state, $form) {

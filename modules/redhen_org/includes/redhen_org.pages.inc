@@ -17,6 +17,7 @@ function redhen_org_page() {
     'label' => array('field' => 'label', 'type' => 'property', 'data' => 'Name', 'sort' => 'asc', 'specifier' => 'label'),
     'type' => array('field' => 'type', 'type' => 'property', 'data' => 'Type', 'sort' => 'asc', 'specifier' => 'type'),
     'updated' => array('field' => 'updated', 'type' => 'property', 'data' => 'Updated', 'sort' => 'desc', 'specifier' => 'updated'),
+    'state' => array('field' => 'state', 'type' => 'property', 'data' => 'State', 'sort' => 'desc', 'specifier' => 'redhen_state'),
     'Actions',
   );
 
@@ -36,9 +37,9 @@ function redhen_org_page() {
     foreach($orgs as $org) {
       $actions = array(
         l('view', 'redhen/org/' . $org->org_id),
-        l('edit', 'redhen/org/' . $org->org_id . '/edit', array('query' => drupal_get_destination())),
+        l('edit', 'redhen/org/' . $org->org_id . '/view/edit', array('query' => drupal_get_destination())),
         l('archive', 'redhen/org/' . $org->org_id . '/archive', array('query' => drupal_get_destination())),
-        l('delete', 'redhen/org/' . $org->org_id . '/delete', array('query' => drupal_get_destination())),
+        l('delete', 'redhen/org/' . $org->org_id . '/view/delete', array('query' => drupal_get_destination())),
       );
 
       $redhen_org_type = redhen_org_type_load($org->type);
@@ -47,6 +48,7 @@ function redhen_org_page() {
           $org->label,
           $redhen_org_type->label,
           format_date($org->updated),
+          $org->redhen_state,
           implode(' | ', $actions))
       );
     }

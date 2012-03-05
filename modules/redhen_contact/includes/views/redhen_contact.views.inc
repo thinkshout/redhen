@@ -36,6 +36,25 @@ function redhen_contact_views_data() {
       'handler' => 'views_handler_sort',
     ),
   );
+  
+  $data['redhen_contact']['redhen_state'] = array(
+    'title' => t('Contact State'),
+    'help' => t("The state of the contact record."),
+    'field' => array(
+      'handler' => 'redhen_contact_handler_field_contact_state',
+      'click sortable' => TRUE,
+    ),
+    'argument' => array(
+      'handler' => 'views_handler_argument_numeric',
+      'name field' => 'title',
+    ),
+    'filter' => array(
+      'handler' => 'views_handler_filter_numeric',
+    ),
+    'sort' => array(
+      'handler' => 'views_handler_sort',
+    ),
+  );
 
   $data['redhen_contact']['revision_id'] = array(
     'title' => t('Revision ID'),

@@ -25,7 +25,7 @@ function redhen_menu() {
 
   $items['admin/structure/redhen'] = array(
     'title' => 'RedHen CRM',
-    'description' => 'Administer RedHen CRM items, such as contact, organizations, etc.',
+    'description' => 'Administer RedHen CRM items, such as contacts, organizations, memberships, etc.',
     'weight' => -8,
     'page callback' => 'redhen_admin_menu_block_page',
     'menu_name' => 'navigation',

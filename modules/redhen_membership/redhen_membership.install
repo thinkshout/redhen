@@ -47,12 +47,14 @@ function redhen_membership_schema() {
       ),
       'start_date' => array(
         'description' => 'Date the membership is active.',
+        'type' => 'datetime',
         'mysql_type' => 'datetime',
         'pgsql_type' => 'timestamp',
         'not null' => FALSE,
       ),
       'expire_date' => array(
         'description' => 'Date the membership expires.',
+        'type' => 'datetime',
         'mysql_type' => 'datetime',
         'pgsql_type' => 'timestamp',
         'not null' => FALSE,

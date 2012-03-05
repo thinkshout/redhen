@@ -53,6 +53,7 @@ function redhen_filter_form($form, $form_state, $entity_type) {
           '#default_value' => $default_value
         );
         if ($field_type == 'select' && isset($prop['options'])) {
+          $prop['options'] = array('' => t('-- Any --')) + $prop['options'];
           $form['filter_fieldset']['filters']['properties'][$key]['#options'] = $prop['options'];
         }
       }
