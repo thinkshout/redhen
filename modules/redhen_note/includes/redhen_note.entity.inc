@@ -63,8 +63,13 @@ class RedhenNote extends Entity {
    * Get entity note is attached to
    */
   public function entity() {
-    $entity =  entity_load($this->entity_type, array($this->entity_id));
-    return $entity[$this->entity_id];
+    if (isset($this->entity_type)) {
+      $entity =  entity_load($this->entity_type, array($this->entity_id));
+      return $entity[$this->entity_id];
+    }
+    else {
+      return NULL;
+    }
   }
 
   /*
@@ -79,7 +84,15 @@ class RedhenNote extends Entity {
    * Specifify URI
    */
   protected function defaultUri() {
-    return array('path' => 'redhen/note/' . $this->identifier());
+    switch ($this->entity_type) {
+      case 'redhen_contact':
+        $path = 'contact';
+        break;
+      case 'redhen_org':
+        $path = 'org';
+        break;
+    }
+    return array('path' => 'redhen/' . $path . '/' . $this->entity_id . '/note/' . $this->note_id .'/view');
   }
 
 

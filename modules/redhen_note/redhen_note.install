@@ -77,3 +77,32 @@ function redhen_note_schema() {
 
   return $schema;
 }
+
+
+/*
+ * Implements hook_install()
+ */
+function redhen_note_install() {
+  //Redhen Note Body field config
+  $redhen_body = array(
+    'field_name' => 'redhen_note_body',
+    'type' => 'text',
+    'cardinality' => 1,
+    'locked' => TRUE,
+  );
+  field_create_field($redhen_body);
+
+  //Create body field instance for notes
+  $redhen_body_instance = array(
+    'field_name' => 'redhen_note_body',
+    'entity_type' => 'redhen_note',
+    'bundle' => 'redhen_note',
+    'label' => t('Body'),
+    'widget' => array(
+      'type' => 'text',
+    ),
+  );
+  field_create_instance($redhen_body_instance);
+
+}
+

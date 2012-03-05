@@ -25,7 +25,6 @@ function redhen_note_form($form, &$form_state, $entity, $entity_type, $redhen_no
     '#value' => t('Save Note'),
     '#weight' => 999,
   );
-
   return $form;
 }
 
