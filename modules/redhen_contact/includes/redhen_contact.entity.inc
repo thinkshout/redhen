@@ -129,6 +129,25 @@ class RedhenContact extends Entity {
     return FALSE;
   }
 
+  /**
+   * Sets an email for a contact.
+   *
+   * @param $email
+   * @param int $default
+   * @param int $bulk
+   * @param int $hold
+   * @param int $label_id
+   */
+  public function setEmail($email, $default = 1, $bulk = 1, $hold = 0, $label_id = 0) {
+    $this->{REDHEN_CONTACT_EMAIL_FIELD}[LANGUAGE_NONE][] = array(
+      'value' => $email,
+      'default' => $default,
+      'bulk' => $bulk,
+      'hold' => $hold,
+      'label_id' => $label_id
+    );
+  }
+
 }
 
 
