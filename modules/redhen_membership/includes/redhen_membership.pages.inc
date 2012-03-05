@@ -5,13 +5,12 @@
  * Page callbacks for redhen membership.
  */
 
+module_load_include('inc', 'redhen', 'includes/redhen.forms');
+
 /**
  * Page callback for membership overview page.
  */
 function redhen_membership_page(RedhenOrg $org = NULL) {
-  $memberships = array();
-
-  $query = new EntityFieldQuery();
 
   // setup the header for both the query and table
   $header = array(
@@ -19,40 +18,14 @@ function redhen_membership_page(RedhenOrg $org = NULL) {
     'Actions',
   );
 
-  // build the query
-  $query
-    ->entityCondition('entity_type', 'redhen_membership', '=')
-    ->tablesort($header)
-    ->pager(10);
-
-  if (isset($org->org_id) && !empty($org->org_id)) {
-    $query->propertyCondition('org_id', $org->org_id, '=');
+  // need to ensure the query doesn't execute when posing the form
+  $result = FALSE;
+  if (!isset($_POST['form_id'])) {
+    $bundle = isset($_GET['bundle']) ? $_GET['bundle'] : '';
+    $properties = isset($_GET['properties']) ? $_GET['properties'] : array();
+    $fields = isset($_GET['fields']) ? $_GET['fields'] : array();
+    $result = redhen_filter_query('redhen_membership', $header, $bundle, $properties, $fields);
   }
-
-  // set the membership type
-  if (isset($_GET['type']) && !empty($_GET['type'])) {
-    $query->propertyCondition('type', $_GET['type'], '=');
-  }
-
-  // add prop filters
-  if (isset($_GET['properties'])) {
-    foreach($_GET['properties'] as $key => $value) {
-      if (!empty($value)) {
-        $query->propertyCondition($key, $value, '=');
-      }
-    }
-  }
-
-  // add field filters
-  if (isset($_GET['fields'])) {
-    foreach($_GET['fields'] as $key => $value) {
-      if (!empty($value)) {
-        $query->fieldCondition($key, NULL, $value, '=');
-      }
-    }
-  }
-
-  $result = $query->execute();
 
   $rows = array();
   if ($result) {
@@ -77,12 +50,19 @@ function redhen_membership_page(RedhenOrg $org = NULL) {
     );
   }
 
-  $entity_info = entity_get_info('redhen_membership');
-  module_load_include('inc', 'redhen_membership', 'includes/redhen_membership.forms');
-  $form = drupal_get_form('redhen_membership_filter_form', $entity_info);
+  $render = array(
+    'form' => drupal_get_form('redhen_filter_form', 'redhen_membership'),
+    'table' => array(
+      '#theme' => 'table',
+      '#header' => $header,
+      '#rows' => $rows
+    ),
+    'pager' => array(
+      '#theme' => 'pager'
+    )
+  );
 
-  // return a themed table
-  return drupal_render($form) . theme('table', array('header' => $header, 'rows' => $rows)) . theme('pager');
+  return $render;
 }
 
 /**

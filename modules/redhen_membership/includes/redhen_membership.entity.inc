@@ -131,30 +131,62 @@ class RedhenMembership extends Entity {
 
 /**
  * Controls metadata for Redhen memberships
+ *
+ * Redhen utilizes custom property attributes to determine if a property
+ * should be available as a filter on the listing page. These attributes are
+ *   filter: TRUE to add as a filter.
+ *   field_type: textfield, select, etc.
+ *   options: array of options for select field types.
+
  */
 class RedhenMembershipMetadataController extends EntityDefaultMetadataController {
   public function entityPropertyInfo() {
     $info = parent::entityPropertyInfo();
     $properties = &$info[$this->type]['properties'];
 
+    $properties['start_date'] = array(
+      'label' => t("Start Date"),
+      'description' => t("The date the membership begins."),
+      'type' => 'date',
+      'field_type' => 'textfield',
+      'schema field' => 'start_date',
+      'filter' => TRUE,
+    );
+    $properties['expire_date'] = array(
+      'label' => t("Expiration Date"),
+      'description' => t("The date the membership expires."),
+      'type' => 'date',
+      'field_type' => 'textfield',
+      'schema field' => 'expire_date',
+      'filter' => TRUE,
+    );
     $properties['created'] = array(
       'label' => t("Created"),
       'description' => t("The date the membership was created."),
       'type' => 'date',
       'schema field' => 'created',
-    );
+    ) + $properties['created'];
     $properties['updated'] = array(
       'label' => t("Updated"),
       'description' => t("The date the membership was updated."),
       'type' => 'date',
       'schema field' => 'updated',
-    );
+    ) + $properties['updated'];
     $properties['author'] = array(
       'label' => t("Author"),
       'type' => 'user',
       'description' => t("The author of the membership record."),
       'schema field' => 'author_uid'
     );
+    $properties['redhen_state'] = array(
+      'label' => t('State'),
+      'filter' => TRUE,
+      'field_type' => 'select',
+      'options' => array(
+        REDHEN_STATE_ACTIVE => t('Active'),
+        REDHEN_STATE_ARCHIVED => t('Archived')
+      ),
+    ) + $properties['redhen_state'];
 
     return $info;
   }
