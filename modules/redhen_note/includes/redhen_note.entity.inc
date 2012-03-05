@@ -5,7 +5,7 @@
  */
 
 /**
- * The class used for group entities.
+ * The class used for note entities.
  */
 class RedhenNote extends Entity {
 
