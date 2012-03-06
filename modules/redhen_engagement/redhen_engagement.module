@@ -80,26 +80,85 @@ function redhen_engagement_entity_info() {
 function redhen_engagement_menu() {
   $items = array();
 
-  foreach (redhen_entity_types() as $entity_type => $path) {
-    $items["redhen/{$path}/%{$entity_type}/engagements"] = array(
-      'title' => 'Engagements',
-      'page callback' => 'redhen_engagements_page',
-      'page arguments' => array(2, $entity_type),
-      'access callback' => $entity_type . '_access',
-      'access arguments' => array('view', 2),
-      'type' => MENU_LOCAL_TASK,
-    );
-  }
+  $items["redhen/contact/%redhen_contact/engagements"] = array(
+    'title' => 'Engagements',
+    'page callback' => 'redhen_engagements_page',
+    'page arguments' => array(2),
+    'access callback' => 'redhen_contact_access',
+    'access arguments' => array('view', 2),
+    'type' => MENU_LOCAL_TASK,
+  );
 
   return $items;
 }
 
-function redhen_engagements_page($entity, $entity_type) {
-  return 'Future home of engagements.';
+/**
+ * Page callback for showing a contacts engagements.
+ *
+ * @param RedhenContact $contact
+ * @return array
+ */
+function redhen_engagements_page(RedhenContact $contact) {
+  $header = array(
+    'Score' => array('data' => 'Score'),
+    'Type' => array('data' => 'Type'),
+    'Created' => array('field' => 'created', 'type' => 'property', 'data' => 'Created', 'sort' => 'desc', 'specifier' => 'created'),
+    'description' => array('data' => 'description'),
+    'Author' => array('data' => 'Author'),
+  );
+
+  $query = new EntityFieldQuery();
+  $result = $query
+    ->entityCondition('entity_type', 'redhen_engagement')
+    ->propertyCondition('contact_id', $contact->contact_id)
+    ->tablesort($header)
+    ->pager(25)
+    ->execute();
+
+  $rows = array();
+  if ($result) {
+    $engagements = entity_load('redhen_engagement', array_keys($result['redhen_engagement']));
+    foreach($engagements as $engagement) {
+      $author = user_load($engagement->author_uid);
+      $rows[] = array(
+        'data' => array(
+          $engagement->engagement_score->score,
+          $engagement->engagement_score->label,
+          format_date($engagement->created),
+          $engagement->description,
+          $author->name,
+        )
+      );
+    }
+  }
+  else {
+    // no results, set a message
+    $rows[] = array(
+      'data' => array(array('data' => t('Sorry, there are no engagements that match your criteria.'), 'colspan' => 5))
+    );
+  }
+
+  $render = array(
+    'table' => array(
+      '#theme' => 'table',
+      '#header' => $header,
+      '#rows' => $rows
+    ),
+    'pager' => array(
+      '#theme' => 'pager'
+    )
+  );
+
+  return $render;
 }
 
+/**
+ * Access callback for engagement scores admin.
+ *
+ * @return bool
+ */
 function redhen_engagement_access() {
-  return TRUE;
+  return user_access('administer redhen engagements');
 }
 
 /**
@@ -157,12 +216,30 @@ function redhen_engagement_save(RedhenEngagement $engagement) {
  * @return mixed
  */
 function redhen_engagement_contact_score(RedhenContact $contact) {
+  $score = 0;
   $query = db_select('redhen_engagement', 'e')
     ->condition('contact_id', $contact->contact_id, '=');
-
   $query->join('redhen_engagement_score', 's', 'e.engagement_score_id = s.engagement_score_id');
   $query->addExpression('SUM(score)', 'score');
 
   $result = $query->execute();
-  return reset($result->fetchCol());
+  if ($result) {
+    if ($sum = reset($result->fetchCol())) {
+      $score = $sum;
+    }
+  }
+
+  return $score;
+}
+
+/**
+ * Implements hook_permission().
+ */
+function redhen_engagement_permission() {
+  return array(
+    'administer redhen engagements' =>  array(
+      'title' => t('Administer Redhen Engagements'),
+      'description' => t('Manage Redhen Engagement scores.'),
+    ),
+  );
 }
