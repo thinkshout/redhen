@@ -112,8 +112,7 @@ class RedhenMembership extends Entity {
    * Specifify URI
    */
   protected function defaultUri() {
-    $entity_uri = entity_uri($this->entity->entityType(), $this->entity);
-    return array('path' => $entity_uri['path'] . '/memberships/' . $this->identifier());
+    return array('path' => 'redhen/membership/' . $this->identifier());
   }
 
   /**

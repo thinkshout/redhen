@@ -37,12 +37,11 @@ function redhen_membership_page($entity = NULL, $entity_type = NULL) {
     $memberships = redhen_membership_load_multiple(array_keys($result['redhen_membership']));
 
     foreach($memberships as $membership) {
-      $entity_uri = entity_uri($membership->entity->entityType(), $membership->entity);
       $actions = array(
-        l('view', $entity_uri['path'] . '/memberships/' . $membership->membership_id),
-        l('edit', $entity_uri['path'] . '/memberships/' . $membership->membership_id . '/view/edit', array('query' => drupal_get_destination())),
-        l('archive', $entity_uri['path'] . '/memberships/' . $membership->membership_id . '/archive', array('query' => drupal_get_destination())),
-        l('delete', $entity_uri['path'] . '/memberships/' . $membership->membership_id . '/view/delete', array('query' => drupal_get_destination())),
+        l('view', 'redhen/membership/' . $membership->membership_id),
+        l('edit', 'redhen/membership/' . $membership->membership_id . '/edit', array('query' => drupal_get_destination())),
+        l('archive', 'redhen/membership/' . $membership->membership_id . '/archive', array('query' => drupal_get_destination())),
+        l('delete', 'redhen/membership/' . $membership->membership_id . '/delete', array('query' => drupal_get_destination())),
       );
 
       $membership_type = redhen_membership_type_load($membership->type);

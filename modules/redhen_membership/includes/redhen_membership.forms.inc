@@ -14,7 +14,7 @@
  * @param RedhenContact|RedhenOrg $entity
  * @param string $entity_type
  */
-function redhen_membership_membership_form($form, &$form_state, RedhenMembership $membership = NULL, $entity, $entity_type) {
+function redhen_membership_membership_form($form, &$form_state, RedhenMembership $membership = NULL, $entity = NULL, $entity_type = '') {
 
   // add jquery libs and
   drupal_add_library('system', 'ui.datepicker');
@@ -156,7 +156,11 @@ function redhen_membership_membership_form_submit($form, &$form_state) {
   global $user;
 
   $membership = $form_state['membership'];
-  $entity = $form_state['entity'];
+  if (isset($form_state['entity'])) {
+    $entity = $form_state['entity'];
+  } else {
+    $entity = $membership->entity;
+  }
   $entity_type = $entity->entityType();
   $entity_uri = entity_uri($entity_type, $entity);
 
@@ -228,18 +232,4 @@ function redhen_membership_membership_delete_form_submit($form, &$form_state) {
 
   drupal_goto();
 
-}
-
-function _redhen_membership_autocomplete_validate($element, &$form_state, $form) {
-  // If a value was entered into the autocomplete...
-  $value = '';
-  if (!empty($element['#value'])) {
-    // Take "label (entity id)', match the id from parenthesis.
-    if (preg_match("/.+\((\d+)\)/", $element['#value'], $matches)) {
-      $value = $matches[1];
-    }
-  }
-
-  // Update the value of this element so the field can validate the org IDs.
-  form_set_value($element, $value, $form_state);
 }
