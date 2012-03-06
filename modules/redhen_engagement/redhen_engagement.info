@@ -4,3 +4,5 @@ package = RedHen
 core = 7.x
 
 dependencies[] = redhen_contact
+
+files[] = includes/redhen_engagement.entity.inc

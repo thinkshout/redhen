@@ -12,24 +12,23 @@ class RedhenNote extends Entity {
   public
     $note_id = NULL,
     $author_uid = NULL,
+    $author = NULL,
     $type = '',
+    $entity = NULL,
     $created = '',
     $updated = '';
 
   public function __construct(array $values = array()) {
-    global $user;
-
     parent::__construct($values, 'redhen_note');
 
     // New note. is_new might not be set so check for id
-    if (!$this->note_id) {
-      $this->author_uid = $user->uid;
+    if ($this->note_id) {
+      $this->entity = $this->entity();
+      $this->author = $this->author();
+    }
+    else {
       $this->created = REQUEST_TIME;
     }
-
-    $this->entity = $this->entity();
-    $this->author = $this->author();
-
   }
 
   /**
@@ -45,7 +44,7 @@ class RedhenNote extends Entity {
    * Override label() to add note label.
    */
   public function label() {
-    return 'Note ' . $this->note_id;
+    return "Note {$this->note_id} on {$this->entity->label()}";
   }
 
   /**

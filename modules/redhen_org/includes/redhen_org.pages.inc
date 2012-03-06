@@ -58,7 +58,7 @@ function redhen_org_page() {
     $rows[] = array(
       'data' => array(
         array(
-          'data' => t('Sorry, there are no organizations that match your criteria.'), 'colspan' => 3))
+          'data' => t('Sorry, there are no organizations that match your criteria.'), 'colspan' => 5))
     );
   }
 
