@@ -149,3 +149,20 @@ function redhen_engagement_create($engagement_score_name, $contact_id, $descript
 function redhen_engagement_save(RedhenEngagement $engagement) {
   return $engagement->save();
 }
+
+/**
+ * Return the engagement score for a contact.
+ *
+ * @param RedhenContact $contact
+ * @return mixed
+ */
+function redhen_engagement_contact_score(RedhenContact $contact) {
+  $query = db_select('redhen_engagement', 'e')
+    ->condition('contact_id', $contact->contact_id, '=');
+
+  $query->join('redhen_engagement_score', 's', 'e.engagement_score_id = s.engagement_score_id');
+  $query->addExpression('SUM(score)', 'score');
+
+  $result = $query->execute();
+  return reset($result->fetchCol());
+}
