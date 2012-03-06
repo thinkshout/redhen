@@ -91,18 +91,6 @@ function redhen_membership_entity_info_alter(&$entity_info) {
 function redhen_membership_menu() {
   $items = array();
 
-  // Add a membership.
-  $items['redhen/memberships/add'] = array(
-    'title' => 'Add a membership',
-    'description' => 'Add a new membership.',
-    'page callback' => 'drupal_get_form',
-    'page arguments' => array('redhen_membership_membership_form'),
-    'access callback' => 'redhen_membership_access',
-    'access arguments' => array('create'),
-    'file' => 'includes/redhen_membership.forms.inc',
-    'type' => MENU_NORMAL_ITEM,
-  );
-
   $items['redhen/memberships'] = array(
     'title' => 'Memberships',
     'page callback' => 'redhen_membership_page',
@@ -112,86 +100,88 @@ function redhen_membership_menu() {
     'file' => 'includes/redhen_membership.pages.inc',
   );
 
-  $items['redhen/org/%redhen_org/memberships/add'] = array(
-    'title' => 'Add Membership',
-    'page callback' => 'drupal_get_form',
-    'page arguments' => array('redhen_membership_membership_form', NULL, 2),
-    'access callback' => 'redhen_membership_access',
-    'access arguments' => array('edit', 2),
-    'type' => MENU_LOCAL_ACTION,
-    'file' => 'includes/redhen_membership.forms.inc',
-  );
-  $items['redhen/org/%redhen_org/memberships/%redhen_membership/edit'] = array(
-    'title' => 'Edit Membership',
-    'page callback' => 'drupal_get_form',
-    'page arguments' => array('redhen_membership_membership_form', 4),
-    'access callback' => 'redhen_membership_access',
-    'access arguments' => array('edit', 2),
-    'type' => MENU_LOCAL_ACTION,
-    'file' => 'includes/redhen_membership.forms.inc',
-  );
-  $items['redhen/org/%redhen_org/memberships'] = array(
-    'title' => 'Memberships',
-    'page callback' => 'redhen_membership_page',
+  foreach (redhen_entity_types() as $entity_type => $path) {
+    $items["redhen/{$path}/%{$entity_type}/memberships"] = array(
+      'title' => 'Memberships',
+      'page callback' => 'redhen_membership_page',
+      'page arguments' => array(2, $entity_type),
+      'access callback' => $entity_type . '_access',
+      'access arguments' => array('view', 2),
+      'type' => MENU_LOCAL_TASK,
+      'file' => 'includes/redhen_membership.pages.inc',
+    );
+    $items["redhen/{$path}/%{$entity_type}/memberships/add"] = array(
+      'title' => 'Add Membership',
+      'page callback' => 'drupal_get_form',
+      'page arguments' => array('redhen_membership_membership_form', NULL, 2, $entity_type),
+      'access callback' => 'redhen_membership_access',
+      'access arguments' => array('edit', 2),
+      'type' => MENU_LOCAL_ACTION,
+      'file' => 'includes/redhen_membership.forms.inc',
+    );
+  }
+
+  $items['redhen/membership/%redhen_membership'] = array(
+    'title callback' => 'redhen_membership_membership_title',
+    'title arguments' => array(2),
+    'page callback' => 'redhen_membership_view',
     'page arguments' => array(2),
     'access callback' => 'redhen_membership_access',
-    'access arguments' => array('view', 4),
-    'type' => MENU_LOCAL_TASK,
-    'file' => 'includes/redhen_membership.pages.inc',
-  );
-  $items['redhen/org/%redhen_org/memberships/%redhen_membership'] = array(
-    'title callback' => 'redhen_membership_membership_title',
-    'title arguments' => array(4),
-    'page callback' => 'redhen_membership_view',
-    'page arguments' => array(4),
-    'access callback' => 'redhen_membership_access',
-    'access arguments' => array('view', 4),
+    'access arguments' => array('view', 2),
     'weight' => 10,
   );
-  $items['redhen/org/%redhen_org/memberships/%redhen_membership/view'] = array(
+  $items['redhen/membership/%redhen_membership/view'] = array(
     'title' => 'View',
     'type' => MENU_DEFAULT_LOCAL_TASK,
     'weight' => -10,
     'context' => MENU_CONTEXT_PAGE | MENU_CONTEXT_INLINE,
   );
-
-  $items['redhen/org/%redhen_org/memberships/%redhen_membership/delete'] = array(
+  $items['redhen/membership/%redhen_membership/edit'] = array(
+    'title' => 'Edit Membership',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('redhen_membership_membership_form', 2),
+    'access callback' => 'redhen_membership_access',
+    'access arguments' => array('edit', 2),
+    'type' => MENU_LOCAL_TASK,
+    'file' => 'includes/redhen_membership.forms.inc',
+  );
+  $items['redhen/membership/%redhen_membership/delete'] = array(
     'title' => 'Delete',
     'page callback' => 'drupal_get_form',
-    'page arguments' => array('redhen_membership_membership_delete_form', 4),
+    'page arguments' => array('redhen_membership_membership_delete_form', 2),
     'access callback' => 'redhen_membership_access',
-    'access arguments' => array('delete', 4),
+    'access arguments' => array('delete', 2),
     'type' => MENU_LOCAL_TASK,
     'weight' => 10,
     'file' => 'includes/redhen_membership.forms.inc',
   );
 
-  $items['redhen/org/%redhen_org/memberships/%redhen_membership/archive'] = array(
+  $items['redhen/membership/%redhen_membership/archive'] = array(
     'title' => 'Archive',
     'page callback' => 'redhen_membership_archive',
-    'page arguments' => array(4),
+    'page arguments' => array(2),
     'access callback' => 'redhen_membership_access',
-    'access arguments' => array('edit', 4),
+    'access arguments' => array('edit', 2),
     'type' => MENU_CALLBACK,
   );
 
   if (module_exists('devel')) {
-    $items['redhen/org/%redhen_org/memberships/%redhen_membership/devel'] = array(
+    $items['redhen/membership/%redhen_membership/devel'] = array(
       'title' => 'Devel',
       'page callback' => 'redhen_devel_load_object',
-      'page arguments' => array('redhen_membership', 4),
+      'page arguments' => array('redhen_membership', 2),
       'access arguments' => array('access devel information'),
       'type' => MENU_LOCAL_TASK,
       'weight' => 100,
     );
-    $items['redhen/org/%redhen_org/memberships/%redhen_membership/devel/load'] = array(
+    $items['redhen/membership/%redhen_membership/devel/load'] = array(
       'title' => 'Load',
       'type' => MENU_DEFAULT_LOCAL_TASK,
     );
-    $items['redhen/org/%redhen_org/memberships/%redhen_membership/devel/render'] = array(
+    $items['redhen/membership/%redhen_membership/devel/render'] = array(
       'title' => 'Render',
       'page callback' => 'redhen_devel_render_object',
-      'page arguments' => array('redhen_membership', 4),
+      'page arguments' => array('redhen_membership', 2),
       'access arguments' => array('access devel information'),
       'type' => MENU_LOCAL_TASK,
       'weight' => 100,
@@ -233,7 +223,6 @@ function redhen_membership_load_multiple($membership_ids = array(), $conditions 
   if (empty($membership_ids) && empty($conditions)) {
     return array();
   }
-
   return entity_load('redhen_membership', $membership_ids, $conditions, $reset);
 }
 

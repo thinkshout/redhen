@@ -39,11 +39,17 @@ function redhen_membership_schema() {
         'not null' => TRUE,
         'default' => '',
       ),
-      'org_id' => array(
-        'description' => 'The unique ID of the organization this membership applies to.',
-        'type' => 'int',
+      'entity_type' => array(
+        'description' => 'The entity type this membership applies to.',
+        'type' => 'varchar',
+        'length' => 32,
         'not null' => TRUE,
-        'default' => 0,
+      ),
+      'entity_id' => array(
+        'description' => 'The unique ID of the entity this membership applies to.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
       ),
       'start_date' => array(
         'description' => 'Date the membership is active.',
@@ -51,6 +57,7 @@ function redhen_membership_schema() {
         'mysql_type' => 'datetime',
         'pgsql_type' => 'timestamp',
         'not null' => FALSE,
+        'default' => '',
       ),
       'expire_date' => array(
         'description' => 'Date the membership expires.',
@@ -58,6 +65,7 @@ function redhen_membership_schema() {
         'mysql_type' => 'datetime',
         'pgsql_type' => 'timestamp',
         'not null' => FALSE,
+        'default' => '',
       ),
       'author_uid' => array(
         'description' => 'The uid of the user who created this redhen_membership.',
@@ -88,8 +96,8 @@ function redhen_membership_schema() {
       'redhen_membership_updated'       => array('updated'),
       'redhen_membership_created'       => array('created'),
       'redhen_membership_type'          => array(array('type', 4)),
-      'redhen_membership_redhen_state'   => array('redhen_state'),
-      'redhen_membership_org'           => array('org_id'),
+      'redhen_membership_redhen_state'  => array('redhen_state'),
+      'redhen_membership_entity'        => array('entity_type', 'entity_id'),
     ),
     'unique keys' => array(
       'membership_id' => array('membership_id'),
@@ -103,10 +111,6 @@ function redhen_membership_schema() {
       'redhen_membership_type' => array(
         'table' => 'redhen_membership_type',
         'columns' => array('type' => 'name'),
-      ),
-      'redhen_org' => array(
-        'table' => 'redhen_org',
-        'columns' => array('org_id' => 'org_id'),
       ),
     ),
     'primary key' => array('membership_id'),

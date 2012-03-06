@@ -11,8 +11,10 @@
  * @param $membership
  *   The membership object to edit or for a create form an empty membership object
  *     with only a membership type defined.
+ * @param RedhenContact|RedhenOrg $entity
+ * @param string $entity_type
  */
-function redhen_membership_membership_form($form, &$form_state, RedhenMembership $membership = NULL, RedhenOrg $org = NULL) {
+function redhen_membership_membership_form($form, &$form_state, RedhenMembership $membership = NULL, $entity = NULL, $entity_type = '') {
 
   // add jquery libs and
   drupal_add_library('system', 'ui.datepicker');
@@ -30,12 +32,12 @@ function redhen_membership_membership_form($form, &$form_state, RedhenMembership
       reset($membership_types)->name;
     $values = array();
     $values['type'] = $membership_type;
-    $values['org_id'] = isset($org) ? $org->org_id : NULL;
     $membership = entity_create('redhen_membership', $values);
   }
 
-  // Store membership entity for use on submit
+  // Store membership and entity data for use on submit
   $form_state['membership'] = $membership;
+  $form_state['entity'] = $entity;
 
   $options = array();
   foreach($membership_types as $type) {
@@ -59,26 +61,13 @@ function redhen_membership_membership_form($form, &$form_state, RedhenMembership
     ),
   );
 
-  $form['org_id'] = array(
-    '#title' => t('Organization'),
-    '#weight' => -50,
-    '#type' => 'textfield',
-    '#default_value' => isset($membership->org) ?
-      $membership->org->label . ' (' . $membership->org_id . ')' :
-      NULL,
-    '#maxlength' => 128,
-    '#required' => TRUE,
-    '#autocomplete_path' => 'redhen/org/autocomplete',
-    '#element_validate' => array('_redhen_membership_autocomplete_validate'),
-  );
-
   // Add the default field elements.
   $form['label'] = array(
     '#type' => 'textfield',
     '#title' => t('Label'),
     '#default_value' => $membership->label,
     '#maxlength' => 255,
-    '#required' => TRUE,
+    '#required' => FALSE,
     '#weight' => -6,
   );
 
@@ -167,7 +156,13 @@ function redhen_membership_membership_form_submit($form, &$form_state) {
   global $user;
 
   $membership = $form_state['membership'];
-  $org_id = $form_state['values']['org_id'];
+  if (isset($form_state['entity'])) {
+    $entity = $form_state['entity'];
+  } else {
+    $entity = $membership->entity;
+  }
+  $entity_type = $entity->entityType();
+  $entity_uri = entity_uri($entity_type, $entity);
 
   // Set the membership's author uid
   $membership->author_uid = $user->uid;
@@ -175,19 +170,20 @@ function redhen_membership_membership_form_submit($form, &$form_state) {
   // Save default parameters back into the $membership object.
   $membership->type = $form_state['values']['type'];
   $membership->label = $form_state['values']['label'];
-  $membership->start_date = date('Y-m-d', strtotime($form_state['values']['start_date']));
-  $membership->expire_date = date('Y-m-d', strtotime($form_state['values']['expire_date']));
+  $membership->start_date = ($form_state['values']['start_date'] != '') ? date('Y-m-d', strtotime($form_state['values']['start_date'])) : NULL;
+  $membership->expire_date = ($form_state['values']['expire_date'] != '') ? date('Y-m-d', strtotime($form_state['values']['expire_date'])) : NULL;
   $membership->redhen_state = $form_state['values']['redhen_state'];
-  $membership->org_id = $org_id;
+  $membership->entity_type = $entity_type;
+  $membership->entity_id = entity_id($entity_type, $entity);
 
   // Notify field widgets.
   field_attach_submit('redhen_membership', $membership, $form, $form_state);
 
-  // Save the contact.
-  redhen_membership_save($membership);
+  // Save the membership.
+  $membership->save();
 
   drupal_set_message(t('Membership saved.'));
-  $form_state['redirect'] = 'redhen/org/' . $org_id . '/memberships/' . $membership->membership_id;
+  $form_state['redirect'] = $entity_uri['path'] . '/memberships';
 }
 
 /**
@@ -234,20 +230,6 @@ function redhen_membership_membership_delete_form_submit($form, &$form_state) {
   drupal_set_message(t('%title has been deleted.', array('%title' => $title)));
   watchdog('redhen_membership', 'Deleted membership %title.', array('%title' => $title), WATCHDOG_NOTICE);
 
-  drupal_goto('redhen/org/' . $membership->org_id . '/memberships');
+  drupal_goto();
 
-}
-
-function _redhen_membership_autocomplete_validate($element, &$form_state, $form) {
-  // If a value was entered into the autocomplete...
-  $value = '';
-  if (!empty($element['#value'])) {
-    // Take "label (entity id)', match the id from parenthesis.
-    if (preg_match("/.+\((\d+)\)/", $element['#value'], $matches)) {
-      $value = $matches[1];
-    }
-  }
-
-  // Update the value of this element so the field can validate the org IDs.
-  form_set_value($element, $value, $form_state);
 }

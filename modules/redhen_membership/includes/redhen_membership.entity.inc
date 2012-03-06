@@ -12,9 +12,10 @@ class RedhenMembership extends Entity {
   public
     $label = '',
     $name = '',
-    $org_id,
+    $entity_type,
+    $entity_id,
+    $entity = NULL,
     $membership_id = NULL,
-    $org = NULL,
     $author_uid = NULL,
     $start_date = NULL,
     $expire_date = NULL,
@@ -35,19 +36,19 @@ class RedhenMembership extends Entity {
       $this->created = REQUEST_TIME;
     }
 
-    $this->org = $this->organization();
+    $this->entity = $this->entity();
   }
 
   /**
    * Override buildContent() to add contact properties.
    */
   public function buildContent($view_mode = 'full', $langcode = NULL) {
-    $content['org'] = array(
+    $content['entity'] = array(
       '#theme' => 'redhen_property_field',
-      '#label' => t('Organization'),
+      '#label' => t('Entity'),
       '#items' => array(
         array(
-          '#markup' => check_plain($this->org->label)
+          '#markup' => check_plain($this->entity->label())
         ),
       ),
       '#classes' => 'field field-label-inline clearfix',
@@ -111,20 +112,20 @@ class RedhenMembership extends Entity {
    * Specifify URI
    */
   protected function defaultUri() {
-    return array('path' => 'redhen/org/' . $this->org_id . '/memberships/' . $this->identifier());
+    return array('path' => 'redhen/membership/' . $this->identifier());
   }
 
   /**
-   * Return an organization object if possible.
+   * Return an entity object if possible.
    *
-   * @return RedhenOrg|null
+   * @return Entity|null
    */
-  protected function organization() {
-    $org = NULL;
-    if (isset($this->org_id)) {
-      $org = redhen_org_load($this->org_id);
+  protected function entity() {
+    $entity = NULL;
+    if (isset($this->entity_type) && isset($this->entity_id)) {
+      $entity = reset(entity_load($this->entity_type, array($this->entity_id)));
     }
-    return $org;
+    return $entity;
   }
 
 }
