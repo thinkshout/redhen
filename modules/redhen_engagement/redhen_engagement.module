@@ -1,9 +1,80 @@
 <?php
 
 /**
+ * Implements hook_entity_info().
+ */
+function redhen_engagemment_entity_info() {
+  $info = array();
+
+  $info['redhen_engagement'] = array(
+    'label' => t('Engagement'),
+    'plural label' => t('Engagements'),
+    'controller class' => 'EntityAPIController',
+    'metadata controller class' => 'RedhenEngagementMetadataController',
+    'entity class' => 'RedhenEngagement',
+    'base table' => 'redhen_engagement',
+    'fieldable' => FALSE,
+    'entity keys' => array(
+      'id' => 'engagement_id',
+    ),
+    'bundle keys' => array(
+      'bundle' => 'name',
+    ),
+    'bundles' => array(
+      'redhen_engagement' => array(
+        'label' => 'Engagements',
+      ),
+    ),
+    'view modes' => array(
+      'full' => array(
+        'label' => t('Full engagement'),
+        'custom settings' => FALSE,
+      ),
+    ),
+    'uri callback' => 'entity_class_uri',
+    'token type' => 'redhen_engagement',
+    'module' => 'redhen_engagement',
+    'label callback' => 'entity_class_label'
+  );
+
+  $info['redhen_engagement_score'] = array(
+    'label' => t('Engagement Score'),
+    'plural label' => t('Engagement Scores'),
+    'controller class' => 'EntityAPIController',
+//    'entity class' => 'RedhenEngagement',
+    'base table' => 'redhen_engagement_score',
+    'fieldable' => FALSE,
+    'entity keys' => array(
+      'id' => 'engagement_score_id',
+    ),
+    'bundle keys' => array(
+      'bundle' => 'name',
+    ),
+    'bundles' => array(
+      'redhen_engagement_score' => array(
+        'label' => 'Engagement Scores',
+      ),
+    ),
+    'view modes' => array(
+      'full' => array(
+        'label' => t('Full engagement score'),
+        'custom settings' => FALSE,
+      ),
+    ),
+    'uri callback' => 'entity_class_uri',
+    'token type' => 'redhen_engagement_score',
+    'module' => 'redhen_engagement',
+    'label callback' => 'entity_class_label'
+  );
+
+  return $info;
+}
+
+/**
  * Implements hook_menu().
  */
 function redhen_engagement_menu() {
+  $items = array();
 
   foreach (redhen_entity_types() as $entity_type => $path) {
     $items["redhen/{$path}/%{$entity_type}/engagements"] = array(
@@ -21,4 +92,8 @@ function redhen_engagement_menu() {
 
 function redhen_engagements_page($entity, $entity_type) {
   return 'Future home of engagements.';
+}
+
+function redhen_engagement_admin_page() {
+  return t('Manage Redhen engagements structure and settings.');
 }
