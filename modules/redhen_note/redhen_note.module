@@ -61,7 +61,7 @@ function redhen_note_menu() {
     'access arguments' => array('administer redhen notes'), //TODO: add access control
   );
 
-  foreach (redhen_entity_types() as $path => $note_entity_type) {
+  foreach (redhen_entity_types() as $note_entity_type => $path) {
     $items['redhen/' . $path .'/%' . $note_entity_type . '/notes'] = array(
       'title' => 'Notes',
       'page callback' => 'redhen_note_notes_page',
