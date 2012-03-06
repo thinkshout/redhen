@@ -13,6 +13,7 @@ class RedhenNote extends Entity {
     $note_id = NULL,
     $author_uid = NULL,
     $type = '',
+    $entity = NULL,
     $created = '',
     $updated = '';
 
@@ -22,14 +23,16 @@ class RedhenNote extends Entity {
     parent::__construct($values, 'redhen_note');
 
     // New note. is_new might not be set so check for id
-    if (!$this->note_id) {
+    if ($this->note_id) {
+      $this->entity = $this->entity();
+    }
+    else {
       $this->author_uid = $user->uid;
       $this->created = REQUEST_TIME;
     }
 
     $this->entity = $this->entity();
     $this->author = $this->author();
-
   }
 
   /**

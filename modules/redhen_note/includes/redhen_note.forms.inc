@@ -15,7 +15,7 @@
  * @param stdClass $redhen_note
  * @return array
  */
-function redhen_note_form($form, &$form_state, $entity, $entity_type, $redhen_note) {
+function redhen_note_form($form, &$form_state, $redhen_note) {
   $form_state['redhen_note'] = $redhen_note;
 
   field_attach_form('redhen_note', $redhen_note, $form, $form_state);
@@ -42,16 +42,11 @@ function redhen_note_form_validate($form, &$form_state) {
 function redhen_note_form_submit($form, &$form_state) {
   $redhen_note = $form_state['redhen_note'];
 
-  $entity = $redhen_note->entity;
-  $entity_type =  $redhen_note->entity_type;
-
-  list($entity_id,,) = entity_extract_ids($entity_type, $entity);
-  $redhen_note->entity_id = $entity_id;
-
   field_attach_submit('redhen_note', $redhen_note, $form, $form_state);
 
-
   if ($redhen_note->save()) {
+    $entity = $redhen_note->entity;
+    $entity_type =  $redhen_note->entity_type;
     drupal_set_message(t('The note has been saved.'));
     $uri = entity_uri($entity_type, $entity);
     $form_state['redirect'] = $uri['path'] . "/notes";
@@ -102,5 +97,4 @@ function redhen_note_delete_form_submit($form, &$form_state) {
   $note->delete();
   drupal_set_message(t('%title has been deleted.', array('%title' => $title)));
   watchdog('redhen_note', 'Deleted note %title.', array('%title' => $title), WATCHDOG_NOTICE);
-
 }
