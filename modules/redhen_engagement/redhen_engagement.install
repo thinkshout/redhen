@@ -5,10 +5,9 @@
  */
 function rehen_engagement_schema() {
   $schema['redhen_engagement'] = array(
-    // example (partial) specification for table "node"
-    'description' => 'The base table for nodes.',
+    'description' => 'The base table for redhen engagements.',
     'fields' => array(
-      'redhen_engagement_id' => array(
+      'engagement_id' => array(
         'description' => 'The primary identifier for an engagement.',
         'type' => 'serial',
         'unsigned' => TRUE,
@@ -30,6 +29,12 @@ function rehen_engagement_schema() {
       ),
       'contact_id' => array(
         'description' => 'The unique ID of the contact this engagement applies to.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'engagement_score_id' => array(
+        'description' => 'The unique ID of the engagement_score_id this engagement applies to.',
         'type' => 'int',
         'not null' => TRUE,
         'default' => 0,
@@ -72,8 +77,41 @@ function rehen_engagement_schema() {
         'table' => 'users',
         'columns' => array('author_uid' => 'uid')
       ),
+      'engagement_engagement_score' => array(
+        'table' => 'engagement_score',
+        'columns' => array('engagement_score_id' => 'engagement_score_id')
+      ),
     ),
-    'primary key' => array('redhen_engagement_id'),
+    'primary key' => array('engagement_id'),
+  );
+
+  $schema['redhen_engagement_score'] = array(
+    'description' => 'The base table for nodes.',
+    'fields' => array(
+      'engagement_score_id' => array(
+        'description' => 'The primary identifier for an engagement score.',
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE
+      ),
+      'label' => array(
+        'description' => 'The label of this engagement score.',
+        'type' => 'varchar',
+        'length' => 64,
+        'not null' => TRUE,
+        'default' => ''
+      ),
+      'score' => array(
+        'description' => 'The numeric score value for this engagement score.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+    ),
+    'indexes' => array(
+      'engagement_score_score' => array('score'),
+    ),
+    'primary key' => array('engagement_score_id'),
   );
 
   return $schema;

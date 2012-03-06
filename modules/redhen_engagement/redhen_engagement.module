@@ -41,7 +41,7 @@ function redhen_engagemment_entity_info() {
     'label' => t('Engagement Score'),
     'plural label' => t('Engagement Scores'),
     'controller class' => 'EntityAPIController',
-//    'entity class' => 'RedhenEngagement',
+    'entity class' => 'Entity',
     'base table' => 'redhen_engagement_score',
     'fieldable' => FALSE,
     'entity keys' => array(
@@ -61,10 +61,18 @@ function redhen_engagemment_entity_info() {
         'custom settings' => FALSE,
       ),
     ),
+    'admin ui' => array(
+      'path' => 'admin/structure/redhen/engagement_scores',
+      'menu wildcard' => 'redhen_engagement_score',
+      'file' => 'redhen_engagement.admin.inc',
+      'file path' => drupal_get_path('module', 'redhen_engagement') . '/includes',
+      'controller class' => 'RedhenContactTypeUIController',
+    ),
     'uri callback' => 'entity_class_uri',
     'token type' => 'redhen_engagement_score',
     'module' => 'redhen_engagement',
-    'label callback' => 'entity_class_label'
+    'label callback' => 'entity_class_label',
+    'access callback' => 'redhen_engagement_access'
   );
 
   return $info;
