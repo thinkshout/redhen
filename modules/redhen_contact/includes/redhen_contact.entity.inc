@@ -18,6 +18,7 @@ class RedhenContact extends Entity {
     $user_uid = NULL,
     $author_uid = NULL,
     $redhen_state = REDHEN_STATE_ACTIVE,
+    $engagement_score = NULL,
     $type = '',
     $created = '',
     $changed = '';
@@ -34,6 +35,10 @@ class RedhenContact extends Entity {
 
     $this->name = $this->name();
     $this->email = $this->defaultEmail();
+
+    if (module_exists('redhen_engagement')) {
+      $this->engagement_score = redhen_engagement_contact_score($this);
+    }
   }
 
   /**
@@ -60,6 +65,19 @@ class RedhenContact extends Entity {
        ),
       '#classes' => 'field field-label-inline clearfix',
     );
+
+    if (module_exists('redhen_engagement')) {
+      $content['redhen_engagement'] = array(
+        '#theme' => 'redhen_property_field',
+        '#label' => t('Engagement Score'),
+        '#items' => array(
+          array(
+            '#markup' => $this->engagement_score
+          ),
+         ),
+        '#classes' => 'field field-label-inline clearfix',
+      );
+    }
 
     return entity_get_controller($this->entityType)
 			->buildContent($this, $view_mode, $langcode, $content);

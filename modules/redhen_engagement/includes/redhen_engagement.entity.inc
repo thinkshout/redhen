@@ -15,9 +15,10 @@ class RedhenEngagement extends Entity {
     $type = 'engagement',
     $description,
     $engagement_score_id,
+    $engagement_score,
     $contact_id,
-    $entity_type,
-    $entity_id,
+    $source_entity_type,
+    $source_entity_id,
     $source_entity,
     $author_uid,
     $author,
@@ -30,6 +31,7 @@ class RedhenEngagement extends Entity {
     if ($this->engagement_id) {
       $this->source_entity = $this->sourceEntity();
       $this->author = $this->author();
+      $this->engagement_score = entity_load_single('redhen_engagement_score', $this->engagement_score_id);
     }
     else {
       $this->created = REQUEST_TIME;
@@ -48,8 +50,8 @@ class RedhenEngagement extends Entity {
    */
   public function sourceEntity() {
     $ret = NULL;
-    if (isset($this->entity_type)) {
-      $ret = entity_load_single($this->entity_type, $this->entity_id);
+    if ($this->source_entity_type && $this->source_entity_id) {
+      $ret = entity_load_single($this->source_entity_type, $this->source_entity_id);
     }
     return $ret;
   }
