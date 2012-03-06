@@ -67,7 +67,7 @@ class RedhenContact extends Entity {
     );
 
     if (module_exists('redhen_engagement')) {
-      $content['redhen_state'] = array(
+      $content['redhen_engagement'] = array(
         '#theme' => 'redhen_property_field',
         '#label' => t('Engagement Score'),
         '#items' => array(
