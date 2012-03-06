@@ -1,9 +1,16 @@
 <?php
 
 /**
+ * @file
+ * RedhenEngagement install file.
+ */
+
+/**
  * Implements hook_schema().
  */
-function rehen_engagement_schema() {
+function redhen_engagement_schema() {
+  $schema = array();
+
   $schema['redhen_engagement'] = array(
     'description' => 'The base table for redhen engagements.',
     'fields' => array(
@@ -86,7 +93,7 @@ function rehen_engagement_schema() {
   );
 
   $schema['redhen_engagement_score'] = array(
-    'description' => 'The base table for nodes.',
+    'description' => 'The base table for engaement scores.',
     'fields' => array(
       'engagement_score_id' => array(
         'description' => 'The primary identifier for an engagement score.',
@@ -101,11 +108,32 @@ function rehen_engagement_schema() {
         'not null' => TRUE,
         'default' => ''
       ),
+      'name' => array(
+        'description' => 'The machine-readable name of this engagement score.',
+        'type' => 'varchar',
+        'length' => 32,
+        'not null' => TRUE,
+      ),
       'score' => array(
         'description' => 'The numeric score value for this engagement score.',
         'type' => 'int',
         'not null' => TRUE,
         'default' => 0,
+      ),
+      'status' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+        // Set the default to ENTITY_CUSTOM without using the constant as it is
+        // not safe to use it at this point.
+        'default' => 0x01,
+        'size' => 'tiny',
+        'description' => 'The exportable status of the entity.',
+      ),
+      'module' => array(
+        'description' => 'The name of the providing module if the entity has been defined in code.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => FALSE,
       ),
     ),
     'indexes' => array(

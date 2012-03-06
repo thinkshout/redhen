@@ -21,9 +21,20 @@ function redhen_engagement_score_form($form, &$form_state, $redhen_engagement_sc
     '#required' => TRUE,
     '#size' => 30,
   );
-
+  // Machine-readable type name.
+  $form['name'] = array(
+    '#type' => 'machine_name',
+    '#default_value' => $redhen_engagement_score->name,
+    '#maxlength' => 32,
+    '#disabled' => $redhen_engagement_score->locked && $op != 'clone',
+    '#machine_name' => array(
+      'exists' => 'redhen_engagement_get_scores',
+      'source' => array('label'),
+    ),
+    '#description' => t('A unique machine-readable name for this engagement score. It must only contain lowercase letters, numbers, and underscores.'),
+  );
   $form['score'] = array(
-    '#title' => t('Scpre'),
+    '#title' => t('Score'),
     '#type' => 'textfield',
     '#default_value' => $redhen_engagement_score->score,
     '#description' => t('The numeric value of this score.'),
@@ -34,19 +45,9 @@ function redhen_engagement_score_form($form, &$form_state, $redhen_engagement_sc
   $form['actions'] = array('#type' => 'actions');
   $form['actions']['submit'] = array(
     '#type' => 'submit',
-    '#value' => t('Save contact type'),
+    '#value' => t('Save Engagement Score'),
     '#weight' => 40,
   );
-
-  if (!$redhen_engagement_score->locked && $op != 'add') {
-    $form['actions']['delete'] = array(
-      '#type' => 'submit',
-      '#value' => t('Delete engagement score'),
-      '#weight' => 45,
-      '#limit_validation_errors' => array(),
-      '#submit' => array('redhen_engagement_score_form_submit_delete')
-    );
-  }
 
   return $form;
 }
@@ -60,9 +61,3 @@ function redhen_engagement_score_form_submit(&$form, &$form_state) {
   $form_state['redirect'] = 'admin/structure/redhen/engagement_scores';
 }
 
-/**
- * Form API submit callback for the delete button.
- */
-function redhen_engagement_score_form_submit_delete(&$form, &$form_state) {
-  $form_state['redirect'] = 'admin/structure/redhen/contact_types/manage/' . $form_state['redhen_contact_type']->type . '/delete';
-}

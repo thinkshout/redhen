@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @file
  * RedhenEngagement entity classes
@@ -69,6 +70,22 @@ class RedhenEngagement extends Entity {
 }
 
 /**
+ * The class used for note entities.
+ */
+class RedhenEngagementScore extends Entity {
+
+  public $name;
+  public $label;
+  public $locked;
+  public $score;
+
+  public function __construct($values = array()) {
+    parent::__construct($values, 'redhen_engagement_score');
+  }
+
+}
+
+/**
  * Controls metadata for Redhen notes
  *
  * Redhen utilizes custom property attributes to determine if a property
@@ -101,3 +118,19 @@ class RedhenEngagementMetadataController extends EntityDefaultMetadataController
 
 }
 
+/**
+ * UI Controller for Redhen engagement scores. Adds the score column.
+ */
+class RedhenEngagementScoreUIController extends EntityDefaultUIController {
+
+  protected function overviewTableHeaders($conditions, $rows, $additional_header = array()) {
+    $additional_header[] = t('Score');
+    return parent::overviewTableHeaders($conditions, $rows, $additional_header);
+  }
+
+  protected function overviewTableRow($conditions, $id, $entity, $additional_cols = array()) {
+    $additional_cols[] = $entity->score;
+    return parent::overviewTableRow($conditions, $id, $entity, $additional_cols);
+  }
+
+}

@@ -1,9 +1,14 @@
 <?php
 
 /**
+ * @file
+ * RedhenEngagement hook implementations and API
+ */
+
+/**
  * Implements hook_entity_info().
  */
-function redhen_engagemment_entity_info() {
+function redhen_engagement_entity_info() {
   $info = array();
 
   $info['redhen_engagement'] = array(
@@ -40,39 +45,30 @@ function redhen_engagemment_entity_info() {
   $info['redhen_engagement_score'] = array(
     'label' => t('Engagement Score'),
     'plural label' => t('Engagement Scores'),
-    'controller class' => 'EntityAPIController',
-    'entity class' => 'Entity',
+    'controller class' => 'EntityAPIControllerExportable',
+    'entity class' => 'RedhenEngagementScore',
     'base table' => 'redhen_engagement_score',
     'fieldable' => FALSE,
     'entity keys' => array(
       'id' => 'engagement_score_id',
-    ),
-    'bundle keys' => array(
-      'bundle' => 'name',
+      'label' => 'label',
+      'name' => 'name',
     ),
     'bundles' => array(
       'redhen_engagement_score' => array(
         'label' => 'Engagement Scores',
       ),
     ),
-    'view modes' => array(
-      'full' => array(
-        'label' => t('Full engagement score'),
-        'custom settings' => FALSE,
-      ),
-    ),
     'admin ui' => array(
       'path' => 'admin/structure/redhen/engagement_scores',
-      'menu wildcard' => 'redhen_engagement_score',
       'file' => 'redhen_engagement.admin.inc',
       'file path' => drupal_get_path('module', 'redhen_engagement') . '/includes',
-      'controller class' => 'RedhenContactTypeUIController',
+      'controller class' => 'RedhenEngagementScoreUIController',
     ),
-    'uri callback' => 'entity_class_uri',
     'token type' => 'redhen_engagement_score',
     'module' => 'redhen_engagement',
-    'label callback' => 'entity_class_label',
-    'access callback' => 'redhen_engagement_access'
+    'access callback' => 'redhen_engagement_access',
+    'exportable' => TRUE
   );
 
   return $info;
@@ -102,6 +98,17 @@ function redhen_engagements_page($entity, $entity_type) {
   return 'Future home of engagements.';
 }
 
-function redhen_engagement_admin_page() {
-  return t('Manage Redhen engagements structure and settings.');
+function redhen_engagement_access() {
+  return TRUE;
+}
+
+/**
+ * Gets an array of all engagement scores, keyed by the name.
+ *
+ * @param $name
+ *   If set, the type with the given name is returned.
+ */
+function redhen_engagement_get_scores($name = NULL) {
+  $types = entity_load_multiple_by_name('redhen_engagement_score', isset($name) ? array($name) : FALSE);
+  return isset($name) ? reset($types) : $types;
 }
