@@ -14,6 +14,7 @@ class RedhenEngagement extends Entity {
     $engagement_id = NULL,
     $type = 'engagement',
     $description,
+    $engagement_score_id,
     $contact_id,
     $entity_type,
     $entity_id,

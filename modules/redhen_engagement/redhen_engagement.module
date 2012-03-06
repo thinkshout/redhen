@@ -112,3 +112,40 @@ function redhen_engagement_get_scores($name = NULL) {
   $types = entity_load_multiple_by_name('redhen_engagement_score', isset($name) ? array($name) : FALSE);
   return isset($name) ? reset($types) : $types;
 }
+
+/**
+ * Creates a new RedhenEngagement object.
+ *
+ * @param $engagement_score_name
+ *   Machine name of an engagement score
+ * @param $contact_id
+ * @param $description
+ * @param null $entity_type
+ *   Optional source entity type.
+ * @param null $entity_id
+ *   Optional source entity id.
+ *
+ * @return RedhenEngagementScore
+ */
+function redhen_engagement_create($engagement_score_name, $contact_id, $description, $entity_type = NULL, $entity_id = NULL) {
+  $engagement_score = redhen_engagement_get_scores($engagement_score_name);
+  global $user;
+  return new RedhenEngagement(array(
+    'engagement_score_id' => $engagement_score->internalIdentifier(),
+    'contact_id' => $contact_id,
+    'description' => $description,
+    'entity_type' => $entity_type,
+    'entity_id' => $entity_id,
+    'author_uid' => $user->uid
+  ));
+}
+
+/**
+ * Saves a Redhen Engagement
+ *
+ * @param RedhenEngagement $engagement
+ * @return mixed
+ */
+function redhen_engagement_save(RedhenEngagement $engagement) {
+  return $engagement->save();
+}
