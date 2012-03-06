@@ -29,7 +29,15 @@ function redhen_membership_page($entity = NULL, $entity_type = NULL) {
     $bundle = isset($_GET['bundle']) ? $_GET['bundle'] : '';
     $properties = isset($_GET['properties']) ? $_GET['properties'] : array();
     $fields = isset($_GET['fields']) ? $_GET['fields'] : array();
-    $result = redhen_filter_query('redhen_membership', $header, $bundle, $properties, $fields, $entity);
+    // If page is for a specific entity, add that entity_type and id to the property filters
+    if (isset($entity)) {
+      $entity_filter = array(
+        'entity_type' => $entity_type,
+        'entity_id' => entity_id($entity_type, $entity),
+      );
+      $properties = array_merge($properties, $entity_filter);
+    }
+    $result = redhen_filter_query('redhen_membership', $header, $bundle, $properties, $fields);
   }
 
   $rows = array();
