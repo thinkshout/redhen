@@ -29,9 +29,6 @@ class RedhenNote extends Entity {
     else {
       $this->created = REQUEST_TIME;
     }
-
-    $this->entity = $this->entity();
-    $this->author = $this->author();
   }
 
   /**
@@ -47,7 +44,7 @@ class RedhenNote extends Entity {
    * Override label() to add note label.
    */
   public function label() {
-    return 'Note ' . $this->note_id;
+    return "Note {$this->note_id} on {$this->entity->label()}";
   }
 
   /**
