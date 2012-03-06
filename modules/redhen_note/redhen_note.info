@@ -4,6 +4,7 @@ package = RedHen
 core = 7.x
 
 dependencies[] = redhen
+dependencies[] = taxonomy
 
 files[] = includes/redhen_note.forms.inc
 

@@ -15,7 +15,7 @@ function redhen_note_add($entity, $entity_type) {
   $redhen_note->entity_type = $entity_type;
   $redhen_note->entity = $entity;
   module_load_include('inc', 'redhen_note', 'includes/redhen_note.forms');
-  return drupal_get_form('redhen_note_form', $entity, $entity_type, $redhen_note);
+  return drupal_get_form('redhen_note_form', $redhen_note);
 }
 
 /*
@@ -37,6 +37,7 @@ function redhen_note_notes_page($entity, $entity_type) {
   $header = array(
     'note_id' => array('field' => 'note_id', 'type' => 'property', 'data' => 'Note ID', 'sort' => 'asc', 'specifier' => 'note_id'),
     'Body',
+    'Type',
     'Author',
     'updated' => array('field' => 'updated', 'type' => 'property', 'data' => 'Updated', 'sort' => 'asc', 'specifier' => 'updated'),
     'Actions',
@@ -61,15 +62,19 @@ function redhen_note_notes_page($entity, $entity_type) {
         l('edit', 'redhen/' . $path . '/' . $entity_id . '/note/' . $note->note_id . '/view/edit', array('query' => drupal_get_destination())),
         l('delete', 'redhen/' . $path . '/' . $entity_id . '/note/' . $note->note_id . '/view/delete', array('query' => drupal_get_destination())),
       );
+      //dpm($note);
 
-      $note_entity = entity_load('redhen_note', array($note->note_id));
       $body = $note->redhen_note_body[LANGUAGE_NONE][0]['value'];
+      $type_tid = $note->redhen_note_type[LANGUAGE_NONE][0]['tid'];
+      $type = taxonomy_term_load($type_tid);
+      //dpm($category);
       $rows[] = array(
         'data' => array(
           $note->note_id,
-          substr($body,0,5) . '...',
+          substr($body,0,5) . ' ...',
+          (isset($type->name)) ? $type->name: '',
           $note->author->name,
-          format_date($note_entity[$note->note_id]->updated),
+          format_date($note->updated),
           implode(' | ', $actions))
       );
     }
@@ -84,7 +89,7 @@ function redhen_note_notes_page($entity, $entity_type) {
   }
 
   $render = array(
-    //'form' => drupal_get_form('redhen_filter_form', 'redhen_note'),
+//    /'form' => drupal_get_form('redhen_filter_form', 'redhen_note'),
     'table' => array(
       '#theme' => 'table',
       '#header' => $header,

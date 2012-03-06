@@ -49,7 +49,7 @@ function redhen_note_entity_info() {
 }
 
 /**
- * Implements hook_menu().
+ * Implements hook_menu(). 187a87a 9e2763
  */
 function redhen_note_menu() {
   $items = array();
@@ -61,7 +61,7 @@ function redhen_note_menu() {
     'access arguments' => array('administer redhen notes'), //TODO: add access control
   );
 
-  foreach (redhen_entity_types() as $path => $note_entity_type) {
+  foreach (redhen_entity_types() as $note_entity_type => $path) {
     $items['redhen/' . $path .'/%' . $note_entity_type . '/notes'] = array(
       'title' => 'Notes',
       'page callback' => 'redhen_note_notes_page',
@@ -98,7 +98,7 @@ function redhen_note_menu() {
     $items['redhen/' . $path .'/%' . $note_entity_type . '/note/%redhen_note/view/edit'] = array(
       'title' => 'Edit',
       'page callback' => 'drupal_get_form',
-      'page arguments' => array('redhen_note_form', 2, $note_entity_type, 4),
+      'page arguments' => array('redhen_note_form', 4),
       'access callback' => 'redhen_note_access',
       'access arguments' => array('edit', 4),
       'type' => MENU_LOCAL_TASK,
@@ -223,4 +223,19 @@ function redhen_note_view($entity, $entity_type, RedhenNote $note) {
  */
 function redhen_note_title(RedhenNote $note) {
   return $note->label();
+}
+
+/**
+ * Implements hook_form_alter().
+ */
+function redhen_note_form_alter(&$form, &$form_state, $form_id) {
+  if ($form_id == 'taxonomy_form_term') {
+    $category_vocab = taxonomy_vocabulary_machine_name_load('note_type');
+    if ($form['#vocabulary']->vid == $category_vocab->vid) {
+      //dpm($form);
+      //unset($form['relations']);
+      unset($form['actions']['delete']);
+      //unset($form['actions']['submit']);
+    }
+  }
 }

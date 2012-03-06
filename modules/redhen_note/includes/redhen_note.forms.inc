@@ -18,6 +18,15 @@
 function redhen_note_form($form, &$form_state, $redhen_note) {
   $form_state['redhen_note'] = $redhen_note;
 
+//  $form['category'] = array(
+//    '#type' => 'textfield',
+//    '#title' => t('Category'),
+//    '#maxlength' => 60,
+//    '#autocomplete_path' =>'user/autocomplete',
+//    '#default_value' => isset($redhen_note->category) ? unserialize($redhen_note->category) : '',
+//    '#weight' => -1,
+//  );
+
   field_attach_form('redhen_note', $redhen_note, $form, $form_state);
 
   $form['submit'] = array(
@@ -41,6 +50,11 @@ function redhen_note_form_validate($form, &$form_state) {
  */
 function redhen_note_form_submit($form, &$form_state) {
   $redhen_note = $form_state['redhen_note'];
+
+  list($entity_id,,) = entity_extract_ids($redhen_note->entity_type,$redhen_note->entity);
+  $redhen_note->entity_id = $entity_id;
+
+  //$redhen_note->category = serialize($form_state['values']['category']);
 
   field_attach_submit('redhen_note', $redhen_note, $form, $form_state);
 

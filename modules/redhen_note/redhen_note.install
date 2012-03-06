@@ -44,6 +44,12 @@ function redhen_note_schema() {
         'not null' => TRUE,
         'default' => 0,
       ),
+      'category' => array(
+        'description' => 'The uid of the user who created this redhen_note.',
+        'type' => 'blob',
+        'size' => 'big',
+        'not null' => FALSE,
+      ),
       'created' => array(
         'description' => 'The Unix timestamp when the redhen_org was created.',
         'type' => 'int',
@@ -84,25 +90,60 @@ function redhen_note_schema() {
  */
 function redhen_note_install() {
   //Redhen Note Body field config
-  $redhen_body = array(
+  $redhen_note_body = array(
     'field_name' => 'redhen_note_body',
-    'type' => 'text',
+    'type' => 'text_long',
     'cardinality' => 1,
     'locked' => TRUE,
   );
-  field_create_field($redhen_body);
+  field_create_field($redhen_note_body);
 
   //Create body field instance for notes
-  $redhen_body_instance = array(
+  $redhen_note_body_instance = array(
     'field_name' => 'redhen_note_body',
     'entity_type' => 'redhen_note',
     'bundle' => 'redhen_note',
-    'label' => t('Body'),
+    'label' => t('Message'),
     'widget' => array(
       'type' => 'text',
     ),
   );
-  field_create_instance($redhen_body_instance);
+  field_create_instance($redhen_note_body_instance);
+
+  //Redhen Note Category Taxonomy field
+  taxonomy_vocabulary_save((object) array(
+    'name' => 'Type',
+    'machine_name' => 'note_type',
+  ));
+
+  $redhen_note_type_field = array(
+    'field_name' => 'redhen_note_type',
+    'type' => 'taxonomy_term_reference',
+    'locked' => TRUE,
+    'cardinality' => 1,
+    'settings' => array(
+      'allowed_values' => array(
+        array(
+          'vocabulary' => 'note_type',
+          'parent' => 0,
+         ),
+      ),
+    ),
+  );
+  field_create_field($redhen_note_type_field);
+
+  $redhen_note_type_field_instance = array(
+    'field_name' => 'redhen_note_type',
+    'entity_type' => 'redhen_note',
+    'label' => t('Type'),
+    'bundle' => 'redhen_note',
+    'required' => FALSE,
+    'widget' => array(
+      'type' => 'options_select',
+    ),
+  );
+
+  field_create_instance($redhen_note_type_field_instance);
 
 }
 

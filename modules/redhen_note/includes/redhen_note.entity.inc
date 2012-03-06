@@ -27,7 +27,9 @@ class RedhenNote extends Entity {
       $this->author = $this->author();
     }
     else {
+      global $user;
       $this->created = REQUEST_TIME;
+      $this->author_uid = $user->uid;
     }
   }
 
