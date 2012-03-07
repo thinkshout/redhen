@@ -117,7 +117,7 @@ function redhen_filter_query($entity_type, $header, $bundle = '', $properties = 
   // add prop filters
   foreach($properties as $key => $value) {
     if ($value != '') {
-      $query->propertyCondition($key, $value, '=');
+      $query->propertyCondition($key, $value);
     }
   }
 
