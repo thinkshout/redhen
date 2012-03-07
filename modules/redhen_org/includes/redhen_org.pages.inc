@@ -39,21 +39,31 @@ function redhen_org_page() {
     $orgs = redhen_org_load_multiple(array_keys($result['redhen_org']));
 
     foreach($orgs as $org) {
+      $archive = $org->redhen_state == REDHEN_STATE_ACTIVE ? t('archive') : t('restore');
       $actions = array(
-        l('view', 'redhen/org/' . $org->org_id),
-        l('edit', 'redhen/org/' . $org->org_id . '/view/edit', array('query' => drupal_get_destination())),
-        l('archive', 'redhen/org/' . $org->org_id . '/archive', array('query' => drupal_get_destination())),
-        l('delete', 'redhen/org/' . $org->org_id . '/view/delete', array('query' => drupal_get_destination())),
+        l(t('view'), 'redhen/org/' . $org->org_id),
+        l(t('edit'), 'redhen/org/' . $org->org_id . '/view/edit', array('query' => drupal_get_destination())),
+        l($archive, 'redhen/org/' . $org->org_id . '/archive', array('query' => drupal_get_destination())),
+        l(t('delete'), 'redhen/org/' . $org->org_id . '/view/delete', array('query' => drupal_get_destination())),
       );
 
       $redhen_org_type = redhen_org_type_load($org->type);
+
+      $data = array(
+        $org->label,
+        $redhen_org_type->label,
+        format_date($org->updated),
+        $org->redhen_state == REDHEN_STATE_ACTIVE ? t('active') : t('archived'),
+        implode(' | ', $actions)
+        );
+
+      $row_classes = array();
+      // Set a class for the row depending on if the membership is active or archived
+      $row_classes[] = $org->redhen_state == REDHEN_STATE_ACTIVE ? 'active' : 'archived';
+
       $rows[] = array(
-        'data' => array(
-          $org->label,
-          $redhen_org_type->label,
-          format_date($org->updated),
-          $org->redhen_state,
-          implode(' | ', $actions))
+        'data' => $data,
+        'class' => $row_classes,
       );
     }
     $render['table'] = array(
