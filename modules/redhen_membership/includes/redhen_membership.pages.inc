@@ -14,6 +14,7 @@ function redhen_membership_page($entity = NULL, $entity_type = NULL) {
 
   // setup the header for both the query and table
   $header = array(
+    'Name',
     'label' => array('field' => 'label', 'type' => 'property', 'data' => 'Label', 'sort' => 'asc', 'specifier' => 'label'),
     'type' => array('field' => 'type', 'type' => 'property', 'data' => 'Type', 'sort' => 'asc', 'specifier' => 'type'),
     'start_date' => array('field' => 'start_date', 'type' => 'property', 'data' => 'Start Date', 'sort' => 'asc', 'specifier' => 'start_state'),
@@ -40,13 +41,39 @@ function redhen_membership_page($entity = NULL, $entity_type = NULL) {
     $result = redhen_filter_query('redhen_membership', $header, $bundle, $properties, $fields);
   }
 
+  // If page is for a redhen contact, run a second query for memberships on
+  // affiliated organizations
+  $org_membership_keys = array();
+  if ($entity_type == 'redhen_contact') {
+    $entity_ids = array();
+    $relations = redhen_relation_relations($entity, 'redhen_affiliation');
+    foreach ($relations as $relation => $related_entities) {
+      foreach ($related_entities as $id => $related_entity) {
+        $entity_ids[] = $related_entity->internalIdentifier();
+      }
+    }
+    if ($entity_ids) {
+      // Unset previous entity_type and entity_id property values
+      unset($properties['entity_type']);
+      unset($properties['entity_id']);
+      $properties['entity_type'] = 'redhen_org';
+      $properties['entity_id'] = $entity_ids;
+
+      $result_org_memberships = redhen_filter_query('redhen_membership', $header, $bundle, $properties, $fields);
+      if ($result_org_memberships) {
+        $org_membership_keys = array_keys($result_org_memberships['redhen_membership']);
+      }
+    }
+  }
+
   $render = array(
     'form' => drupal_get_form('redhen_filter_form', 'redhen_membership'),
   );
 
   $rows = array();
-  if ($result) {
-    $memberships = redhen_membership_load_multiple(array_keys($result['redhen_membership']));
+  if ($result || $result_org_memberships) {
+    $membership_keys = array_merge(array_keys($result['redhen_membership']), $org_membership_keys);
+    $memberships = redhen_membership_load_multiple($membership_keys);
 
     foreach($memberships as $membership) {
       $actions = array(
@@ -59,6 +86,7 @@ function redhen_membership_page($entity = NULL, $entity_type = NULL) {
       $membership_type = redhen_membership_type_load($membership->type);
       $rows[] = array(
         'data' => array(
+          $membership->entity->label(),
           $membership->label,
           $membership_type->label,
           ($membership->start_date != '') ? date('m/d/Y', strtotime($membership->start_date)) : '',
