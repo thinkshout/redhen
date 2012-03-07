@@ -226,6 +226,9 @@ function redhen_org_theme() {
     'redhen_org_add_list' => array(
       'variables' => array('content' => NULL),
       'file' => 'includes/redhen_org.forms.inc',
+    ),
+    'redhen_org_list' => array(
+      'variables' => array('orgs' => NULL, 'header' => NULL),
     )
   );
 }
@@ -443,4 +446,63 @@ function theme_redhen_org_add_list($variables) {
     $output = '<p>' . t('You have not created any organization types yet. Go to the <a href="@create-org-types">organization type creation page</a> to add a new content type.', array('@create-org-types' => url('admin/structure/redhen/org-types'))) . '</p>';
   }
   return $output;
+}
+
+/**
+ * Theme function for organization list.
+ *
+ * @param $variables
+ * @return string
+ */
+function theme_redhen_org_list($variables) {
+  $orgs = $variables['orgs'];
+  $header = $variables['header'];
+  if (!empty($orgs)) {
+    $rows = array();
+    foreach($orgs as $org) {
+      $archive = $org->redhen_state == REDHEN_STATE_ACTIVE ? t('archive') : t('restore');
+      $actions = array(
+        l(t('view'), 'redhen/org/' . $org->org_id),
+        l(t('edit'), 'redhen/org/' . $org->org_id . '/view/edit', array('query' => drupal_get_destination())),
+        l($archive, 'redhen/org/' . $org->org_id . '/archive', array('query' => drupal_get_destination())),
+        l(t('delete'), 'redhen/org/' . $org->org_id . '/view/delete', array('query' => drupal_get_destination())),
+      );
+
+      $redhen_org_type = redhen_org_type_load($org->type);
+
+      $data = array(
+        $org->label,
+        $redhen_org_type->label,
+        format_date($org->updated),
+        $org->redhen_state == REDHEN_STATE_ACTIVE ? t('active') : t('archived'),
+        implode(' | ', $actions)
+      );
+
+      $row_classes = array();
+      // Set a class for the row depending on if the membership is active or archived
+      $row_classes[] = $org->redhen_state == REDHEN_STATE_ACTIVE ? 'active' : 'archived';
+
+      $rows[] = array(
+        'data' => $data,
+        'class' => $row_classes,
+      );
+    }
+    $render['table'] = array(
+      '#theme' => 'table',
+      '#header' => $header,
+      '#rows' => $rows
+    );
+    $render['pager'] = array(
+      '#theme' => 'pager'
+    );
+  }
+  else {
+    // no results, set a message
+    $render['no-result'] = array(
+      '#type' => 'markup',
+      '#markup' => t('Sorry, there are no organizations that match your criteria.'),
+    );
+  }
+
+  return render($render);
 }

@@ -37,53 +37,17 @@ function redhen_org_page() {
   $rows = array();
   if ($result) {
     $orgs = redhen_org_load_multiple(array_keys($result['redhen_org']));
-
-    foreach($orgs as $org) {
-      $archive = $org->redhen_state == REDHEN_STATE_ACTIVE ? t('archive') : t('restore');
-      $actions = array(
-        l(t('view'), 'redhen/org/' . $org->org_id),
-        l(t('edit'), 'redhen/org/' . $org->org_id . '/view/edit', array('query' => drupal_get_destination())),
-        l($archive, 'redhen/org/' . $org->org_id . '/archive', array('query' => drupal_get_destination())),
-        l(t('delete'), 'redhen/org/' . $org->org_id . '/view/delete', array('query' => drupal_get_destination())),
-      );
-
-      $redhen_org_type = redhen_org_type_load($org->type);
-
-      $data = array(
-        $org->label,
-        $redhen_org_type->label,
-        format_date($org->updated),
-        $org->redhen_state == REDHEN_STATE_ACTIVE ? t('active') : t('archived'),
-        implode(' | ', $actions)
-        );
-
-      $row_classes = array();
-      // Set a class for the row depending on if the membership is active or archived
-      $row_classes[] = $org->redhen_state == REDHEN_STATE_ACTIVE ? 'active' : 'archived';
-
-      $rows[] = array(
-        'data' => $data,
-        'class' => $row_classes,
-      );
-    }
-    $render['table'] = array(
-        '#theme' => 'table',
-        '#header' => $header,
-        '#rows' => $rows
-      );
-    $render['pager'] = array(
-        '#theme' => 'pager'
-      );
-  }
-  else {
-    // no results, set a message
-    $render['no-result'] = array(
-      '#type' => 'markup',
-      '#markup' => t('Sorry, there are no organizations that match your criteria.'),
-    );
   }
 
-  return $render;
+  return array(
+    'form' => drupal_get_form('redhen_filter_form', 'redhen_org'),
+    'orgs' => array(
+      '#theme' => 'redhen_org_list',
+      '#orgs' => $orgs,
+      '#header' => $header
+    )
+  );
+
 }
 
 /**
