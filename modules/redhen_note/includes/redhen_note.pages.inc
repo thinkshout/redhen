@@ -40,6 +40,7 @@ function redhen_note_notes_page($entity, $entity_type) {
     'Type',
     'Author',
     'updated' => array('field' => 'updated', 'type' => 'property', 'data' => 'Updated', 'sort' => 'asc', 'specifier' => 'updated'),
+    'created' => array('field' => 'created', 'type' => 'property', 'data' => 'Created', 'sort' => 'asc', 'specifier' => 'created'),
     'Actions',
   );
 
@@ -47,7 +48,8 @@ function redhen_note_notes_page($entity, $entity_type) {
   $result = FALSE;
   if (!isset($_POST['form_id'])) {
     $bundle = '';
-    $properties = array('entity_type' => $entity_type, 'entity_id' => $entity_id);
+    $properties = isset($_GET['properties']) ? $_GET['properties'] : array();
+    $properties['entity_id'] = $entity_id;
     $fields = isset($_GET['fields']) ? $_GET['fields'] : array();
     $result = redhen_filter_query('redhen_note', $header, $bundle, $properties, $fields);
   }
@@ -62,12 +64,11 @@ function redhen_note_notes_page($entity, $entity_type) {
         l('edit', 'redhen/' . $path . '/' . $entity_id . '/note/' . $note->note_id . '/view/edit', array('query' => drupal_get_destination())),
         l('delete', 'redhen/' . $path . '/' . $entity_id . '/note/' . $note->note_id . '/view/delete', array('query' => drupal_get_destination())),
       );
-      //dpm($note);
 
       $body = $note->redhen_note_body[LANGUAGE_NONE][0]['value'];
-      $type_tid = $note->redhen_note_type[LANGUAGE_NONE][0]['tid'];
+      $type_tid = (empty($note->redhen_note_type) == 1) ? '' : $note->redhen_note_type[LANGUAGE_NONE][0]['tid'];
       $type = taxonomy_term_load($type_tid);
-      //dpm($category);
+
       $rows[] = array(
         'data' => array(
           $note->note_id,
@@ -75,6 +76,7 @@ function redhen_note_notes_page($entity, $entity_type) {
           (isset($type->name)) ? $type->name: '',
           $note->author->name,
           format_date($note->updated),
+          format_date($note->created),
           implode(' | ', $actions))
       );
     }
@@ -84,12 +86,12 @@ function redhen_note_notes_page($entity, $entity_type) {
     $rows[] = array(
       'data' => array(
         array(
-          'data' => t('Sorry, there are no note that match your criteria.'), 'colspan' => 5))
+          'data' => t('Sorry, there are no note that match your criteria.'), 'colspan' => 7))
     );
   }
 
   $render = array(
-//    /'form' => drupal_get_form('redhen_filter_form', 'redhen_note'),
+    'form' => drupal_get_form('redhen_filter_form', 'redhen_note'),
     'table' => array(
       '#theme' => 'table',
       '#header' => $header,

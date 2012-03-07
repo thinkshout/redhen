@@ -44,12 +44,6 @@ function redhen_note_schema() {
         'not null' => TRUE,
         'default' => 0,
       ),
-      'category' => array(
-        'description' => 'The uid of the user who created this redhen_note.',
-        'type' => 'blob',
-        'size' => 'big',
-        'not null' => FALSE,
-      ),
       'created' => array(
         'description' => 'The Unix timestamp when the redhen_org was created.',
         'type' => 'int',
@@ -110,7 +104,7 @@ function redhen_note_install() {
   );
   field_create_instance($redhen_note_body_instance);
 
-  //Redhen Note Category Taxonomy field
+  //Redhen Note Type Taxonomy field
   taxonomy_vocabulary_save((object) array(
     'name' => 'Type',
     'machine_name' => 'note_type',
