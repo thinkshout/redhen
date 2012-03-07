@@ -241,20 +241,17 @@ function redhen_membership_delete(RedhenMembershipType $membership) {
 }
 
 /**
- * Archive a membership.
+ * Archive or restore a membership.
  *
  * @param $membership
  *   The full membership object to save.
- *
- * @return
- *   The saved membership object.
  */
 function redhen_membership_archive($membership) {
-  $membership->redhen_state = REDHEN_STATE_ARCHIVED;
+  // flip the state and save
+  $membership->redhen_state = !$membership->redhen_state;
   redhen_membership_save($membership);
   drupal_goto(drupal_get_destination());
 }
-
 
 /**
  * Checks membership access for various operations.

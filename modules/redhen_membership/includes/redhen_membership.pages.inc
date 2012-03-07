@@ -75,24 +75,33 @@ function redhen_membership_page($entity = NULL, $entity_type = NULL) {
     $memberships = redhen_membership_load_multiple($membership_keys);
 
     foreach($memberships as $membership) {
+      $archive = $membership->redhen_state == REDHEN_STATE_ACTIVE ? t('archive') : t('restore');
       $actions = array(
-        l('view', 'redhen/membership/' . $membership->membership_id),
-        l('edit', 'redhen/membership/' . $membership->membership_id . '/edit', array('query' => drupal_get_destination())),
-        l('archive', 'redhen/membership/' . $membership->membership_id . '/archive', array('query' => drupal_get_destination())),
-        l('delete', 'redhen/membership/' . $membership->membership_id . '/delete', array('query' => drupal_get_destination())),
+        l(t('view'), 'redhen/membership/' . $membership->membership_id),
+        l(t('edit'), 'redhen/membership/' . $membership->membership_id . '/edit', array('query' => drupal_get_destination())),
+        l($archive, 'redhen/membership/' . $membership->membership_id . '/archive', array('query' => drupal_get_destination())),
+        l(t('delete'), 'redhen/membership/' . $membership->membership_id . '/delete', array('query' => drupal_get_destination())),
       );
 
       $membership_type = redhen_membership_type_load($membership->type);
-      $rows[] = array(
-        'data' => array(
+      $data = array(
           $membership->entity->label(),
           $membership_type->label,
           ($membership->start_date != '') ? date('m/d/Y', strtotime($membership->start_date)) : '',
           ($membership->expire_date != '') ? date('m/d/Y', strtotime($membership->expire_date)) : '',
           $membership->label,
-          $membership->redhen_state,
-          implode(' | ', $actions))
+          $membership->redhen_state == REDHEN_STATE_ACTIVE ? t('active') : t('archived'),
+          implode(' | ', $actions)
       );
+
+      $row_classes = array();
+      // Set a class for the row depending on if the membership is active or archived
+      $row_classes[] = $membership->redhen_state == REDHEN_STATE_ACTIVE ? 'active' : 'archived';
+
+      $rows[] = array(
+        'data' => $data,
+        'class' => $row_classes,
+        );
     }
 
     $render['table'] = array(
