@@ -40,6 +40,10 @@ function redhen_membership_page($entity = NULL, $entity_type = NULL) {
     $result = redhen_filter_query('redhen_membership', $header, $bundle, $properties, $fields);
   }
 
+  $render = array(
+    'form' => drupal_get_form('redhen_filter_form', 'redhen_membership'),
+  );
+
   $rows = array();
   if ($result) {
     $memberships = redhen_membership_load_multiple(array_keys($result['redhen_membership']));
@@ -64,25 +68,23 @@ function redhen_membership_page($entity = NULL, $entity_type = NULL) {
           implode(' | ', $actions))
       );
     }
-  }
-  else {
-    // no results, set a message
-    $rows[] = array(
-      'data' => array(array('data' => t('Sorry, there are no memberships that match your criteria.'), 'colspan' => 3))
-    );
-  }
 
-  $render = array(
-    'form' => drupal_get_form('redhen_filter_form', 'redhen_membership'),
-    'table' => array(
+    $render['table'] = array(
       '#theme' => 'table',
       '#header' => $header,
       '#rows' => $rows
-    ),
-    'pager' => array(
+    );
+    $render['pager'] = array(
       '#theme' => 'pager'
-    )
-  );
+    );
+  }
+  else {
+    // no results, set a message
+    $render['no-result'] = array(
+      '#type' => 'markup',
+      '#markup' => t('Sorry, there are no memberships that match your criteria.'),
+    );
+  }
 
   return $render;
 }
