@@ -116,15 +116,31 @@ function redhen_filter_query($entity_type, $header, $bundle = '', $properties = 
 
   // add prop filters
   foreach($properties as $key => $value) {
+
+    $property_info = entity_get_all_property_info($entity_type);
     if ($value != '') {
-      $query->propertyCondition($key, $value);
+      //Processing for date ranges
+      if ($property_info[$key]['type'] == 'date') {
+        if ($value['from'] != '') {
+          $query->propertyCondition($key, strtotime($value['from']), '>=');
+          //Add 24 hours for full day search
+          $query->propertyCondition($key, strtotime($value['to']) + 86400, '<=');
+        }
+      }
+      else {
+        $query->propertyCondition($key, $value);
+      }
     }
   }
 
   // add field filters
   foreach($fields as $key => $value) {
+    $field_info = field_info_field($key);
+
+    $search_field = ($field_info['type'] == 'taxonomy_term_reference') ? 'tid' : 'value';
+
     if ($value != '') {
-      $query->fieldCondition($key, 'value', $value, '=');
+      $query->fieldCondition($key, $search_field, $value, 'CONTAINS');
     }
   }
 
