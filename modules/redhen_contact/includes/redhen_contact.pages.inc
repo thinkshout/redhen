@@ -40,11 +40,12 @@ function redhen_contact_page() {
     $contacts = redhen_contact_load_multiple(array_keys($result['redhen_contact']));
 
     foreach($contacts as $contact) {
+      $archive = $contact->redhen_state == REDHEN_STATE_ACTIVE ? t('archive') : t('restore');
       $actions = array(
-        l('view', 'redhen/contact/' . $contact->contact_id),
-        l('edit', 'redhen/contact/' . $contact->contact_id . '/view/edit', array('query' => drupal_get_destination())),
-        l('archive', 'redhen/contact/' . $contact->contact_id . '/archive', array('query' => drupal_get_destination())),
-        l('delete', 'redhen/contact/' . $contact->contact_id . '/view/delete', array('query' => drupal_get_destination())),
+        l(t('view'), 'redhen/contact/' . $contact->contact_id),
+        l(t('edit'), 'redhen/contact/' . $contact->contact_id . '/view/edit', array('query' => drupal_get_destination())),
+        l($archive, 'redhen/contact/' . $contact->contact_id . '/archive', array('query' => drupal_get_destination())),
+        l(t('delete'), 'redhen/contact/' . $contact->contact_id . '/view/delete', array('query' => drupal_get_destination())),
       );
 
       $redhen_contact_type = redhen_contact_type_load($contact->type);

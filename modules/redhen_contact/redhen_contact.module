@@ -273,20 +273,17 @@ function redhen_contact_save($contact) {
 }
 
 /**
- * Archive a contact.
+ * Archive or restore a contact.
  *
  * @param $contact
  *   The full contact object to save.
- *
- * @return
- *   The saved contact object.
  */
 function redhen_contact_archive($contact) {
-  $contact->redhen_state = REDHEN_STATE_ARCHIVED;
+  // flip the state and save
+  $contact->redhen_state = !$contact->redhen_state;
   redhen_contact_save($contact);
   drupal_goto(drupal_get_destination());
 }
-
 
 /**
  * Checks contact access for various operations.
