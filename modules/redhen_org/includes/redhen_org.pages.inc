@@ -30,6 +30,10 @@ function redhen_org_page() {
     $result = redhen_filter_query('redhen_org', $header, $bundle, $properties, $fields);
   }
 
+  $render = array(
+    'form' => drupal_get_form('redhen_filter_form', 'redhen_org'),
+    );
+
   $rows = array();
   if ($result) {
     $orgs = redhen_org_load_multiple(array_keys($result['redhen_org']));
@@ -52,27 +56,22 @@ function redhen_org_page() {
           implode(' | ', $actions))
       );
     }
+    $render['table'] = array(
+        '#theme' => 'table',
+        '#header' => $header,
+        '#rows' => $rows
+      );
+    $render['pager'] = array(
+        '#theme' => 'pager'
+      );
   }
   else {
     // no results, set a message
-    $rows[] = array(
-      'data' => array(
-        array(
-          'data' => t('Sorry, there are no organizations that match your criteria.'), 'colspan' => 5))
+    $render['no-result'] = array(
+      '#type' => 'markup',
+      '#markup' => t('Sorry, there are no organizations that match your criteria.'),
     );
   }
-
-  $render = array(
-    'form' => drupal_get_form('redhen_filter_form', 'redhen_org'),
-    'table' => array(
-      '#theme' => 'table',
-      '#header' => $header,
-      '#rows' => $rows
-    ),
-    'pager' => array(
-      '#theme' => 'pager'
-    )
-  );
 
   return $render;
 }

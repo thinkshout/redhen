@@ -31,6 +31,10 @@ function redhen_contact_page() {
     $result = redhen_filter_query('redhen_contact', $header, $bundle, $properties, $fields);
   }
 
+  $render = array(
+    'form' => drupal_get_form('redhen_filter_form', 'redhen_contact'),
+    );
+
   $rows = array();
   if ($result) {
     $contacts = redhen_contact_load_multiple(array_keys($result['redhen_contact']));
@@ -54,25 +58,23 @@ function redhen_contact_page() {
           implode(' | ', $actions))
       );
     }
-  }
-  else {
-    // no results, set a message
-    $rows[] = array(
-      'data' => array(array('data' => t('Sorry, there are no contacts that match your criteria.'), 'colspan' => 6))
-    );
-  }
 
-  $render = array(
-    'form' => drupal_get_form('redhen_filter_form', 'redhen_contact'),
-    'table' => array(
+    $render['table'] = array(
       '#theme' => 'table',
       '#header' => $header,
       '#rows' => $rows
-    ),
-    'pager' => array(
-      '#theme' => 'pager'
-    )
-  );
+    );
+    $render['pager'] = array(
+      '#theme' => 'pager',
+    );
+  }
+  else {
+    // no results, set a message
+    $render['no-result'] = array(
+      '#type' => 'markup',
+      '#markup' => t('Sorry, there are no contacts that match your criteria.'),
+    );
+  }
 
   return $render;
 }
