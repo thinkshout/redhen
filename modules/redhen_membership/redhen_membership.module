@@ -250,6 +250,7 @@ function redhen_membership_archive($membership) {
   // flip the state and save
   $membership->redhen_state = !$membership->redhen_state;
   redhen_membership_save($membership);
+  drupal_set_message(t('@membership has been updated.', array('@membership' => $membership->label())), 'status');
   drupal_goto(drupal_get_destination());
 }
 
