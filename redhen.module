@@ -96,13 +96,11 @@ function theme_redhen_property_field($variables) {
  * @param string $bundle
  * @param array $properties
  * @param array $fields
- * @param obj $ref_entity
- *  Optional entity to filter results on. Used the entity_id and entity_type columns
  * @param int $items_page
  *
  * @return array
  */
-function redhen_filter_query($entity_type, $header, $bundle = '', $properties = array(), $fields = array(), $ref_entity = NULL, $items_page = 10) {
+function redhen_filter_query($entity_type, $header, $bundle = '', $properties = array(), $fields = array(), $items_page = 10) {
   $query = new EntityFieldQuery();
 
     // build the query
@@ -119,7 +117,7 @@ function redhen_filter_query($entity_type, $header, $bundle = '', $properties = 
   // add prop filters
   foreach($properties as $key => $value) {
     if ($value != '') {
-      $query->propertyCondition($key, $value, '=');
+      $query->propertyCondition($key, $value);
     }
   }
 
@@ -130,14 +128,6 @@ function redhen_filter_query($entity_type, $header, $bundle = '', $properties = 
     }
   }
 
-  // add referenced entity filter
-  if (isset($ref_entity)) {
-    $ref_entity_type = $ref_entity->entityType();
-    $ref_entity_id = entity_id($ref_entity_type, $ref_entity);
-
-    $query->propertyCondition('entity_type', $ref_entity_type, '=');
-    $query->propertyCondition('entity_id', $ref_entity_id, '=');
-  }
   return $query->execute();
 }
 

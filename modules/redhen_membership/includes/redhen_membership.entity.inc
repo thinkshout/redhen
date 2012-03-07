@@ -101,11 +101,26 @@ class RedhenMembership extends Entity {
   }
 
   /**
-   * Specifies the default label, which is picked up by label() by default.
+   * Set the primary membership for a contact
+   *
+   * @param RedhenContact $contact
+   *  The RedhenContact to update with this membership
+   *
+   * @return bool
+   *  Return FALSE if we are unable to set the primary membership for the contact
    */
-  protected function defaultLabel() {
+  public function setPrimaryMembership(RedhenContact $contact) {
+    //@TODO check that this membership applies to the contact somehow (individual or through org)
+    $contact->primary_membership_id = $this->membership_id;
+    return entity_save('redhen_contact', $contact);
+  }
+
+  /**
+   * Override label() to add note label.
+   */
+  public function label() {
     $type = redhen_membership_get_types($this->type);
-    return $type->label . ': ' . $this->label;
+    return "{$type->label} membership for {$this->entity->label()}";
   }
 
   /**

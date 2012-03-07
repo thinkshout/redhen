@@ -14,11 +14,11 @@ function redhen_membership_page($entity = NULL, $entity_type = NULL) {
 
   // setup the header for both the query and table
   $header = array(
-    'label' => array('field' => 'label', 'type' => 'property', 'data' => 'Label', 'sort' => 'asc', 'specifier' => 'label'),
+    'Name',
     'type' => array('field' => 'type', 'type' => 'property', 'data' => 'Type', 'sort' => 'asc', 'specifier' => 'type'),
     'start_date' => array('field' => 'start_date', 'type' => 'property', 'data' => 'Start Date', 'sort' => 'asc', 'specifier' => 'start_state'),
     'expire_date' => array('field' => 'expire_date', 'type' => 'property', 'data' => 'Expiration Date', 'sort' => 'asc', 'specifier' => 'expire_date'),
-    'updated' => array('field' => 'updated', 'type' => 'property', 'data' => 'Updated', 'sort' => 'desc', 'specifier' => 'updated'),
+    'label' => array('field' => 'label', 'type' => 'property', 'data' => 'Label', 'sort' => 'asc', 'specifier' => 'label'),
     'state' => array('field' => 'state', 'type' => 'property', 'data' => 'State', 'sort' => 'desc', 'specifier' => 'redhen_state'),
     'Actions',
   );
@@ -29,52 +29,97 @@ function redhen_membership_page($entity = NULL, $entity_type = NULL) {
     $bundle = isset($_GET['bundle']) ? $_GET['bundle'] : '';
     $properties = isset($_GET['properties']) ? $_GET['properties'] : array();
     $fields = isset($_GET['fields']) ? $_GET['fields'] : array();
-    $result = redhen_filter_query('redhen_membership', $header, $bundle, $properties, $fields, $entity);
-  }
-
-  $rows = array();
-  if ($result) {
-    $memberships = redhen_membership_load_multiple(array_keys($result['redhen_membership']));
-
-    foreach($memberships as $membership) {
-      $actions = array(
-        l('view', 'redhen/membership/' . $membership->membership_id),
-        l('edit', 'redhen/membership/' . $membership->membership_id . '/edit', array('query' => drupal_get_destination())),
-        l('archive', 'redhen/membership/' . $membership->membership_id . '/archive', array('query' => drupal_get_destination())),
-        l('delete', 'redhen/membership/' . $membership->membership_id . '/delete', array('query' => drupal_get_destination())),
+    // If page is for a specific entity, add that entity_type and id to the property filters
+    if (isset($entity)) {
+      $entity_filter = array(
+        'entity_type' => $entity_type,
+        'entity_id' => entity_id($entity_type, $entity),
       );
-
-      $membership_type = redhen_membership_type_load($membership->type);
-      $rows[] = array(
-        'data' => array(
-          $membership->label,
-          $membership_type->label,
-          ($membership->start_date != '') ? date('m/d/Y', strtotime($membership->start_date)) : '',
-          ($membership->expire_date != '') ? date('m/d/Y', strtotime($membership->expire_date)) : '',
-          date('m/d/Y g:i a', $membership->updated),
-          $membership->redhen_state,
-          implode(' | ', $actions))
-      );
+      $properties = array_merge($properties, $entity_filter);
     }
+    $result = redhen_filter_query('redhen_membership', $header, $bundle, $properties, $fields);
   }
-  else {
-    // no results, set a message
-    $rows[] = array(
-      'data' => array(array('data' => t('Sorry, there are no memberships that match your criteria.'), 'colspan' => 3))
-    );
+
+  // If page is for a redhen contact, run a second query for memberships on
+  // affiliated organizations
+  $org_membership_keys = array();
+  if ($entity_type == 'redhen_contact') {
+    $entity_ids = array();
+    $relations = redhen_relation_relations($entity, 'redhen_affiliation');
+    foreach ($relations as $relation => $related_entities) {
+      foreach ($related_entities as $id => $related_entity) {
+        $entity_ids[] = $related_entity->internalIdentifier();
+      }
+    }
+    if ($entity_ids) {
+      // Unset previous entity_type and entity_id property values
+      unset($properties['entity_type']);
+      unset($properties['entity_id']);
+      $properties['entity_type'] = 'redhen_org';
+      $properties['entity_id'] = $entity_ids;
+
+      $result_org_memberships = redhen_filter_query('redhen_membership', $header, $bundle, $properties, $fields);
+      if ($result_org_memberships) {
+        $org_membership_keys = array_keys($result_org_memberships['redhen_membership']);
+      }
+    }
   }
 
   $render = array(
     'form' => drupal_get_form('redhen_filter_form', 'redhen_membership'),
-    'table' => array(
+  );
+
+  $rows = array();
+  if ($result || $result_org_memberships) {
+    $membership_keys = array_merge(array_keys($result['redhen_membership']), $org_membership_keys);
+    $memberships = redhen_membership_load_multiple($membership_keys);
+
+    foreach($memberships as $membership) {
+      $archive = $membership->redhen_state == REDHEN_STATE_ACTIVE ? t('archive') : t('restore');
+      $actions = array(
+        l(t('view'), 'redhen/membership/' . $membership->membership_id),
+        l(t('edit'), 'redhen/membership/' . $membership->membership_id . '/edit', array('query' => drupal_get_destination())),
+        l($archive, 'redhen/membership/' . $membership->membership_id . '/archive', array('query' => drupal_get_destination())),
+        l(t('delete'), 'redhen/membership/' . $membership->membership_id . '/delete', array('query' => drupal_get_destination())),
+      );
+
+      $membership_type = redhen_membership_type_load($membership->type);
+      $data = array(
+          $membership->entity->label(),
+          $membership_type->label,
+          ($membership->start_date != '') ? date('m/d/Y', strtotime($membership->start_date)) : '',
+          ($membership->expire_date != '') ? date('m/d/Y', strtotime($membership->expire_date)) : '',
+          $membership->label,
+          $membership->redhen_state == REDHEN_STATE_ACTIVE ? t('active') : t('archived'),
+          implode(' | ', $actions)
+      );
+
+      $row_classes = array();
+      // Set a class for the row depending on if the membership is active or archived
+      $row_classes[] = $membership->redhen_state == REDHEN_STATE_ACTIVE ? 'active' : 'archived';
+
+      $rows[] = array(
+        'data' => $data,
+        'class' => $row_classes,
+        );
+    }
+
+    $render['table'] = array(
       '#theme' => 'table',
       '#header' => $header,
       '#rows' => $rows
-    ),
-    'pager' => array(
+    );
+    $render['pager'] = array(
       '#theme' => 'pager'
-    )
-  );
+    );
+  }
+  else {
+    // no results, set a message
+    $render['no-result'] = array(
+      '#type' => 'markup',
+      '#markup' => t('Sorry, there are no memberships that match your criteria.'),
+    );
+  }
 
   return $render;
 }

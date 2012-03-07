@@ -39,28 +39,6 @@ function redhen_membership_membership_form($form, &$form_state, RedhenMembership
   $form_state['membership'] = $membership;
   $form_state['entity'] = $entity;
 
-  $options = array();
-  foreach($membership_types as $type) {
-    $options[$type->name] = $type->label;
-  }
-  $form['type'] = array(
-    '#title' => t('Membership type'),
-    '#weight' => -999,
-    '#type' => 'select',
-    '#options' => $options,
-    '#default_value' => isset($membership) ? $membership->type : NULL,
-    '#ajax' => array(
-      'callback' => 'redhen_membership_membership_type_callback',
-      'wrapper' => 'redhen_membership_fields',
-      'method' => 'replace',
-      'effect' => 'fade',
-      'progress' => array(
-        'type' => 'throbber',
-        'message' => t('Retrieving fields for this membership type.')
-      )
-    ),
-  );
-
   // Add the default field elements.
   $form['label'] = array(
     '#type' => 'textfield',
@@ -68,7 +46,23 @@ function redhen_membership_membership_form($form, &$form_state, RedhenMembership
     '#default_value' => $membership->label,
     '#maxlength' => 255,
     '#required' => FALSE,
-    '#weight' => -6,
+    '#weight' => -10,
+  );
+
+  $form['start_date'] = array(
+    '#type' => 'textfield',
+    '#title' => 'Start Date',
+    '#default_value' => isset($membership->start_date) ? date('m/d/Y', strtotime($membership->start_date)) : '',
+    '#attributes' => array('class' => array("redhen-field-type-date")),
+    '#weight' => -9,
+  );
+
+  $form['expire_date'] = array(
+    '#type' => 'textfield',
+    '#title' => 'Expiration Date',
+    '#default_value' => isset($membership->expire_date) ? date('m/d/Y', strtotime($membership->expire_date)) : '',
+    '#attributes' => array('class' => array("redhen-field-type-date")),
+    '#weight' => -8,
   );
 
   $form['redhen_state'] = array(
@@ -80,21 +74,32 @@ function redhen_membership_membership_form($form, &$form_state, RedhenMembership
       REDHEN_STATE_ARCHIVED => t('Archived')
     ),
     '#default_value' => $membership->redhen_state,
-    '#weight' => 10,
+    '#weight' => -7,
   );
 
-  $form['start_date'] = array(
-    '#type' => 'textfield',
-    '#title' => 'Start Date',
-    '#default_value' => isset($membership->start_date) ? date('m/d/Y', strtotime($membership->start_date)) : '',
-    '#attributes' => array('class' => array("redhen-field-type-date")),
-  );
-
-  $form['expire_date'] = array(
-    '#type' => 'textfield',
-    '#title' => 'Expiration Date',
-    '#default_value' => isset($membership->expire_date) ? date('m/d/Y', strtotime($membership->expire_date)) : '',
-    '#attributes' => array('class' => array("redhen-field-type-date")),
+  if (!empty($form_state['values']['type'])) {
+    $membership->type = $form_state['values']['type'];
+  }
+  $options = array();
+  foreach($membership_types as $type) {
+    $options[$type->name] = $type->label;
+  }
+  $form['type'] = array(
+    '#title' => t('Membership type'),
+    '#type' => 'select',
+    '#options' => $options,
+    '#default_value' => isset($membership) ? $membership->type : NULL,
+    '#weight' => -6,
+    '#ajax' => array(
+      'callback' => 'redhen_membership_membership_type_callback',
+      'wrapper' => 'redhen_membership_fields',
+      'method' => 'replace',
+      'effect' => 'fade',
+      'progress' => array(
+        'type' => 'throbber',
+        'message' => t('Retrieving fields for this membership type.')
+      )
+    ),
   );
 
   $form['fields'] = array(

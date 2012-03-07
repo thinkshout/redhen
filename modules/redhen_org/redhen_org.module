@@ -276,8 +276,10 @@ function redhen_org_load_multiple($org_ids = array(), $conditions = array(), $re
  *   The saved org object.
  */
 function redhen_org_archive($org) {
-  $org->setState(REDHEN_STATE_ARCHIVED);
-  drupal_set_message(t('@org has been archived.', array('@org' => $org->label)), 'status');
+  // flip the state and save
+  $org->redhen_state = !$org->redhen_state;
+  drupal_set_message(t('@org has been updated.', array('@org' => $org->label())), 'status');
+  $org->save();
   drupal_goto(drupal_get_destination());
 }
 
