@@ -50,6 +50,7 @@ function redhen_note_notes_page($entity, $entity_type) {
     $bundle = '';
     $properties = isset($_GET['properties']) ? $_GET['properties'] : array();
     $properties['entity_id'] = $entity_id;
+    $properties['entity_type'] = $entity_type;
     $fields = isset($_GET['fields']) ? $_GET['fields'] : array();
     $result = redhen_filter_query('redhen_note', $header, $bundle, $properties, $fields);
   }
