@@ -22,7 +22,6 @@ function redhen_contact_page() {
     'Actions',
   );
 
-
   // need to ensure the query doesn't execute when posing the form
   $result = FALSE;
   if (!isset($_POST['form_id'])) {
@@ -32,54 +31,19 @@ function redhen_contact_page() {
     $result = redhen_filter_query('redhen_contact', $header, $bundle, $properties, $fields);
   }
 
-  $render = array(
-    'form' => drupal_get_form('redhen_filter_form', 'redhen_contact'),
-    );
-
-  $rows = array();
+  $contacts = array();
   if ($result) {
     $contacts = redhen_contact_load_multiple(array_keys($result['redhen_contact']));
-
-    foreach($contacts as $contact) {
-      $archive = $contact->redhen_state == REDHEN_STATE_ACTIVE ? t('archive') : t('restore');
-      $actions = array(
-        l(t('view'), 'redhen/contact/' . $contact->contact_id),
-        l(t('edit'), 'redhen/contact/' . $contact->contact_id . '/view/edit', array('query' => drupal_get_destination())),
-        l($archive, 'redhen/contact/' . $contact->contact_id . '/archive', array('query' => drupal_get_destination())),
-        l(t('delete'), 'redhen/contact/' . $contact->contact_id . '/view/delete', array('query' => drupal_get_destination())),
-      );
-
-      $redhen_contact_type = redhen_contact_type_load($contact->type);
-      $rows[] = array(
-        'data' => array(
-          $redhen_contact_type->label,
-          $contact->first_name,
-          $contact->last_name,
-          $contact->email,
-          format_date($contact->updated),
-          $contact->redhen_state,
-          implode(' | ', $actions))
-      );
-    }
-
-    $render['table'] = array(
-      '#theme' => 'table',
-      '#header' => $header,
-      '#rows' => $rows
-    );
-    $render['pager'] = array(
-      '#theme' => 'pager',
-    );
-  }
-  else {
-    // no results, set a message
-    $render['no-result'] = array(
-      '#type' => 'markup',
-      '#markup' => t('Sorry, there are no contacts that match your criteria.'),
-    );
   }
 
-  return $render;
+  return array(
+    'form' => drupal_get_form('redhen_filter_form', 'redhen_contact'),
+    'contacts' => array(
+      '#theme' => 'redhen_contact_list',
+      '#contacts' => $contacts,
+      '#header' => $header
+    )
+  );
 }
 
 /**

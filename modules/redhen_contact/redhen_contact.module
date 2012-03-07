@@ -205,7 +205,9 @@ function redhen_contact_theme() {
   return array(
     'redhen_contact_add_list' => array(
       'variables' => array('content' => NULL),
-      'file' => 'includes/redhen_contact.forms.inc',
+    ),
+    'redhen_contact_list' => array(
+      'variables' => array('contacts' => NULL, 'header' => NULL),
     )
   );
 }
@@ -339,16 +341,6 @@ function redhen_contact_contact_title(RedhenContact $contact) {
 }
 
 /**
- * Implements hook_views_api().
- */
-function redhen_contact_views_api() {
-  return array(
-    'api' => 3,
-    'path' => drupal_get_path('module', 'redhen_contact') . '/includes/views',
-  );
-}
-
-/**
  * Implements hook_user_delete().
  */
 function redhen_contact_user_delete($account) {
@@ -476,4 +468,57 @@ function theme_redhen_contact_add_list($variables) {
     $output = '<p>' . t('You have not created any contact types yet. Go to the <a href="@create-content">content type creation page</a> to add a new content type.', array('@create-content' => url('admin/structure/redhen/contact-types'))) . '</p>';
   }
   return $output;
+}
+
+/**
+ * Theme function for contact list.
+ *
+ * @param $variables
+ * @return string
+ */
+function theme_redhen_contact_list($variables) {
+  $contacts = $variables['contacts'];
+  $header = $variables['header'];
+  if (!empty($contacts)) {
+    $rows = array();
+    foreach($contacts as $contact) {
+      $archive = $contact->redhen_state == REDHEN_STATE_ACTIVE ? t('archive') : t('restore');
+      $actions = array(
+        l(t('view'), 'redhen/contact/' . $contact->contact_id),
+        l(t('edit'), 'redhen/contact/' . $contact->contact_id . '/view/edit', array('query' => drupal_get_destination())),
+        l($archive, 'redhen/contact/' . $contact->contact_id . '/archive', array('query' => drupal_get_destination())),
+        l(t('delete'), 'redhen/contact/' . $contact->contact_id . '/view/delete', array('query' => drupal_get_destination())),
+      );
+
+      $redhen_contact_type = redhen_contact_type_load($contact->type);
+      $rows[] = array(
+        'data' => array(
+          $redhen_contact_type->label,
+          $contact->first_name,
+          $contact->last_name,
+          $contact->email,
+          format_date($contact->updated),
+          $contact->redhen_state,
+          implode(' | ', $actions))
+      );
+    }
+
+    $render['table'] = array(
+      '#theme' => 'table',
+      '#header' => $header,
+      '#rows' => $rows
+    );
+    $render['pager'] = array(
+      '#theme' => 'pager',
+    );
+  }
+  else {
+    // no results, set a message
+    $render['no-result'] = array(
+      '#type' => 'markup',
+      '#markup' => t('Sorry, there are no contacts that match your criteria.'),
+    );
+  }
+
+  return render($render);
 }
