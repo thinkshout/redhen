@@ -13,11 +13,12 @@ module_load_include('inc', 'redhen', 'includes/redhen.forms');
 function redhen_contact_page() {
   // setup the header for both the query and table
   $header = array(
-    'first_name' => array('field' => 'first_name', 'type' => 'property', 'data' => 'First Name', 'sort' => 'asc', 'specifier' => 'first_name'),
-    'last_name' => array('field' => 'last_name', 'type' => 'property', 'data' => 'Last Name', 'sort' => 'asc', 'specifier' => 'last_name'),
-    'type' => array('field' => 'type', 'type' => 'property', 'data' => 'Type', 'sort' => 'asc', 'specifier' => 'type'),
+    'type' => array('field' => 'type', 'type' => 'property', 'data' => 'Type', 'specifier' => 'type'),
+    'first_name' => array('field' => 'first_name', 'type' => 'property', 'data' => 'First Name', 'specifier' => 'first_name'),
+    'last_name' => array('field' => 'last_name', 'type' => 'property', 'data' => 'Last Name', 'specifier' => 'last_name'),
+    'email' => array('data' => t('Email')),
     'updated' => array('field' => 'updated', 'type' => 'property', 'data' => 'Updated', 'sort' => 'desc', 'specifier' => 'updated'),
-    'state' => array('field' => 'state', 'type' => 'property', 'data' => 'State', 'sort' => 'desc', 'specifier' => 'redhen_state'),
+    'state' => array('field' => 'state', 'type' => 'property', 'data' => 'State', 'specifier' => 'redhen_state'),
     'Actions',
   );
 
@@ -51,9 +52,10 @@ function redhen_contact_page() {
       $redhen_contact_type = redhen_contact_type_load($contact->type);
       $rows[] = array(
         'data' => array(
+          $redhen_contact_type->label,
           $contact->first_name,
           $contact->last_name,
-          $redhen_contact_type->label,
+          $contact->email,
           format_date($contact->updated),
           $contact->redhen_state,
           implode(' | ', $actions))
