@@ -101,11 +101,11 @@ class RedhenMembership extends Entity {
   }
 
   /**
-   * Specifies the default label, which is picked up by label() by default.
+   * Override label() to add note label.
    */
-  protected function defaultLabel() {
+  public function label() {
     $type = redhen_membership_get_types($this->type);
-    return $type->label . ': ' . $this->label;
+    return "{$type->label} membership for {$this->entity->label()}";
   }
 
   /**
