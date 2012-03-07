@@ -229,13 +229,31 @@ function redhen_note_title(RedhenNote $note) {
  * Implements hook_form_alter().
  */
 function redhen_note_form_alter(&$form, &$form_state, $form_id) {
+
+  if ($form_id == 'redhen_filter_form') {
+    if(isset($form['filter_fieldset']['filters']['fields']['redhen_note_type'])) {
+
+      $note_type_tax = taxonomy_vocabulary_machine_name_load('note_type');
+      $note_type_tree = taxonomy_get_tree($note_type_tax->vid);
+
+      $options = array('' => 'All');
+      foreach ($note_type_tree as $term) {
+        $options[$term->tid] = $term->name;
+      }
+
+      $form['filter_fieldset']['filters']['fields']['redhen_note_type'] = array(
+        '#type' => 'select',
+         '#title' => t('Type'),
+         '#options' => $options,
+         '#default_value' => isset($_GET['fields']['redhen_note_type']) ? $_GET['fields']['redhen_note_type'] : NULL,
+      );
+    }
+  }
+
   if ($form_id == 'taxonomy_form_term') {
     $category_vocab = taxonomy_vocabulary_machine_name_load('note_type');
     if ($form['#vocabulary']->vid == $category_vocab->vid) {
-      //dpm($form);
-      //unset($form['relations']);
       unset($form['actions']['delete']);
-      //unset($form['actions']['submit']);
     }
   }
 }

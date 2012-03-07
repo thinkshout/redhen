@@ -119,6 +119,8 @@ class RedhenNoteMetadataController extends EntityDefaultMetadataController {
       'label' => t("Created"),
       'description' => t("The date the note was created."),
       'type' => 'date',
+      'filter' => TRUE,
+      'field_type' => 'textfield',
       'schema field' => 'created',
     );
     $properties['updated'] = array(

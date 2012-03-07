@@ -27,6 +27,7 @@ function redhen_note_form($form, &$form_state, $redhen_note) {
 //    '#weight' => -1,
 //  );
 
+
   field_attach_form('redhen_note', $redhen_note, $form, $form_state);
 
   $form['submit'] = array(
@@ -53,8 +54,6 @@ function redhen_note_form_submit($form, &$form_state) {
 
   list($entity_id,,) = entity_extract_ids($redhen_note->entity_type,$redhen_note->entity);
   $redhen_note->entity_id = $entity_id;
-
-  //$redhen_note->category = serialize($form_state['values']['category']);
 
   field_attach_submit('redhen_note', $redhen_note, $form, $form_state);
 

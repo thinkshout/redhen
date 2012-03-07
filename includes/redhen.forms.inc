@@ -43,15 +43,34 @@ function redhen_filter_form($form, $form_state, $entity_type) {
         // conver datetime defaults to date strings
         $default_value = isset($_GET['properties'][$key]) ? $_GET['properties'][$key] : NULL;
         if ($prop['type'] == 'date' && !empty($default_value)) {
-          $default_value = date('m/d/Y', $default_value);
+          $default_value['from'] = ($default_value['from'] == '') ? '' : date('m/d/Y', strtotime($default_value['from']));
+          $default_value['to'] = ($default_value['to'] == '') ? '' : date('m/d/Y', strtotime($default_value['to']));;
         }
 
-        $form['filter_fieldset']['filters']['properties'][$key] = array(
-          '#type' => $field_type,
-          '#title' => $prop['label'],
-          '#attributes' => array('class' => array("redhen-field-type-{$prop['type']}")),
-          '#default_value' => $default_value
-        );
+        if ($prop['type'] == 'date') {
+          $form['filter_fieldset']['filters']['properties'][$key]['from'] = array(
+            '#type' => $field_type,
+            '#title' => $prop['label'] . ' from',
+            '#attributes' => array('class' => array("redhen-field-type-{$prop['type']}")),
+            '#default_value' => $default_value['from']
+          );
+          $form['filter_fieldset']['filters']['properties'][$key]['to'] = array(
+            '#type' => $field_type,
+            '#title' => $prop['label'] . ' to',
+            '#attributes' => array('class' => array("redhen-field-type-{$prop['type']}")),
+            '#default_value' => $default_value['to']
+          );
+
+        }
+        else {
+          $form['filter_fieldset']['filters']['properties'][$key] = array(
+            '#type' => $field_type,
+            '#title' => $prop['label'],
+            '#attributes' => array('class' => array("redhen-field-type-{$prop['type']}")),
+            '#default_value' => $default_value
+          );
+        }
+
         if ($field_type == 'select' && isset($prop['options'])) {
           $prop['options'] = array('' => t('-- Any --')) + $prop['options'];
           $form['filter_fieldset']['filters']['properties'][$key]['#options'] = $prop['options'];
@@ -65,27 +84,61 @@ function redhen_filter_form($form, $form_state, $entity_type) {
     foreach($entity_info['bundles'] as $key => $bundle) {
       $type_options[$key] = $bundle['label'];
     }
-    $form['filter_fieldset']['filters']['bundle'] = array(
-      '#type' => 'select',
-      '#title' => t('@type bundles', array('@type' => $entity_info['label'])),
-      '#options' => $type_options,
-      '#default_value' => isset($_GET['bundle']) ? $_GET['bundle'] : NULL,
-      '#ajax' => array(
-        'callback' => 'redhen_filter_fields_callback',
-        'wrapper' => 'redhen_filter_fields_container',
-        'method' => 'replace',
-        'effect' => 'fade',
-        'progress' => array(
-          'type' => 'throbber',
-          'message' => t('Retrieving fields for this bundle.')
-        )
-      )
-    );
 
-    $form['filter_fieldset']['filters']['fields'] = array(
-      '#prefix' => '<div id="redhen_filter_fields_container">',
-      '#suffix' => '</div>'
-    );
+
+
+    if (count($entity_info['bundles']) == 1) {
+      $bundle = array_keys($entity_info['bundles']);
+      $bundle = $bundle[0];
+      $fields = field_info_instances($entity_type, $bundle);
+
+      if (!empty($fields)) {
+
+
+        $form['filter_fieldset']['filters']['fields'] = array(
+          '#type' => 'fieldset',
+          '#title' => t('Additional Fields for @bundle', array('@bundle' => $bundle)),
+          '#collapsible' => FALSE,
+          '#id' => 'redhen_filter_fields_container'
+        );
+
+        foreach($fields as $key => $field) {
+          $form['filter_fieldset']['filters']['fields'][$key] = array(
+            '#type' => 'textfield',
+            '#title' => $field['label'],
+            '#default_value' => isset($_GET['fields'][$key]) ? $_GET['fields'][$key] : NULL,
+          );
+        }
+      }
+
+
+    }
+    else {
+      $form['filter_fieldset']['filters']['bundle'] = array(
+        '#type' => 'select',
+        '#title' => t('@type bundles', array('@type' => $entity_info['label'])),
+        '#options' => $type_options,
+        '#default_value' => isset($_GET['bundle']) ? $_GET['bundle'] : NULL,
+        '#ajax' => array(
+          'callback' => 'redhen_filter_fields_callback',
+          'wrapper' => 'redhen_filter_fields_container',
+          'method' => 'replace',
+          'effect' => 'fade',
+          'progress' => array(
+            'type' => 'throbber',
+            'message' => t('Retrieving fields for this bundle.')
+          )
+        )
+      );
+      $form['filter_fieldset']['filters']['fields'] = array(
+        '#prefix' => '<div id="redhen_filter_fields_container">',
+        '#suffix' => '</div>'
+      );
+    }
+
+
+
+
 
     $form['filter_fieldset']['submit'] = array(
       '#type' => 'submit',
@@ -124,6 +177,8 @@ function redhen_filter_form($form, $form_state, $entity_type) {
     }
   }
 
+
+
   return $form;
 }
 
@@ -136,14 +191,16 @@ function redhen_filter_fields_callback($form, $form_state) {
 
 function redhen_filter_form_validate($form, &$form_state) {
   foreach ($form_state['values']['filters']['properties'] as $key => $property) {
-    if (!empty($property) && $form['filter_fieldset']['filters']['properties'][$key]['#attributes']['class'][0] == 'redhen-field-type-date') {
-      if ( $time = strtotime($property)) {
-        $form_state['values']['filters']['properties'][$key] = $time;
-      }
-      else {
-        form_set_error($key, t('@key is not a valid date.', array('@key' => $key)));
-      }
-    }
+    //Todo: Date validation?
+//    if (!empty($property) && $form['filter_fieldset']['filters']['properties'][$key]['#attributes']['class'][0] == 'redhen-field-type-date') {
+//
+//      if ( $time = strtotime($property)) {
+//        $form_state['values']['filters']['properties'][$key] = $time;
+//      }
+//      else {
+//        form_set_error($key, t('@key is not a valid date.', array('@key' => $key)));
+//      }
+//    }
   }
 }
 
