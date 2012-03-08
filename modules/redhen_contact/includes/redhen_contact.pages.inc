@@ -18,7 +18,6 @@ function redhen_contact_page() {
     'last_name' => array('field' => 'last_name', 'type' => 'property', 'data' => 'Last Name', 'specifier' => 'last_name'),
     'email' => array('data' => t('Email')),
     'updated' => array('field' => 'updated', 'type' => 'property', 'data' => 'Updated', 'sort' => 'desc', 'specifier' => 'updated'),
-    'state' => array('field' => 'state', 'type' => 'property', 'data' => 'State', 'specifier' => 'redhen_state'),
     'Actions',
   );
 

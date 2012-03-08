@@ -483,22 +483,21 @@ function theme_redhen_contact_list($variables) {
     $rows = array();
     foreach($contacts as $contact) {
       $archive = $contact->redhen_state == REDHEN_STATE_ACTIVE ? t('archive') : t('restore');
+      $uri = entity_uri('redhen_contact', $contact);
       $actions = array(
-        l(t('view'), 'redhen/contact/' . $contact->contact_id),
-        l(t('edit'), 'redhen/contact/' . $contact->contact_id . '/view/edit', array('query' => drupal_get_destination())),
-        l($archive, 'redhen/contact/' . $contact->contact_id . '/archive', array('query' => drupal_get_destination())),
-        l(t('delete'), 'redhen/contact/' . $contact->contact_id . '/view/delete', array('query' => drupal_get_destination())),
+        l(t('edit'), $uri['path'] . '/view/edit', array('query' => drupal_get_destination())),
+        l($archive, $uri['path'] . '/archive', array('query' => drupal_get_destination())),
+        l(t('delete'), $uri['path'] . '/view/delete', array('query' => drupal_get_destination())),
       );
 
       $redhen_contact_type = redhen_contact_type_load($contact->type);
       $rows[] = array(
         'data' => array(
           $redhen_contact_type->label,
-          $contact->first_name,
-          $contact->last_name,
-          $contact->email,
-          format_date($contact->updated),
-          $contact->redhen_state,
+          l($contact->first_name, $uri['path']),
+          l($contact->last_name, $uri['path']),
+          l($contact->email, 'mailto:' . $contact->email),
+          format_date($contact->updated, 'short'),
           implode(' | ', $actions))
       );
     }
