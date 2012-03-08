@@ -16,6 +16,7 @@ class RedhenContact extends Entity {
     $email,
     $contact_id = NULL,
     $user_uid = NULL,
+    $user,
     $author_uid = NULL,
     $redhen_state = REDHEN_STATE_ACTIVE,
     $engagement_score = NULL,
@@ -38,6 +39,10 @@ class RedhenContact extends Entity {
 
     if (module_exists('redhen_engagement')) {
       $this->engagement_score = redhen_engagement_contact_score($this);
+    }
+
+    if ($this->user_uid) {
+      $this->user = user_load($this->user_uid);
     }
   }
 
