@@ -104,7 +104,8 @@ function redhen_engagements_page(RedhenContact $contact) {
     'Type' => array('data' => 'Type'),
     'Created' => array('field' => 'created', 'type' => 'property', 'data' => 'Created', 'sort' => 'desc', 'specifier' => 'created'),
     'description' => array('data' => 'description'),
-    'Author' => array('data' => 'Author'),
+    'source' => array('data' => 'Source'),
+    'author' => array('data' => 'Author'),
   );
 
   $query = new EntityFieldQuery();
@@ -120,13 +121,21 @@ function redhen_engagements_page(RedhenContact $contact) {
     $engagements = entity_load('redhen_engagement', array_keys($result['redhen_engagement']));
     foreach($engagements as $engagement) {
       $author = user_load($engagement->author_uid);
+      $author_uri = entity_uri('user', $author);
+      $source = t('N/A');
+      if ($engagement->entity_id) {
+        $source_entity = entity_load_single($engagement->entity_type, $engagement->entity_id);
+        $source_uri = entity_uri($engagement->entity_type, $source_entity);
+        $source = l(entity_label($engagement->entity_type, $source_entity), $source_uri['path']);
+      }
       $rows[] = array(
         'data' => array(
           $engagement->engagement_score->score,
           $engagement->engagement_score->label,
           format_date($engagement->created),
           $engagement->description,
-          $author->name,
+          $source,
+          l($author->name, $author_uri['path']),
         )
       );
     }
@@ -184,7 +193,7 @@ function redhen_engagement_get_scores($name = NULL) {
  * @param null $entity_id
  *   Optional source entity id.
  *
- * @return RedhenEngagementScore
+ * @return RedhenEngagement
  */
 function redhen_engagement_create($engagement_score_name, $contact_id, $description, $entity_type = NULL, $entity_id = NULL) {
   $engagement_score = redhen_engagement_get_scores($engagement_score_name);
