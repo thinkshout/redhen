@@ -330,9 +330,9 @@ function redhen_membership_field_extra_fields() {
   foreach (redhen_membership_get_types() as $type => $membership_type) {
     $extra['redhen_membership'][$type] = array(
       'form' => array(
-        'name' => array(
-          'label' => t('Membership name'),
-          'description' => t('Membership name'),
+        'note' => array(
+          'label' => t('Membership note'),
+          'description' => t('Membership note'),
           'weight' => 0,
         ),
         'redhen_state' => array(
@@ -490,7 +490,7 @@ function theme_redhen_membership_list($variables) {
         $membership_type->label,
         ($membership->start_date != '') ? date('m/d/Y', strtotime($membership->start_date)) : '',
         ($membership->expire_date != '') ? date('m/d/Y', strtotime($membership->expire_date)) : '',
-        $membership->label,
+        $membership->note,
         $membership->redhen_state == REDHEN_STATE_ACTIVE ? t('active') : t('archived'),
         implode(' | ', $actions)
         );

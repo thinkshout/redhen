@@ -40,10 +40,10 @@ function redhen_membership_membership_form($form, &$form_state, RedhenMembership
   $form_state['entity'] = $entity;
 
   // Add the default field elements.
-  $form['label'] = array(
+  $form['note'] = array(
     '#type' => 'textfield',
-    '#title' => t('Label'),
-    '#default_value' => $membership->label,
+    '#title' => t('Note'),
+    '#default_value' => $membership->note,
     '#maxlength' => 255,
     '#required' => FALSE,
     '#weight' => -10,
@@ -174,7 +174,7 @@ function redhen_membership_membership_form_submit($form, &$form_state) {
 
   // Save default parameters back into the $membership object.
   $membership->type = $form_state['values']['type'];
-  $membership->label = $form_state['values']['label'];
+  $membership->note = $form_state['values']['note'];
   $membership->start_date = ($form_state['values']['start_date'] != '') ? date('Y-m-d', strtotime($form_state['values']['start_date'])) : NULL;
   $membership->expire_date = ($form_state['values']['expire_date'] != '') ? date('Y-m-d', strtotime($form_state['values']['expire_date'])) : NULL;
   $membership->redhen_state = $form_state['values']['redhen_state'];

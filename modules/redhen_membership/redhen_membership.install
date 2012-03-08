@@ -32,8 +32,8 @@ function redhen_membership_schema() {
         'not null' => TRUE,
         'default' => '', //@TODO remove when machine names are implemented
       ),
-      'label' => array(
-        'description' => 'The label of this redhen_membership, always treated as non-markup plain text.',
+      'note' => array(
+        'description' => 'A note on this redhen_membership, always treated as non-markup plain text.',
         'type' => 'varchar',
         'length' => 255,
         'not null' => TRUE,

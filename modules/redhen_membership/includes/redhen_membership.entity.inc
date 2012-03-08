@@ -10,7 +10,7 @@
 class RedhenMembership extends Entity {
 
   public
-    $label = '',
+    $note = '',
     $name = '',
     $entity_type,
     $entity_id,
@@ -53,12 +53,12 @@ class RedhenMembership extends Entity {
       ),
       '#classes' => 'field field-label-inline clearfix',
     );
-    $content['name'] = array(
+    $content['note'] = array(
       '#theme' => 'redhen_property_field',
-      '#label' => t('Label'),
+      '#label' => t('Note'),
       '#items' => array(
         array(
-          '#markup' => check_plain($this->label)
+          '#markup' => check_plain($this->note)
         ),
       ),
       '#classes' => 'field field-label-inline clearfix',
