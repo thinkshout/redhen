@@ -101,21 +101,6 @@ class RedhenMembership extends Entity {
   }
 
   /**
-   * Set the primary membership for a contact
-   *
-   * @param RedhenContact $contact
-   *  The RedhenContact to update with this membership
-   *
-   * @return bool
-   *  Return FALSE if we are unable to set the primary membership for the contact
-   */
-  public function setPrimaryMembership(RedhenContact $contact) {
-    //@TODO check that this membership applies to the contact somehow (individual or through org)
-    $contact->primary_membership_id = $this->membership_id;
-    return entity_save('redhen_contact', $contact);
-  }
-
-  /**
    * Override label() to add note label.
    */
   public function label() {

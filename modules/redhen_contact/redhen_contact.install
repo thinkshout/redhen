@@ -52,12 +52,6 @@ function redhen_contact_schema() {
         'not null' => FALSE,
         'default' => 0,
       ),
-      'primary_membership_id' => array(
-        'description' => 'The redhen_membership.membership_id of the primary membership.',
-        'type' => 'int',
-        'not null' => FALSE,
-        'default' => NULL,
-      ),
       'author_uid' => array(
         'description' => 'The uid of the user who created this redhen_contact.',
         'type' => 'int',
@@ -110,10 +104,6 @@ function redhen_contact_schema() {
       'redhen_contact_type' => array(
         'table' => 'redhen_contact_type',
         'columns' => array('type' => 'name'),
-      ),
-      'redhen_membership_primary_membership_id' => array(
-        'table' => 'redhen_membership',
-        'columns' => array('primary_membership_id' => 'membership_id'),
       ),
     ),
     'primary key' => array('contact_id'),

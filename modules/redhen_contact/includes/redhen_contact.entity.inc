@@ -19,8 +19,6 @@ class RedhenContact extends Entity {
     $author_uid = NULL,
     $redhen_state = REDHEN_STATE_ACTIVE,
     $engagement_score = NULL,
-    $primary_membership_id = NULL,
-    $primary_membership = NULL,
     $type = '',
     $created = '',
     $changed = '';
@@ -37,7 +35,6 @@ class RedhenContact extends Entity {
 
     $this->name = $this->name();
     $this->email = $this->defaultEmail();
-    $this->primary_membership = $this->primaryMembership();
 
     if (module_exists('redhen_engagement')) {
       $this->engagement_score = redhen_engagement_contact_score($this);
@@ -99,19 +96,6 @@ class RedhenContact extends Entity {
    */
   protected function defaultUri() {
     return array('path' => 'redhen/contact/' . $this->identifier());
-  }
-
-  /**
-   * Return a primary membership object if possible.
-   *
-   * @return RedhenMembership|null
-   */
-  protected function primaryMembership() {
-    $membership = NULL;
-    if (isset($this->primary_membership_id)) {
-      $membership = redhen_membership_load($this->primary_membership_id);
-    }
-    return $membership;
   }
 
   /**
