@@ -243,3 +243,54 @@ function redhen_engagement_permission() {
     ),
   );
 }
+
+/**
+ * Implements hook_form_FORMP_ID_alter().
+ *   Inject engagement score elements into a note form.
+ *
+ * @param $form
+ * @param $form_state
+ * @return mixed
+ */
+function redhen_engagement_form_redhen_note_form_alter(&$form, &$form_state) {
+  $note = $form_state['redhen_note'];
+  if ($note->entity_type != 'redhen_contact') {
+    return;
+  }
+
+  $scores = redhen_engagement_get_scores();
+  $options = array('' => t('-- Select --'));
+  foreach($scores as $score) {
+    $options[$score->engagement_score_id] = $score->label;
+  }
+  $form['engagement_score'] = array(
+    '#type' => 'select',
+    '#title' => t('Engagement Score'),
+    '#description' => t('The selected engagement score, if any, will be applied to the contact when creating this note.'),
+    '#weight' => 99,
+    '#options'=> $options
+  );
+
+  $form['#submit'][] = 'redhen_engagement_redhen_note_form_submit';
+}
+
+/**
+ * Submit handler for redhen_engagement_form_redhen_note_form_alter().
+ *   Save the engagement score.
+ *
+ * @param $form
+ * @param $form_state
+ */
+function redhen_engagement_redhen_note_form_submit($form, $form_state) {
+  $score = $form_state['values']['engagement_score'];
+  if (!empty($score)) {
+    $note = $form_state['redhen_note'];
+    $redhen_engagement = redhen_engagement_create($score,
+      $note->entity->internalIdentifier(),
+      t('Created when saving note @note', array('@note' => $note->internalIdentifier())),
+      'redhen_note',
+      $note->internalIdentifier()
+    );
+    redhen_engagement_save($redhen_engagement);
+  }
+}

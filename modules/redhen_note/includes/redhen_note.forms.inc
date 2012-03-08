@@ -18,16 +18,6 @@
 function redhen_note_form($form, &$form_state, $redhen_note) {
   $form_state['redhen_note'] = $redhen_note;
 
-//  $form['category'] = array(
-//    '#type' => 'textfield',
-//    '#title' => t('Category'),
-//    '#maxlength' => 60,
-//    '#autocomplete_path' =>'user/autocomplete',
-//    '#default_value' => isset($redhen_note->category) ? unserialize($redhen_note->category) : '',
-//    '#weight' => -1,
-//  );
-
-
   field_attach_form('redhen_note', $redhen_note, $form, $form_state);
 
   $form['submit'] = array(
