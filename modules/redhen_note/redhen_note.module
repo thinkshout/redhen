@@ -49,7 +49,7 @@ function redhen_note_entity_info() {
 }
 
 /**
- * Implements hook_menu(). 187a87a 9e2763
+ * Implements hook_menu().
  */
 function redhen_note_menu() {
   $items = array();

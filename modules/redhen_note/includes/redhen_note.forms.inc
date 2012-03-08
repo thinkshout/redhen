@@ -58,7 +58,6 @@ function redhen_note_form_submit($form, &$form_state) {
     drupal_set_message(t('There has been an issue saving this note. Please contact the site administrator.'));
     watchdog('redhen_note', 'Issue saving note %note_id.', array('%title' => $redhen_note->note_id), WATCHDOG_NOTICE);
   }
-
 }
 
 /**
