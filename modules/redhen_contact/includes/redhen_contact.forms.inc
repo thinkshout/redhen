@@ -112,7 +112,7 @@ function redhen_contact_contact_form_submit($form, &$form_state) {
   // Save the contact.
   $contact = redhen_contact_save($contact);
 
-  drupal_set_message(t('Contact saved.'));
+  drupal_set_message(t('Contact %name saved.', array('%name' => $contact->name)));
   $form_state['redirect'] = 'redhen/contact/' . $contact->contact_id;
 }
 
@@ -132,10 +132,8 @@ function redhen_contact_contact_delete_form($form, &$form_state, $contact) {
 
   $form['#submit'][] = 'redhen_contact_contact_delete_form_submit';
 
-  $title = $contact->last_name . ', '. $contact->first_name;
-
   $form = confirm_form($form,
-    t('Are you sure you want to delete %title?', array('%title' => $title)),
+    t('Are you sure you want to delete %title?', array('%title' => $contact->name)),
     '',
     '<p>' . t('Deleting this contact cannot be undone.') . '</p>',
     t('Delete'),
@@ -152,13 +150,11 @@ function redhen_contact_contact_delete_form($form, &$form_state, $contact) {
 function redhen_contact_contact_delete_form_submit($form, &$form_state) {
   $contact = $form_state['redhen_contact'];
 
-  $title = $contact->last_name . ', '. $contact->first_name;
-
   if (redhen_contact_delete_multiple(array($contact->contact_id))) {
-    drupal_set_message(t('%title has been deleted.', array('%title' => $title)));
-    watchdog('redhen_contact', 'Deleted contact %title.', array('%title' => $title), WATCHDOG_NOTICE);
+    drupal_set_message(t('%title has been deleted.', array('%title' => $contact->name)));
+    watchdog('redhen_contact', 'Deleted contact %title.', array('%title' => $contact->name), WATCHDOG_NOTICE);
   }
   else {
-    drupal_set_message(t('%title could not be deleted.', array('%title' => $title)), 'error');
+    drupal_set_message(t('%title could not be deleted.', array('%title' => $contact->name)), 'error');
   }
 }
