@@ -21,28 +21,13 @@ class RedhenContactEntityController extends EntityAPIController {
    */
   public function save($contact) {
     $transaction = db_transaction();
-
     try {
       $contact->updated = REQUEST_TIME;
 
-      // Give modules the opportunity to prepare field data for saving.
-      field_attach_presave('redhen_contact', $contact);
+      parent::save($contact, $transaction);
 
       // If this is a new contact...
-      if ((isset($contact->is_new) && $contact->is_new) || empty($contact->contact_id)) {
-        // Set the creation timestamp if not set.
-        if (!isset($contact->created) || empty($contact->created)) {
-          $contact->created = REQUEST_TIME;
-        }
-
-        // Save the new contact and fields.
-        drupal_write_record('redhen_contact', $contact);
-        drupal_write_record('redhen_contact_revision', $contact);
-        field_attach_insert('redhen_contact', $contact);
-
-        $op = 'insert';
-      }
-      else {
+      if (!empty($contact->contact_id)) {
         if (isset($contact->revision_id)) {
           // Save the old revision ID in case we need it in alters.
           $contact->old_revision_id = $contact->revision_id;
@@ -50,27 +35,16 @@ class RedhenContactEntityController extends EntityAPIController {
           // {redhen_contact_revision} table.
           unset($contact->revision_id);
         }
-
-        // Save the updated contact and fields.
-        drupal_write_record('redhen_contact', $contact, 'contact_id');
-        drupal_write_record('redhen_contact_revision', $contact);
-        field_attach_update('redhen_contact', $contact);
-
-        $op = 'update';
       }
+
+      // create revision
+      drupal_write_record('redhen_contact_revision', $contact);
+
       // Since we always save a new revision, update the vid
       db_update('redhen_contact')
         ->fields(array('revision_id' => $contact->revision_id))
         ->condition('contact_id', $contact->contact_id)
         ->execute();
-
-
-      module_invoke_all('redhen_contact_' . $op, $contact);
-      module_invoke_all('entity_' . $op, $contact, 'redhen_contact');
-
-      // Ignore slave server temporarily to give time for the
-      // saved contact to be propagated to the slave.
-      db_ignore_slave();
 
       return $contact;
     }
@@ -107,34 +81,18 @@ class RedhenContactEntityController extends EntityAPIController {
       }
 
       $transaction = db_transaction();
-
       try {
-        db_delete('redhen_contact')
-          ->condition('contact_id', $contact_ids, 'IN')
-          ->execute();
+        parent::delete($contact_ids, $transaction);
 
         db_delete('redhen_contact_revision')
           ->condition('contact_id', $contact_ids, 'IN')
           ->execute();
-
-        foreach ($contacts as $contact_id => $contact) {
-          module_invoke_all('redhen_contact_delete', $contact);
-          field_attach_delete('redhen_contact', $contact);
-        }
-
-        // Ignore slave server temporarily to give time for the
-        // saved contact to be propagated to the slave.
-        db_ignore_slave();
       }
       catch (Exception $e) {
         $transaction->rollback();
         watchdog_exception('redhen_contact', $e);
         throw $e;
       }
-
-      // Clear the page and block and contact_load_multiple caches.
-      cache_clear_all();
-      $this->resetCache();
     }
 
     return TRUE;
