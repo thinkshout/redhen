@@ -46,12 +46,6 @@ function redhen_contact_schema() {
         'not null' => TRUE,
         'default' => '',
       ),
-      'user_uid' => array(
-        'description' => 'The optional uid of the Drupal user connected to this redhen_contact.',
-        'type' => 'int',
-        'not null' => FALSE,
-        'default' => 0,
-      ),
       'author_uid' => array(
         'description' => 'The uid of the user who created this redhen_contact.',
         'type' => 'int',
@@ -124,12 +118,6 @@ function redhen_contact_schema() {
         'type' => 'serial',
         'unsigned' => TRUE,
         'not null' => TRUE,
-      ),
-      'user_uid' => array(
-        'description' => 'The {users}.uid that is connected to this revision.',
-        'type' => 'int',
-        'not null' => FALSE,
-        'default' => 0,
       ),
       'author_uid' => array(
         'description' => 'The {users}.uid that created this revision.',
@@ -255,6 +243,54 @@ function redhen_contact_schema() {
     'unique keys' => array(
       'name' => array('name'),
     ),
+  );
+
+  $schema['redhen_contact_user'] = array(
+    'description' => 'The base table for redhen_contact module.',
+    'fields' => array(
+      'contact_id' => array(
+        'description' => 'The identifier for a redhen_contact.',
+        'type' => 'int',
+        'not null' => TRUE,
+      ),
+      'user_uid' => array(
+        'description' => 'The uid of the Drupal user connected to this redhen_contact.',
+        'type' => 'int',
+        'not null' => TRUE,
+      ),
+      'redhen_state' => array(
+        'description' => 'The status of this contact user relationship.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 1,
+      ),
+      'created' => array(
+        'description' => 'The Unix timestamp when the relationship was created.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'updated' => array(
+        'description' => 'The Unix timestamp when the relationship was most recently saved.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+    ),
+    'indexes' => array(
+      'redhen_contact_user' => array('contact_id', 'user_uid'),
+    ),
+    'foreign keys' => array(
+      'redhen_contact_user_contact' => array(
+        'table' => 'redhen_contact',
+        'columns' => array('contact_id' => 'contact_id'),
+      ),
+      'redhen_contact_user_user' => array(
+        'table' => 'users',
+        'columns' => array('user_uid' => 'uid'),
+      ),
+    ),
+    'primary key' => array('contact_id'),
   );
 
   return $schema;
