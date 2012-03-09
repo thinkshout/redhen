@@ -384,6 +384,11 @@ function redhen_contact_field_extra_fields() {
           'description' => t('Contact state'),
           'weight' => 0,
         ),
+        'user' => array(
+          'label' => t('User'),
+          'description' => t('Drupal user'),
+          'weight' => 0,
+        ),
       ),
     );
 

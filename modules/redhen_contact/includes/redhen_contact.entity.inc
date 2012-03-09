@@ -15,7 +15,6 @@ class RedhenContact extends Entity {
     $name,
     $email,
     $contact_id = NULL,
-    $user_uid = NULL,
     $user,
     $author_uid = NULL,
     $redhen_state = REDHEN_STATE_ACTIVE,
@@ -36,13 +35,10 @@ class RedhenContact extends Entity {
 
     $this->name = $this->name();
     $this->email = $this->defaultEmail();
+    $this->user = $this->user();
 
     if (module_exists('redhen_engagement')) {
       $this->engagement_score = redhen_engagement_contact_score($this);
-    }
-
-    if ($this->user_uid) {
-      $this->user = user_load($this->user_uid);
     }
   }
 
@@ -70,6 +66,20 @@ class RedhenContact extends Entity {
        ),
       '#classes' => 'field field-label-inline clearfix',
     );
+
+    if($this->user) {
+      $user_uri = entity_uri('user', $this->user);
+      $content['user'] = array(
+        '#theme' => 'redhen_property_field',
+        '#label' => t('Drupal User'),
+        '#items' => array(
+          array(
+            '#markup' => l($this->user->name, $user_uri['path'])
+          ),
+         ),
+        '#classes' => 'field field-label-inline clearfix',
+      );
+    }
 
     if (module_exists('redhen_engagement')) {
       $content['redhen_engagement'] = array(
@@ -171,6 +181,75 @@ class RedhenContact extends Entity {
     );
   }
 
+  /**
+   * Return the active user linked to this contact.
+   *
+   * @return mixed|null
+   */
+  public function user() {
+    $user = NULL;
+    $contact_user = $this->contactUser();
+    if (!empty($contact_user) && $contact_user->redhen_state == REDHEN_STATE_ACTIVE) {
+      $user = user_load($contact_user->user_uid);
+    }
+    return $user;
+  }
+
+  /**
+   * Set the active user for a contact.
+   *
+   * @param $user
+   * @return mixed
+   */
+  public function setUser($user) {
+    $contact_user = $this->contactUser();
+
+    // no user connection, create
+    if (empty($contact_user)) {
+      db_insert('redhen_contact_user')
+        ->fields(array(
+          'contact_uid' => $this->contact_id,
+          'user_uid' => $user->uid,
+          'created' => REQUEST_TIME,
+          'updated' => REQUEST_TIME
+          ))
+        ->execute();
+    }
+    // same user, bail. doesn't matter if connection is active or inactive
+    else if ($contact_user->user_uid != $user->uid) {
+      // update with new user
+      db_update('redhen_contact_user')
+        ->fields(array(
+            'user_uid' => $user->uid,
+            'redhen_state' => REDHEN_STATE_ACTIVE,
+            'updated' => REQUEST_TIME
+          ))
+        ->condition('contact_id', $this->contact_id)
+        ->execute();
+    }
+
+    $this->user = $user;
+  }
+
+  /**
+   * Private helper to return relationship between a contact and user.
+   * @TODO: Concerned about performance with this. Should we cache or do a
+   *   proper join when loading the entity
+   *
+   * @return array
+   */
+  private function contactUser() {
+    $user_info = array();
+    $result = db_select('redhen_contact_user', 'cu')
+      ->fields('cu')
+      ->condition('contact_id', $this->contact_id, '=')
+      ->execute();
+    if ($result) {
+      $user_info = reset($result->fetchAllAssoc('user_uid'));
+    }
+    return $user_info;
+  }
+
 }
 
 
@@ -184,6 +263,7 @@ class RedhenContact extends Entity {
  *   options: array of options for seelct field types.
  */
 class RedhenContactMetadataController extends EntityDefaultMetadataController {
+
   public function entityPropertyInfo() {
     $info = parent::entityPropertyInfo();
     $properties = &$info[$this->type]['properties'];
@@ -236,5 +316,6 @@ class RedhenContactMetadataController extends EntityDefaultMetadataController {
 
     return $info;
   }
+
 }
 
