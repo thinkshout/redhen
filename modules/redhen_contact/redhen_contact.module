@@ -270,8 +270,16 @@ function redhen_contact_delete_multiple($contact_ids) {
  * @return
  *   The saved contact object.
  */
-function redhen_contact_save($contact) {
-  return entity_get_controller('redhen_contact')->save($contact);
+function redhen_contact_save(RedhenContact $contact) {
+  $contact = entity_get_controller('redhen_contact')->save($contact);
+
+  if (variable_get('redhen_contact_connect_users', FALSE)) {
+    if ($user = user_load_by_mail($contact->email) ) {
+      $contact->setUser($user);
+    }
+  }
+  
+  return $contact;
 }
 
 /**
@@ -280,7 +288,7 @@ function redhen_contact_save($contact) {
  * @param $contact
  *   The full contact object to save.
  */
-function redhen_contact_archive($contact) {
+function redhen_contact_archive(RedhenContact $contact) {
   // flip the state and save
   $contact->redhen_state = !$contact->redhen_state;
   redhen_contact_save($contact);
