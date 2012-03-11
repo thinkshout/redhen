@@ -19,22 +19,45 @@ function redhen_menu() {
     'weight' => -8,
     'page callback' => 'redhen_admin_menu_block_page',
     'menu_name' => 'navigation',
-    'access arguments' => array('access administration pages'),
+    'access arguments' => array('access redhen'),
     'file' => 'includes/redhen.admin.inc',
   );
-
   $items['admin/structure/redhen'] = array(
     'title' => 'RedHen CRM',
     'description' => 'Administer RedHen CRM items, such as contacts, organizations, memberships, etc.',
     'weight' => -8,
     'page callback' => 'redhen_admin_menu_block_page',
     'menu_name' => 'navigation',
-    'access arguments' => array('access administration pages'),
+    'access arguments' => array('administer redhen'),
     'file' => 'includes/redhen.admin.inc',
     'menu_name' => 'management',
   );
+  $items['admin/config/redhen'] = array(
+    'title' => 'Redhen CRM Settings',
+    'description' => 'Configure Redhen CRM.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('redhen_settings'),
+    'access arguments' => array('administer redhen'),
+    'file' => 'includes/redhen.admin.inc',
+  );
 
   return $items;
+}
+
+/**
+ * Implements hook_permission().
+ */
+function redhen_permission() {
+  return array(
+    'administer redhen' =>  array(
+      'title' => t('Administer Redhen'),
+      'description' => t('Perform administration tasks for my redhen.'),
+    ),
+    'access redhen' =>  array(
+      'title' => t('Access Redhen'),
+      'description' => t('Access Redhen CRM.'),
+    ),
+  );
 }
 
 /**

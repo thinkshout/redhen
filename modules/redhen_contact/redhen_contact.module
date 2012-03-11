@@ -526,3 +526,18 @@ function theme_redhen_contact_list($variables) {
 
   return render($render);
 }
+
+/**
+ * Implements hook_redhen_settings().
+ *
+ * @return array
+ */
+function redhen_contact_redhen_settings() {
+  return array(
+    'redhen_contact_connect_users' => array(
+      '#type' => 'checkbox',
+      '#title' => t('Connect users to Redhen contacts'),
+      '#description' => t('If checked, Redhen will attempt to connect Drupal users to Redhen contacts by matching email addresses when a contact is updated.'),
+      '#default_value' => variable_get('redhen_contact_connect_users', FALSE)
+  ));
+}
