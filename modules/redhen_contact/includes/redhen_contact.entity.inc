@@ -205,10 +205,10 @@ class RedhenContact extends Entity {
     $contact_user = $this->contactUser();
 
     // no user connection, create
-    if (empty($contact_user)) {
+    if (!$contact_user) {
       db_insert('redhen_contact_user')
         ->fields(array(
-          'contact_uid' => $this->contact_id,
+          'contact_id' => $this->contact_id,
           'user_uid' => $user->uid,
           'created' => REQUEST_TIME,
           'updated' => REQUEST_TIME
