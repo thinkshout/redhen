@@ -258,7 +258,14 @@ function redhen_contact_load_multiple($contact_ids = array(), $conditions = arra
  *   TRUE on success, FALSE otherwise.
  */
 function redhen_contact_delete_multiple($contact_ids) {
-  return entity_get_controller('redhen_contact')->delete($contact_ids);
+  $ret = entity_get_controller('redhen_contact')->delete($contact_ids);
+
+  // delete user connections
+  db_delete('redhen_contact_user')
+    ->condition('contact_id', $contact_ids, 'IN')
+    ->execute();
+
+  return $ret;
 }
 
 /**
@@ -278,7 +285,7 @@ function redhen_contact_save(RedhenContact $contact) {
       $contact->setUser($user);
     }
   }
-  
+
   return $contact;
 }
 

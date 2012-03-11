@@ -46,7 +46,6 @@ function redhen_contact_contact_form($form, &$form_state, $contact) {
     '#weight' => 10,
   );
 
-
   // Add the field related form elements.
   $form_state['redhen_contact'] = $contact;
   field_attach_form('redhen_contact', $contact, $form, $form_state);
@@ -153,6 +152,7 @@ function redhen_contact_contact_delete_form_submit($form, &$form_state) {
   if (redhen_contact_delete_multiple(array($contact->contact_id))) {
     drupal_set_message(t('%title has been deleted.', array('%title' => $contact->name)));
     watchdog('redhen_contact', 'Deleted contact %title.', array('%title' => $contact->name), WATCHDOG_NOTICE);
+    $form_state['redirect'] = 'redhen/contact';
   }
   else {
     drupal_set_message(t('%title could not be deleted.', array('%title' => $contact->name)), 'error');
