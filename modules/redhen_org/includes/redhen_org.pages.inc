@@ -14,10 +14,9 @@ function redhen_org_page() {
 
   // setup the header for both the query and table
   $header = array(
-    'label' => array('field' => 'label', 'type' => 'property', 'data' => 'Name', 'sort' => 'asc', 'specifier' => 'label'),
     'type' => array('field' => 'type', 'type' => 'property', 'data' => 'Type', 'sort' => 'asc', 'specifier' => 'type'),
+    'label' => array('field' => 'label', 'type' => 'property', 'data' => 'Name', 'sort' => 'asc', 'specifier' => 'label'),
     'updated' => array('field' => 'updated', 'type' => 'property', 'data' => 'Updated', 'sort' => 'desc', 'specifier' => 'updated'),
-    'state' => array('field' => 'state', 'type' => 'property', 'data' => 'State', 'sort' => 'desc', 'specifier' => 'redhen_state'),
     'Actions',
   );
 
