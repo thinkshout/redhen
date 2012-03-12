@@ -187,7 +187,7 @@ function redhen_membership_membership_form_submit($form, &$form_state) {
   // Save the membership.
   $membership->save();
 
-  drupal_set_message(t('Membership saved.'));
+  drupal_set_message(t('Membership %label saved.', array('%label' => $membership->label())));
   $form_state['redirect'] = $entity_uri['path'] . '/memberships';
 }
 
@@ -208,10 +208,8 @@ function redhen_membership_membership_delete_form($form, &$form_state, $membersh
 
   $form['#submit'][] = 'redhen_membership_membership_delete_form_submit';
 
-  $title = $membership->label;
-
   $form = confirm_form($form,
-    t('Are you sure you want to delete %title?', array('%title' => $title)),
+    t('Are you sure you want to delete %label?', array('%label' => $membership->label())),
     '',
     '<p>' . t('Deleting this membership cannot be undone.') . '</p>',
     t('Delete'),
@@ -228,12 +226,10 @@ function redhen_membership_membership_delete_form($form, &$form_state, $membersh
 function redhen_membership_membership_delete_form_submit($form, &$form_state) {
   $membership = $form_state['membership'];
 
-  $title = $membership->label;
-
    // No return status from delete() unfortunately
   $membership->delete();
-  drupal_set_message(t('%title has been deleted.', array('%title' => $title)));
-  watchdog('redhen_membership', 'Deleted membership %title.', array('%title' => $title), WATCHDOG_NOTICE);
+  drupal_set_message(t('%label has been deleted.', array('%label' => $membership->label())));
+  watchdog('redhen_membership', 'Deleted membership %label.', array('%label' => $membership->label()), WATCHDOG_NOTICE);
 
   drupal_goto();
 

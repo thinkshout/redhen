@@ -99,16 +99,13 @@ function redhen_org_org_form_submit($form, &$form_state) {
   $org->label = $form_state['values']['label'];
   $org->redhen_state = $form_state['values']['redhen_state'];
 
-  // @TODO Add a log field to existing entries
-  $org->log = '';
-
   // Notify field widgets.
   field_attach_submit('redhen_org', $org, $form, $form_state);
 
   // Save the organization.
   $org->save();
 
-  drupal_set_message(t('Organization saved.'));
+  drupal_set_message(t('Organization %label saved.', array('%label' => $org->label)));
   $form_state['redirect'] = 'redhen/org/' . $org->org_id;
 }
 
@@ -128,10 +125,8 @@ function redhen_org_org_delete_form($form, &$form_state, $org) {
 
   $form['#submit'][] = 'redhen_org_org_delete_form_submit';
 
-  $title = $org->label;
-
   $form = confirm_form($form,
-    t('Are you sure you want to delete %title?', array('%title' => $title)),
+    t('Are you sure you want to delete %label?', array('%label' => $org->label)),
     '',
     '<p>' . t('Deleting this organization cannot be undone.') . '</p>',
     t('Delete'),
@@ -148,12 +143,10 @@ function redhen_org_org_delete_form($form, &$form_state, $org) {
 function redhen_org_org_delete_form_submit($form, &$form_state) {
   $org = $form_state['redhen_org'];
 
-  $title = $org->label;
-
   // No status returned from delete(), assume it worked
   $org->delete();
-  drupal_set_message(t('%title has been deleted.', array('%title' => $title)));
-  watchdog('redhen_org', 'Deleted organization %title.', array('%title' => $title), WATCHDOG_NOTICE);
+  drupal_set_message(t('%label has been deleted.', array('%label' => $org->label)));
+  watchdog('redhen_org', 'Deleted organization %label.', array('%label' => $org->label), WATCHDOG_NOTICE);
 
 }
 

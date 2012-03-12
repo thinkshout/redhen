@@ -14,10 +14,9 @@ function redhen_org_page() {
 
   // setup the header for both the query and table
   $header = array(
-    'label' => array('field' => 'label', 'type' => 'property', 'data' => 'Name', 'sort' => 'asc', 'specifier' => 'label'),
     'type' => array('field' => 'type', 'type' => 'property', 'data' => 'Type', 'sort' => 'asc', 'specifier' => 'type'),
+    'label' => array('field' => 'label', 'type' => 'property', 'data' => 'Name', 'sort' => 'asc', 'specifier' => 'label'),
     'updated' => array('field' => 'updated', 'type' => 'property', 'data' => 'Updated', 'sort' => 'desc', 'specifier' => 'updated'),
-    'state' => array('field' => 'state', 'type' => 'property', 'data' => 'State', 'sort' => 'desc', 'specifier' => 'redhen_state'),
     'Actions',
   );
 
@@ -30,11 +29,7 @@ function redhen_org_page() {
     $result = redhen_filter_query('redhen_org', $header, $bundle, $properties, $fields);
   }
 
-  $render = array(
-    'form' => drupal_get_form('redhen_filter_form', 'redhen_org'),
-    );
-
-  $rows = array();
+  $orgs = array();
   if ($result) {
     $orgs = redhen_org_load_multiple(array_keys($result['redhen_org']));
   }
