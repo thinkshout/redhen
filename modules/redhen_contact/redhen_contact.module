@@ -431,14 +431,6 @@ function redhen_contact_field_extra_fields() {
         ),
       ),
     );
-
-    if (module_exists('redhen_engagement')) {
-      $extra['redhen_contact'][$type]['display']['engagement_score'] = array(
-        'label' => t('Engagement Score'),
-        'description' => t('This contacts engagement score.'),
-        'weight' => 0,
-      );
-    }
   }
 
   return $extra;

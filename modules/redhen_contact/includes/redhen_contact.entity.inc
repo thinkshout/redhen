@@ -37,10 +37,6 @@ class RedhenContact extends Entity {
     $this->name = $this->name();
     $this->email = $this->defaultEmail();
     $this->user = $this->user();
-
-    if (module_exists('redhen_engagement')) {
-      $this->engagement_score = redhen_engagement_contact_score($this);
-    }
   }
 
   /**
@@ -82,7 +78,7 @@ class RedhenContact extends Entity {
       );
     }
 
-    if (module_exists('redhen_engagement')) {
+    if ($this->engagement_score) {
       $content['redhen_engagement'] = array(
         '#theme' => 'redhen_property_field',
         '#label' => t('Engagement Score'),
