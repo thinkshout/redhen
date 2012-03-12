@@ -14,12 +14,11 @@ function redhen_membership_page($entity = NULL, $entity_type = NULL) {
 
   // setup the header for both the query and table
   $header = array(
-    'Name',
     'type' => array('field' => 'type', 'type' => 'property', 'data' => 'Type', 'sort' => 'asc', 'specifier' => 'type'),
+    'Name',
     'start_date' => array('field' => 'start_date', 'type' => 'property', 'data' => 'Start Date', 'sort' => 'asc', 'specifier' => 'start_state'),
     'expire_date' => array('field' => 'expire_date', 'type' => 'property', 'data' => 'Expiration Date', 'sort' => 'asc', 'specifier' => 'expire_date'),
     'note' => array('field' => 'note', 'type' => 'property', 'data' => 'Note', 'sort' => 'asc', 'specifier' => 'note'),
-    'state' => array('field' => 'state', 'type' => 'property', 'data' => 'State', 'sort' => 'desc', 'specifier' => 'redhen_state'),
     'Actions',
   );
 
