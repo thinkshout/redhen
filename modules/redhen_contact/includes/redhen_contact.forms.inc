@@ -46,6 +46,43 @@ function redhen_contact_contact_form($form, &$form_state, $contact) {
     '#weight' => 10,
   );
 
+  if ($contact->user) {
+    $user_uri = entity_uri('user', $contact->user);
+    $form['user'] = array(
+      '#type' => 'fieldset',
+      '#description' => t('The Drupal user associated with this contact.'),
+      array(
+        'name' => array(
+          '#type' => 'item',
+          '#markup' => l($contact->user->name, $user_uri['path'])
+        )
+      ),
+      array(
+        'user_actions' => array(
+          '#type' => 'actions',
+          array(
+            'unlink' => array(
+              '#type' => 'button',
+              '#value' => t('Unlink'),
+              '#ajax' => array(
+                'callback' => 'redhen_contact_unlink_user_callback',
+                'wrapper' => 'edit-user'
+              )
+            ),
+            'delete' => array(
+              '#type' => 'button',
+              '#value' => t('Delete'),
+              '#ajax' => array(
+                'callback' => 'redhen_contact_unlink_user_callback',
+                'wrapper' => 'edit-user'
+              )
+            )
+          )
+        )
+      )
+    );
+  }
+
   // Add the field related form elements.
   $form_state['redhen_contact'] = $contact;
   field_attach_form('redhen_contact', $contact, $form, $form_state);
@@ -75,6 +112,29 @@ function redhen_contact_contact_form($form, &$form_state, $contact) {
   $form['#validate'][] = 'redhen_contact_contact_form_validate';
 
   return $form;
+}
+
+/**
+ * Ajax callback for clearing a user from a contact.
+ *
+ * @param $form
+ * @param $form_state
+ * @return mixed
+ */
+function redhen_contact_unlink_user_callback($form, &$form_state) {
+  $contact = &$form_state['redhen_contact'];
+  $delete = ($form_state['clicked_button']['#parents'][0] == 'delete');
+  redhen_contact_remove_contact_user($contact, $delete);
+  $form['user'] = array(
+    '#type' => 'fieldset',
+    array(
+      'message' => array(
+        '#type' => 'item',
+        '#markup' => t('The Drupal user has been removed from this contact')
+      )
+    )
+  );
+  return $form['user'];
 }
 
 /**
