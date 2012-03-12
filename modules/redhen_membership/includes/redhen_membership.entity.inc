@@ -86,6 +86,10 @@ class RedhenMembership extends Entity {
    */
   public function save() {
     $this->updated = REQUEST_TIME;
+
+    // Toggle user roles as needed
+    redhen_membership_toggle_roles($this);
+
     return parent::save();
   }
 

@@ -250,7 +250,10 @@ function redhen_membership_save(RedhenMembership $membership) {
 /**
  * Deletes a membership from the db.
  */
-function redhen_membership_delete(RedhenMembershipType $membership) {
+function redhen_membership_delete(RedhenMembership $membership) {
+  // Explicity set the state to archived
+  $membership->redhen_state = REDHEN_STATE_ARCHIVED;
+  redhen_membership_toggle_roles($membership);
   $membership->delete();
 }
 
@@ -260,7 +263,7 @@ function redhen_membership_delete(RedhenMembershipType $membership) {
  * @param $membership
  *   The full membership object to save.
  */
-function redhen_membership_archive($membership) {
+function redhen_membership_archive(RedhenMembership $membership) {
   // flip the state and save
   $membership->redhen_state = !$membership->redhen_state;
   redhen_membership_save($membership);
@@ -522,4 +525,58 @@ function theme_redhen_membership_list($variables) {
   }
 
   return render($render);
+}
+
+/**
+ * Returns an array of contact ids associated with a membership
+ *
+ * @param RedhenMembership $membership
+ *
+ * @return array
+ */
+function redhen_membership_contacts(RedhenMembership $membership) {
+  $contact_ids = array();
+  if ($membership->entity_type == 'redhen_contact') {
+    $contact_ids[] = $membership->entity_id;
+  }
+  if ($membership->entity_type == 'redhen_org') {
+    // Get all affiliated contact ids.
+    $relations = redhen_relation_relations($membership->entity, 'redhen_affiliation');
+    foreach ($relations as $relation => $related_entities) {
+      foreach ($related_entities as $id => $related_entity) {
+        $contact_ids[] = $related_entity->internalIdentifier();
+      }
+    }
+  }
+  $contact_ids = redhen_contact_load_multiple($contact_ids);
+
+  return $contact_ids;
+}
+
+/**
+ * Toggles roles on/off for users associated w/ contacts associated w/ a membership
+ *
+ * @param RedhenMembership $membership
+ * @param array $contacts
+ */
+function redhen_membership_toggle_roles(RedhenMembership $membership, $contacts = array()) {
+  $membership_type = redhen_membership_get_types($membership->type);
+  // If there is a role set for this membership type
+  if (!empty($membership_type->role_id)) {
+    // If not provided, get the contacts associated with this membership
+    if (empty($contacts)) {
+      $contacts = redhen_membership_contacts($membership);
+    }
+    foreach ($contacts as $contact) {
+      if (isset($contact->user)) {
+        if ($membership->redhen_state == REDHEN_STATE_ACTIVE) {
+          $contact->user->roles[] = $membership_type->role_id;
+        }
+        if ($membership->redhen_state == REDHEN_STATE_ARCHIVED) {
+          unset($contact->user->roles[$membership_type->role_id]);
+        }
+        user_save($contact->user);
+      }
+    }
+  }
 }
