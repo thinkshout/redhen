@@ -278,7 +278,7 @@ function redhen_contact_schema() {
       ),
     ),
     'indexes' => array(
-      'redhen_contact_user' => array('contact_id', 'user_uid'),
+      'redhen_contact_user_status' => array('contact_id', 'user_uid', 'redhen_state'),
     ),
     'foreign keys' => array(
       'redhen_contact_user_contact' => array(
@@ -290,7 +290,7 @@ function redhen_contact_schema() {
         'columns' => array('user_uid' => 'uid'),
       ),
     ),
-    'primary key' => array('contact_id'),
+    'primary key' => array('contact_id', 'user_uid'),
   );
 
   return $schema;
