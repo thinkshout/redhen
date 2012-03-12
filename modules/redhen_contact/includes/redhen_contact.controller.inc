@@ -98,4 +98,24 @@ class RedhenContactEntityController extends EntityAPIController {
     return TRUE;
   }
 
+  /**
+   * Override buildQuery to add a join for the active Drupal user.
+   *
+   * @param $ids
+   * @param array $conditions
+   * @param bool $revision_id
+   * @return SelectQuery
+   */
+  protected function buildQuery($ids, $conditions = array(), $revision_id = FALSE) {
+    $query = parent::buildQuery($ids, $conditions = array(), $revision_id = FALSE);
+
+    $query->leftJoin('redhen_contact_user', 'rcu',
+      'rcu.contact_id = %alias.contact_id AND rcu.redhen_state = :state',
+      array(':state' => REDHEN_STATE_ACTIVE)
+    );
+    $query->fields('rcu', array('user_uid'));
+
+    return $query;
+  }
+
 }
