@@ -15,6 +15,7 @@ class RedhenContact extends Entity {
     $name,
     $email,
     $contact_id = NULL,
+    $user_uid = NULL,
     $user,
     $author_uid = NULL,
     $redhen_state = REDHEN_STATE_ACTIVE,
@@ -188,9 +189,8 @@ class RedhenContact extends Entity {
    */
   public function user() {
     $user = NULL;
-    $contact_user = $this->contactUser();
-    if (!empty($contact_user) && $contact_user->redhen_state == REDHEN_STATE_ACTIVE) {
-      $user = user_load($contact_user->user_uid);
+    if ($this->user_uid) {
+      $user = user_load($this->user_uid);
     }
     return $user;
   }
@@ -233,8 +233,6 @@ class RedhenContact extends Entity {
 
   /**
    * Private helper to return relationship between a contact and user.
-   * @TODO: Concerned about performance with this. Should we cache or do a
-   *   proper join when loading the entity
    *
    * @return array
    */
