@@ -105,11 +105,13 @@ class RedhenMembership extends Entity {
   }
 
   /**
-   * Override label() to add note label.
+   * Override label() to add membership label.
    */
   public function label() {
     $type = redhen_membership_get_types($this->type);
-    return "{$type->label} membership for {$this->entity->label()}";
+    // $this->entity may not be populated yet
+    $entity = reset(entity_load($this->entity_type, array($this->entity_id)));
+    return "{$type->label} membership for {$entity->label()}";
   }
 
   /**
