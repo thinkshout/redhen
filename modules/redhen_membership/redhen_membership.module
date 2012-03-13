@@ -575,7 +575,7 @@ function redhen_membership_contact_memberships(RedhenContact $contact) {
   }
 
   // Get memberships through org affiliations
-  $org_membership_keys;
+  $org_membership_keys = array();
   $org_ids = array();
   // Get all affiliated org ids.
   $relations = redhen_relation_relations($contact, 'redhen_affiliation');
@@ -592,7 +592,7 @@ function redhen_membership_contact_memberships(RedhenContact $contact) {
     ->propertyCondition('entity_type', 'redhen_org')
     ->propertyCondition('entity_id', $org_ids);
 
-  $org_membership_result = $query->execute();
+  $org_membership_result = $org_membership_query->execute();
   if ($org_membership_result) {
     $org_membership_keys = array_keys($org_membership_result);
   }
@@ -641,7 +641,7 @@ function redhen_membership_toggle_roles(RedhenMembership $membership, $contacts 
  * @see hook_entity_update()
  */
 function redhen_membership_redhen_contact_update(RedhenContact $contact) {
-  if ($contact->user) {
+  if ($contact->user_uid) {
     // Get all the memberships associated with this user
     $memberships = redhen_membership_contact_memberships($contact);
     foreach ($memberships as $membership) {
