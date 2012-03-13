@@ -195,16 +195,21 @@ function redhen_engagement_get_scores($name = NULL) {
  *
  * @return RedhenEngagement
  */
-function redhen_engagement_create($engagement_score_name, $contact_id, $description, $entity_type = NULL, $entity_id = NULL) {
+function redhen_engagement_create($engagement_score_name, $contact_id,
+                                  $description, $entity_type = NULL,
+                                  $entity_id = NULL, $author_uid = NULL) {
   $engagement_score = redhen_engagement_get_scores($engagement_score_name);
-  global $user;
+  if (!$author_uid) {
+    global $user;
+    $author_uid = $user->uid;
+  }
   return new RedhenEngagement(array(
     'engagement_score_id' => $engagement_score->internalIdentifier(),
     'contact_id' => $contact_id,
     'description' => $description,
     'entity_type' => $entity_type,
     'entity_id' => $entity_id,
-    'author_uid' => $user->uid
+    'author_uid' => $author_uid
   ));
 }
 
