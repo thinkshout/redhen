@@ -11,5 +11,4 @@ files[] = includes/redhen_org_type.pages.inc
 
 ; Classes
 files[] = includes/redhen_org.entity.inc
-files[] = includes/redhen_org.controller.inc
 files[] = includes/redhen_org_type.entity.inc
