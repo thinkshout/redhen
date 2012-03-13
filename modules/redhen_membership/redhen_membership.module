@@ -534,7 +534,7 @@ function theme_redhen_membership_list($variables) {
  *
  * @return array
  */
-function redhen_membership_contacts(RedhenMembership $membership) {
+function redhen_membership_membership_contacts(RedhenMembership $membership) {
   $contact_ids = array();
   if ($membership->entity_type == 'redhen_contact') {
     $contact_ids[] = $membership->entity_id;
@@ -548,9 +548,58 @@ function redhen_membership_contacts(RedhenMembership $membership) {
       }
     }
   }
-  $contact_ids = redhen_contact_load_multiple($contact_ids);
+  $contacts = redhen_contact_load_multiple($contact_ids);
 
-  return $contact_ids;
+  return $contacts;
+}
+
+/**
+ * Returns an array of memberships associated with a contact
+ *
+ * @param RedhenContact $contact
+ *
+ * @return array
+ */
+function redhen_membership_contact_memberships(RedhenContact $contact) {
+
+  $contact_membership_keys = array();
+  $query = new EntityFieldQuery();
+  // build the query
+  $query
+    ->entityCondition('entity_type', 'redhen_membership', '=')
+    ->propertyCondition('entity_type', 'redhen_contact')
+    ->propertyCondition('entity_id', $contact->internalIdentifier());
+  $result = $query->execute();
+  if ($result) {
+    $contact_membership_keys = array_keys($result);
+  }
+
+  // Get memberships through org affiliations
+  $org_membership_keys;
+  $org_ids = array();
+  // Get all affiliated org ids.
+  $relations = redhen_relation_relations($contact, 'redhen_affiliation');
+  foreach ($relations as $relation => $related_entities) {
+    foreach ($related_entities as $id => $related_entity) {
+      $org_ids[] = $related_entity->internalIdentifier();
+    }
+  }
+  $org_membership_query = new EntityFieldQuery();
+
+  // build the query
+  $org_membership_query
+    ->entityCondition('entity_type', 'redhen_membership', '=')
+    ->propertyCondition('entity_type', 'redhen_org')
+    ->propertyCondition('entity_id', $org_ids);
+
+  $org_membership_result = $query->execute();
+  if ($org_membership_result) {
+    $org_membership_keys = array_keys($org_membership_result);
+  }
+
+  $membership_ids = array_merge($contact_membership_keys, $org_membership_keys);
+
+  return redhen_membership_load_multiple($membership_ids);
 }
 
 /**
@@ -565,7 +614,7 @@ function redhen_membership_toggle_roles(RedhenMembership $membership, $contacts 
   if (!empty($membership_type->role_id)) {
     // If not provided, get the contacts associated with this membership
     if (empty($contacts)) {
-      $contacts = redhen_membership_contacts($membership);
+      $contacts = redhen_membership_membership_contacts($membership);
     }
     foreach ($contacts as $contact) {
       if (isset($contact->user)) {
@@ -580,3 +629,24 @@ function redhen_membership_toggle_roles(RedhenMembership $membership, $contacts 
     }
   }
 }
+
+/**
+ * Responds to a redhen_contact being updated.
+ *
+ * If there is a user associated with a contact, see if we need to set their role based on the contact's membership(s)
+ *
+ * @param RedhenContact $contact
+ *   The redhen_contact that is being updated.
+ *
+ * @see hook_entity_update()
+ */
+function redhen_membership_redhen_contact_update(RedhenContact $contact) {
+  if ($contact->user) {
+    // Get all the memberships associated with this user
+    $memberships = redhen_membership_contact_memberships($contact);
+    foreach ($memberships as $membership) {
+      redhen_membership_toggle_roles($membership, array($contact));
+    }
+  }
+}
+
