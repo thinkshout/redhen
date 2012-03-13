@@ -20,6 +20,12 @@ function redhen_registration_menu() {
   return $items;
 }
 
+/**
+ * Return a list of registrations for a given contact.
+ * 
+ * @param RedhenContact $contact
+ * @return array
+ */
 function redhen_registration_page(RedhenContact $contact) {
   $query = new EntityFieldQuery();
   $result = $query
@@ -44,11 +50,9 @@ function redhen_registration_page(RedhenContact $contact) {
   }
 
   return array(
-    'contacts' => array(
-      '#theme' => 'redhen_registration_list',
-      '#registrations' => $registrations,
-      '#header' => $header
-    )
+    '#theme' => 'redhen_registration_list',
+    '#registrations' => $registrations,
+    '#header' => $header
   );
 }
 
