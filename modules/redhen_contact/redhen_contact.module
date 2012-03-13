@@ -303,13 +303,14 @@ function redhen_contact_remove_contact_user(RedhenContact $contact, $delete = FA
  *   The saved contact object.
  */
 function redhen_contact_save(RedhenContact $contact) {
-  $contact = entity_get_controller('redhen_contact')->save($contact);
 
   if (variable_get('redhen_contact_connect_users', FALSE)) {
     if ($user = user_load_by_mail($contact->email) ) {
-      $contact->setUser($user);
+      $contact->user_uid = $user->uid;
     }
   }
+
+  $contact = entity_get_controller('redhen_contact')->save($contact);
 
   return $contact;
 }

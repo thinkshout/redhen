@@ -191,59 +191,6 @@ class RedhenContact extends Entity {
     return $user;
   }
 
-  /**
-   * Set the active user for a contact.
-   *
-   * @param $user
-   * @return mixed
-   */
-  public function setUser($user) {
-    $contact_user = $this->contactUser();
-
-    // no user connection, create
-    if (!$contact_user) {
-      db_insert('redhen_contact_user')
-        ->fields(array(
-          'contact_id' => $this->contact_id,
-          'user_uid' => $user->uid,
-          'created' => REQUEST_TIME,
-          'updated' => REQUEST_TIME
-          ))
-        ->execute();
-    }
-    // same user, bail. doesn't matter if connection is active or inactive
-    else if ($contact_user->user_uid != $user->uid) {
-      // update with new user
-      db_update('redhen_contact_user')
-        ->fields(array(
-            'user_uid' => $user->uid,
-            'redhen_state' => REDHEN_STATE_ACTIVE,
-            'updated' => REQUEST_TIME
-          ))
-        ->condition('contact_id', $this->contact_id)
-        ->execute();
-    }
-
-    $this->user = $user;
-  }
-
-  /**
-   * Private helper to return relationship between a contact and user.
-   *
-   * @return array
-   */
-  private function contactUser() {
-    $user_info = array();
-    $result = db_select('redhen_contact_user', 'cu')
-      ->fields('cu')
-      ->condition('contact_id', $this->contact_id, '=')
-      ->execute();
-    if ($result) {
-      $user_info = reset($result->fetchAllAssoc('user_uid'));
-    }
-    return $user_info;
-  }
-
 }
 
 

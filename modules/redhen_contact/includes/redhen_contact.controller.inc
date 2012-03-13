@@ -46,6 +46,11 @@ class RedhenContactEntityController extends EntityAPIController {
         ->condition('contact_id', $contact->contact_id)
         ->execute();
 
+      // set the contact user
+      if ($contact->user_uid) {
+        $this->setUser($contact);
+      }
+
       return $contact;
     }
     catch (Exception $e) {
@@ -116,6 +121,46 @@ class RedhenContactEntityController extends EntityAPIController {
     $query->fields('rcu', array('user_uid'));
 
     return $query;
+  }
+
+  /**
+   * Set the active user for a contact.
+   *
+   * @param $contact
+   */
+  protected function setUser($contact) {
+    $contact_user = array();
+    $result = db_select('redhen_contact_user', 'cu')
+      ->fields('cu')
+      ->condition('contact_id', $contact->contact_id, '=')
+      ->execute();
+    if ($result) {
+      $contact_user = reset($result->fetchAllAssoc('user_uid'));
+    }
+
+    // no user connection, create
+    if (!$contact_user) {
+      db_insert('redhen_contact_user')
+        ->fields(array(
+          'contact_id' => $contact->contact_id,
+          'user_uid' => $contact->user_uid,
+          'created' => REQUEST_TIME,
+          'updated' => REQUEST_TIME
+          ))
+        ->execute();
+    }
+    // same user, bail. doesn't matter if connection is active or inactive
+    else if ($contact_user->user_uid != $contact->user_uid) {
+      // update with new user
+      db_update('redhen_contact_user')
+        ->fields(array(
+            'user_uid' => $contact->user_uid,
+            'redhen_state' => REDHEN_STATE_ACTIVE,
+            'updated' => REQUEST_TIME
+          ))
+        ->condition('contact_id', $contact->contact_id)
+        ->execute();
+    }
   }
 
 }
