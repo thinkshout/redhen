@@ -52,7 +52,8 @@ function redhen_registration_page(RedhenContact $contact) {
   return array(
     '#theme' => 'redhen_registration_list',
     '#registrations' => $registrations,
-    '#header' => $header
+    '#header' => $header,
+    '#contact' => $contact
   );
 }
 
@@ -62,7 +63,11 @@ function redhen_registration_page(RedhenContact $contact) {
 function redhen_registration_theme() {
   return array(
     'redhen_registration_list' => array(
-      'variables' => array('registrations' => NULL, 'header' => NULL),
+      'variables' => array(
+        'registrations' => NULL,
+        'header' => NULL,
+        'contact' => NULL
+      ),
     )
   );
 }
@@ -113,7 +118,8 @@ function theme_redhen_registration_list($variables) {
     // no results, set a message
     $render['no-result'] = array(
       '#type' => 'markup',
-      '#markup' => t('There are no registratiosn for this contact.'),
+      '#markup' => t('There are no registrations for %name.',
+        array('%name' => $variables['contact']->name)),
     );
   }
 
