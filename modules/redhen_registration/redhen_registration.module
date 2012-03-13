@@ -1,0 +1,117 @@
+<?php
+
+/**
+ * Implements hook_menu().
+ *
+ */
+function redhen_registration_menu() {
+  $items = array();
+
+  // contact registrations
+  $items['redhen/contact/%redhen_contact/registrations'] = array(
+    'title' => 'Registrations',
+    'page callback' => 'redhen_registration_page',
+    'page arguments' => array(2, 'redhen_contact'),
+    'access callback' => 'redhen_contact_access',
+    'access arguments' => array('view', 2),
+    'type' => MENU_LOCAL_TASK,
+  );
+
+  return $items;
+}
+
+function redhen_registration_page(RedhenContact $contact) {
+  $query = new EntityFieldQuery();
+  $result = $query
+    ->entityCondition('entity_type', 'registration')
+    ->propertyCondition('mail', $contact->allEmail(), 'IN')
+    ->execute();
+
+  // setup the header for both the query and table
+  $header = array(
+    'type' => array('field' => 'type', 'type' => 'property', 'data' => 'Type', 'specifier' => 'type'),
+    'entity' => array('data' => 'Parent Entity'),
+    'author' => array('data' => 'Author'),
+    'email' => array('field' => 'mail', 'type' => 'property', 'data' => 'Email', 'specifier' => 'mail'),
+    'count' => array('field' => 'count', 'type' => 'property', 'data' => 'Count', 'specifier' => 'count'),
+    'updated' => array('field' => 'updated', 'type' => 'property', 'data' => 'Updated', 'sort' => 'desc', 'specifier' => 'updated'),
+    'Actions',
+  );
+
+  $registrations = array();
+  if ($result) {
+    $registrations = registration_load_multiple(array_keys($result['registration']));
+  }
+
+  return array(
+    'contacts' => array(
+      '#theme' => 'redhen_registration_list',
+      '#registrations' => $registrations,
+      '#header' => $header
+    )
+  );
+}
+
+/**
+ * Implements hook_theme().
+ */
+function redhen_registration_theme() {
+  return array(
+    'redhen_registration_list' => array(
+      'variables' => array('registrations' => NULL, 'header' => NULL),
+    )
+  );
+}
+
+/**
+ * Theme function for registration list.
+ *
+ * @param $variables
+ * @return string
+ */
+function theme_redhen_registration_list($variables) {
+  $registrations = $variables['registrations'];
+  $header = $variables['header'];
+  if (!empty($registrations)) {
+    $rows = array();
+    foreach($registrations as $registration) {
+      $uri = entity_uri('registration', $registration);
+      $actions = array(
+        l(t('view'), $uri['path'], array('query' => drupal_get_destination())),
+        l(t('edit'), $uri['path'] . '/edit', array('query' => drupal_get_destination())),
+        l(t('delete'), $uri['path'] . '/delete', array('query' => drupal_get_destination())),
+      );
+
+      $reg_type = registration_type_load($registration->type);
+      $entity_uri = entity_uri($registration->entity_type, $registration->entity);
+      $rows[] = array(
+        'data' => array(
+          $reg_type->label,
+          l(entity_label($registration->entity_type, $registration->entity), $entity_uri['path']),
+          $registration->author->name,
+          l($registration->mail, 'mailto:' . $registration->mail),
+          $registration->count,
+          format_date($registration->updated, 'short'),
+          implode(' | ', $actions))
+      );
+    }
+
+    $render['table'] = array(
+      '#theme' => 'table',
+      '#header' => $header,
+      '#rows' => $rows
+    );
+    $render['pager'] = array(
+      '#theme' => 'pager',
+    );
+  }
+  else {
+    // no results, set a message
+    $render['no-result'] = array(
+      '#type' => 'markup',
+      '#markup' => t('There are no registratiosn for this contact.'),
+    );
+  }
+
+  return render($render);
+}
