@@ -24,7 +24,6 @@ class RedhenContact extends Entity {
     $created = '',
     $changed = '';
 
-
   public function __construct(array $values = array()) {
     parent::__construct($values, 'redhen_contact');
 
@@ -140,6 +139,19 @@ class RedhenContact extends Entity {
       }
     }
     return '';
+  }
+
+  /**
+   * Return all emails and their properties in an array..
+   *
+   * @return array
+   */
+  public function allEmail() {
+    $emails = array();
+    if (!empty($this->{REDHEN_CONTACT_EMAIL_FIELD})) {
+      $emails = $this->{REDHEN_CONTACT_EMAIL_FIELD}[LANGUAGE_NONE];
+    }
+    return $emails;
   }
 
   /**
