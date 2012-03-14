@@ -479,6 +479,7 @@ function theme_redhen_membership_list($variables) {
     $rows = array();
     foreach($memberships as $membership) {
       $archive = $membership->redhen_state == REDHEN_STATE_ACTIVE ? t('archive') : t('restore');
+      $valid = $membership->valid == TRUE ? t('Yes') : t('No');
       $uri = entity_uri('redhen_membership', $membership);
       $actions = array(
         l(t('view'), $uri['path']),
@@ -495,11 +496,15 @@ function theme_redhen_membership_list($variables) {
         ($membership->start_date != '') ? date('m/d/Y', strtotime($membership->start_date)) : '',
         ($membership->expire_date != '') ? date('m/d/Y', strtotime($membership->expire_date)) : '',
         $membership->note,
+        $valid,
         implode(' | ', $actions)
         );
+      
       $row_classes = array();
       // Set a class for the row depending on if the membership is active or archived
       $row_classes[] = $membership->redhen_state == REDHEN_STATE_ACTIVE ? 'active' : 'archived';
+      // Set a class for the row depending on if the membership is valid or not
+      $row_classes[] = $membership->valid == TRUE ? 'valid' : 'invalid';
 
       $rows[] = array(
         'data' => $data,

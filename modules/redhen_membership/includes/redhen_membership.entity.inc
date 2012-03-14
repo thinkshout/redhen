@@ -16,6 +16,7 @@ class RedhenMembership extends Entity {
     $entity_id,
     $entity = NULL,
     $membership_id = NULL,
+    $valid = FALSE,
     $author_uid = NULL,
     $start_date = NULL,
     $expire_date = NULL,
@@ -35,7 +36,7 @@ class RedhenMembership extends Entity {
       $this->redhen_state = REDHEN_STATE_ACTIVE;
       $this->created = REQUEST_TIME;
     }
-
+    $this->valid = $this->isValid();
     $this->entity = $this->entity();
   }
 
@@ -43,32 +44,71 @@ class RedhenMembership extends Entity {
    * Override buildContent() to add contact properties.
    */
   public function buildContent($view_mode = 'full', $langcode = NULL) {
+    $entity_uri = entity_uri($this->entity->entityType(), $this->entity);
     $content['entity'] = array(
       '#theme' => 'redhen_property_field',
-      '#label' => t('Entity'),
+      '#label' => t('Applies to'),
       '#items' => array(
         array(
-          '#markup' => check_plain($this->entity->label())
+          '#markup' => l($this->entity->label(), $entity_uri['path'])
         ),
       ),
       '#classes' => 'field field-label-inline clearfix',
     );
-    $content['note'] = array(
-      '#theme' => 'redhen_property_field',
-      '#label' => t('Note'),
-      '#items' => array(
-        array(
-          '#markup' => check_plain($this->note)
+    if ($this->note != '') {
+      $content['note'] = array(
+        '#theme' => 'redhen_property_field',
+        '#label' => t('Note'),
+        '#items' => array(
+          array(
+            '#markup' => check_plain($this->note)
+          ),
         ),
-      ),
-      '#classes' => 'field field-label-inline clearfix',
-    );
+        '#classes' => 'field field-label-inline clearfix',
+      );
+    }
+
+    if ($this->start_date) {
+      $content['start_date'] = array(
+        '#theme' => 'redhen_property_field',
+        '#label' => t('Start Date'),
+        '#items' => array(
+          array(
+            '#markup' => date('m/d/Y', strtotime($this->start_date))
+          ),
+        ),
+        '#classes' => 'field field-label-inline clearfix',
+      );
+    }
+    if ($this->expire_date) {
+      $content['expire_date'] = array(
+        '#theme' => 'redhen_property_field',
+        '#label' => t('Expiration Date'),
+        '#items' => array(
+          array(
+            '#markup' => date('m/d/Y', strtotime($this->expire_date))
+          ),
+        ),
+        '#classes' => 'field field-label-inline clearfix',
+      );
+    }
+
     $content['redhen_state'] = array(
       '#theme' => 'redhen_property_field',
       '#label' => t('State'),
       '#items' => array(
         array(
           '#markup' => ($this->redhen_state == REDHEN_STATE_ACTIVE) ? t('Active') : t('Inactive')
+        ),
+      ),
+      '#classes' => 'field field-label-inline clearfix',
+    );
+    $content['valid'] = array(
+      '#theme' => 'redhen_property_field',
+      '#label' => t('Valid'),
+      '#items' => array(
+        array(
+          '#markup' => ($this->valid == TRUE) ? t('Valid') : t('Invalid')
         ),
       ),
       '#classes' => 'field field-label-inline clearfix',
@@ -132,6 +172,31 @@ class RedhenMembership extends Entity {
       $entity = reset(entity_load($this->entity_type, array($this->entity_id)));
     }
     return $entity;
+  }
+
+  /**
+   * Return if a membership is valid based on state and start/expire dates
+   *
+   * @return bool
+   */
+  protected function isValid() {
+    $valid = TRUE;
+    // Check state
+    if ($this->redhen_state == REDHEN_STATE_ACTIVE) {
+      $now = strtotime('now');
+      $start = strtotime($this->start_date);
+      $expire = strtotime($this->expire_date);
+
+      // either start is after now or expire is before now
+      if ( ( isset($start) && ($start > $now) ) ||
+          ( isset($expire) && ($expire < $now) ) ) {
+        $valid = FALSE;
+      }
+    } else {
+      $valid = FALSE;
+    }
+
+    return $valid;
   }
 
 }
