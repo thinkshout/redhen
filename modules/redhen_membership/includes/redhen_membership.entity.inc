@@ -157,7 +157,7 @@ class RedhenMembershipMetadataController extends EntityDefaultMetadataController
       'type' => 'date',
       'field_type' => 'textfield',
       'schema field' => 'start_date',
-      'filter' => TRUE,
+      'filter' => FALSE,
     );
     $properties['expire_date'] = array(
       'label' => t("Expiration Date"),
@@ -165,7 +165,7 @@ class RedhenMembershipMetadataController extends EntityDefaultMetadataController
       'type' => 'date',
       'field_type' => 'textfield',
       'schema field' => 'expire_date',
-      'filter' => TRUE,
+      'filter' => FALSE,
     );
     $properties['created'] = array(
       'label' => t("Created"),

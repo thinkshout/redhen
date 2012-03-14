@@ -51,7 +51,8 @@ function redhen_membership_membership_form($form, &$form_state, RedhenMembership
 
   $form['start_date'] = array(
     '#type' => 'textfield',
-    '#title' => 'Start Date',
+    '#title' => t('Start Date'),
+    '#description' => t('If set, the membership will be considered valid after this date.'),
     '#default_value' => isset($membership->start_date) ? date('m/d/Y', strtotime($membership->start_date)) : '',
     '#attributes' => array('class' => array("redhen-field-type-date")),
     '#weight' => -9,
@@ -59,7 +60,8 @@ function redhen_membership_membership_form($form, &$form_state, RedhenMembership
 
   $form['expire_date'] = array(
     '#type' => 'textfield',
-    '#title' => 'Expiration Date',
+    '#title' => t('Expiration Date'),
+    '#description' => t('If set, the membership will be considered valid before this date.'),
     '#default_value' => isset($membership->expire_date) ? date('m/d/Y', strtotime($membership->expire_date)) : '',
     '#attributes' => array('class' => array("redhen-field-type-date")),
     '#weight' => -8,
@@ -68,7 +70,7 @@ function redhen_membership_membership_form($form, &$form_state, RedhenMembership
   $form['redhen_state'] = array(
     '#type' => 'select',
     '#title' => t('State'),
-    '#description' => t('Membership state.'),
+    '#description' => t('Membership state. Archived memberships do not confer benefits to contacts/users. Start and expiration dates will not change this setting. '),
     '#options' => array(
       REDHEN_STATE_ACTIVE => t('Active'),
       REDHEN_STATE_ARCHIVED => t('Archived')
@@ -149,6 +151,14 @@ function redhen_membership_membership_type_callback($form, $form_state) {
  */
 function redhen_membership_membership_form_validate($form, &$form_state) {
   $membership = $form_state['membership'];
+
+  $start = strtotime($form_state['values']['start_date']);
+  $expire = strtotime($form_state['values']['expire_date']);
+
+  // check that expire date is after start date if both are set
+  if ( ($start != '') && ($expire != '') && ($start >= $expire) ) {
+    form_set_error('expire_date', 'Expiration date must be after the start date.');
+  }
 
   // Notify field widgets to validate their data.
   field_attach_form_validate('redhen_membership', $membership, $form, $form_state);
