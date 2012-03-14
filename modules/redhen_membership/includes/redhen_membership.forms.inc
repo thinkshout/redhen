@@ -195,7 +195,7 @@ function redhen_membership_membership_form_submit($form, &$form_state) {
   field_attach_submit('redhen_membership', $membership, $form, $form_state);
 
   // Save the membership.
-  $membership->save();
+  redhen_membership_save($membership);
 
   drupal_set_message(t('Membership %label saved.', array('%label' => $membership->label())));
   $form_state['redirect'] = $entity_uri['path'] . '/memberships';
@@ -236,8 +236,7 @@ function redhen_membership_membership_delete_form($form, &$form_state, $membersh
 function redhen_membership_membership_delete_form_submit($form, &$form_state) {
   $membership = $form_state['membership'];
 
-   // No return status from delete() unfortunately
-  $membership->delete();
+  redhen_membership_delete($membership);
   drupal_set_message(t('%label has been deleted.', array('%label' => $membership->label())));
   watchdog('redhen_membership', 'Deleted membership %label.', array('%label' => $membership->label()), WATCHDOG_NOTICE);
 

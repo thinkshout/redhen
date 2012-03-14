@@ -251,7 +251,7 @@ function redhen_membership_save(RedhenMembership $membership) {
  * Deletes a membership from the db.
  */
 function redhen_membership_delete(RedhenMembership $membership) {
-  entity_delete('redhen_membership', $membership->membership_id);
+  entity_get_controller('redhen_membership')->delete($membership);
 }
 
 /**

@@ -50,8 +50,8 @@ class RedhenMembershipEntityController extends EntityAPIController {
       // explicitly set the state to archived to trigger removal of roles
       $membership->redhen_state = REDHEN_STATE_ARCHIVED;
       redhen_membership_toggle_roles($membership);
-      
-      parent::delete($membership, $transaction);
+
+      parent::delete(array($membership->membership_id), $transaction);
     }
     catch (Exception $e) {
       $transaction->rollback();
