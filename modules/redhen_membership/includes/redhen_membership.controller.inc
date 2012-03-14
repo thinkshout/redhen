@@ -38,4 +38,26 @@ class RedhenMembershipEntityController extends EntityAPIController {
     }
   }
 
+  /**
+   * Deletes a membership.
+   *
+   * @param $membership
+   *   The full membership object to delete.
+   */
+  public function delete($membership) {
+    $transaction = db_transaction();
+    try {
+      parent::delete($membership, $transaction);
+
+      // Toggle user roles as needed after deleting the membership
+      redhen_membership_toggle_roles($membership);
+
+    }
+    catch (Exception $e) {
+      $transaction->rollback();
+      watchdog_exception('redhen_membership', $e);
+      throw $e;
+    }
+  }
+
 }
