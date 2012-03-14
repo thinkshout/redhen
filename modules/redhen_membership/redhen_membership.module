@@ -421,7 +421,7 @@ function redhen_membership_cron() {
   $memberships = redhen_membership_load_multiple(array_keys($activate_results));
 
   foreach ($memberships as $membership) {
-    $membership->setState(REDHEN_STATE_ACTIVE);
+    redhen_membership_toggle_roles($membership);
   }
 
   $expire_results = db_select('redhen_membership', 'me')
@@ -434,7 +434,7 @@ function redhen_membership_cron() {
   $memberships = redhen_membership_load_multiple(array_keys($expire_results));
 
   foreach ($memberships as $membership) {
-    $membership->setState(REDHEN_STATE_ARCHIVED);
+    redhen_membership_toggle_roles($membership);
   }
 
 }
@@ -499,7 +499,7 @@ function theme_redhen_membership_list($variables) {
         $valid,
         implode(' | ', $actions)
         );
-      
+
       $row_classes = array();
       // Set a class for the row depending on if the membership is active or archived
       $row_classes[] = $membership->redhen_state == REDHEN_STATE_ACTIVE ? 'active' : 'archived';
