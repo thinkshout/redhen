@@ -13,7 +13,7 @@ class RedhenMembershipEntityController extends EntityAPIController {
   /**
    * Saves a membership.
    *
-   * @param $membership
+   * @param RedhenMembership $membership
    *   The full membership object to save.
    *
    * @return
@@ -41,7 +41,7 @@ class RedhenMembershipEntityController extends EntityAPIController {
   /**
    * Deletes a membership.
    *
-   * @param $membership
+   * @param RedhenMembership $membership
    *   The full membership object to delete.
    */
   public function delete($membership) {

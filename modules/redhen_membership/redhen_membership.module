@@ -623,8 +623,12 @@ function redhen_membership_toggle_roles(RedhenMembership $membership, $contacts 
     foreach ($contacts as $contact) {
       if (isset($contact->user)) {
         if ($membership->valid()) {
-          $contact->user->roles[] = $membership_type->role_id;
+          // only set if the user doesn't already have this role
+          if (!isset($contact->user->roles[$membership_type->role_id])) {
+            $contact->user->roles[] = $membership_type->role_id;
+          }
         } else {
+          // @TODO don't unset if user still has a membership that allows this role
           unset($contact->user->roles[$membership_type->role_id]);
         }
         user_save($contact->user);
