@@ -14,7 +14,7 @@ function redhen_membership_entity_info() {
   return array(
     'redhen_membership' => array(
       'label' => t('Membership'),
-      'controller class' => 'EntityAPIController',
+      'controller class' => 'RedhenMembershipEntityController',
       'metadata controller class' => 'RedhenMembershipMetadataController',
       'entity class' => 'RedhenMembership',
       'base table' => 'redhen_membership',
@@ -576,7 +576,7 @@ function redhen_membership_contact_memberships(RedhenContact $contact) {
     ->propertyCondition('entity_id', $contact->internalIdentifier());
   $result = $query->execute();
   if ($result) {
-    $contact_membership_keys = array_keys($result);
+    $contact_membership_keys = array_keys($result['redhen_membership']);
   }
 
   // Get memberships through org affiliations
@@ -589,17 +589,19 @@ function redhen_membership_contact_memberships(RedhenContact $contact) {
       $org_ids[] = $related_entity->internalIdentifier();
     }
   }
-  $org_membership_query = new EntityFieldQuery();
+  if (count($org_ids) > 0) {
+    $org_membership_query = new EntityFieldQuery();
 
-  // build the query
-  $org_membership_query
-    ->entityCondition('entity_type', 'redhen_membership', '=')
-    ->propertyCondition('entity_type', 'redhen_org')
-    ->propertyCondition('entity_id', $org_ids);
+    // build the query
+    $org_membership_query
+      ->entityCondition('entity_type', 'redhen_membership', '=')
+      ->propertyCondition('entity_type', 'redhen_org')
+      ->propertyCondition('entity_id', $org_ids);
 
-  $org_membership_result = $org_membership_query->execute();
-  if ($org_membership_result) {
-    $org_membership_keys = array_keys($org_membership_result);
+    $org_membership_result = $org_membership_query->execute();
+    if ($org_membership_result) {
+      $org_membership_keys = array_keys($org_membership_result['redhen_membership']);
+    }
   }
 
   $membership_ids = array_merge($contact_membership_keys, $org_membership_keys);
@@ -623,10 +625,9 @@ function redhen_membership_toggle_roles(RedhenMembership $membership, $contacts 
     }
     foreach ($contacts as $contact) {
       if (isset($contact->user)) {
-        if ($membership->redhen_state == REDHEN_STATE_ACTIVE) {
+        if ($membership->valid()) {
           $contact->user->roles[] = $membership_type->role_id;
-        }
-        if ($membership->redhen_state == REDHEN_STATE_ARCHIVED) {
+        } else {
           unset($contact->user->roles[$membership_type->role_id]);
         }
         user_save($contact->user);

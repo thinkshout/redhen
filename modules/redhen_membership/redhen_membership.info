@@ -10,4 +10,5 @@ files[] = includes/redhen_membership_type.admin.inc
 
 ; Classes
 files[] = includes/redhen_membership.entity.inc
+files[] = includes/redhen_membership.controller.inc
 files[] = includes/redhen_membership_type.entity.inc

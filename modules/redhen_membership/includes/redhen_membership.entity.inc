@@ -36,7 +36,7 @@ class RedhenMembership extends Entity {
       $this->redhen_state = REDHEN_STATE_ACTIVE;
       $this->created = REQUEST_TIME;
     }
-    $this->valid = $this->isValid();
+    $this->valid = $this->valid();
     $this->entity = $this->entity();
   }
 
@@ -119,23 +119,6 @@ class RedhenMembership extends Entity {
   }
 
   /**
-   * Permanently saves the entity.
-   *
-   * @return bool
-   *  Returns FALSE if entity was not saved.
-   */
-  public function save() {
-    $this->updated = REQUEST_TIME;
-
-    $return = parent::save();
-
-    // Toggle user roles as needed after saving the membership
-    redhen_membership_toggle_roles($this);
-
-    return $return;
-  }
-
-  /**
    * Set the redhen_state for a membership
    *
    * @param $state
@@ -157,6 +140,30 @@ class RedhenMembership extends Entity {
   }
 
   /**
+   * Return if a membership is valid based on state and start/expire dates
+   *
+   * @return bool
+   */
+  public function valid() {
+    $valid = TRUE;
+    // Check state
+    if ($this->redhen_state == REDHEN_STATE_ACTIVE) {
+      $now = strtotime('now');
+      $start = strtotime($this->start_date);
+      $expire = strtotime($this->expire_date);
+      // either start is after now or expire is before now
+      if ( ( ($start != '') && ($start > $now) ) ||
+        ( ($expire != '') && ($expire < $now) ) ) {
+        $valid = FALSE;
+      }
+    } else {
+      $valid = FALSE;
+    }
+
+    return $valid;
+  }
+
+  /**
    * Specifify URI
    */
   protected function defaultUri() {
@@ -174,30 +181,6 @@ class RedhenMembership extends Entity {
       $entity = reset(entity_load($this->entity_type, array($this->entity_id)));
     }
     return $entity;
-  }
-
-  /**
-   * Return if a membership is valid based on state and start/expire dates
-   *
-   * @return bool
-   */
-  protected function isValid() {
-    $valid = TRUE;
-    // Check state
-    if ($this->redhen_state == REDHEN_STATE_ACTIVE) {
-      $now = strtotime('now');
-      $start = strtotime($this->start_date);
-      $expire = strtotime($this->expire_date);
-      // either start is after now or expire is before now
-      if ( ( ($start != '') && ($start > $now) ) ||
-          ( ($expire != '') && ($expire < $now) ) ) {
-        $valid = FALSE;
-      }
-    } else {
-      $valid = FALSE;
-    }
-
-    return $valid;
   }
 
 }
