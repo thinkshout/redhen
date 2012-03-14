@@ -127,10 +127,12 @@ class RedhenMembership extends Entity {
   public function save() {
     $this->updated = REQUEST_TIME;
 
-    // Toggle user roles as needed
+    $return = parent::save();
+
+    // Toggle user roles as needed after saving the membership
     redhen_membership_toggle_roles($this);
 
-    return parent::save();
+    return $return;
   }
 
   /**
@@ -186,10 +188,9 @@ class RedhenMembership extends Entity {
       $now = strtotime('now');
       $start = strtotime($this->start_date);
       $expire = strtotime($this->expire_date);
-
       // either start is after now or expire is before now
-      if ( ( isset($start) && ($start > $now) ) ||
-          ( isset($expire) && ($expire < $now) ) ) {
+      if ( ( ($start != '') && ($start > $now) ) ||
+          ( ($expire != '') && ($expire < $now) ) ) {
         $valid = FALSE;
       }
     } else {
