@@ -143,11 +143,16 @@ function redhen_note_access($op, $note = NULL, $account = NULL) {
   global $user;
   $account = isset($account) ? $account : $user;
 
-  if (user_access('administer notes', $account)) {
+  if (user_access('administer redhen notes', $account)) {
     return TRUE;
   }
 
-  if ($op == 'view' && user_access('access notes', $account)) {
+  if ($op == 'view' && user_access('access redhen notes', $account)) {
+    return TRUE;
+  }
+
+  if (($op == 'update' || $op == 'create' || $op == 'delete')
+    && user_access('manage redhen notes', $account)) {
     return TRUE;
   }
 
@@ -163,10 +168,16 @@ function redhen_note_permission() {
       'title' => t('Administer Redhen Notes'),
       'description' => t('Perform administration tasks for Redhen Notes.'),
     ),
+    'manage redhen notes' =>  array(
+      'title' => t('Manage Redhen Notes'),
+      'description' => t('View for Redhen Notes.'),
+    ),
+    'access redhen notes' =>  array(
+        'title' => t('Access Redhen Notes'),
+        'description' => t('Create, update or delete Redhen Notes.'),
+      ),
   );
 }
-
-
 
 /**
  * Loads a note by ID.
@@ -231,7 +242,10 @@ function redhen_note_title(RedhenNote $note) {
  */
 function redhen_note_form_alter(&$form, &$form_state, $form_id) {
 
-  if ($form_id == 'redhen_filter_form') {
+  if ($form_id == 'redhen_filter_form' && arg(3) == 'notes') {
+    $form['filter_fieldset']['filters']['properties']['created']['from']['#title'] = t('Recorded on or after');
+    $form['filter_fieldset']['filters']['properties']['created']['to']['#title'] = t('Recorded on or before');
+
     if(isset($form['filter_fieldset']['filters']['fields']['redhen_note_type'])) {
 
       $note_type_tax = taxonomy_vocabulary_machine_name_load('note_type');

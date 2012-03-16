@@ -70,7 +70,7 @@ function redhen_relation_connections_page($entity) {
         $object_uri = entity_uri($related_entity->entityType(), $related_entity);
         $author = user_load($relation->uid);
         $active = $relation->{REDHEN_RELATION_STATUS_FIELD}[LANGUAGE_NONE][0]['value'];
-
+        $related_entity_info = entity_get_info($related_entity->entityType());
         $operations = array(
           l('edit', $relation_uri['path'] . '/edit', array('query' => drupal_get_destination())),
           l('delete', $relation_uri['path'] . '/delete', array('query' => drupal_get_destination())),
@@ -78,9 +78,9 @@ function redhen_relation_connections_page($entity) {
 
         $data = array(
           l($relation_type->label, $relation_uri['path']),
+          $related_entity_info['label'],
           l($object_label, $object_uri['path']),
           ($active) ? t('Active') : t('Inactive'),
-          $related_entity->entityType(),
           date('m/d/Y', $relation->created),
           $author->name,
           implode(' | ', $operations)
@@ -101,7 +101,7 @@ function redhen_relation_connections_page($entity) {
       }
     }
 
-    $header = array(t('Connection'), t('Name'), t('Status'), t('Type'),
+    $header = array(t('Connection'), t('Type'), t('Name'), t('Status'),
       t('Created'), t('Author'), t('Actions'));
 
     if ($entity->entityType() == 'redhen_org') {
