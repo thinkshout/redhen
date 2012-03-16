@@ -196,6 +196,21 @@ function redhen_fields_field_validate($entity_type, $entity, $field, $instance, 
   switch ($field['type']) {
     case 'redhen_email':
       $default = FALSE;
+
+      // check for duplicates for same contact record
+      foreach ($items as $delta => $item) {
+        if (!empty($item['value'])) {
+          $emails[] = $item['value'];
+        }
+      }
+      if(count(array_unique($emails)) < count($emails)) {
+        $errors[$field['field_name']][$langcode][count($items)-2][] = array(
+          'error' => 'redhen_fields_invalid_email',
+          'message' => t('%name: Is already in use by this contact.', array('%name' => t($instance['label']))),
+          'delta' => count($items)-2,
+        );
+      }
+
       foreach ($items as $delta => $item) {
         if (!empty($item['value'])) {
           if (filter_var($item['value'], FILTER_VALIDATE_EMAIL) === FALSE) {
@@ -241,11 +256,11 @@ function redhen_fields_field_validate($entity_type, $entity, $field, $instance, 
  */
 function _redhen_fields_email_in_use($field, $entity_type, $entity, $value) {
   if ($value) {
-    $entity_info = entity_get_info($entity_type);
+    list($entity_id,,) = entity_extract_ids($entity_type, $entity);
     $query = new EntityFieldQuery();
     $found = $query
       ->entityCondition('entity_type', $entity_type, '=')
-      ->entityCondition('entity_id', $entity->{$entity_info['entity keys']['id']}, '!=')
+      ->entityCondition('entity_id', $entity_id, '!=')
       ->fieldCondition($field['field_name'], 'value', $value)
       ->range(0, 1)
       ->execute();
