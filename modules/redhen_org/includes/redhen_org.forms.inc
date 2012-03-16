@@ -22,10 +22,9 @@ function redhen_org_org_form($form, &$form_state, $org) {
   $form_state['build_info']['files']['form'] = drupal_get_path('module', 'redhen_org') . '/includes/redhen_org.forms.inc';
 
   // Add the default field elements.
-  $form['name'] = array();
-  $form['name']['label'] = array(
+  $form['name'] = array(
     '#type' => 'textfield',
-    '#title' => t('Label'),
+    '#title' => t('Name'),
     '#default_value' => $org->label,
     '#maxlength' => 255,
     '#required' => TRUE,
@@ -40,7 +39,7 @@ function redhen_org_org_form($form, &$form_state, $org) {
       REDHEN_STATE_ARCHIVED => t('Archived')
     ),
     '#default_value' => $org->redhen_state,
-    '#weight' => 10,
+    '#weight' => 5,
   );
 
 
