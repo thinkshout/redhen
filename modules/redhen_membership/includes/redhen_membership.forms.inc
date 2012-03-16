@@ -18,7 +18,7 @@ function redhen_membership_membership_form($form, &$form_state, RedhenMembership
 
   // add jquery libs and
   drupal_add_library('system', 'ui.datepicker');
-  drupal_add_js(drupal_get_path('module', 'redhen') . '/js/redhen.forms.js');
+  drupal_add_js(drupal_get_path('module', 'redhen') . '/misc/redhen.forms.js');
 
   // Ensure this include file is loaded when the form is rebuilt from the cache.
   $form_state['build_info']['files']['form'] = drupal_get_path('module', 'redhen_membership') . '/includes/redhen_membership.forms.inc';
