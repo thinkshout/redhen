@@ -91,13 +91,12 @@ function redhen_filter_form($form, $form_state, $entity_type) {
       $bundle = array_keys($entity_info['bundles']);
       $bundle = $bundle[0];
       $fields = field_info_instances($entity_type, $bundle);
-
       if (!empty($fields)) {
 
 
         $form['filter_fieldset']['filters']['fields'] = array(
           '#type' => 'fieldset',
-          '#title' => t('Additional Fields for @bundle', array('@bundle' => $bundle)),
+          '#title' => t('Filter by @entity_type type specific fields', array('@entity_type' => drupal_strtolower($entity_info['label']))),
           '#collapsible' => FALSE,
           '#id' => 'redhen_filter_fields_container'
         );
@@ -116,7 +115,7 @@ function redhen_filter_form($form, $form_state, $entity_type) {
     else {
       $form['filter_fieldset']['filters']['bundle'] = array(
         '#type' => 'select',
-        '#title' => t('@type bundles', array('@type' => $entity_info['label'])),
+        '#title' => t('@type types', array('@type' => $entity_info['label'])),
         '#options' => $type_options,
         '#default_value' => isset($_GET['bundle']) ? $_GET['bundle'] : NULL,
         '#ajax' => array(
@@ -126,7 +125,7 @@ function redhen_filter_form($form, $form_state, $entity_type) {
           'effect' => 'fade',
           'progress' => array(
             'type' => 'throbber',
-            'message' => t('Retrieving fields for this bundle.')
+            'message' => t('Retrieving fields for this @entity_type type.', array('@entity_type' => drupal_strtolower($entity_info['label'])))
           )
         )
       );
@@ -155,6 +154,7 @@ function redhen_filter_form($form, $form_state, $entity_type) {
 
   // add the fields on an ajax type change event or if a filter is being passed
   if (!empty($form_state['values']['filters']['bundle']) || isset($_GET['bundle'])) {
+    $entity_info = entity_get_info($entity_type);
     $bundle = !empty($form_state['values']['filters']['bundle']) ?
       $form_state['values']['filters']['bundle'] : $_GET['bundle'];
 
@@ -162,7 +162,7 @@ function redhen_filter_form($form, $form_state, $entity_type) {
     if (!empty($fields)) {
       $form['filter_fieldset']['filters']['fields'] = array(
         '#type' => 'fieldset',
-        '#title' => t('Additional Fields for @bundle', array('@bundle' => $bundle)),
+        '#title' => t('Filter by @entity_type type specific fields', array('@entity_type' => drupal_strtolower($entity_info['label']))),
         '#collapsible' => FALSE,
         '#id' => 'redhen_filter_fields_container'
       );
