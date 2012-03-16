@@ -244,7 +244,7 @@ function redhen_note_form_alter(&$form, &$form_state, $form_id) {
 
       $form['filter_fieldset']['filters']['fields']['redhen_note_type'] = array(
         '#type' => 'select',
-         '#title' => t('Type'),
+         '#title' => t('Note Type'),
          '#options' => $options,
          '#default_value' => isset($_GET['fields']['redhen_note_type']) ? $_GET['fields']['redhen_note_type'] : NULL,
       );
