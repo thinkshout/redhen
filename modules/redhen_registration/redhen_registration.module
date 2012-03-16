@@ -15,6 +15,7 @@ function redhen_registration_menu() {
     'access callback' => 'redhen_contact_access',
     'access arguments' => array('view', 2),
     'type' => MENU_LOCAL_TASK,
+    'weight' => 0
   );
 
   return $items;
@@ -22,7 +23,7 @@ function redhen_registration_menu() {
 
 /**
  * Return a list of registrations for a given contact.
- * 
+ *
  * @param RedhenContact $contact
  * @return array
  */

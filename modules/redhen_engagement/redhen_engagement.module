@@ -81,12 +81,13 @@ function redhen_engagement_menu() {
   $items = array();
 
   $items["redhen/contact/%redhen_contact/engagements"] = array(
-    'title' => 'Engagements',
+    'title' => 'Engagement',
     'page callback' => 'redhen_engagements_page',
     'page arguments' => array(2),
     'access callback' => 'redhen_contact_access',
     'access arguments' => array('view', 2),
     'type' => MENU_LOCAL_TASK,
+    'weight' => -1
   );
 
   return $items;

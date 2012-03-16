@@ -17,6 +17,7 @@ function redhen_relation_menu() {
     'access callback' => 'redhen_contact_access',
     'access arguments' => array('view', 2),
     'type' => MENU_LOCAL_TASK,
+    'weight' => -5,
   );
   $items['redhen/contact/%redhen_contact/connections/add'] = array(
     'title' => 'Add Connection',
@@ -36,6 +37,7 @@ function redhen_relation_menu() {
     'access callback' => 'redhen_org_access',
     'access arguments' => array('view', 2),
     'type' => MENU_LOCAL_TASK,
+    'weight' => -5,
   );
   $items['redhen/org/%redhen_org/connections/add'] = array(
     'title' => 'Add Connection',

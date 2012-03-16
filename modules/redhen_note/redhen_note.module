@@ -70,6 +70,7 @@ function redhen_note_menu() {
       'access arguments' => array('view', 2),
       'file' => 'includes/redhen_note.pages.inc',
       'type' => MENU_LOCAL_TASK,
+      'weight' => 3
     );
     $items['redhen/' . $path .'/%' . $note_entity_type . '/notes/add'] = array(
       'title' => 'Add Note',
