@@ -14,23 +14,20 @@ function redhen_menu() {
 
   // Menu items that are basically just menu blocks.
   $items['redhen'] = array(
-    'title' => 'RedHen CRM',
-    'description' => 'RedHen CRM home',
+    'title' => 'Redhen CRM',
+    'description' => 'Redhen CRM home',
     'weight' => -8,
-    'page callback' => 'redhen_admin_menu_block_page',
-    'menu_name' => 'navigation',
+    'page callback' => 'redhen_landing_page',
     'access arguments' => array('access redhen'),
     'file' => 'includes/redhen.admin.inc',
   );
   $items['admin/structure/redhen'] = array(
-    'title' => 'RedHen CRM',
-    'description' => 'Administer RedHen CRM items, such as contacts, organizations, memberships, etc.',
-    'weight' => -8,
-    'page callback' => 'redhen_admin_menu_block_page',
-    'menu_name' => 'navigation',
+    'title' => 'Redhen CRM',
+    'description' => 'Administer Redhen CRM items, such as contacts, organizations, memberships, etc.',
+    'page callback' => 'system_admin_menu_block_page',
     'access arguments' => array('administer redhen'),
-    'file' => 'includes/redhen.admin.inc',
-    'menu_name' => 'management',
+    'file' => 'system.admin.inc',
+    'file path' => drupal_get_path('module', 'system'),
   );
   $items['admin/config/redhen'] = array(
     'title' => 'Redhen CRM Settings',
@@ -97,6 +94,7 @@ function redhen_theme() {
         'attributes' => '',
       )
     ),
+    'redhen_home' => array('items' => NULL)
   );
 }
 
@@ -181,4 +179,36 @@ function redhen_entity_types() {
     'redhen_org' => 'org',
     'redhen_contact' => 'contact'
   );
+}
+
+/**
+ * Theme handler for Redhen landing page
+ *
+ * @param $variables
+ * @return array
+ */
+function theme_redhen_home($variables) {
+  $items = $variables['items'];
+  $list = array();
+  $path = drupal_get_path('module', 'redhen');
+  foreach ($items as $item) {
+    $list[] = l($item['title'], $item['path']) . '<div>' . $item['description'] . '</div>';
+  }
+  $render = array(
+    'logo' => array(
+      '#theme' => 'image',
+      '#path' => $path . '/misc/redhen_logo.png',
+      '#alt' => t('Redhen CRM'),
+      '#attributes' => array('id' => 'redhen-logo')
+    ),
+    'links' => array(
+      '#theme' => 'item_list',
+      '#items' => $list
+    ),
+    '#attached' => array(
+      'css' => array($path . '/misc/redhen.css')
+    )
+  );
+
+  return $render;
 }
