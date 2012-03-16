@@ -35,7 +35,6 @@ function redhen_note_notes_page($entity, $entity_type) {
   }
 
   $header = array(
-    'note_id' => array('field' => 'note_id', 'type' => 'property', 'data' => 'Note ID', 'sort' => 'asc', 'specifier' => 'note_id'),
     'Body',
     'Note Type',
     'Author',
@@ -72,12 +71,11 @@ function redhen_note_notes_page($entity, $entity_type) {
 
       $rows[] = array(
         'data' => array(
-          $note->note_id,
           substr($body,0,5) . ' ...',
           (isset($type->name)) ? $type->name: '',
           $note->author->name,
-          format_date($note->updated),
-          format_date($note->created),
+          format_date($note->updated, 'short'),
+          format_date($note->created, 'short'),
           implode(' | ', $actions))
       );
     }
