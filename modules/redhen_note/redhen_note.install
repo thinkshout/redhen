@@ -129,7 +129,7 @@ function redhen_note_install() {
   $redhen_note_type_field_instance = array(
     'field_name' => 'redhen_note_type',
     'entity_type' => 'redhen_note',
-    'label' => t('Type'),
+    'label' => t('Note Type'),
     'bundle' => 'redhen_note',
     'required' => FALSE,
     'widget' => array(
