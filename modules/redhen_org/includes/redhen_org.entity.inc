@@ -114,7 +114,7 @@ class RedhenOrg extends Entity {
    */
   protected function defaultLabel() {
     $type = redhen_org_get_types($this->type);
-    return $type->label . ': ' . $this->label;
+    return $this->label . ' (' . $type->label . ')';
   }
 
   /**

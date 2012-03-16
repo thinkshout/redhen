@@ -99,7 +99,7 @@ class RedhenContact extends Entity {
    */
   protected function defaultLabel() {
     $type = redhen_contact_get_types($this->type);
-    return $type->label . ': ' . $this->name;
+    return $this->name . ' (' . $type->label . ')';
   }
 
   /**
