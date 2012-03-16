@@ -37,7 +37,7 @@ function redhen_note_notes_page($entity, $entity_type) {
   $header = array(
     'note_id' => array('field' => 'note_id', 'type' => 'property', 'data' => 'Note ID', 'sort' => 'asc', 'specifier' => 'note_id'),
     'Body',
-    'Type',
+    'Note Type',
     'Author',
     'updated' => array('field' => 'updated', 'type' => 'property', 'data' => 'Updated', 'sort' => 'asc', 'specifier' => 'updated'),
     'created' => array('field' => 'created', 'type' => 'property', 'data' => 'Created', 'sort' => 'asc', 'specifier' => 'created'),
