@@ -101,8 +101,8 @@ function redhen_engagement_menu() {
  */
 function redhen_engagements_page(RedhenContact $contact) {
   $header = array(
-    'Score' => array('data' => 'Score'),
-    'Type' => array('data' => 'Type'),
+    'Score' => array('data' => 'Score', 'field' => 'score', 'type' => 'property', 'specifier' => 'score'),
+    'Type' => array('data' => 'Type', 'field' => 'type', 'type' => 'property', 'specifier' => 'type'),
     'Created' => array('field' => 'created', 'type' => 'property', 'data' => 'Created', 'sort' => 'desc', 'specifier' => 'created'),
     'description' => array('data' => 'Description'),
     'source' => array('data' => 'Source'),
@@ -133,7 +133,7 @@ function redhen_engagements_page(RedhenContact $contact) {
         'data' => array(
           $engagement->engagement_score->score,
           $engagement->engagement_score->label,
-          format_date($engagement->created),
+          format_date($engagement->created, 'short'),
           $engagement->description,
           $source,
           l($author->name, $author_uri['path']),
