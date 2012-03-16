@@ -251,13 +251,13 @@ class RedhenContactMetadataController extends EntityDefaultMetadataController {
       'filter' => TRUE,
       'field_type' => 'textfield'
     ));
-    $properties['last_name'] += array(
+    $properties['last_name'] = array_merge($properties['last_name'], array(
       'label' => t('Last Name'),
       'filter' => TRUE,
       'field_type' => 'textfield'
-    );
+    ));
 
-    $properties['redhen_state'] += array(
+    $properties['redhen_state'] = array_merge($properties['redhen_state'], array(
       'label' => t('State'),
       'filter' => TRUE,
       'field_type' => 'select',
@@ -265,7 +265,7 @@ class RedhenContactMetadataController extends EntityDefaultMetadataController {
         REDHEN_STATE_ACTIVE => t('Active'),
         REDHEN_STATE_ARCHIVED => t('Archived')
       )
-    );
+    ));
 
     return $info;
   }
