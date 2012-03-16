@@ -104,7 +104,7 @@ function redhen_engagements_page(RedhenContact $contact) {
     'Score' => array('data' => 'Score'),
     'Type' => array('data' => 'Type'),
     'Created' => array('field' => 'created', 'type' => 'property', 'data' => 'Created', 'sort' => 'desc', 'specifier' => 'created'),
-    'description' => array('data' => 'description'),
+    'description' => array('data' => 'Description'),
     'source' => array('data' => 'Source'),
     'author' => array('data' => 'Author'),
   );
