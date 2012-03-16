@@ -99,7 +99,7 @@ function redhen_relation_connections_page($entity) {
       }
     }
 
-    $header = array(t('Connection'), t('Label'), t('Status'), t('Type'),
+    $header = array(t('Connection'), t('Name'), t('Status'), t('Type'),
       t('Created'), t('Author'), t('Actions'));
 
     if ($entity->entityType() == 'redhen_org') {
