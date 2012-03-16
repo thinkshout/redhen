@@ -134,12 +134,12 @@ function redhen_org_menu() {
     'page arguments' => array(2),
     'access callback' => 'redhen_org_access',
     'access arguments' => array('view', 2),
-    'weight' => 10,
+    'weight' => -20,
   );
   $items['redhen/org/%redhen_org/view'] = array(
     'title' => 'Summary',
     'type' => MENU_DEFAULT_LOCAL_TASK,
-    'weight' => -10,
+    'weight' => -20,
     'context' => MENU_CONTEXT_PAGE | MENU_CONTEXT_INLINE,
   );
 
