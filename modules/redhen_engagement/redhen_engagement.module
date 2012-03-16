@@ -133,7 +133,7 @@ function redhen_engagements_page(RedhenContact $contact) {
         'data' => array(
           $engagement->engagement_score->score,
           $engagement->engagement_score->label,
-          format_date($engagement->created),
+          format_date($engagement->created, 'short'),
           $engagement->description,
           $source,
           l($author->name, $author_uri['path']),
