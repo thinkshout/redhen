@@ -11,7 +11,7 @@
 function redhen_filter_form($form, $form_state, $entity_type) {
   // add jquery libs and
   drupal_add_library('system', 'ui.datepicker');
-  drupal_add_js(drupal_get_path('module', 'redhen') . '/js/redhen.forms.js');
+  drupal_add_js(drupal_get_path('module', 'redhen') . '/misc/redhen.forms.js');
 
   $form = array();
 

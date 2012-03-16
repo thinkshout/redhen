@@ -8,9 +8,30 @@
 /**
  * Wrapper for system_admin_menu_block_page().
  */
-function redhen_admin_menu_block_page() {
-  module_load_include('inc', 'system', 'system.admin');
-  return system_admin_menu_block_page();
+function redhen_landing_page() {
+  $items = array(
+    'contacts' => array(
+      'path' => 'redhen/contact',
+      'title' => 'Contacts',
+      'description' => t('View, manage, and search contacts.')
+    ),
+    'orgs' => array(
+      'path' => 'redhen/org',
+      'title' => 'Organizations',
+      'description' => t('View, manage, and search organizations.')
+    ),
+    'structure' => array(
+      'path' => 'admin/structure/redhen',
+      'title' => 'Structure',
+      'description' => t('Define bundles and manage fields for Redhen entities.')
+    ),
+    'settings' => array(
+      'path' => 'admin/config/redhen',
+      'title' => 'Settings',
+      'description' => t('Redhen configuration and settings.')
+    ),
+  );
+  return theme('redhen_home', array('items' => $items));
 }
 
 /**
