@@ -23,12 +23,12 @@ function redhen_landing_page() {
     'structure' => array(
       'path' => 'admin/structure/redhen',
       'title' => 'Structure',
-      'description' => t('Define bundles and manage fields for Redhen entities.')
+      'description' => t('Define bundles and manage fields for RedHen entities.')
     ),
     'settings' => array(
       'path' => 'admin/config/redhen',
       'title' => 'Settings',
-      'description' => t('Redhen configuration and settings.')
+      'description' => t('RedHen configuration and settings.')
     ),
   );
   return theme('redhen_home', array('items' => $items));
@@ -42,7 +42,7 @@ function redhen_landing_page() {
 function redhen_settings() {
   $form['intro'] = array(
      '#type' => 'item',
-     '#markup' => t('Redhen CRM settings.'),
+     '#markup' => t('RedHen CRM settings.'),
    );
 
   // allow other modules to inject their own settings.
