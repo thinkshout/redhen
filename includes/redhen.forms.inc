@@ -13,10 +13,7 @@ function redhen_filter_form($form, $form_state, $entity_type) {
   drupal_add_library('system', 'ui.datepicker');
   drupal_add_js(drupal_get_path('module', 'redhen') . '/misc/redhen.forms.js');
 
-  $form = array();
-
   $property_info = entity_get_all_property_info($entity_type);
-
   if (!empty($property_info)) {
     $form['filter_fieldset'] = array(
       '#type' => 'fieldset',
@@ -43,8 +40,10 @@ function redhen_filter_form($form, $form_state, $entity_type) {
         // conver datetime defaults to date strings
         $default_value = isset($_GET['properties'][$key]) ? $_GET['properties'][$key] : NULL;
         if ($prop['type'] == 'date' && !empty($default_value)) {
-          $default_value['from'] = ($default_value['from'] == '') ? '' : date('m/d/Y', strtotime($default_value['from']));
-          $default_value['to'] = ($default_value['to'] == '') ? '' : date('m/d/Y', strtotime($default_value['to']));;
+          $default_value['from'] = ($default_value['from'] == '') ? '' :
+            date('m/d/Y', strtotime($default_value['from']));
+          $default_value['to'] = ($default_value['to'] == '') ? '' :
+            date('m/d/Y', strtotime($default_value['to']));;
         }
 
         if ($prop['type'] == 'date') {
@@ -85,18 +84,15 @@ function redhen_filter_form($form, $form_state, $entity_type) {
       $type_options[$key] = $bundle['label'];
     }
 
-
-
     if (count($entity_info['bundles']) == 1) {
       $bundle = array_keys($entity_info['bundles']);
       $bundle = $bundle[0];
       $fields = field_info_instances($entity_type, $bundle);
       if (!empty($fields)) {
-
-
         $form['filter_fieldset']['filters']['fields'] = array(
           '#type' => 'fieldset',
-          '#title' => t('Filter by @entity_type type specific fields', array('@entity_type' => drupal_strtolower($entity_info['label']))),
+          '#title' => t('Filter by @entity_type type specific fields',
+            array('@entity_type' => drupal_strtolower($entity_info['label']))),
           '#collapsible' => FALSE,
           '#id' => 'redhen_filter_fields_container'
         );
@@ -105,12 +101,11 @@ function redhen_filter_form($form, $form_state, $entity_type) {
           $form['filter_fieldset']['filters']['fields'][$key] = array(
             '#type' => 'textfield',
             '#title' => $field['label'],
-            '#default_value' => isset($_GET['fields'][$key]) ? $_GET['fields'][$key] : NULL,
+            '#default_value' => isset($_GET['fields'][$key]) ?
+              $_GET['fields'][$key] : NULL,
           );
         }
       }
-
-
     }
     else {
       $form['filter_fieldset']['filters']['bundle'] = array(
@@ -125,7 +120,8 @@ function redhen_filter_form($form, $form_state, $entity_type) {
           'effect' => 'fade',
           'progress' => array(
             'type' => 'throbber',
-            'message' => t('Retrieving fields for this @entity_type type.', array('@entity_type' => drupal_strtolower($entity_info['label'])))
+            'message' => t('Retrieving fields for this @entity_type type.',
+              array('@entity_type' => drupal_strtolower($entity_info['label'])))
           )
         )
       );
@@ -134,10 +130,6 @@ function redhen_filter_form($form, $form_state, $entity_type) {
         '#suffix' => '</div>'
       );
     }
-
-
-
-
 
     $form['filter_fieldset']['submit'] = array(
       '#type' => 'submit',
@@ -162,7 +154,8 @@ function redhen_filter_form($form, $form_state, $entity_type) {
     if (!empty($fields)) {
       $form['filter_fieldset']['filters']['fields'] = array(
         '#type' => 'fieldset',
-        '#title' => t('Filter by @entity_type type specific fields', array('@entity_type' => drupal_strtolower($entity_info['label']))),
+        '#title' => t('Filter by @entity_type type specific fields',
+          array('@entity_type' => drupal_strtolower($entity_info['label']))),
         '#collapsible' => FALSE,
         '#id' => 'redhen_filter_fields_container'
       );
@@ -171,13 +164,12 @@ function redhen_filter_form($form, $form_state, $entity_type) {
         $form['filter_fieldset']['filters']['fields'][$key] = array(
           '#type' => 'textfield',
           '#title' => $field['label'],
-          '#default_value' => isset($_GET['fields'][$key]) ? $_GET['fields'][$key] : NULL,
+          '#default_value' => isset($_GET['fields'][$key]) ?
+            $_GET['fields'][$key] : NULL,
         );
       }
     }
   }
-
-
 
   return $form;
 }
@@ -212,6 +204,9 @@ function redhen_filter_form_submit($form, &$form_state) {
   drupal_goto($_GET['q'], array('query' => $filters));
 }
 
+/**
+ * Submit handler to reset the filter form.
+ */
 function redhen_filter_form_reset() {
   drupal_goto($_GET['q']);
 }

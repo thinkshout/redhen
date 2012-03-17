@@ -24,14 +24,19 @@ class RedhenContactType extends Entity {
 
     // associate email field instance with contact.
     if ($ret) {
-      $email_field = array(
-        'field_name' => REDHEN_CONTACT_EMAIL_FIELD,
-        'entity_type' => 'redhen_contact',
-        'bundle' => $this->name,
-        'label' => t('Email'),
+      // ensure the field instance doesn't already exist; problem with features!!!
+      $instance = field_info_instance('redhen_contact',
+        REDHEN_CONTACT_EMAIL_FIELD, $this->name);
+      if (!$instance) {
+        $email_field = array(
+          'field_name' => REDHEN_CONTACT_EMAIL_FIELD,
+          'entity_type' => 'redhen_contact',
+          'bundle' => $this->name,
+          'label' => t('Email'),
 
-      );
-      field_create_instance($email_field);
+        );
+        field_create_instance($email_field);
+      }
     }
   }
 
