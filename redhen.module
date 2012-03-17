@@ -14,8 +14,8 @@ function redhen_menu() {
 
   // Menu items that are basically just menu blocks.
   $items['redhen'] = array(
-    'title' => 'RedHen CRM',
-    'description' => 'RedHen CRM home',
+    'title' => 'CRM Dashboard',
+    'description' => 'RedHen CRM Dashboard',
     'weight' => -8,
     'page callback' => 'redhen_landing_page',
     'access arguments' => array('access redhen'),
