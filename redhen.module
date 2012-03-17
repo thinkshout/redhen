@@ -14,24 +14,24 @@ function redhen_menu() {
 
   // Menu items that are basically just menu blocks.
   $items['redhen'] = array(
-    'title' => 'Redhen CRM',
-    'description' => 'Redhen CRM home',
+    'title' => 'RedHen CRM',
+    'description' => 'RedHen CRM home',
     'weight' => -8,
     'page callback' => 'redhen_landing_page',
     'access arguments' => array('access redhen'),
     'file' => 'includes/redhen.admin.inc',
   );
   $items['admin/structure/redhen'] = array(
-    'title' => 'Redhen CRM',
-    'description' => 'Administer Redhen CRM items, such as contacts, organizations, memberships, etc.',
+    'title' => 'RedHen CRM',
+    'description' => 'Administer RedHen CRM items, such as contacts, organizations, memberships, etc.',
     'page callback' => 'system_admin_menu_block_page',
     'access arguments' => array('administer redhen'),
     'file' => 'system.admin.inc',
     'file path' => drupal_get_path('module', 'system'),
   );
   $items['admin/config/redhen'] = array(
-    'title' => 'Redhen CRM Settings',
-    'description' => 'Configure Redhen CRM.',
+    'title' => 'RedHen CRM Settings',
+    'description' => 'Configure RedHen CRM.',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('redhen_settings'),
     'access arguments' => array('administer redhen'),
@@ -47,12 +47,12 @@ function redhen_menu() {
 function redhen_permission() {
   return array(
     'administer redhen' =>  array(
-      'title' => t('Administer Redhen'),
+      'title' => t('Administer RedHen'),
       'description' => t('Perform administration tasks for my redhen.'),
     ),
     'access redhen' =>  array(
-      'title' => t('Access Redhen'),
-      'description' => t('Access Redhen CRM.'),
+      'title' => t('Access RedHen'),
+      'description' => t('Access RedHen CRM.'),
     ),
   );
 }
