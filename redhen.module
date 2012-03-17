@@ -212,3 +212,33 @@ function theme_redhen_home($variables) {
 
   return $render;
 }
+
+/**
+ * Implements hook_block_info().
+ */
+function redhen_block_info() {
+  $blocks['redhen_about'] = array(
+    'info' => t('About RedHen CRM'), 
+    'cache' => DRUPAL_CACHE_GLOBAL,
+  );
+
+  return $blocks;
+}
+
+/**
+ * Implements hook_block_view().
+ */
+function redhen_block_view($delta = '') {
+
+  $block = array();
+
+  switch ($delta) {
+    case 'redhen_about':
+      $block['subject'] = t('');
+      $block['content'] = '<p><a href="http://drupal.org/project/redhen">RedHen CRM</a> is an open source CRM <em>framework</em> built natively in Drupal. RedHen CRM is packed with <a href="http://en.wikipedia.org/wiki/Association_management_system">association management</a> (AMS) features for managing detailed information on contacts and organizations, membership services, event registrations, and constituent engagement.</p>';
+      break;
+
+    }
+  return $block;
+}
+
