@@ -235,7 +235,7 @@ function redhen_block_view($delta = '') {
   switch ($delta) {
     case 'redhen_about':
       $block['subject'] = t('');
-      $block['content'] = '<p><a href="http://drupal.org/project/redhen">RedHen CRM</a> is an open source CRM <em>framework</em> built natively in Drupal. RedHen CRM is packed with <a href="http://en.wikipedia.org/wiki/Association_management_system">association management</a> (AMS) features for managing detailed information on contacts and organizations, membership services, event registrations, and constituent engagement.</p>';
+      $block['content'] = '<p><a href="http://drupal.org/project/redhen">RedHen CRM</a> is an open source CRM <em>framework</em> built natively in <a href="http://drupal.org">Drupal</a>. RedHen CRM is packed with <a href="http://en.wikipedia.org/wiki/Association_management_system">association management</a> (AMS) features for managing detailed information on contacts and organizations, membership services, event registrations, and constituent engagement.</p>';
       break;
 
     }
