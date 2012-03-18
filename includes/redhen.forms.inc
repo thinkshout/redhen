@@ -168,6 +168,21 @@ function redhen_filter_form($form, $form_state, $entity_type) {
             $_GET['fields'][$key] : NULL,
         );
       }
+      if ($field['widget']['module'] == 'addressfield') {
+        // @TODO - Allow filtering on addressfields. Removed below b/c they don't work with EFQs.
+        unset($form['filter_fieldset']['filters']['fields']['field_address']);
+      }
+      if ($field['widget']['type'] == 'options_select') {
+        $label = $field['label'];
+        $field = field_info_field($field['field_name']);
+        $field['options'] = array('' => t('-- Any --')) + $field['settings']['allowed_values'];
+        $form['filter_fieldset']['filters']['fields'][$key] = array(
+          '#type' => 'select',
+          '#title' => $label,
+          '#options' => $field['options'],
+          '#default_value' => isset($_GET['fields'][$key]) ? $_GET['fields'][$key] : NULL,
+        );
+      }
     }
   }
 
@@ -178,10 +193,6 @@ function redhen_filter_form($form, $form_state, $entity_type) {
  * AJAX callback to return fields for a given type.
  */
 function redhen_filter_fields_callback($form, $form_state) {
-  // @TODO - Allow filtering on addressfields. Removed below b/c they don't work with EFQs.
-  if (!empty($form['filter_fieldset']['filters']['fields']['field_address'])) {
-    unset($form['filter_fieldset']['filters']['fields']['field_address']);
-  }
   return $form['filter_fieldset']['filters']['fields'];
 }
 
