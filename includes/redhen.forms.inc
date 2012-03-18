@@ -193,6 +193,10 @@ function redhen_filter_form($form, $form_state, $entity_type) {
  * AJAX callback to return fields for a given type.
  */
 function redhen_filter_fields_callback($form, $form_state) {
+  // @TODO - Allow filtering on addressfields. Removed below b/c they don't work with EFQs.
+  if (!empty($form['filter_fieldset']['filters']['fields']['field_address'])) {
+    unset($form['filter_fieldset']['filters']['fields']['field_address']);
+  }
   return $form['filter_fieldset']['filters']['fields'];
 }
 
