@@ -22,7 +22,7 @@ function redhen_org_org_form($form, &$form_state, $org) {
   $form_state['build_info']['files']['form'] = drupal_get_path('module', 'redhen_org') . '/includes/redhen_org.forms.inc';
 
   // Add the default field elements.
-  $form['name'] = array(
+  $form['label'] = array(
     '#type' => 'textfield',
     '#title' => t('Name'),
     '#default_value' => $org->label,
