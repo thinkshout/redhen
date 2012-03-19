@@ -59,7 +59,6 @@ function redhen_filter_form($form, $form_state, $entity_type) {
             '#attributes' => array('class' => array("redhen-field-type-{$prop['type']}")),
             '#default_value' => $default_value['to']
           );
-
         }
         else {
           $form['filter_fieldset']['filters']['properties'][$key] = array(
@@ -84,28 +83,11 @@ function redhen_filter_form($form, $form_state, $entity_type) {
       $type_options[$key] = $bundle['label'];
     }
 
+    // single bundle, just load fields
     if (count($entity_info['bundles']) == 1) {
       $bundle = array_keys($entity_info['bundles']);
       $bundle = $bundle[0];
-      $fields = field_info_instances($entity_type, $bundle);
-      if (!empty($fields)) {
-        $form['filter_fieldset']['filters']['fields'] = array(
-          '#type' => 'fieldset',
-          '#title' => t('Filter by @entity_type type specific fields',
-            array('@entity_type' => drupal_strtolower($entity_info['label']))),
-          '#collapsible' => FALSE,
-          '#id' => 'redhen_filter_fields_container'
-        );
-
-        foreach($fields as $key => $field) {
-          $form['filter_fieldset']['filters']['fields'][$key] = array(
-            '#type' => 'textfield',
-            '#title' => $field['label'],
-            '#default_value' => isset($_GET['fields'][$key]) ?
-              $_GET['fields'][$key] : NULL,
-          );
-        }
-      }
+      redhen_filter_form_fields(&$form, $entity_type, $bundle);
     }
     else {
       $form['filter_fieldset']['filters']['bundle'] = array(
@@ -121,7 +103,7 @@ function redhen_filter_form($form, $form_state, $entity_type) {
           'progress' => array(
             'type' => 'throbber',
             'message' => t('Retrieving fields for this @entity_type type.',
-              array('@entity_type' => drupal_strtolower($entity_info['label'])))
+              array('@entity_type' => $entity_info['label']))
           )
         )
       );
@@ -146,44 +128,10 @@ function redhen_filter_form($form, $form_state, $entity_type) {
 
   // add the fields on an ajax type change event or if a filter is being passed
   if (!empty($form_state['values']['filters']['bundle']) || isset($_GET['bundle'])) {
-    $entity_info = entity_get_info($entity_type);
     $bundle = !empty($form_state['values']['filters']['bundle']) ?
       $form_state['values']['filters']['bundle'] : $_GET['bundle'];
 
-    $fields = field_info_instances($entity_type, $bundle);
-    if (!empty($fields)) {
-      $form['filter_fieldset']['filters']['fields'] = array(
-        '#type' => 'fieldset',
-        '#title' => t('Filter by @entity_type type specific fields',
-          array('@entity_type' => drupal_strtolower($entity_info['label']))),
-        '#collapsible' => FALSE,
-        '#id' => 'redhen_filter_fields_container'
-      );
-
-      foreach($fields as $key => $field) {
-        $form['filter_fieldset']['filters']['fields'][$key] = array(
-          '#type' => 'textfield',
-          '#title' => $field['label'],
-          '#default_value' => isset($_GET['fields'][$key]) ?
-            $_GET['fields'][$key] : NULL,
-        );
-      }
-      if ($field['widget']['module'] == 'addressfield') {
-        // @TODO - Allow filtering on addressfields. Removed below b/c they don't work with EFQs.
-        unset($form['filter_fieldset']['filters']['fields'][$key]);
-      }
-      if ($field['widget']['type'] == 'options_select') {
-        $label = $field['label'];
-        $field = field_info_field($field['field_name']);
-        $field['options'] = array('' => t('-- Any --')) + $field['settings']['allowed_values'];
-        $form['filter_fieldset']['filters']['fields'][$key] = array(
-          '#type' => 'select',
-          '#title' => $label,
-          '#options' => $field['options'],
-          '#default_value' => isset($_GET['fields'][$key]) ? $_GET['fields'][$key] : NULL,
-        );
-      }
-    }
+    redhen_filter_form_fields($form, $entity_type, $bundle);
   }
 
   return $form;
@@ -193,26 +141,17 @@ function redhen_filter_form($form, $form_state, $entity_type) {
  * AJAX callback to return fields for a given type.
  */
 function redhen_filter_fields_callback($form, $form_state) {
-  // @TODO - Allow filtering on addressfields. Removed below b/c they don't work with EFQs.
-  if ($form['filter_fieldset']['filters']['fields']['field_address']) {
-    unset($form['filter_fieldset']['filters']['fields']['field_address']);
-  }
   return $form['filter_fieldset']['filters']['fields'];
 }
 
+/**
+ * Validation callback for filter form.
+ *
+ * @param $form
+ * @param $form_state
+ */
 function redhen_filter_form_validate($form, &$form_state) {
-  foreach ($form_state['values']['filters']['properties'] as $key => $property) {
-    //Todo: Date validation?
-//    if (!empty($property) && $form['filter_fieldset']['filters']['properties'][$key]['#attributes']['class'][0] == 'redhen-field-type-date') {
-//
-//      if ( $time = strtotime($property)) {
-//        $form_state['values']['filters']['properties'][$key] = $time;
-//      }
-//      else {
-//        form_set_error($key, t('@key is not a valid date.', array('@key' => $key)));
-//      }
-//    }
-  }
+  //Todo: Date validation?
 }
 
 /**
@@ -228,4 +167,44 @@ function redhen_filter_form_submit($form, &$form_state) {
  */
 function redhen_filter_form_reset() {
   drupal_goto($_GET['q']);
+}
+
+/**
+ * Populate a form array with field filters for given bundle.
+ *
+ * @param $form
+ * @param $entity_type
+ * @param $bundle
+ */
+function redhen_filter_form_fields(&$form, $entity_type, $bundle) {
+  $fields = field_info_instances($entity_type, $bundle);
+  if (!empty($fields)) {
+    $form['filter_fieldset']['filters']['fields'] = array(
+      '#type' => 'fieldset',
+      '#title' => t('Filter by %bundle specific fields',
+        array('%bundle' => $bundle)),
+      '#collapsible' => FALSE,
+      '#id' => 'redhen_filter_fields_container'
+    );
+
+    foreach($fields as $key => $field) {
+      $field_info = field_info_field($field['field_name']);
+      if (!in_array($field_info['type'], array('addressfield'))) {
+        $form['filter_fieldset']['filters']['fields'][$key] = array(
+          '#type' => 'textfield',
+          '#title' => $field['label'],
+          '#default_value' => isset($_GET['fields'][$key]) ?
+            $_GET['fields'][$key] : NULL,
+        );
+
+        if ($field['widget']['type'] == 'options_select') {
+          $options = array('' => t('-- Any --')) + $field_info['settings']['allowed_values'];
+          $form['filter_fieldset']['filters']['fields'][$key] = array(
+            '#type' => 'select',
+            '#options' => $options,
+          );
+        }
+      }
+    }
+  }
 }

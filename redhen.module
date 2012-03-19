@@ -192,7 +192,8 @@ function theme_redhen_home($variables) {
   $list = array();
   $path = drupal_get_path('module', 'redhen');
   foreach ($items as $item) {
-    $list[] = l($item['title'], $item['path']) . '<div>' . $item['description'] . '</div>';
+    $list[] = l($item['title'], $item['path']) .
+      '<div>' . $item['description'] . '</div>';
   }
   $render = array(
     'logo' => array(
