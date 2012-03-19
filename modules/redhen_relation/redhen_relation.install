@@ -13,13 +13,13 @@ function redhen_relation_install() {
   $relation_types_info = array(
     array(
       'relation_type' => 'redhen_connection',
-      'label' => t('Connection'),
+      'label' => t('Personal connection'),
       'source_bundles' => array('redhen_contact:*'),
       'r_unique' => true,
     ),
     array(
       'relation_type' => 'redhen_affiliation',
-      'label' => t('Affiliation'),
+      'label' => t('Organizational affiliation'),
       'reverse_label' => t('Affiliated with'),
       'directional' => false,
       'r_unique' => true,
