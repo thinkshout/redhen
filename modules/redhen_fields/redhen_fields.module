@@ -93,7 +93,7 @@ function redhen_fields_allowed_labels_setting_validate($element, &$form_state) {
     // Prevent removing values currently in use.
     if ($has_data) {
       $lost_keys = array_diff(array_keys($field['settings']['labels']), array_keys($values));
-      if (_redhen_fields_labels_in_use($field, $lost_keys)) {
+      if (redhen_fields_labels_in_use($field, $lost_keys)) {
         form_error($element, t('Allowed labels list: some labels are being removed while currently in use.'));
       }
     }
@@ -165,7 +165,7 @@ function redhen_fields_extract_allowed_labels($string, $generate_keys) {
 /**
  * Checks if a list of values are being used in actual field values.
  */
-function _redhen_fields_labels_in_use($field, $values) {
+function redhen_fields_labels_in_use($field, $values) {
   if ($values) {
     $query = new EntityFieldQuery();
     $found = $query
@@ -220,7 +220,7 @@ function redhen_fields_field_validate($entity_type, $entity, $field, $instance, 
               'delta' => $delta,
             );
           }
-          if (_redhen_fields_email_in_use($field, $entity_type, $entity, $item['value'])) {
+          if (redhen_fields_email_in_use($field, $entity_type, $entity, $item['value'])) {
             $errors[$field['field_name']][$langcode][$delta][] = array(
               'error' => 'redhen_fields_invalid_email',
               'message' => t('%name: Email address already in use.', array('%name' => t($instance['label']))),
@@ -254,7 +254,7 @@ function redhen_fields_field_validate($entity_type, $entity, $field, $instance, 
  * @param $value
  * @return bool
  */
-function _redhen_fields_email_in_use($field, $entity_type, $entity, $value) {
+function redhen_fields_email_in_use($field, $entity_type, $entity, $value) {
   if ($value) {
     list($entity_id,,) = entity_extract_ids($entity_type, $entity);
     $query = new EntityFieldQuery();
