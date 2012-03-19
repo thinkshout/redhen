@@ -155,13 +155,11 @@ function redhen_filter_query($entity_type, $header, $bundle = '', $properties = 
   }
 
   // add field filters
-  foreach($fields as $key => $value) {
-    $field_info = field_info_field($key);
-
-    $search_field = ($field_info['type'] == 'taxonomy_term_reference') ? 'tid' : 'value';
-
-    if ($value != '') {
-      $query->fieldCondition($key, $search_field, $value, 'CONTAINS');
+  foreach($fields as $key => $field) {
+    foreach($field as $column => $value) {
+      if ($value != '') {
+        $query->fieldCondition($key, $column, $value, 'CONTAINS', $key);
+      }
     }
   }
 

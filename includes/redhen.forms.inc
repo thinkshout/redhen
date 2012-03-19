@@ -187,19 +187,25 @@ function redhen_filter_form_fields(&$form, $entity_type, $bundle) {
       '#id' => 'redhen_filter_fields_container'
     );
 
+    // loop through each field adding a filter
     foreach($fields as $key => $field) {
       $field_info = field_info_field($field['field_name']);
-      if (!in_array($field_info['type'], array('addressfield'))) {
-        $form['filter_fieldset']['filters']['fields'][$key] = array(
+
+      // for now, we're only allowing fields that have tid or value single cols
+      // @todo: expand to allow more field types
+      $column = reset(array_keys($field_info['columns']));
+      if (in_array($column, array('value', 'tid'))) {
+        $form['filter_fieldset']['filters']['fields'][$key][$column] = array(
           '#type' => 'textfield',
           '#title' => $field['label'],
-          '#default_value' => isset($_GET['fields'][$key]) ?
-            $_GET['fields'][$key] : NULL,
+          '#default_value' => isset($_GET['fields'][$key][$column]) ?
+            $_GET['fields'][$key][$column] : NULL,
         );
 
+        // override for select lists
         if ($field['widget']['type'] == 'options_select') {
           $options = array('' => t('-- Any --')) + $field_info['settings']['allowed_values'];
-          $form['filter_fieldset']['filters']['fields'][$key] = array(
+          $form['filter_fieldset']['filters']['fields'][$key][$column] = array(
             '#type' => 'select',
             '#options' => $options,
           );
