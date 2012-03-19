@@ -198,12 +198,12 @@ function redhen_fields_field_validate($entity_type, $entity, $field, $instance, 
       $default = FALSE;
 
       // check for duplicates for same contact record
-      foreach ($items as $delta => $item) {
+      foreach ($items as$item) {
         if (!empty($item['value'])) {
           $emails[] = $item['value'];
         }
       }
-      if(count(array_unique($emails)) < count($emails)) {
+      if(!empty($emails) && (count(array_unique($emails)) < count($emails))) {
         $errors[$field['field_name']][$langcode][count($items)-2][] = array(
           'error' => 'redhen_fields_invalid_email',
           'message' => t('%name: Is already in use by this contact.', array('%name' => t($instance['label']))),
