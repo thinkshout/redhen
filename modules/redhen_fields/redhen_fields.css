@@ -35,3 +35,14 @@
 .field-type-redhen-email .primary-label {
   float: left;
 }
+
+.field-type-redhen-email .form-type-checkbox,
+.field-type-redhen-email .form-type-select,
+.field-type-redhen-email .form-type-textfield{
+  float: left;
+  margin-right: 1%;
+}
+
+.field-type-redhen-email .form-type-select label {
+  display: inline;
+}

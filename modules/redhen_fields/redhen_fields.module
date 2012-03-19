@@ -411,7 +411,9 @@ function redhen_fields_field_widget_form(&$form, &$form_state, $field, $instance
       break;
   }
 
-  $element['#attached']['js'] = array(drupal_get_path('module', 'redhen_fields') . '/redhen_fields.js');
+  $path = drupal_get_path('module', 'redhen_fields');
+  $element['#attached']['js'] = array($path . '/redhen_fields.js');
+  $element['#attached']['css'] = array($path . '/redhen_fields.css');
 
   return $element;
 }
