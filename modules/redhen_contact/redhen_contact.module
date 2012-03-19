@@ -98,7 +98,7 @@ function redhen_contact_menu() {
     'description' => 'View RedHen CRM contacts.',
     'page callback' => 'redhen_contact_page',
     'file' => 'includes/redhen_contact.pages.inc',
-    'access arguments' => array('view contacts'),
+    'access arguments' => array('access redhen contacts'),
   );
 
   // Add a contact.
@@ -344,11 +344,15 @@ function redhen_contact_access($op, $contact = NULL, $account = NULL) {
   global $user;
   $account = isset($account) ? $account : $user;
 
-  if (user_access('administer contacts', $account)) {
+  if (user_access('administer redhen contacts', $account)) {
     return TRUE;
   }
 
-  if ($op == 'view' && user_access('access contacts', $account)) {
+  if ($op == 'view' && user_access('access redhen contacts', $account)) {
+    return TRUE;
+  }
+
+  if (($op == 'create' || $op == 'edit' || $op == 'delete') && user_access('manage redhen contacts', $account)) {
     return TRUE;
   }
 
@@ -357,6 +361,26 @@ function redhen_contact_access($op, $contact = NULL, $account = NULL) {
   }
 
   return FALSE;
+}
+
+/**
+ * Implements hook_permission().
+ */
+function redhen_contact_permission() {
+  return array(
+    'administer redhen contacts' =>  array(
+      'title' => t('Administer RedHen Contacts'),
+      'description' => t('Perform administration tasks for RedHen Contacts.'),
+    ),
+    'manage redhen contacts' =>  array(
+      'title' => t('Manage RedHen Contacts'),
+      'description' => t('Create, update or delete RedHen Contacts.'),
+    ),
+    'access redhen contacts' =>  array(
+        'title' => t('Access Redhen Contacts'),
+        'description' => t('View for Redhen Contacts.'),
+      ),
+  );
 }
 
 /**

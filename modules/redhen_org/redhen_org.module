@@ -98,7 +98,7 @@ function redhen_org_menu() {
     'description' => 'View RedHen CRM Organizations.',
     'page callback' => 'redhen_org_page',
     'file' => 'includes/redhen_org.pages.inc',
-    'access arguments' => array('view orgs'),
+    'access arguments' => array('access redhen orgs'),
   );
 
   // Add a org.
@@ -302,11 +302,15 @@ function redhen_org_access($op, $org = NULL, $account = NULL) {
   global $user;
   $account = isset($account) ? $account : $user;
 
-  if (user_access('administer orgs', $account)) {
+  if (user_access('administer redhen orgs', $account)) {
     return TRUE;
   }
 
-  if ($op == 'view' && user_access('access orgs', $account)) {
+  if ($op == 'view' && user_access('access redhen orgs', $account)) {
+    return TRUE;
+  }
+
+  if (($op == 'create' || $op == 'edit' || $op == 'delete') && user_access('manage redhen orgs', $account)) {
     return TRUE;
   }
 
@@ -315,6 +319,26 @@ function redhen_org_access($op, $org = NULL, $account = NULL) {
   }
 
   return FALSE;
+}
+
+/**
+ * Implements hook_permission().
+ */
+function redhen_org_permission() {
+  return array(
+    'administer redhen orgs' =>  array(
+      'title' => t('Administer RedHen Organizations'),
+      'description' => t('Perform administration tasks for RedHen Organizations.'),
+    ),
+    'manage redhen orgs' =>  array(
+      'title' => t('Manage RedHen Organizations'),
+      'description' => t('Create, update or delete RedHen Organizations.'),
+    ),
+    'access redhen orgs' =>  array(
+        'title' => t('Access Redhen Organizations'),
+        'description' => t('View for Redhen Organizations.'),
+      ),
+  );
 }
 
 /**
