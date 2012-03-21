@@ -24,10 +24,12 @@ class RedhenContactEntityController extends EntityAPIController {
     try {
       $contact->updated = REQUEST_TIME;
 
-      parent::save($contact, $transaction);
-
-      // If this is a new contact...
-      if (!empty($contact->contact_id)) {
+      // new contact, set created prop
+      if (isset($contact->is_new) && $contact->is_new) {
+        $contact->created = REQUEST_TIME;
+      }
+      // handle revision id
+      else {
         if (isset($contact->revision_id)) {
           // Save the old revision ID in case we need it in alters.
           $contact->old_revision_id = $contact->revision_id;
@@ -36,6 +38,8 @@ class RedhenContactEntityController extends EntityAPIController {
           unset($contact->revision_id);
         }
       }
+
+      parent::save($contact, $transaction);
 
       // create revision
       drupal_write_record('redhen_contact_revision', $contact);

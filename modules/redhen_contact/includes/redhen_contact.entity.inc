@@ -22,7 +22,7 @@ class RedhenContact extends Entity {
     $engagement_score = NULL,
     $type = '',
     $created = '',
-    $changed = '';
+    $updated = '';
 
   public function __construct(array $values = array()) {
     parent::__construct($values, 'redhen_contact');
