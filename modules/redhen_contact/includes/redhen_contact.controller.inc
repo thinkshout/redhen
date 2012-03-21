@@ -115,7 +115,7 @@ class RedhenContactEntityController extends EntityAPIController {
     $query = parent::buildQuery($ids, $conditions = array(), $revision_id = FALSE);
 
     $query->leftJoin('redhen_contact_user', 'rcu',
-      'rcu.contact_id = %alias.contact_id AND rcu.redhen_state = :state',
+      'rcu.contact_id = base.contact_id AND rcu.redhen_state = :state',
       array(':state' => REDHEN_STATE_ACTIVE)
     );
     $query->fields('rcu', array('user_uid'));
