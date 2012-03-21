@@ -178,23 +178,24 @@ function redhen_filter_form_reset() {
  */
 function redhen_filter_form_fields(&$form, $entity_type, $bundle) {
   $fields = field_info_instances($entity_type, $bundle);
-  if (!empty($fields)) {
-    $form['filter_fieldset']['filters']['fields'] = array(
-      '#type' => 'fieldset',
-      '#title' => t('Filter by %bundle specific fields',
-        array('%bundle' => $bundle)),
-      '#collapsible' => FALSE,
-      '#id' => 'redhen_filter_fields_container'
-    );
+  $form['filter_fieldset']['filters']['fields'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Filter by %bundle specific fields',
+      array('%bundle' => $bundle)),
+    '#collapsible' => FALSE,
+    '#id' => 'redhen_filter_fields_container'
+  );
 
+  if (!empty($fields)) {
     // loop through each field adding a filter
+    $filters_count = 0;
     foreach($fields as $key => $field) {
       $field_info = field_info_field($field['field_name']);
-
       // for now, we're only allowing fields that have tid or value single cols
       // @todo: expand to allow more field types
       $column = reset(array_keys($field_info['columns']));
       if (in_array($column, array('value', 'tid'))) {
+        $filters_count ++;
         $form['filter_fieldset']['filters']['fields'][$key][$column] = array(
           '#type' => 'textfield',
           '#title' => $field['label'],
@@ -205,12 +206,18 @@ function redhen_filter_form_fields(&$form, $entity_type, $bundle) {
         // override for select lists
         if ($field['widget']['type'] == 'options_select') {
           $options = array('' => t('-- Any --')) + $field_info['settings']['allowed_values'];
-          $form['filter_fieldset']['filters']['fields'][$key][$column] = array(
-            '#type' => 'select',
-            '#options' => $options,
-          );
+          $form['filter_fieldset']['filters']['fields'][$key][$column]['#type'] = 'select';
+          $form['filter_fieldset']['filters']['fields'][$key][$column]['#options'] = $options;
         }
       }
+    }
+
+    if (!$filters_count) {
+      $form['filter_fieldset']['filters']['fields']['message'] = array(
+        '#markup' => t('There are no additional fields for %bundle.', array(
+          '%bundle' => $bundle
+        ))
+      );
     }
   }
 }
