@@ -29,10 +29,16 @@ function redhen_registration_menu() {
  */
 function redhen_registration_page(RedhenContact $contact) {
   $query = new EntityFieldQuery();
-  $result = $query
-    ->entityCondition('entity_type', 'registration')
-    ->propertyCondition('mail', $contact->allEmail(), 'IN')
-    ->execute();
+  $query->entityCondition('entity_type', 'registration');
+
+  if ($contact->user_uid) {
+    $query->propertyCondition('user_uid', $contact->user_uid, '=');
+  }
+  else {
+    $query->propertyCondition('anon_mail', $contact->allEmail(), 'IN');
+  }
+
+  $result = $query->execute();
 
   // setup the header for both the query and table
   $header = array(
