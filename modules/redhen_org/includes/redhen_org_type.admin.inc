@@ -14,6 +14,8 @@ function redhen_org_type_form($form, &$form_state, $redhen_org_type, $op = 'edit
     $redhen_org_type->name = '';
   }
 
+  $form['#redhen_org_type'] = $redhen_org_type;
+
   $form['label'] = array(
     '#title' => t('Label'),
     '#type' => 'textfield',
@@ -33,6 +35,12 @@ function redhen_org_type_form($form, &$form_state, $redhen_org_type, $op = 'edit
       'source' => array('label'),
     ),
     '#description' => t('A unique machine-readable name for this redhen organization type. It must only contain lowercase letters, numbers, and underscores.'),
+  );
+
+  $form['data'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Additional Settings'),
+    '#tree' => TRUE,
   );
 
   $form['actions'] = array('#type' => 'actions');
@@ -61,6 +69,7 @@ function redhen_org_type_form($form, &$form_state, $redhen_org_type, $op = 'edit
 function redhen_org_type_form_submit(&$form, &$form_state) {
   $redhen_org_type = entity_ui_form_submit_build_entity($form, $form_state);
   $redhen_org_type->save();
+  drupal_set_message(t('Organization type has been saved.'));
   $form_state['redirect'] = 'admin/structure/redhen/org_types';
 }
 
