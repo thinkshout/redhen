@@ -1,7 +1,7 @@
 <?php
 
 $plugin = array(
-  'title' => t('RedHen Organizations'),
-  'class' => 'RedHenGroupSelectionHandler',
+  'title' => t('Redhen Organization Groups'),
+  'class' => 'RedhenGroupSelectionHandler',
 );
 
