@@ -598,3 +598,27 @@ function redhen_contact_redhen_settings() {
       '#default_value' => variable_get('redhen_contact_connect_users', FALSE)
   ));
 }
+
+/**
+ * Return a RedHen contact assocaited with a givin Drupal account.
+ *
+ * @param $account
+ *
+ * @return
+ *    RedhenContact or FALSE
+ */
+function redhen_contact_user_contact($account) {
+  $contact = FALSE;
+  $result = db_select('redhen_contact_user', 'rcu')
+    ->fields('rcu', array('contact_id'))
+    ->condition('user_uid', $account->uid)
+    ->condition('redhen_state', REDHEN_STATE_ACTIVE)
+    ->execute()
+    ->fetchCol();
+
+  if ($result) {
+    $contact = redhen_contact_load(reset($result));
+  }
+
+  return $contact;
+}
