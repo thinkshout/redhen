@@ -28,22 +28,13 @@ function redhen_org_group_form_redhen_org_type_form_alter(&$form, &$form_state) 
     '#default_value' => isset($redhen_org_type->group_settings['private']) ? $redhen_org_type->group_settings['private'] : NULL
   );
 
-  $entities = entity_get_info();
-  $options = array();
-  foreach ($entities as $entity_name => $entity) {
-    if ($entity['fieldable']) {
-      foreach ($entity['bundles'] as $name => $bundle) {
-        $options[$entity['label']][$entity_name . ':' . $name] = $bundle['label'];
-      }
-    }
-  }
-  $form['data']['group_settings']['entity_types'] = array(
+  $form['data']['group_settings']['content_types'] = array(
     '#type' => 'select',
-    '#title' => t('Entity types'),
-    '#description' => t('Select which entity types can be posted into this group.'),
-    '#options' => $options,
+    '#title' => t('Content types'),
+    '#description' => t('Select which content types can be posted into this group.'),
+    '#options' => node_type_get_names(),
     '#multiple' => TRUE,
-    '#default_value' => isset($redhen_org_type->group_settings['entity_types']) ? $redhen_org_type->group_settings['entity_types'] : array()
+    '#default_value' => isset($redhen_org_type->group_settings['content_types']) ? $redhen_org_type->group_settings['content_types'] : array()
   );
 
   $form['#submit'][] = 'redhen_org_group_redhen_org_type_form_submit';
@@ -51,23 +42,23 @@ function redhen_org_group_form_redhen_org_type_form_alter(&$form, &$form_state) 
 
 /**
  * Submit handler for redhen_org_type_form().
- *
+ *ddnngyhh
  * @param $form
  * @param $form_state
  */
 function redhen_org_group_redhen_org_type_form_submit($form, &$form_state) {
   // create an instance of our audience field if it doesn't already exist
-  $entity_types = $form_state['values']['data']['group_settings']['entity_types'];
-  foreach ($entity_types as $type) {
-    list($entity_type, $bundle) = explode(':', $type);
-    $instance = field_read_instance($entity_type, REDHEN_ORG_GROUP_FIELD, $bundle);
+  // @todo: handle the unselection of an entity type
+  $content_types = $form_state['values']['data']['group_settings']['content_types'];
+  foreach ($content_types as $type) {
+    $instance = field_read_instance('node', REDHEN_ORG_GROUP_FIELD, $type);
 
     // create the field
     if (!$instance) {
       $instance = array(
         'field_name' => REDHEN_ORG_GROUP_FIELD,
-        'entity_type' => $entity_type,
-        'bundle' => $bundle,
+        'entity_type' => 'node',
+        'bundle' => $type,
         'label' => t('Group'),
         'widget' => array(
           'module' => 'options',
@@ -87,5 +78,24 @@ function redhen_org_group_redhen_org_type_form_submit($form, &$form_state) {
 function redhen_org_group_ctools_plugin_directory($module, $plugin) {
   if ($module == 'entityreference') {
     return 'plugins/' . $plugin;
+  }
+}
+
+/**
+ * Implements hook_redhen_org_type_delete()
+ *
+ * @param RedhenOrgType $redhen_org_type
+ */
+function redhen_org_group_redhen_org_type_delete(RedhenOrgType $redhen_org_type) {
+  // delete redhen group field
+  // @todo: make sure entity type in question isn't being used by other groups
+  if (isset($redhen_org_type->group_settings['content_types'])) {
+    foreach ($redhen_org_type->group_settings['content_types'] as $type) {
+      $instance = field_read_instance('node', REDHEN_ORG_GROUP_FIELD, $type);
+      if ($instance) {
+        field_delete_instance($instance, FALSE);
+        drupal_set_message(t('Deleted the @group_field associated with '));
+      }
+    }
   }
 }

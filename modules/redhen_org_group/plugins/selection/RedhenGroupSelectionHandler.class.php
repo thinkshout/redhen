@@ -40,9 +40,8 @@ class RedhenGroupSelectionHandler implements EntityReference_SelectionHandler {
     $valid_org_types = array();
     foreach ($org_types as $org_type) {
       if (isset($org_type->group) && $org_type->group && $org_type->redhen_state = REDHEN_STATE_ACTIVE) {
-        if (isset($org_type->group_settings['entity_types'])) {
-          $key = $this->instance['entity_type'] . ':' . $this->instance['bundle'];
-          if (in_array($key, $org_type->group_settings['entity_types'])) {
+        if (isset($org_type->group_settings['content_types'])) {
+          if (in_array($this->instance['bundle'], $org_type->group_settings['content_types'])) {
             $valid_org_types[] = $org_type->name;
           }
         }
