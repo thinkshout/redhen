@@ -37,7 +37,8 @@ function redhen_org_entity_info() {
       'uri callback' => 'entity_class_uri',
       'token type' => 'redhen_org',
       'module' => 'redhen_org',
-      'label callback' => 'entity_class_label'
+      'label callback' => 'entity_class_label',
+      'access callback' => 'redhen_org_access'
     ),
     'redhen_org_type' => array(
       'label' => t('Organization type'),
