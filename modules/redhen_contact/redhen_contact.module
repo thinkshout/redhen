@@ -37,7 +37,8 @@ function redhen_contact_entity_info() {
       'uri callback' => 'entity_class_uri',
       'token type' => 'redhen_contact',
       'module' => 'redhen_contact',
-      'label callback' => 'entity_class_label'
+      'label callback' => 'entity_class_label',
+      'access callback' => 'redhen_contact_access'
     ),
     'redhen_contact_type' => array(
       'label' => t('Contact type'),
