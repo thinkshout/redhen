@@ -47,7 +47,6 @@ function redhen_org_group_form_redhen_org_type_form_alter(&$form, &$form_state) 
  * @param $form_state
  */
 function redhen_org_group_redhen_org_type_form_submit($form, &$form_state) {
-  // create an instance of our audience field if it doesn't already exist
   $content_types = $form_state['values']['data']['group_settings']['content_types'];
 
   // delete field instances if a content type was removed
@@ -55,7 +54,7 @@ function redhen_org_group_redhen_org_type_form_submit($form, &$form_state) {
     if (!isset($content_types[$old_type])) {
       $instance = field_read_instance('node', REDHEN_ORG_GROUP_FIELD, $old_type);
       if ($instance) {
-        field_delete_instance($instance);
+        field_delete_instance($instance, FALSE);
         field_purge_batch(10);
         drupal_set_message(t('Field %label has been deleted from the %type content type.',
           array('%label' => $instance['label'], '%type' => $old_type)));
@@ -63,10 +62,9 @@ function redhen_org_group_redhen_org_type_form_submit($form, &$form_state) {
     }
   }
 
+  // create an instance of our audience field if it doesn't already exist
   foreach ($content_types as $type) {
     $instance = field_read_instance('node', REDHEN_ORG_GROUP_FIELD, $type);
-
-    // create the field
     if (!$instance) {
       $instance = array(
         'field_name' => REDHEN_ORG_GROUP_FIELD,
@@ -101,14 +99,27 @@ function redhen_org_group_ctools_plugin_directory($module, $plugin) {
  * @param RedhenOrgType $redhen_org_type
  */
 function redhen_org_group_redhen_org_type_delete(RedhenOrgType $redhen_org_type) {
-  // delete redhen group field
-  // @todo: make sure entity type in question isn't being used by other groups
+  // delete redhen group field if not used by another org type
   if (isset($redhen_org_type->group_settings['content_types'])) {
+    $org_types = redhen_org_get_types();
     foreach ($redhen_org_type->group_settings['content_types'] as $type) {
-      $instance = field_read_instance('node', REDHEN_ORG_GROUP_FIELD, $type);
-      if ($instance) {
-        field_delete_instance($instance, FALSE);
-        drupal_set_message(t('Deleted the @group_field associated with '));
+      $in_use = FALSE;
+      foreach ($org_types as $org_type) {
+        if ($org_type->name != $redhen_org_type->name && isset($org_type->group) && $org_type->group) {
+          if (isset($org_type->group_settings['content_types'])) {
+            $in_use = in_array($type, $org_type->group_settings['content_types']);
+          }
+        }
+      }
+
+      if (!$in_use) {
+        $instance = field_read_instance('node', REDHEN_ORG_GROUP_FIELD, $type);
+        if ($instance) {
+          field_delete_instance($instance, FALSE);
+          field_purge_batch(10);
+          drupal_set_message(t('Field %label has been deleted from the %type content type.',
+            array('%label' => $instance['label'], '%type' => $type)));
+        }
       }
     }
   }
