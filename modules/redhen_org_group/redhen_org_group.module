@@ -42,14 +42,27 @@ function redhen_org_group_form_redhen_org_type_form_alter(&$form, &$form_state) 
 
 /**
  * Submit handler for redhen_org_type_form().
- *ddnngyhh
+ *
  * @param $form
  * @param $form_state
  */
 function redhen_org_group_redhen_org_type_form_submit($form, &$form_state) {
   // create an instance of our audience field if it doesn't already exist
-  // @todo: handle the unselection of an entity type
   $content_types = $form_state['values']['data']['group_settings']['content_types'];
+
+  // delete field instances if a content type was removed
+  foreach ($form['data']['group_settings']['content_types']['#default_value'] as $old_type) {
+    if (!isset($content_types[$old_type])) {
+      $instance = field_read_instance('node', REDHEN_ORG_GROUP_FIELD, $old_type);
+      if ($instance) {
+        field_delete_instance($instance);
+        field_purge_batch(10);
+        drupal_set_message(t('Field %label has been deleted from the %type content type.',
+          array('%label' => $instance['label'], '%type' => $old_type)));
+      }
+    }
+  }
+
   foreach ($content_types as $type) {
     $instance = field_read_instance('node', REDHEN_ORG_GROUP_FIELD, $type);
 
@@ -66,8 +79,9 @@ function redhen_org_group_redhen_org_type_form_submit($form, &$form_state) {
           'type' => 'options_select',
         ),
       );
-
       field_create_instance($instance);
+      drupal_set_message(t('Field %label has been added to the %type content type.',
+        array('%label' => $instance['label'], '%type' => $type)));
     }
   }
 }
