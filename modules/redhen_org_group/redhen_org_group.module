@@ -3,6 +3,11 @@
 define('REDHEN_ORG_GROUP_FIELD', 'field_redhen_org_group');
 
 /**
+ * The access realm of group member.
+ */
+define('REDHEN_ORG_GROUP_ACCESS_REALM', 'redhen_org_group');
+
+/**
  * Implements hook_form_FORM_ID_alter().
  */
 function redhen_org_group_form_redhen_org_type_form_alter(&$form, &$form_state) {
@@ -123,4 +128,122 @@ function redhen_org_group_redhen_org_type_delete(RedhenOrgType $redhen_org_type)
       }
     }
   }
+}
+
+/**
+ * Return all redhen_org groups that a given user belongs to.
+ *
+ * @param $account
+ * @param $bundle
+ *   Optionally limit to groups that accept posts of a given bundle.
+ *
+ * @return array
+ *   An array of redhen_orgs keyed by organization id.
+ */
+function redhen_org_group_contact_groups($account, $private = FALSE, $bundle = NULL) {
+  $account_groups = array();
+
+  // get all orgs the given account is connected to
+  $group_types = redhen_org_group_group_types($private, $bundle);
+  if ($contact = redhen_contact_user_contact($account)) {
+    $relations = redhen_relation_relations($contact, 'redhen_affiliation');
+    foreach ($relations as $relation_id => $orgs) {
+      foreach ($orgs as $org) {
+        if (in_array($org->type, $group_types)) {
+          $account_groups[$org->org_id] = $org;
+        }
+      }
+    }
+  }
+
+  // get all orgs a user authored
+  $query = new EntityFieldQuery();
+  $result = $query
+    ->entityCondition('entity_type', 'redhen_org')
+    ->entityCondition('bundle', array_keys($group_types), 'IN')
+    ->propertyCondition('redhen_state', REDHEN_STATE_ACTIVE)
+    ->propertyCondition('author_uid', $account->uid)
+    ->execute();
+  if ($result) {
+    $orgs = redhen_org_load_multiple(array_keys($result['redhen_org']));
+    foreach ($orgs as $org) {
+      $account_groups[$org->org_id] = $org;
+    }
+  }
+
+  return $account_groups;
+}
+
+/**
+ * Return all redhen_org bundles that are groupified
+ *
+ * @param bool $private
+ *   If true, only return private groups.
+ * @param string $bundle
+ *   If provided, only orgs which support the given bundle will be returned.
+ *
+ * @return array
+ *   An array of redhen_org types keyed by bundle.
+ */
+function redhen_org_group_group_types($private = FALSE, $bundle = NULL) {
+  $group_types = array();
+  $org_types = redhen_org_get_types();
+  foreach ($org_types as $org_type) {
+    // is this group active and groupified?
+    if (isset($org_type->group) && $org_type->group && $org_type->redhen_state = REDHEN_STATE_ACTIVE) {
+      // either we don't care about private groups, or return those that are marked as private
+      if (!$private || ($private && (isset($org_type->group_settings['private']) && $org_type->group_settings['private']))) {
+        // either we don't care about which bundles can be posted into a group, or return groups matching a given bundle
+        if (!$bundle || ($bundle && isset($org_type->group_settings['content_types']) && in_array($bundle, $org_type->group_settings['content_types']))) {
+          $group_types[$org_type->name] = $org_type;
+        }
+      }
+    }
+  }
+  return $group_types;
+}
+
+/**
+ * Implements hook_node_grants().
+ */
+function redhen_org_group_node_grants($account, $op) {
+  if ($op != 'view') {
+    return;
+  }
+
+  foreach (redhen_org_group_contact_groups($account, TRUE) as $org_id => $org) {
+    $realm = REDHEN_ORG_GROUP_ACCESS_REALM . ':' . $org->name;
+    $grants[$realm][] = $org_id;
+  }
+
+  return !empty($grants) ? $grants : array();
+}
+
+
+/**
+ * Implements hook_node_access_records().
+ */
+function redhen_org_group_node_access_records($node) {
+  $grants = array();
+
+  $wrapper = entity_metadata_wrapper('node', $node);
+
+  if (!empty($wrapper->{REDHEN_ORG_GROUP_FIELD}) && $org_id = $wrapper->{REDHEN_ORG_GROUP_FIELD}->value()) {
+    if ($org = redhen_org_load($org_id)) {
+      if ($org_type = redhen_org_type_load($org->type)) {
+        if (isset($org_type->group) && $org_type->group && $org_type->redhen_state = REDHEN_STATE_ACTIVE && $org_type->group_settings['private']) {
+          $grants[] = array (
+            'realm' => REDHEN_ORG_GROUP_ACCESS_REALM . ':' . $org->type,
+            'gid' => entity_id('redhen_org', $org),
+            'grant_view' => 1,
+            'grant_update' => 0,
+            'grant_delete' => 0,
+            'priority' => 0,
+          );
+        }
+      }
+    }
+  }
+
+  return $grants;
 }
