@@ -35,32 +35,8 @@ class RedhenGroupSelectionHandler implements EntityReference_SelectionHandler {
   }
 
   protected function getContactGroups() {
-    $orgs = array();
-    $org_types = redhen_org_get_types();
-    $valid_org_types = array();
-    foreach ($org_types as $org_type) {
-      if (isset($org_type->group) && $org_type->group && $org_type->redhen_state = REDHEN_STATE_ACTIVE) {
-        if (isset($org_type->group_settings['content_types'])) {
-          if (in_array($this->instance['bundle'], $org_type->group_settings['content_types'])) {
-            $valid_org_types[] = $org_type->name;
-          }
-        }
-      }
-    }
-
     global $user;
-    if ($contact = redhen_contact_user_contact($user)) {
-      $relations = redhen_relation_relations($contact, 'redhen_affiliation');
-      foreach ($relations as $relation_id => $orgs) {
-        foreach ($orgs as $org) {
-          if (in_array($org->type, $valid_org_types)) {
-            $orgs[$org->org_id] = $org;
-          }
-        }
-      }
-    }
-
-    return $orgs;
+    return redhen_org_group_contact_groups($user, FALSE, $this->instance['bundle']);
   }
 
   /**
