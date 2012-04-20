@@ -4,3 +4,4 @@ package = RedHen
 core = 7.x
 
 dependencies[] = redhen_org
+dependencies[] = entityreference
