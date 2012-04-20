@@ -168,7 +168,7 @@ function redhen_relation_relations($entity, $relation_type = NULL) {
 }
 
 /**
- * Return a list of entities the given entity can be assocaited with.
+ * Return a list of entities the given entity can be associated with.
  *
  * @param $entity
  * @param $entity_type_to_relate
