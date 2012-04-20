@@ -124,16 +124,21 @@ function redhen_relation_connections_page($entity) {
  *
  * @param object $entity
  * @param string $relation_type
- *   Filter on a givne relation type if provided.
+ *   Filter on a given relation type if provided.
  *
  * @return array
- *   Keyed by the relation id which contains an arrary of entities.
+ *   Keyed by the relation id which contains an array of entities.
  *   Array (
  *     1 => array($entity1, $entity2),
  *     3 => array($entity3, $entity4)
  */
 function redhen_relation_relations($entity, $relation_type = NULL) {
-  $related_entities = array();
+  $related_entities = &drupal_static(__FUNCTION__ . $relation_type);
+
+  if ($related_entities) {
+    return $related_entities;
+  }
+
   $query = relation_query($entity->entityType(), $entity->internalIdentifier());
   if ($relation_type) {
     $query->propertyCondition('relation_type', $relation_type);
