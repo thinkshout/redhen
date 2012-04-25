@@ -306,8 +306,12 @@ function redhen_contact_remove_contact_user(RedhenContact $contact, $delete = FA
 function redhen_contact_save(RedhenContact $contact) {
 
   if (variable_get('redhen_contact_connect_users', FALSE)) {
-    if ($user = user_load_by_mail($contact->email) ) {
-      $contact->user_uid = $user->uid;
+    $emails = $contact->allEmail();
+    foreach ($emails as $email) {
+      if ($user = user_load_by_mail($email['value'])) {
+        $contact->user_uid = $user->uid;
+        break;
+      }
     }
   }
 
