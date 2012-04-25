@@ -8,6 +8,21 @@ define('REDHEN_ORG_GROUP_FIELD', 'field_redhen_org_group');
 define('REDHEN_ORG_GROUP_ACCESS_REALM', 'redhen_org_group');
 
 /**
+ * Implements hook_menu().
+ */
+function redhen_org_group_menu() {
+  $items['redhen/org/%redhen_org/content'] = array(
+    'title' => 'Content',
+    'page callback' => 'redhen_org_group_content_page',
+    'page arguments' => array(2),
+    'access arguments' => array('access redhen orgs'),
+    'type' => MENU_LOCAL_TASK,
+  );
+
+  return $items;
+}
+
+/**
  * Implements hook_form_FORM_ID_alter().
  */
 function redhen_org_group_form_redhen_org_type_form_alter(&$form, &$form_state) {
@@ -251,4 +266,29 @@ function redhen_org_group_node_access_records($node) {
   }
 
   return $grants;
+}
+
+/**
+ * Return a list of content posted into a RedHen group org
+ *
+ * @param RedhenOrg $org
+ *
+ * @return array|null|string
+ *   Teaser list of nodes.
+ */
+function redhen_org_group_content_page(RedhenOrg $org) {
+  $query = new EntityFieldQuery();
+  $result = $query
+    ->entityCondition('entity_type', 'node')
+    ->propertyCondition('status', 1)
+    ->fieldCondition(REDHEN_ORG_GROUP_FIELD, 'target_id', $org->org_id)
+    ->execute();
+
+  if (!$result) {
+    return t('There is no content for this group.');
+  }
+
+  $nodes = node_load_multiple(array_keys($result['node']));
+
+  return node_view_multiple($nodes);
 }
