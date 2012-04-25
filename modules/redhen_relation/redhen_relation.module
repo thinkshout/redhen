@@ -131,9 +131,10 @@ function redhen_relation_connections_page($entity) {
  *   Array (
  *     1 => array($entity1, $entity2),
  *     3 => array($entity3, $entity4)
+ *   )
  */
 function redhen_relation_relations($entity, $relation_type = NULL) {
-  $related_entities = &drupal_static(__FUNCTION__ . $relation_type);
+  $related_entities = &drupal_static(__FUNCTION__ . $relation_type, array());
 
   if ($related_entities) {
     return $related_entities;
@@ -143,6 +144,15 @@ function redhen_relation_relations($entity, $relation_type = NULL) {
   if ($relation_type) {
     $query->propertyCondition('relation_type', $relation_type);
   }
+
+  // this hideous hack is to avoid triggering the node access system which we
+  // need to to in order to avoid infinite recursion in
+  // redhen_org_group:node_grants().
+  // time came from http://drupal.stackexchange.com/questions/3927/how-to-bypass-node-access-when-using-entityfieldquery
+  // ticket pointing to issue http://drupal.org/node/1541236.
+  $query->addMetaData('account', user_load(1));
+
+  $query->addTag('redhen_relation');
   $results = $query->execute();
 
   if ($results) {
