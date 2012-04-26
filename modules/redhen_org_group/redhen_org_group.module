@@ -56,21 +56,24 @@ function redhen_org_group_form_redhen_org_type_form_alter(&$form, &$form_state) 
     '#multiple' => TRUE,
     '#default_value' => isset($redhen_org_type->group_settings['content_types']) ? $redhen_org_type->group_settings['content_types'] : array()
   );
-
-  $form['#submit'][] = 'redhen_org_group_redhen_org_type_form_submit';
 }
 
 /**
- * Submit handler for redhen_org_type_form().
- *
- * @param $form
- * @param $form_state
+ * Implements hook_redhen_org_type_insert().
  */
-function redhen_org_group_redhen_org_type_form_submit($form, &$form_state) {
-  $content_types = $form_state['values']['data']['group_settings']['content_types'];
+function  redhen_org_group_redhen_org_type_insert(RedhenOrgType $org_type) {
+  // create group field
+  redhen_org_group_create_instance($org_type);
+}
+
+/**
+ * Implements hook_redhen_org_type_update().
+ */
+function  redhen_org_group_redhen_org_type_update(RedhenOrgType $org_type) {
+  $content_types = $org_type->data['group_settings']['content_types'];
 
   // delete field instances if a content type was removed
-  foreach ($form['data']['group_settings']['content_types']['#default_value'] as $old_type) {
+  foreach ($org_type->group_settings['content_types'] as $old_type) {
     if (!isset($content_types[$old_type])) {
       $instance = field_read_instance('node', REDHEN_ORG_GROUP_FIELD, $old_type);
       if ($instance) {
@@ -81,6 +84,18 @@ function redhen_org_group_redhen_org_type_form_submit($form, &$form_state) {
       }
     }
   }
+
+  // create new field instances
+  redhen_org_group_create_instance($org_type);
+}
+
+/**
+ * Create group field instances.
+ *
+ * @param RedhenOrgType $org_type
+ */
+function redhen_org_group_create_instance(RedhenOrgType $org_type) {
+  $content_types = $org_type->data['group_settings']['content_types'];
 
   // create an instance of our audience field if it doesn't already exist
   foreach ($content_types as $type) {
