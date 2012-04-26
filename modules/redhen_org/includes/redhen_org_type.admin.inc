@@ -77,5 +77,5 @@ function redhen_org_type_form_submit(&$form, &$form_state) {
  * Form API submit callback for the delete button.
  */
 function redhen_org_type_form_submit_delete(&$form, &$form_state) {
-  $form_state['redirect'] = 'admin/structure/redhen/org_types/manage/' . $form_state['redhen_org_type']->type . '/delete';
+  $form_state['redirect'] = 'admin/structure/redhen/org_types/manage/' . $form_state['redhen_org_type']->name . '/delete';
 }
