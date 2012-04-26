@@ -70,17 +70,19 @@ function  redhen_org_group_redhen_org_type_insert(RedhenOrgType $org_type) {
  * Implements hook_redhen_org_type_update().
  */
 function  redhen_org_group_redhen_org_type_update(RedhenOrgType $org_type) {
-  $content_types = $org_type->data['group_settings']['content_types'];
+  if (isset($org_type->group_settings['content_types'])) {
+    $content_types = $org_type->data['group_settings']['content_types'];
 
-  // delete field instances if a content type was removed
-  foreach ($org_type->group_settings['content_types'] as $old_type) {
-    if (!isset($content_types[$old_type])) {
-      $instance = field_read_instance('node', REDHEN_ORG_GROUP_FIELD, $old_type);
-      if ($instance) {
-        field_delete_instance($instance, FALSE);
-        field_purge_batch(10);
-        drupal_set_message(t('Field %label has been deleted from the %type content type.',
-          array('%label' => $instance['label'], '%type' => $old_type)));
+    // delete field instances if a content type was removed
+    foreach ($org_type->group_settings['content_types'] as $old_type) {
+      if (!isset($content_types[$old_type])) {
+        $instance = field_read_instance('node', REDHEN_ORG_GROUP_FIELD, $old_type);
+        if ($instance) {
+          field_delete_instance($instance, FALSE);
+          field_purge_batch(10);
+          drupal_set_message(t('Field %label has been deleted from the %type content type.',
+            array('%label' => $instance['label'], '%type' => $old_type)));
+        }
       }
     }
   }
@@ -95,10 +97,12 @@ function  redhen_org_group_redhen_org_type_update(RedhenOrgType $org_type) {
  * @param RedhenOrgType $org_type
  */
 function redhen_org_group_create_instance(RedhenOrgType $org_type) {
-  $content_types = $org_type->data['group_settings']['content_types'];
+  if (!isset($org_type->data['group_settings']['content_types'])) {
+    return;
+  }
 
   // create an instance of our audience field if it doesn't already exist
-  foreach ($content_types as $type) {
+  foreach ($org_type->data['group_settings']['content_types'] as $type) {
     $instance = field_read_instance('node', REDHEN_ORG_GROUP_FIELD, $type);
     if (!$instance) {
       $instance = array(
