@@ -52,6 +52,9 @@ function redhen_fields_field_schema($field) {
  * Implements hook_install().
  */
 function redhen_fields_install() {
+  // Clear the field cache so the redhen_email type is found
+  field_cache_clear();
+  
   // create required email field to be used with contacts
   $email_field = array(
     'field_name' => REDHEN_CONTACT_EMAIL_FIELD,
