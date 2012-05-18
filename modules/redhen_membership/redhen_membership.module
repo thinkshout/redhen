@@ -614,9 +614,10 @@ function redhen_membership_contact_memberships(RedhenContact $contact) {
  * @param array $contacts
  */
 function redhen_membership_toggle_roles(RedhenMembership $membership, $contacts = array()) {
-  $membership_type = redhen_membership_get_types($membership->type);
+  $membership_types = redhen_membership_get_types();
   // If there is a role set for this membership type
-  if (!empty($membership_type->role_id)) {
+  $membership_rid = $membership_types[$membership->type]->role_id;
+  if (!empty($membership_rid)) {
     // If not provided, get the contacts associated with this membership
     if (empty($contacts)) {
       $contacts = redhen_membership_membership_contacts($membership);
@@ -625,12 +626,26 @@ function redhen_membership_toggle_roles(RedhenMembership $membership, $contacts 
       if (isset($contact->user)) {
         if ($membership->valid()) {
           // only set if the user doesn't already have this role
-          if (!isset($contact->user->roles[$membership_type->role_id])) {
-            $contact->user->roles[] = $membership_type->role_id;
+          if (!isset($contact->user->roles[$membership_rid])) {
+            $contact->user->roles[] = $membership_rid;
           }
         } else {
-          // @TODO don't unset if user still has a membership that allows this role
-          unset($contact->user->roles[$membership_type->role_id]);
+          // Get all memberships for this contact and look for valid memberships
+          $contact_memberships = redhen_membership_contact_memberships($contact);
+          // Iterate through the memberships looking for valid memberships that assign the role we want to delete.
+          $delete = TRUE;
+          foreach ($contact_memberships as $contact_membership) {
+            $contact_membership_rid = $membership_types[$contact_membership->type]->role_id;
+            if ( ($contact_membership->valid()) && (isset($contact_membership_rid)) && ($contact_membership_rid == $membership_rid) ) {
+              // Found a matching valid membership with the same role, abort the deletion
+              $delete = FALSE;
+            }
+          }
+
+          if ($delete) {
+            // No valid memberships with the same role_id were found, so we go ahead and delete
+            unset($contact->user->roles[$membership_rid]);
+          }
         }
         user_save($contact->user);
       }
