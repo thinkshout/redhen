@@ -96,6 +96,12 @@ class RedhenContactEntityController extends EntityAPIController {
         db_delete('redhen_contact_revision')
           ->condition('contact_id', $contact_ids, 'IN')
           ->execute();
+
+        // delete user connections
+        db_delete('redhen_contact_user')
+          ->condition('contact_id', $contact_ids, 'IN')
+          ->execute();
+
       }
       catch (Exception $e) {
         $transaction->rollback();
