@@ -688,8 +688,29 @@ function redhen_membership_entity_insert($entity, $entity_type) {
  * React to entity insertions that require roles to be toggled
  */
 function redhen_membership_entity_delete($entity, $entity_type) {
-  if ( ($entity_type == 'relation') && ($entity->relation_type == 'redhen_affiliation') ) {
-    redhen_membership_relation_toggle($entity);
+  switch ($entity_type) {
+    case 'relation':
+      if ($entity->relation_type == 'redhen_affiliation') {
+        redhen_membership_relation_toggle($entity);
+      }
+      break;
+    case 'redhen_contact':
+    case 'redhen_org':
+      // get all memberships for the org or contact and delete them
+      $membership_query = new EntityFieldQuery();
+
+      // build the query
+      $membership_query
+        ->entityCondition('entity_type', 'redhen_membership', '=')
+        ->propertyCondition('entity_type', $entity_type)
+        ->propertyCondition('entity_id', entity_id($entity_type, $entity));
+
+      $membership_results = $membership_query->execute();
+      $memberships = redhen_membership_load_multiple(array_keys($membership_results['redhen_membership']));
+      foreach ($memberships as $membership) {
+        redhen_membership_delete($membership);
+      }
+      break;
   }
 }
 
