@@ -286,6 +286,8 @@ function redhen_contact_remove_contact_user(RedhenContact $contact, $delete = FA
       ->fields(array('redhen_state' => REDHEN_STATE_ARCHIVED))
       ->execute();
   }
+
+  module_invoke_all('redhen_contact_user_remove', $delete, $contact);
 }
 
 /**
