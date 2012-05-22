@@ -612,8 +612,10 @@ function redhen_membership_contact_memberships(RedhenContact $contact) {
  *
  * @param RedhenMembership $membership
  * @param array $contacts
+ * @param bool $remove
+ *  If the role should be removed regardless of validity
  */
-function redhen_membership_toggle_roles(RedhenMembership $membership, $contacts = array()) {
+function redhen_membership_toggle_roles(RedhenMembership $membership, $contacts = array(), $remove = FALSE) {
   $membership_types = redhen_membership_get_types();
   // If there is a role set for this membership type
   $membership_rid = $membership_types[$membership->type]->role_id;
@@ -624,7 +626,7 @@ function redhen_membership_toggle_roles(RedhenMembership $membership, $contacts 
     }
     foreach ($contacts as $contact) {
       if (isset($contact->user)) {
-        if ($membership->valid()) {
+        if ( ($membership->valid()) && (!$remove) ) {
           // only set if the user doesn't already have this role
           if (!isset($contact->user->roles[$membership_rid])) {
             $contact->user->roles[] = $membership_rid;
@@ -632,13 +634,17 @@ function redhen_membership_toggle_roles(RedhenMembership $membership, $contacts 
         } else {
           // Get all memberships for this contact and look for valid memberships
           $contact_memberships = redhen_membership_contact_memberships($contact);
+
           // Iterate through the memberships looking for valid memberships that assign the role we want to delete.
           $delete = TRUE;
-          foreach ($contact_memberships as $contact_membership) {
-            $contact_membership_rid = $membership_types[$contact_membership->type]->role_id;
-            if ( ($contact_membership->valid()) && (isset($contact_membership_rid)) && ($contact_membership_rid == $membership_rid) ) {
-              // Found a matching valid membership with the same role, abort the deletion
-              $delete = FALSE;
+
+          if (!$remove) {
+            foreach ($contact_memberships as $contact_membership) {
+              $contact_membership_rid = $membership_types[$contact_membership->type]->role_id;
+              if ( ($contact_membership->valid()) && (isset($contact_membership_rid)) && ($contact_membership_rid == $membership_rid) ) {
+                // Found a matching valid membership with the same role, abort the deletion
+                $delete = FALSE;
+              }
             }
           }
 
@@ -668,6 +674,17 @@ function redhen_membership_redhen_contact_update(RedhenContact $contact) {
     foreach ($memberships as $membership) {
       redhen_membership_toggle_roles($membership, array($contact));
     }
+  }
+}
+
+/**
+ * Implements hook_redhen_contact_user_remove().
+ */
+function redhen_membership_redhen_contact_user_remove($delete, RedhenContact $contact) {
+  // Get all the memberships associated with this user
+  $memberships = redhen_membership_contact_memberships($contact);
+  foreach ($memberships as $membership) {
+    redhen_membership_toggle_roles($membership, array($contact), TRUE);
   }
 }
 
