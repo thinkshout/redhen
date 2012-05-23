@@ -81,8 +81,6 @@ class RedhenContactEntityController extends EntityAPIController {
       foreach ((array) $contacts as $contact_id => $contact) {
         if (in_array(FALSE, module_invoke_all('redhen_contact_can_delete', $contact))) {
           unset($contacts[$contact_id]);
-        } elseif (isset($contact->user)) {
-          module_invoke_all('redhen_contact_user_remove', TRUE, $contact);
         }
       }
 
