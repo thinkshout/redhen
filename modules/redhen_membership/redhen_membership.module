@@ -712,6 +712,13 @@ function redhen_membership_entity_delete($entity, $entity_type) {
       }
       break;
     case 'redhen_contact':
+      if ($entity->user_uid) {
+        // Get all the memberships associated with this user
+        $memberships = redhen_membership_contact_memberships($entity);
+        foreach ($memberships as $membership) {
+          redhen_membership_toggle_roles($membership, array($entity), TRUE);
+        }
+      }
     case 'redhen_org':
       // get all memberships for the org or contact and delete them
       $membership_query = new EntityFieldQuery();
@@ -723,9 +730,11 @@ function redhen_membership_entity_delete($entity, $entity_type) {
         ->propertyCondition('entity_id', entity_id($entity_type, $entity));
 
       $membership_results = $membership_query->execute();
-      $memberships = redhen_membership_load_multiple(array_keys($membership_results['redhen_membership']));
-      foreach ($memberships as $membership) {
-        redhen_membership_delete($membership);
+      if (isset($membership_results['redhen_membership'])) {
+        $memberships = redhen_membership_load_multiple(array_keys($membership_results['redhen_membership']));
+        foreach ($memberships as $membership) {
+          redhen_membership_delete($membership);
+        }
       }
       break;
   }
@@ -741,9 +750,12 @@ function redhen_membership_relation_toggle($relation) {
     // Find the contact endpoint
     if ($endpoint['entity_type'] == 'redhen_contact') {
       $contact = redhen_contact_load($endpoint['entity_id']);
-      $memberships = redhen_membership_contact_memberships($contact);
-      foreach ($memberships as $membership) {
-        redhen_membership_toggle_roles($membership, array($contact));
+      // Contact may already be deleted
+      if ($contact) {
+        $memberships = redhen_membership_contact_memberships($contact);
+        foreach ($memberships as $membership) {
+          redhen_membership_toggle_roles($membership, array($contact));
+        }
       }
     }
   }  
