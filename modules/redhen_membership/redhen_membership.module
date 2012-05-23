@@ -266,7 +266,8 @@ function redhen_membership_archive(RedhenMembership $membership) {
   $membership->redhen_state = !$membership->redhen_state;
   redhen_membership_save($membership);
   drupal_set_message(t('@membership has been updated.', array('@membership' => $membership->label())), 'status');
-  drupal_goto(drupal_get_destination());
+
+  return $membership;
 }
 
 /**
@@ -672,7 +673,13 @@ function redhen_membership_redhen_contact_update(RedhenContact $contact) {
     // Get all the memberships associated with this user
     $memberships = redhen_membership_contact_memberships($contact);
     foreach ($memberships as $membership) {
+      // If the contact is archived and this membership is attached to the contact, archive the membership
+      if ( ($contact->redhen_state !== REDHEN_STATE_ACTIVE) && (
+        ($membership->entity_type == 'redhen_contact') && ($membership->entity_id == $contact->contact_id) ) ) {
+        $membership = redhen_membership_archive($membership);
+      }
       redhen_membership_toggle_roles($membership, array($contact));
+
     }
   }
 }
