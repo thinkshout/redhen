@@ -267,7 +267,8 @@ function redhen_membership_archive(RedhenMembership $membership) {
   $membership->redhen_state = !$membership->redhen_state;
   redhen_membership_save($membership);
   drupal_set_message(t('@membership has been updated.', array('@membership' => $membership->label())), 'status');
-  drupal_goto(drupal_get_destination());
+
+  return $membership;
 }
 
 /**
@@ -613,25 +614,46 @@ function redhen_membership_contact_memberships(RedhenContact $contact) {
  *
  * @param RedhenMembership $membership
  * @param array $contacts
+ * @param bool $remove
+ *  If the role should be removed regardless of validity
  */
-function redhen_membership_toggle_roles(RedhenMembership $membership, $contacts = array()) {
-  $membership_type = redhen_membership_get_types($membership->type);
+function redhen_membership_toggle_roles(RedhenMembership $membership, $contacts = array(), $remove = FALSE) {
+  $membership_types = redhen_membership_get_types();
   // If there is a role set for this membership type
-  if (!empty($membership_type->role_id)) {
+  $membership_rid = $membership_types[$membership->type]->role_id;
+  if (!empty($membership_rid)) {
     // If not provided, get the contacts associated with this membership
     if (empty($contacts)) {
       $contacts = redhen_membership_membership_contacts($membership);
     }
     foreach ($contacts as $contact) {
       if (isset($contact->user)) {
-        if ($membership->valid()) {
+        if ( ($membership->valid()) && (!$remove) ) {
           // only set if the user doesn't already have this role
-          if (!isset($contact->user->roles[$membership_type->role_id])) {
-            $contact->user->roles[] = $membership_type->role_id;
+          if (!isset($contact->user->roles[$membership_rid])) {
+            $contact->user->roles[] = $membership_rid;
           }
         } else {
-          // @TODO don't unset if user still has a membership that allows this role
-          unset($contact->user->roles[$membership_type->role_id]);
+          // Get all memberships for this contact and look for valid memberships
+          $contact_memberships = redhen_membership_contact_memberships($contact);
+
+          // Iterate through the memberships looking for valid memberships that assign the role we want to delete.
+          $delete = TRUE;
+
+          if (!$remove) {
+            foreach ($contact_memberships as $contact_membership) {
+              $contact_membership_rid = $membership_types[$contact_membership->type]->role_id;
+              if ( ($contact_membership->valid()) && (isset($contact_membership_rid)) && ($contact_membership_rid == $membership_rid) ) {
+                // Found a matching valid membership with the same role, abort the deletion
+                $delete = FALSE;
+              }
+            }
+          }
+
+          if ($delete) {
+            // No valid memberships with the same role_id were found, so we go ahead and delete
+            unset($contact->user->roles[$membership_rid]);
+          }
         }
         user_save($contact->user);
       }
@@ -640,22 +662,143 @@ function redhen_membership_toggle_roles(RedhenMembership $membership, $contacts 
 }
 
 /**
- * Responds to a redhen_contact being updated.
+ * Standard membership query
+ *
+ * @param $entity_type
+ * @param $entity
+ * @return array|bool
+ */
+function redhen_membership_query($entity_type, $entity) {
+
+  $membership_query = new EntityFieldQuery();
+
+  // build the query
+  $membership_query
+    ->entityCondition('entity_type', 'redhen_membership', '=')
+    ->propertyCondition('entity_type', $entity_type)
+    ->propertyCondition('entity_id', entity_id($entity_type, $entity));
+
+  $membership_results = $membership_query->execute();
+  if (isset($membership_results['redhen_membership'])) {
+    $memberships = redhen_membership_load_multiple(array_keys($membership_results['redhen_membership']));
+  } else {
+    $memberships = FALSE;
+  }
+
+  return $memberships;
+}
+
+/**
+ * Implements hook_ENTITY_TYPE_update().
  *
  * If there is a user associated with a contact, see if we need to set their role based on the contact's membership(s)
  *
  * @param RedhenContact $contact
  *   The redhen_contact that is being updated.
- *
- * @see hook_entity_update()
  */
 function redhen_membership_redhen_contact_update(RedhenContact $contact) {
   if ($contact->user_uid) {
     // Get all the memberships associated with this user
     $memberships = redhen_membership_contact_memberships($contact);
     foreach ($memberships as $membership) {
+      // If the contact is archived and this membership is attached to the contact, archive the membership
+      if ( ($contact->redhen_state !== REDHEN_STATE_ACTIVE) && ($membership->redhen_state == REDHEN_STATE_ACTIVE) &&
+        ($membership->entity_type == 'redhen_contact') && ($membership->entity_id == $contact->contact_id) ) {
+        $membership = redhen_membership_archive($membership);
+      }
+      // Don't need this for the archive action, but do need it to catch new user linkage
       redhen_membership_toggle_roles($membership, array($contact));
+
     }
   }
 }
 
+/**
+ * Implements hook_ENTITY_TYPE_update().
+ *
+ * @param RedHenOrg $org
+ *   The redhen_org that is being updated.
+ */
+function redhen_membership_redhen_org_update(RedHenOrg $org) {
+  // Get all the memberships associated with this organization
+  $memberships = redhen_membership_query('redhen_org', $org);
+  foreach ($memberships as $membership) {
+    // If the organization is archived and this membership is attached to the org, archive the membership
+    if ( ($org->redhen_state !== REDHEN_STATE_ACTIVE) && ($membership->redhen_state == REDHEN_STATE_ACTIVE) ) {
+      redhen_membership_archive($membership);
+    }
+  }
+}
+
+/**
+ * Implements hook_redhen_contact_user_remove().
+ */
+function redhen_membership_redhen_contact_user_remove($delete, RedhenContact $contact) {
+  // Get all the memberships associated with this user
+  $memberships = redhen_membership_contact_memberships($contact);
+  foreach ($memberships as $membership) {
+    redhen_membership_toggle_roles($membership, array($contact), TRUE);
+  }
+}
+
+/**
+ * Implements hook_entity_insert().
+ *
+ * React to entity insertions that require roles to be toggled
+ */
+function redhen_membership_entity_insert($entity, $entity_type) {
+  if ( ($entity_type == 'relation') && ($entity->relation_type == 'redhen_affiliation') ) {
+    redhen_membership_relation_toggle($entity);
+  }
+}
+
+/**
+ * Implements hook_entity_delete().
+ *
+ * React to entity insertions that require roles to be toggled
+ */
+function redhen_membership_entity_delete($entity, $entity_type) {
+  switch ($entity_type) {
+    case 'relation':
+      if ($entity->relation_type == 'redhen_affiliation') {
+        redhen_membership_relation_toggle($entity);
+      }
+      break;
+    case 'redhen_contact':
+      if ($entity->user_uid) {
+        // Get all the memberships associated with this user
+        $memberships = redhen_membership_contact_memberships($entity);
+        foreach ($memberships as $membership) {
+          redhen_membership_toggle_roles($membership, array($entity), TRUE);
+        }
+      }
+      // no break because we want to run the code below redhen_org as well
+    case 'redhen_org':
+      $memberships = redhen_membership_query($entity_type, $entity);
+      foreach ($memberships as $membership) {
+        redhen_membership_delete($membership);
+      }
+      break;
+  }
+}
+
+/**
+ * Toggle memberships based on a specific relation object.
+ *
+ * @param $relation
+ */
+function redhen_membership_relation_toggle($relation) {
+  foreach ($relation->endpoints[LANGUAGE_NONE] as $endpoint) {
+    // Find the contact endpoint
+    if ($endpoint['entity_type'] == 'redhen_contact') {
+      $contact = redhen_contact_load($endpoint['entity_id']);
+      // Contact may already be deleted
+      if ($contact) {
+        $memberships = redhen_membership_contact_memberships($contact);
+        foreach ($memberships as $membership) {
+          redhen_membership_toggle_roles($membership, array($contact));
+        }
+      }
+    }
+  }  
+}

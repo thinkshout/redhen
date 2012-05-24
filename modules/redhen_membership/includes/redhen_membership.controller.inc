@@ -26,6 +26,11 @@ class RedhenMembershipEntityController extends EntityAPIController {
 
       parent::save($membership, $transaction);
 
+      // If the entity isn't set, this is a new membership. We need to load it in full to toggle roles later
+      if (!$membership->entity) {
+        $membership = redhen_membership_load($membership->identifier());
+      }
+
       // Toggle user roles as needed after saving the membership
       redhen_membership_toggle_roles($membership);
 

@@ -52,17 +52,23 @@ function redhen_fields_field_schema($field) {
  * Implements hook_install().
  */
 function redhen_fields_install() {
-  // create required email field to be used with contacts
-  $email_field = array(
-    'field_name' => REDHEN_CONTACT_EMAIL_FIELD,
-    'type' => 'redhen_email',
-    'locked' => TRUE,
-    'cardinality' => FIELD_CARDINALITY_UNLIMITED,
-    'settings' => array(
-      'labels' => array('home', 'work')
-    )
-  );
-  field_create_field($email_field);
+  // Clear the field cache so the redhen_email type is found
+  field_cache_clear();
+  
+  // if the field doesn't already exist, create required email field to be used with contacts
+  $prior_field = field_read_field(REDHEN_CONTACT_EMAIL_FIELD, array('include_inactive' => TRUE));
+  if (empty($prior_field)) {
+    $email_field = array(
+      'field_name' => REDHEN_CONTACT_EMAIL_FIELD,
+      'type' => 'redhen_email',
+      'locked' => TRUE,
+      'cardinality' => FIELD_CARDINALITY_UNLIMITED,
+      'settings' => array(
+        'labels' => array('home', 'work')
+      )
+    );
+    field_create_field($email_field);
+  }
 }
 
 /**
