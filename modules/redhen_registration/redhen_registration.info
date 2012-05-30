@@ -1,7 +1,0 @@
-name = Redhen Registration
-description = Integrates the Entity Registrations module.
-package = RedHen
-core = 7.x
-
-dependencies[] = redhen_contact
-dependencies[] = registration

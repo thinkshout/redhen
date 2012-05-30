@@ -1,8 +1,0 @@
-name = RedHen Engagement
-description = Provides Redhen contact engagement scoring.
-package = RedHen
-core = 7.x
-
-dependencies[] = redhen_contact
-
-files[] = includes/redhen_engagement.entity.inc
