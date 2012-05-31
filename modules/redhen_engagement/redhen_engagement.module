@@ -238,10 +238,8 @@ function redhen_engagement_contact_score(RedhenContact $contact) {
   $query->addExpression('SUM(score)', 'score');
 
   $result = $query->execute();
-  if ($result) {
-    if ($sum = reset($result->fetchCol())) {
-      $score = $sum;
-    }
+  if ($result && $col = $result->fetchCol()) {
+    $score = reset($col);
   }
 
   return $score;
