@@ -74,16 +74,20 @@ function redhen_org_entity_info() {
  * issue as loading the model types requires the entity info as well.
  */
 function redhen_org_entity_info_alter(&$entity_info) {
-  foreach (redhen_org_get_types() as $type => $info) {
-    $entity_info['redhen_org']['bundles'][$type] = array(
-      'label' => $info->label,
-      'admin' => array(
-        'path' => 'admin/structure/redhen/org_types/manage/%redhen_org_type',
-        'real path' => 'admin/structure/redhen/org_types/manage/' . $type,
-        'bundle argument' => 5,
-        'access arguments' => array('administer redhen_org types'),
-      ),
-    );
+  // @todo: we're testing to ensure the schema exists; needed because running gui
+  // install profile was hitting this BEFORE the schema was installed.
+  if (drupal_get_schema('redhen_org')) {
+    foreach (redhen_org_get_types() as $type => $info) {
+      $entity_info['redhen_org']['bundles'][$type] = array(
+        'label' => $info->label,
+        'admin' => array(
+          'path' => 'admin/structure/redhen/org_types/manage/%redhen_org_type',
+          'real path' => 'admin/structure/redhen/org_types/manage/' . $type,
+          'bundle argument' => 5,
+          'access arguments' => array('administer redhen_org types'),
+        ),
+      );
+    }
   }
 }
 
