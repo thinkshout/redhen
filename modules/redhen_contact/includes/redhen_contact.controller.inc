@@ -145,7 +145,8 @@ class RedhenContactEntityController extends EntityAPIController {
       ->condition('contact_id', $contact->contact_id, '=')
       ->execute();
     if ($result) {
-      $contact_user = reset($result->fetchAllAssoc('user_uid'));
+      $rows = $result->fetchAllAssoc('user_uid');
+      $contact_user = reset($rows);
     }
 
     // no user connection, create
