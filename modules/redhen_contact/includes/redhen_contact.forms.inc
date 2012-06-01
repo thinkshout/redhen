@@ -46,43 +46,6 @@ function redhen_contact_contact_form($form, &$form_state, $contact) {
     '#weight' => 10,
   );
 
-  if ($contact->user) {
-    $user_uri = entity_uri('user', $contact->user);
-    $form['user'] = array(
-      '#type' => 'fieldset',
-      '#description' => t('The Drupal user associated with this contact.'),
-      array(
-        'name' => array(
-          '#type' => 'item',
-          '#markup' => l($contact->user->name, $user_uri['path'])
-        )
-      ),
-      array(
-        'user_actions' => array(
-          '#type' => 'actions',
-          array(
-            'unlink' => array(
-              '#type' => 'button',
-              '#value' => t('Unlink'),
-              '#ajax' => array(
-                'callback' => 'redhen_contact_unlink_user_callback',
-                'wrapper' => 'edit-user'
-              )
-            ),
-            'delete' => array(
-              '#type' => 'button',
-              '#value' => t('Delete'),
-              '#ajax' => array(
-                'callback' => 'redhen_contact_unlink_user_callback',
-                'wrapper' => 'edit-user'
-              )
-            )
-          )
-        )
-      )
-    );
-  }
-
   // Add the field related form elements.
   $form_state['redhen_contact'] = $contact;
   field_attach_form('redhen_contact', $contact, $form, $form_state);
@@ -112,29 +75,6 @@ function redhen_contact_contact_form($form, &$form_state, $contact) {
   $form['#validate'][] = 'redhen_contact_contact_form_validate';
 
   return $form;
-}
-
-/**
- * Ajax callback for clearing a user from a contact.
- *
- * @param $form
- * @param $form_state
- * @return mixed
- */
-function redhen_contact_unlink_user_callback($form, &$form_state) {
-  $contact = &$form_state['redhen_contact'];
-  $delete = ($form_state['clicked_button']['#parents'][0] == 'delete');
-  redhen_contact_remove_contact_user($contact, $delete);
-  $form['user'] = array(
-    '#type' => 'fieldset',
-    array(
-      'message' => array(
-        '#type' => 'item',
-        '#markup' => t('The Drupal user has been removed from this contact')
-      )
-    )
-  );
-  return $form['user'];
 }
 
 /**
@@ -216,5 +156,198 @@ function redhen_contact_contact_delete_form_submit($form, &$form_state) {
   }
   else {
     drupal_set_message(t('%title could not be deleted.', array('%title' => $contact->name)), 'error');
+  }
+}
+
+/**
+ * Return a form for managing contact/user links.
+ *
+ * @param $form
+ * @param $form_state
+ *
+ * @return array
+ */
+function redhen_contact_contact_user_form($form, &$form_state, RedhenContact $contact) {
+  $form_state['redhen_contact'] = $contact;
+  $form['#attributes'] = array('id' => 'redhen-contact-user-form');
+
+  if ($contact->user) {
+    $user_uri = entity_uri('user', $contact->user);
+    $form['existing_user'] = array(
+      '#type' => 'container',
+      array(
+	'message' => array('#markup' => t('!user is currently linked with %contact.', array(
+	  '!user' => l($contact->user->name, $user_uri['path']),
+	  '%contact' => $contact->label()
+	))),
+	'user' => user_view($contact->user)
+      ),
+      array(
+	'user_actions' => array(
+	  '#type' => 'actions',
+	  array(
+	    'unlink' => array(
+	      '#type' => 'button',
+	      '#value' => t('Unlink'),
+	      '#ajax' => array(
+		'callback' => 'redhen_contact_unlink_user_callback',
+		'wrapper' => 'redhen-contact-user-form'
+	      ),
+	    ),
+	    'delete' => array(
+	      '#type' => 'button',
+	      '#value' => t('Delete'),
+	      '#ajax' => array(
+		'callback' => 'redhen_contact_unlink_user_callback',
+		'wrapper' => 'redhen-contact-user-form'
+	      )
+	    )
+	  )
+	)
+      )
+    );
+  }
+  else {
+    $form['link_user'] = array(
+      '#title' => t('Link a Drupal user'),
+      '#type' => 'select',
+      '#options' => array(
+	'' => t('None'),
+	'existing' => t('Choose existing'),
+	'new' => t('Create new')
+      ),
+      '#description' => t('Link a new or existing Drupal user to this contact'),
+      '#ajax' => array(
+	'callback' => 'redhen_contact_select_user_callback',
+	'wrapper' => 'redhen-contact-user-form'
+      ),
+      '#weight' => -100,
+    );
+
+    if (isset($form_state['values']['link_user']) && !empty($form_state['values']['link_user'])) {
+      switch($form_state['values']['link_user']) {
+	case 'existing':
+	  // get default value based on email
+	  $desc = t('Start typing to select a Drupal user to link to this contact.');
+	  foreach ($contact->allEmail() as $email) {
+	    if ($user = user_load_by_mail($email)) {
+	      $default = $user->name;
+	      $desc = t('A match has been found for user %name by matching on the contact email address. It can be overriden by entering a differnt value.',
+		array('%name' => $user->name));
+	      break;
+	    }
+	  }
+	  $form['existing'] = array(
+	    '#title' => t('Existing'),
+	    '#type' => 'textfield',
+	    '#description' => $desc,
+	    '#default_value' => $default,
+	    '#autocomplete_path' => 'user/autocomplete'
+	  );
+
+	  break;
+
+	case 'new';
+	  user_account_form($form, $form_state);
+	  // default value for email field
+	  $form['account']['mail']['#default_value'] = $contact->email;
+	  $form['account']['name']['#default_value'] = $contact->label();
+	  $form['#user_category'] = 'account';
+	  $account = new stdClass();
+	  $account->uid = 0;
+	  $form['#user'] = $account;
+      }
+    }
+
+    $form['actions']['submit'] = array(
+      '#type' => 'submit',
+      '#value' => t('Link user')
+    );
+  }
+
+  return $form;
+}
+
+/**
+ * Ajax callback when changing the type of linkage to create.
+ *
+ * @param $form
+ * @param $form_state
+ *
+ * @return array
+ */
+function redhen_contact_select_user_callback($form, &$form_state) {
+  // hack to prevent validation on ajax postback, http://drupal.org/node/831900#comment-3124386
+  drupal_get_messages('error');
+  form_set_error(NULL, '', TRUE);
+
+  // clear any potential error messages
+  $commands[] = ajax_command_remove('#messages');
+
+  // return the entire form since we need a certain structure for the
+  // user account validation to work properly
+  $commands[] = ajax_command_replace('#redhen-contact-user-form', render($form));
+
+  return array('#type' => 'ajax', '#commands' => $commands);
+}
+
+/**
+ * Ajax callback for clearing a user from a contact.
+ *
+ * @param $form
+ * @param $form_state
+ * @return mixed
+ */
+function redhen_contact_unlink_user_callback($form, &$form_state) {
+  $contact = &$form_state['redhen_contact'];
+  $delete = ($form_state['clicked_button']['#parents'][0] == 'delete');
+  redhen_contact_remove_contact_user($contact, $delete);
+  $form['user'] = array(
+    '#type' => 'fieldset',
+    array(
+      'message' => array(
+	'#type' => 'item',
+	'#markup' => t('The Drupal user has been removed from this contact')
+      )
+    )
+  );
+  return $form['user'];
+}
+
+/**
+ * Submit handler for redhen_contact_contact_user_form().
+ *
+ * @param $form
+ * @param $form_state
+ */
+function redhen_contact_contact_user_form_submit($form, &$form_state) {
+  $contact = $form_state['redhen_contact'];
+
+  switch($form_state['values']['link_user']) {
+    case 'existing':
+      $user = user_load_by_name($form_state['values']['existing']);
+      $contact->user_uid = $user->uid;
+      break;
+    case 'new':
+      if ($user = user_save(NULL, $form_state['values'])) {
+	$contact->user_uid = $user->uid;
+      }
+      else {
+	drupal_set_message(t('Unable to create a new contact'));
+      }
+
+      break;
+  }
+
+  if ($contact->user_uid) {
+    entity_get_controller('redhen_contact')->setUser($contact);
+    drupal_set_message(t('Drupal user %name has been linked to contact %contact.',
+      array(
+	'%name' => $user->name,
+	'%contact' => $contact->label()
+      )
+    ));
+    $uri = entity_uri('redhen_contact', $contact);
+    $form_state['redirect'] = $uri['path'];
   }
 }
