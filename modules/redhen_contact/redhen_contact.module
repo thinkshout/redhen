@@ -151,17 +151,6 @@ function redhen_contact_menu() {
     'weight' => -10,
     'context' => MENU_CONTEXT_PAGE | MENU_CONTEXT_INLINE,
   );
-
-  $items['redhen/contact/%redhen_contact/view/delete'] = array(
-    'title' => 'Delete',
-    'page callback' => 'drupal_get_form',
-    'page arguments' => array('redhen_contact_contact_delete_form', 2),
-    'access callback' => 'redhen_contact_access',
-    'access arguments' => array('delete', 2),
-    'type' => MENU_LOCAL_TASK,
-    'weight' => 10,
-    'file' => 'includes/redhen_contact.forms.inc',
-  );
   $items['redhen/contact/%redhen_contact/view/edit'] = array(
     'title' => 'Edit',
     'page callback' => 'drupal_get_form',
@@ -170,6 +159,27 @@ function redhen_contact_menu() {
     'access arguments' => array('edit', 2),
     'type' => MENU_LOCAL_TASK,
     'file' => 'includes/redhen_contact.forms.inc',
+    'weight' => 2
+  );
+  $items['redhen/contact/%redhen_contact/view/user'] = array(
+    'title' => 'Drupal user link',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('redhen_contact_contact_user_form', 2),
+    'access callback' => 'redhen_contact_access',
+    'access arguments' => array('edit', 2),
+    'type' => MENU_LOCAL_TASK,
+    'file' => 'includes/redhen_contact.forms.inc',
+    'weight' => 3
+  );
+  $items['redhen/contact/%redhen_contact/view/delete'] = array(
+    'title' => 'Delete',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('redhen_contact_contact_delete_form', 2),
+    'access callback' => 'redhen_contact_access',
+    'access arguments' => array('delete', 2),
+    'type' => MENU_LOCAL_TASK,
+    'file' => 'includes/redhen_contact.forms.inc',
+    'weight' => 4,
   );
 
   $items['redhen/contact/%redhen_contact/archive'] = array(
@@ -295,6 +305,7 @@ function redhen_contact_remove_contact_user(RedhenContact $contact, $delete = FA
       ->fields(array('redhen_state' => REDHEN_STATE_ARCHIVED))
       ->execute();
   }
+  unset($contact->user);
 
   module_invoke_all('redhen_contact_user_remove', $delete, $contact);
 }
