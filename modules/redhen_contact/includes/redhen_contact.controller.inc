@@ -138,7 +138,7 @@ class RedhenContactEntityController extends EntityAPIController {
    *
    * @param $contact
    */
-  protected function setUser($contact) {
+  public function setUser(RedhenContact $contact) {
     $contact_user = array();
     $result = db_select('redhen_contact_user', 'cu')
       ->fields('cu')
