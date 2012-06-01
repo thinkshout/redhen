@@ -195,10 +195,8 @@ function redhen_fields_field_instance_settings_form($field, $instance) {
 function redhen_fields_field_validate($entity_type, $entity, $field, $instance, $langcode, $items, &$errors) {
   switch ($field['type']) {
     case 'redhen_email':
-      $default = FALSE;
-
       // check for duplicates for same contact record
-      foreach ($items as$item) {
+      foreach ($items as $item) {
         if (!empty($item['value'])) {
           $emails[] = $item['value'];
         }
@@ -211,8 +209,12 @@ function redhen_fields_field_validate($entity_type, $entity, $field, $instance, 
         );
       }
 
+      $default = $email_entered = FALSE;
       foreach ($items as $delta => $item) {
         if (!empty($item['value'])) {
+          $email_entered = TRUE;
+
+          // ensure email is valid
           if (filter_var($item['value'], FILTER_VALIDATE_EMAIL) === FALSE) {
             $errors[$field['field_name']][$langcode][$delta][] = array(
               'error' => 'redhen_fields_invalid_email',
@@ -220,6 +222,8 @@ function redhen_fields_field_validate($entity_type, $entity, $field, $instance, 
               'delta' => $delta,
             );
           }
+
+          // check to see if email is already in use
           if (redhen_fields_email_in_use($field, $entity_type, $entity, $item['value'])) {
             $errors[$field['field_name']][$langcode][$delta][] = array(
               'error' => 'redhen_fields_invalid_email',
@@ -232,7 +236,7 @@ function redhen_fields_field_validate($entity_type, $entity, $field, $instance, 
           if ($default && $item['default']) {
             $errors[$field['field_name']][$langcode][$delta][] = array(
               'error' => 'redhen_fields_multiple_default',
-              'message' => t('Only one email may be marked as default.'),
+              'message' => t('Only one email may be marked as primary.'),
               'delta' => $delta,
             );
           }
@@ -240,6 +244,15 @@ function redhen_fields_field_validate($entity_type, $entity, $field, $instance, 
             $default = TRUE;
           }
         }
+      }
+
+      // ensure at least one email is marked as primary
+      if ($email_entered && !$default) {
+        $errors[$field['field_name']][$langcode][count($items)-2][] = array(
+          'error' => 'redhen_fields_invalid_email',
+          'message' => t('One email must be marked as primary.'),
+          'delta' => count($items)-2,
+        );
       }
       break;
   }
