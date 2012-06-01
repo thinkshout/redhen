@@ -60,6 +60,32 @@ function redhen_relation_menu() {
 }
 
 /**
+ * Implements hook_menu_alter().
+ *
+ * @param $items
+ */
+function redhen_relation_menu_alter(&$items) {
+  // Use our own page title callback for relation/X pages
+  $items['relation/%relation']['title callback'] = 'redhen_relation_page_title';
+}
+
+/**
+ * Custom title callback for relation pages.
+ */
+function redhen_relation_page_title($relation) {
+  $relation_type = array_pop(relation_get_types(array($relation->relation_type)));
+
+  $endpoints = field_get_items('relation', $relation, 'endpoints');
+  foreach ($endpoints as $endpoint) {
+    $object_entities = entity_load($endpoint['entity_type'], array($endpoint['entity_id']));
+    $related_entities[] = reset($object_entities);
+  }
+
+  return $relation_type->label . ' between ' . $related_entities[0]->label() . ' and ' . $related_entities[1]->label();
+
+}
+
+/**
  * Page callback for listing connections.
  *
  * @param RedhenContact|RedhenOrg $entity
