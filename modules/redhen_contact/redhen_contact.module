@@ -320,7 +320,7 @@ function redhen_contact_save(RedhenContact $contact) {
     }
   }
 
-  $contact = entity_get_controller('redhen_contact')->save($contact);
+  $contact->save();
 
   return $contact;
 }
