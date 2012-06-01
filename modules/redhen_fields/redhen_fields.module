@@ -405,7 +405,7 @@ function redhen_fields_field_widget_form(&$form, &$form_state, $field, $instance
       $element['default'] = array(
         '#title' => t('Primary'),
         '#type' => 'checkbox',
-        '#default_value' => isset($items[$delta]['default']) ? $items[$delta]['default'] : FALSE,
+        '#default_value' => isset($items[$delta]['default']) ? $items[$delta]['default'] : $delta == 0,
         '#weight' => 2,
       );
       break;
