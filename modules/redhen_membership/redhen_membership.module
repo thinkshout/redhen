@@ -32,6 +32,10 @@ function redhen_membership_entity_info() {
           'label' => t('Full membership'),
           'custom settings' => FALSE,
         ),
+        'teaser' => array(
+          'label' => t('Teaser'),
+          'custom settings' => TRUE,
+        ),
       ),
       'uri callback' => 'entity_class_uri',
       'token type' => 'redhen_membership',

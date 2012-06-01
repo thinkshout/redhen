@@ -33,6 +33,10 @@ function redhen_org_entity_info() {
           'label' => t('Full organization'),
           'custom settings' => FALSE,
         ),
+        'teaser' => array(
+          'label' => t('Teaser'),
+          'custom settings' => TRUE,
+        ),
       ),
       'uri callback' => 'entity_class_uri',
       'token type' => 'redhen_org',
