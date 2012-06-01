@@ -48,6 +48,13 @@ function redhen_relation_menu() {
     'access arguments' => array('edit', 2),
     'type' => MENU_LOCAL_ACTION,
   );
+  $items['redhen/relation/autocomplete/%'] = array(
+    'title' => 'Autocomplete for RedHen Relations',
+    'page callback' => 'redhen_relation_autocomplete',
+    'page arguments' => array(3, 4, 5, 6, 7),
+    'access callback' => TRUE,  // @todo Set permissions
+    'type' => MENU_CALLBACK ,
+  );
 
   return $items;
 }
@@ -185,9 +192,11 @@ function redhen_relation_relations($entity, $relation_type = NULL) {
  * @param $entity
  * @param $entity_type_to_relate
  * @param $relation_type
+ * @param $search
+ * @param $limit
  * @return array
  */
-function redhen_relation_get_available_entities($entity, $entity_type_to_relate, $relation_type) {
+function redhen_relation_get_available_entities($entity, $entity_type_to_relate, $relation_type, $search = '', $limit = 0) {
   $entities = array();
 
   $query = new EntityFieldQuery();
@@ -209,9 +218,43 @@ function redhen_relation_get_available_entities($entity, $entity_type_to_relate,
     $query->propertyCondition($idKey, $to_exclude, 'NOT IN');
   }
 
+  // keyword search
+  if ($search != '') {
+    // If we're searching for redhen_contacts, set a query tag so we can alter the fields that are searched in redhen_contact
+    if ($entity_type_to_relate == 'redhen_contact') {
+      $query->addTag('redhen_contact_label');
+    }
+
+    $query->propertyCondition('label', $search, 'CONTAINS');
+  }
+
+  if ($limit > 0 ) {
+    $query->range(0, $limit);
+  }
 
   if ($result = $query->execute()) {
     $entities = entity_load($entity_type_to_relate, array_keys($result[$entity_type_to_relate]));
   }
   return $entities;
+}
+
+/**
+ * Autocomplete callback for listing available entities for a relation type
+ */
+function redhen_relation_autocomplete($relation_type = '', $entity_type_to_relate = '', $entity_type = '', $entity_id = '', $search = '') {
+  if (empty($relation_type) || empty($entity_type_to_relate) || empty($entity_type) || empty($entity_id)) {
+    exit();
+  }
+
+  $entity = array_pop(entity_load($entity_type, array($entity_id)));
+
+  $available_entities = redhen_relation_get_available_entities($entity, $entity_type_to_relate, $relation_type, $search, 10);
+
+  foreach ($available_entities as $available_entity) {
+    $entity_id = entity_id($available_entity->entityType(), $available_entity);
+    $entity_label = entity_label($available_entity->entityType(), $available_entity);
+    $options[$entity_label . ' (' . $entity_id . ')'] = $entity_label;
+  }
+  print drupal_json_encode($options);
+  exit();
 }

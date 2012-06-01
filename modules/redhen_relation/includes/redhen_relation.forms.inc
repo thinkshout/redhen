@@ -61,41 +61,25 @@ function redhen_relation_connection_form($form, &$form_state, $entity) {
     '#id' => 'redhen_relation_fields'
   );
 
-  $available_entities = redhen_relation_get_available_entities($entity, $entity_type_to_relate, $relation->relation_type);
+  $info = entity_get_info($entity_type_to_relate);
+  $plural_label = isset($info['plural label']) ? $info['plural label'] : $info['label'] . 's';
+  $form['fields']['entity_to_relate'] = array(
+    '#title' => $plural_label,
+    '#type' => 'textfield',
+    '#required' => TRUE,
+    '#autocomplete_path' => 'redhen/relation/autocomplete/' . $relation->relation_type . '/' . $entity_type_to_relate . '/' . $entity->entityType() . '/' . $entity->identifier(),
+  );
 
-  if (!empty($available_entities)) {
-    $options = array('' => t('-- Select --'));
-    foreach ($available_entities as $available_entity) {
-      $entity_id = entity_id($available_entity->entityType(), $available_entity);
-      $options[$entity_id] = entity_label($available_entity->entityType(), $available_entity);
-    }
+  // attach any fields
+  field_attach_form('relation', $relation, $form['fields'], $form_state);
 
-    $info = entity_get_info($entity_type_to_relate);
-    $plural_label = isset($info['plural label']) ? $info['plural label'] : $info['label'] . 's';
-    $form['fields']['entity_to_relate'] = array(
-      '#title' => $plural_label,
-      '#type' => 'select',
-      '#options' => $options,
-      '#required' => TRUE
-    );
-
-    // attach any fields
-    field_attach_form('relation', $relation, $form['fields'], $form_state);
-
-    // hide the endpoints field widget. @TODO: Find out why appearing.
-    $form['fields']['endpoints']['#access'] = FALSE;
-  }
-  else {
-    $form['fields']['no_connections'] = array(
-      '#markup' => t('Sorry, there are no available %type connections.', array('%type' => $relation->relation_type))
-    );
-  }
+  // hide the endpoints field widget. @TODO: Find out why appearing.
+  $form['fields']['endpoints']['#access'] = FALSE;
 
   $form['fields']['submit'] = array(
     '#type' => 'submit',
     '#value' => t('Save connection'),
     '#weight' => 999,
-    '#access' => !empty($available_entities)
   );
 
   return $form;
@@ -117,14 +101,21 @@ function redhen_relation_connection_form_validate($form, &$form_state) {
     $entity = $form_state['entity'];
     $relation = $form_state['relation'];
 
-    // set the endpoints field to the selected values.
-    $endpoints =array (
-      array('entity_type' => $entity->entityType(),
-        'entity_id' => $entity->internalIdentifier()),
-      array('entity_type' => $form_state['entity_to_relate_type'],
-        'entity_id' => $form_state['values']['entity_to_relate']),
-    );
-    $form_state['values']['endpoints'][LANGUAGE_NONE] = $endpoints;
+    // parse out the entity id from the autocomplete string
+    preg_match('/(.+) \((\d+)\)$/', $form_state['values']['entity_to_relate'], $matches);
+
+    if (isset($matches[2]) && ($matches[2] > 0)) {
+      // set the endpoints field to the selected values.
+      $endpoints =array (
+        array('entity_type' => $entity->entityType(),
+          'entity_id' => $entity->internalIdentifier()),
+        array('entity_type' => $form_state['entity_to_relate_type'],
+          'entity_id' => $matches[2]),
+      );
+      $form_state['values']['endpoints'][LANGUAGE_NONE] = $endpoints;
+    } else {
+      form_set_error('entity_to_relate', 'Invalid connection.');
+    }
 
     // set the relation type based on selected value before validating
     $relation->relation_type = $form_state['values']['relation_type'];

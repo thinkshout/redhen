@@ -628,3 +628,27 @@ function redhen_contact_user_contact($account) {
 
   return $contact;
 }
+
+/**
+ * Implements hook_query_TAG_alter
+ *
+ * Check if label is one of the conditions and alter to search on first and last name if it is
+ *
+ * @param QueryAlterableInterface $query
+ */
+function redhen_contact_query_redhen_contact_label_alter(QueryAlterableInterface $query) {
+
+  // Can't access the properties of $query directly
+  $where =& $query->conditions();
+
+  foreach ($where as $id => $condition) {
+    // If we're trying to search for redhen_contact.label, alter the query to search in both first and last name fields
+    if ($condition['field'] == 'redhen_contact.label') {
+      unset($where[$id]);
+      $or = db_or()
+        ->condition('redhen_contact.first_name', $condition['value'], $condition['operator'])
+        ->condition('redhen_contact.last_name', $condition['value'], $condition['operator']);
+      $query->condition($or);
+    }
+  }
+}
