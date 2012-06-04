@@ -73,7 +73,7 @@ class RedhenContactEntityController extends EntityAPIController {
    * @return
    *   TRUE on success, FALSE otherwise.
    */
-  public function delete($contact_ids) {
+  public function delete($contact_ids, DatabaseTransaction $transaction = NULL) {
     if (!empty($contact_ids)) {
       $contacts = $this->load($contact_ids, array());
 
@@ -104,8 +104,10 @@ class RedhenContactEntityController extends EntityAPIController {
 
       }
       catch (Exception $e) {
-        $transaction->rollback();
-        watchdog_exception('redhen_contact', $e);
+        if (isset($transaction)) {
+          $transaction->rollback();
+        }
+        watchdog_exception($this->entityType, $e);
         throw $e;
       }
     }
