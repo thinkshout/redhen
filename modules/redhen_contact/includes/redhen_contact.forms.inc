@@ -176,10 +176,12 @@ function redhen_contact_contact_user_form($form, &$form_state, RedhenContact $co
     $form['existing_user'] = array(
       '#type' => 'container',
       array(
-	'message' => array('#markup' => t('!user is currently linked with %contact.', array(
-	  '!user' => l($contact->user->name, $user_uri['path']),
-	  '%contact' => $contact->label()
-	))),
+	'message' => array(
+	  '#markup' => t('!user is currently linked with %contact.', array(
+	    '!user' => l($contact->user->name, $user_uri['path']),
+	    '%contact' => $contact->label()
+	  ))
+	),
 	'user' => user_view($contact->user)
       ),
       array(
@@ -225,7 +227,7 @@ function redhen_contact_contact_user_form($form, &$form_state, RedhenContact $co
     );
 
     if (isset($form_state['values']['link_user']) && !empty($form_state['values']['link_user'])) {
-      switch($form_state['values']['link_user']) {
+      switch ($form_state['values']['link_user']) {
 	case 'existing':
 	  // get default value based on email
 	  $desc = t('Start typing to select a Drupal user to link to this contact.');
@@ -296,6 +298,7 @@ function redhen_contact_select_user_callback($form, &$form_state) {
  *
  * @param $form
  * @param $form_state
+ *
  * @return mixed
  */
 function redhen_contact_unlink_user_callback($form, &$form_state) {
@@ -323,7 +326,7 @@ function redhen_contact_unlink_user_callback($form, &$form_state) {
 function redhen_contact_contact_user_form_submit($form, &$form_state) {
   $contact = $form_state['redhen_contact'];
 
-  switch($form_state['values']['link_user']) {
+  switch ($form_state['values']['link_user']) {
     case 'existing':
       $user = user_load_by_name($form_state['values']['existing']);
       $contact->user_uid = $user->uid;
