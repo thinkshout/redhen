@@ -19,8 +19,8 @@ class RedhenContactEntityController extends EntityAPIController {
    * @return
    *   The saved contact object.
    */
-  public function save($contact) {
-    $transaction = db_transaction();
+  public function save($contact, DatabaseTransaction $transaction = NULL) {
+    $transaction = isset($transaction) ? $transaction : db_transaction();
     try {
       $contact->updated = REQUEST_TIME;
 
@@ -59,7 +59,7 @@ class RedhenContactEntityController extends EntityAPIController {
     }
     catch (Exception $e) {
       $transaction->rollback();
-      watchdog_exception('redhen_contact', $e);
+      watchdog_exception($this->entityType, $e);
       throw $e;
     }
   }
