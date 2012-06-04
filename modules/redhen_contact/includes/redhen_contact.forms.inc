@@ -189,20 +189,14 @@ function redhen_contact_contact_user_form($form, &$form_state, RedhenContact $co
 	  '#type' => 'actions',
 	  array(
 	    'unlink' => array(
-	      '#type' => 'button',
+	      '#type' => 'submit',
 	      '#value' => t('Unlink'),
-	      '#ajax' => array(
-		'callback' => 'redhen_contact_unlink_user_callback',
-		'wrapper' => 'redhen-contact-user-form'
-	      ),
+	      '#submit' => array('redhen_contact_unlink_user_submit')
 	    ),
 	    'delete' => array(
-	      '#type' => 'button',
+	      '#type' => 'submit',
 	      '#value' => t('Delete'),
-	      '#ajax' => array(
-		'callback' => 'redhen_contact_unlink_user_callback',
-		'wrapper' => 'redhen-contact-user-form'
-	      )
+	      '#submit' => array('redhen_contact_unlink_user_submit')
 	    )
 	  )
 	)
@@ -301,20 +295,17 @@ function redhen_contact_select_user_callback($form, &$form_state) {
  *
  * @return mixed
  */
-function redhen_contact_unlink_user_callback($form, &$form_state) {
-  $contact = &$form_state['redhen_contact'];
+function redhen_contact_unlink_user_submit($form, &$form_state) {
+  $contact = $form_state['redhen_contact'];
   $delete = ($form_state['clicked_button']['#parents'][0] == 'delete');
+  $user = $contact->user;
   redhen_contact_remove_contact_user($contact, $delete);
-  $form['user'] = array(
-    '#type' => 'fieldset',
+  drupal_set_message(t('The Drupal user %name has been %action from this contact.',
     array(
-      'message' => array(
-	'#type' => 'item',
-	'#markup' => t('The Drupal user has been removed from this contact')
-      )
+      '%name' => $user->name,
+      '%action' => $delete ? t('deleted') : t('unlinked')
     )
-  );
-  return $form['user'];
+  ));
 }
 
 /**
