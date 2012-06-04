@@ -176,30 +176,30 @@ function redhen_contact_contact_user_form($form, &$form_state, RedhenContact $co
     $form['existing_user'] = array(
       '#type' => 'container',
       array(
-	'message' => array(
-	  '#markup' => t('!user is currently linked with %contact.', array(
-	    '!user' => l($contact->user->name, $user_uri['path']),
-	    '%contact' => $contact->label()
-	  ))
-	),
-	'user' => user_view($contact->user)
+        'message' => array(
+          '#markup' => t('!user is currently linked with %contact.', array(
+            '!user' => l($contact->user->name, $user_uri['path']),
+            '%contact' => $contact->label()
+          ))
+        ),
+        'user' => user_view($contact->user)
       ),
       array(
-	'user_actions' => array(
-	  '#type' => 'actions',
-	  array(
-	    'unlink' => array(
-	      '#type' => 'submit',
-	      '#value' => t('Unlink'),
-	      '#submit' => array('redhen_contact_unlink_user_submit')
-	    ),
-	    'delete' => array(
-	      '#type' => 'submit',
-	      '#value' => t('Delete'),
-	      '#submit' => array('redhen_contact_unlink_user_submit')
-	    )
-	  )
-	)
+        'user_actions' => array(
+          '#type' => 'actions',
+          array(
+            'unlink' => array(
+              '#type' => 'submit',
+              '#value' => t('Unlink'),
+              '#submit' => array('redhen_contact_unlink_user_submit')
+            ),
+            'delete' => array(
+              '#type' => 'submit',
+              '#value' => t('Delete'),
+              '#submit' => array('redhen_contact_unlink_user_submit')
+            )
+          )
+        )
       )
     );
   }
@@ -208,50 +208,50 @@ function redhen_contact_contact_user_form($form, &$form_state, RedhenContact $co
       '#title' => t('Link a Drupal user'),
       '#type' => 'select',
       '#options' => array(
-	'' => t('None'),
-	'existing' => t('Choose existing'),
-	'new' => t('Create new')
+        '' => t('None'),
+        'existing' => t('Choose existing'),
+        'new' => t('Create new')
       ),
       '#description' => t('Link a new or existing Drupal user to this contact'),
       '#ajax' => array(
-	'callback' => 'redhen_contact_select_user_callback',
-	'wrapper' => 'redhen-contact-user-form'
+        'callback' => 'redhen_contact_select_user_callback',
+        'wrapper' => 'redhen-contact-user-form'
       ),
       '#weight' => -100,
     );
 
     if (isset($form_state['values']['link_user']) && !empty($form_state['values']['link_user'])) {
       switch ($form_state['values']['link_user']) {
-	case 'existing':
-	  // get default value based on email
-	  $desc = t('Start typing to select a Drupal user to link to this contact.');
-	  foreach ($contact->allEmail() as $email) {
-	    if ($user = user_load_by_mail($email)) {
-	      $default = $user->name;
-	      $desc = t('A match has been found for user %name by matching on the contact email address. It can be overriden by entering a differnt value.',
-		array('%name' => $user->name));
-	      break;
-	    }
-	  }
-	  $form['existing'] = array(
-	    '#title' => t('Existing'),
-	    '#type' => 'textfield',
-	    '#description' => $desc,
-	    '#default_value' => $default,
-	    '#autocomplete_path' => 'user/autocomplete'
-	  );
+        case 'existing':
+          // get default value based on email
+          $desc = t('Start typing to select a Drupal user to link to this contact.');
+          foreach ($contact->allEmail() as $email) {
+            if ($user = user_load_by_mail($email)) {
+              $default = $user->name;
+              $desc = t('A match has been found for user %name by matching on the contact email address. It can be overriden by entering a different value.',
+                array('%name' => $user->name));
+              break;
+            }
+          }
+          $form['existing'] = array(
+            '#title' => t('Existing'),
+            '#type' => 'textfield',
+            '#description' => $desc,
+            '#default_value' => $default,
+            '#autocomplete_path' => 'user/autocomplete'
+          );
 
-	  break;
+          break;
 
-	case 'new';
-	  user_account_form($form, $form_state);
-	  // default value for email field
-	  $form['account']['mail']['#default_value'] = $contact->email;
-	  $form['account']['name']['#default_value'] = $contact->label();
-	  $form['#user_category'] = 'account';
-	  $account = new stdClass();
-	  $account->uid = 0;
-	  $form['#user'] = $account;
+        case 'new';
+          user_account_form($form, $form_state);
+          // default value for email field
+          $form['account']['mail']['#default_value'] = $contact->email;
+          $form['account']['name']['#default_value'] = $contact->label();
+          $form['#user_category'] = 'account';
+          $account = new stdClass();
+          $account->uid = 0;
+          $form['#user'] = $account;
       }
     }
 
@@ -324,10 +324,10 @@ function redhen_contact_contact_user_form_submit($form, &$form_state) {
       break;
     case 'new':
       if ($user = user_save(NULL, $form_state['values'])) {
-	$contact->user_uid = $user->uid;
+        $contact->user_uid = $user->uid;
       }
       else {
-	drupal_set_message(t('Unable to create a new contact'));
+        drupal_set_message(t('Unable to create a new contact'));
       }
 
       break;
@@ -337,8 +337,8 @@ function redhen_contact_contact_user_form_submit($form, &$form_state) {
     entity_get_controller('redhen_contact')->setUser($contact);
     drupal_set_message(t('Drupal user %name has been linked to contact %contact.',
       array(
-	'%name' => $user->name,
-	'%contact' => $contact->label()
+        '%name' => $user->name,
+        '%contact' => $contact->label()
       )
     ));
     $uri = entity_uri('redhen_contact', $contact);
