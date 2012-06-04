@@ -674,11 +674,12 @@ function redhen_membership_toggle_roles(RedhenMembership $membership, $contacts 
  *
  * @param $entity_type
  * @param $entity
- * @return array|bool
+ * @return array
  */
 function redhen_membership_query($entity_type, $entity) {
 
   $membership_query = new EntityFieldQuery();
+  $memberships = array();
 
   // build the query
   $membership_query
@@ -689,8 +690,6 @@ function redhen_membership_query($entity_type, $entity) {
   $membership_results = $membership_query->execute();
   if (isset($membership_results['redhen_membership'])) {
     $memberships = redhen_membership_load_multiple(array_keys($membership_results['redhen_membership']));
-  } else {
-    $memberships = FALSE;
   }
 
   return $memberships;
