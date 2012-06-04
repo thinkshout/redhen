@@ -291,7 +291,7 @@ function redhen_contact_delete_multiple($contact_ids) {
  *   connection to inactive which will prevent it from being reconnected on
  *   subsequent attemps.
  */
-function redhen_contact_remove_contact_user(RedhenContact $contact, $delete = FALSE) {
+function redhen_contact_remove_contact_user(RedhenContact &$contact, $delete = FALSE) {
   if ($delete) {
     db_delete('redhen_contact_user')
       ->condition('contact_id', $contact->contact_id)
@@ -305,9 +305,11 @@ function redhen_contact_remove_contact_user(RedhenContact $contact, $delete = FA
       ->fields(array('redhen_state' => REDHEN_STATE_ARCHIVED))
       ->execute();
   }
-  unset($contact->user);
 
   module_invoke_all('redhen_contact_user_remove', $delete, $contact);
+
+  unset($contact->user);
+  unset($contact->user_uid);
 }
 
 /**
