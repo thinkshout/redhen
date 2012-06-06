@@ -302,7 +302,7 @@ function redhen_contact_remove_contact_user(RedhenContact &$contact, $delete = F
     db_update('redhen_contact_user')
       ->condition('contact_id', $contact->contact_id)
       ->condition('user_uid', $contact->user->uid)
-      ->fields(array('redhen_state' => REDHEN_STATE_ARCHIVED))
+      ->fields(array('status' => NULL))
       ->execute();
   }
 
@@ -635,7 +635,7 @@ function redhen_contact_user_contact($account) {
   $result = db_select('redhen_contact_user', 'rcu')
     ->fields('rcu', array('contact_id'))
     ->condition('user_uid', $account->uid)
-    ->condition('redhen_state', REDHEN_STATE_ACTIVE)
+    ->condition('status', 1)
     ->execute()
     ->fetchCol();
 
