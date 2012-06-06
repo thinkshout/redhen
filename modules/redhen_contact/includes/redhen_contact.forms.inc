@@ -218,6 +218,7 @@ function redhen_contact_contact_user_form($form, &$form_state, RedhenContact $co
         'wrapper' => 'redhen-contact-user-form'
       ),
       '#weight' => -100,
+      '#required' => TRUE
     );
 
     if (isset($form_state['values']['link_user']) && !empty($form_state['values']['link_user'])) {
@@ -306,6 +307,30 @@ function redhen_contact_unlink_user_submit($form, &$form_state) {
       '%action' => $delete ? t('deleted') : t('unlinked')
     )
   ));
+}
+
+/**
+ * Validation callback for redhen_contact_contact_user_form().
+ *
+ * @param $form
+ * @param $form_state
+ */
+function redhen_contact_contact_user_form_validate($form, &$form_state) {
+  // ensure user is not already linked to a contact
+  if ($form_state['values']['link_user'] == 'existing') {
+    $user = user_load_by_name($form_state['values']['existing']);
+    $result = db_select('redhen_contact_user', 'cu')
+      ->fields('cu')
+      ->condition('user_uid',$user->uid, '=')
+      ->condition('status', 1, '=')
+      ->execute();
+
+    if ($result->rowCount() > 0) {
+      form_set_error('existing', t('Drupal user %name is already associated with a contact.',
+        array('%name' => $user->name)
+      ));
+    }
+  }
 }
 
 /**
