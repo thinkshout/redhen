@@ -127,8 +127,8 @@ class RedhenContactEntityController extends EntityAPIController {
     $query = parent::buildQuery($ids, $conditions = array(), $revision_id = FALSE);
 
     $query->leftJoin('redhen_contact_user', 'rcu',
-      'rcu.contact_id = base.contact_id AND rcu.redhen_state = :state',
-      array(':state' => REDHEN_STATE_ACTIVE)
+      'rcu.contact_id = base.contact_id AND rcu.status = :status',
+      array(':status' => 1)
     );
     $query->fields('rcu', array('user_uid'));
 
@@ -140,7 +140,7 @@ class RedhenContactEntityController extends EntityAPIController {
    *
    * @param $contact
    */
-  public function setUser(RedhenContact $contact) {
+  public function setUser(RedhenContact $contact, DatabaseTransaction $transaction = NULL) {
     $contact_user = array();
     $result = db_select('redhen_contact_user', 'cu')
       ->fields('cu')
@@ -151,28 +151,35 @@ class RedhenContactEntityController extends EntityAPIController {
       $contact_user = reset($rows);
     }
 
-    // no user connection, create
-    if (!$contact_user) {
-      db_insert('redhen_contact_user')
-        ->fields(array(
-          'contact_id' => $contact->contact_id,
-          'user_uid' => $contact->user_uid,
-          'created' => REQUEST_TIME,
-          'updated' => REQUEST_TIME
-          ))
-        ->execute();
-    }
-    // same user, bail. doesn't matter if connection is active or inactive
-    else if ($contact_user->user_uid != $contact->user_uid) {
-      // update with new user
-      db_update('redhen_contact_user')
-        ->fields(array(
+    try {
+      // no user connection, create
+      if (!$contact_user) {
+        db_insert('redhen_contact_user')
+          ->fields(array(
+            'contact_id' => $contact->contact_id,
             'user_uid' => $contact->user_uid,
-            'redhen_state' => REDHEN_STATE_ACTIVE,
+            'status' => 1,
+            'created' => REQUEST_TIME,
             'updated' => REQUEST_TIME
-          ))
-        ->condition('contact_id', $contact->contact_id)
-        ->execute();
+            ))
+          ->execute();
+      }
+      // same user, bail. doesn't matter if connection is active or inactive
+      else if ($contact_user->user_uid != $contact->user_uid) {
+        // update with new user
+        db_update('redhen_contact_user')
+          ->fields(array(
+              'user_uid' => $contact->user_uid,
+              'status' => 1,
+              'updated' => REQUEST_TIME
+            ))
+          ->condition('contact_id', $contact->contact_id)
+          ->execute();
+      }
+    }
+    catch (Exception $e) {
+      watchdog_exception($this->entityType, $e);
+      throw $e;
     }
   }
 
