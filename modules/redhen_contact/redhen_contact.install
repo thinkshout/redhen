@@ -57,6 +57,7 @@ function redhen_contact_schema() {
         'type' => 'int',
         'not null' => TRUE,
         'default' => 1,
+        'size' => 'tiny',
       ),
       'created' => array(
         'description' => 'The Unix timestamp when the redhen_contact was created.',
@@ -142,6 +143,7 @@ function redhen_contact_schema() {
       'redhen_state' => array(
         'description' => 'The redhen_state of this redhen_contact revision.',
         'type' => 'int',
+        'size' => 'tiny',
         'not null' => TRUE,
         'default' => 1,
       ),
@@ -258,11 +260,11 @@ function redhen_contact_schema() {
         'type' => 'int',
         'not null' => TRUE,
       ),
-      'redhen_state' => array(
-        'description' => 'The status of this contact user relationship.',
+      'status' => array(
+        'description' => 'Status of this contact user relationship. 1 for active, NULL for inactive.',
         'type' => 'int',
-        'not null' => TRUE,
-        'default' => 1,
+        'size' => 'tiny',
+        'not null' => FALSE,
       ),
       'created' => array(
         'description' => 'The Unix timestamp when the relationship was created.',
@@ -278,7 +280,7 @@ function redhen_contact_schema() {
       ),
     ),
     'indexes' => array(
-      'redhen_contact_user_status' => array('contact_id', 'user_uid', 'redhen_state'),
+      'redhen_contact_status' => array('contact_id', 'status'),
     ),
     'foreign keys' => array(
       'redhen_contact_user_contact' => array(
@@ -289,6 +291,9 @@ function redhen_contact_schema() {
         'table' => 'users',
         'columns' => array('user_uid' => 'uid'),
       ),
+    ),
+    'unique keys' => array(
+      'redhen_contact_user_status' => array('user_uid', 'status')
     ),
     'primary key' => array('contact_id', 'user_uid'),
   );
