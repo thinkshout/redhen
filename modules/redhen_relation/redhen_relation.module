@@ -167,7 +167,7 @@ function redhen_relation_connections_page($entity) {
  *   )
  */
 function redhen_relation_relations($entity, $relation_type = NULL) {
-  $related_entities = &drupal_static(__FUNCTION__ . $relation_type, array());
+  $related_entities = &drupal_static(__FUNCTION__ . $entity->entityType() . $entity->internalIdentifier() . $relation_type, array());
 
   if ($related_entities) {
     return $related_entities;
