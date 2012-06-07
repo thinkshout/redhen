@@ -140,7 +140,7 @@ class RedhenContactEntityController extends EntityAPIController {
    *
    * @param $contact
    */
-  public function setUser(RedhenContact $contact, DatabaseTransaction $transaction = NULL) {
+  protected function setUser(RedhenContact $contact, DatabaseTransaction $transaction = NULL) {
     $contact_user = array();
     $result = db_select('redhen_contact_user', 'cu')
       ->fields('cu')
@@ -178,6 +178,9 @@ class RedhenContactEntityController extends EntityAPIController {
       }
     }
     catch (Exception $e) {
+      if (isset($transaction)) {
+        $transaction->rollback();
+      }
       watchdog_exception($this->entityType, $e);
       throw $e;
     }

@@ -203,6 +203,10 @@ class RedhenContact extends Entity {
     return $user;
   }
 
+  public function setUser() {
+    return entity_get_controller($this->entityType)->setUser($this);
+  }
+
 }
 
 

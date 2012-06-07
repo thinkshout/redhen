@@ -358,7 +358,7 @@ function redhen_contact_contact_user_form_submit($form, &$form_state) {
   }
 
   if ($contact->user_uid) {
-    entity_get_controller('redhen_contact')->setUser($contact);
+    $contact->setUser($contact);
     drupal_set_message(t('Drupal user %name has been linked to contact %contact.',
       array(
         '%name' => $user->name,
