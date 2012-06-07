@@ -139,21 +139,44 @@ class RedhenContactEntityController extends EntityAPIController {
    * Set the active user for a contact.
    *
    * @param $contact
+   *
+   * @return bool
+   *   TRUE if contact is successfully linked to user.
    */
   public function setUser(RedhenContact $contact, DatabaseTransaction $transaction = NULL) {
-    $contact_user = array();
-    $result = db_select('redhen_contact_user', 'cu')
+    $user_result = db_select('redhen_contact_user', 'cu')
       ->fields('cu')
-      ->condition('contact_id', $contact->contact_id, '=')
+      ->condition('uid', $contact->uid, '=')
       ->execute();
-    if ($result) {
-      $rows = $result->fetchAllAssoc('uid');
-      $contact_user = reset($rows);
+
+    if ($user_result->rowCount() > 0) {
+      $rows = $user_result->fetchAllAssoc('uid');
+      foreach ($rows as $row) {
+        // this user is already actively linked to this contact
+        if ($row->contact_id == $contact->contact_id && $row->status == 1) {
+          return TRUE;
+        }
+        // this user is actively linked to a different contact
+        else if ($row->contact_id != $contact->contact_id && $row->status == 1) {
+          return FALSE;
+        }
+        // this user has been unlinked from this contact
+        else if ($row->contact_id == $contact->contact_id && $row->status == NULL) {
+          return FALSE;
+        }
+      }
     }
 
+    // now grab any record for this contact
+    $contact_result = db_select('redhen_contact_user', 'cu')
+      ->fields('cu')
+      ->condition('contact_id', $contact->contact_id, '=')
+      ->condition('status', 1, '=')
+      ->execute();
+
     try {
-      // no user connection, create
-      if (!$contact_user) {
+      // contact does not have a user link, insert
+      if ($contact_result->rowCount() == 0) {
         db_insert('redhen_contact_user')
           ->fields(array(
             'contact_id' => $contact->contact_id,
@@ -164,18 +187,20 @@ class RedhenContactEntityController extends EntityAPIController {
             ))
           ->execute();
       }
-      // same user, bail. doesn't matter if connection is active or inactive
-      else if ($contact_user->uid != $contact->uid) {
+      // update existing link with different user
+      else {
         // update with new user
         db_update('redhen_contact_user')
           ->fields(array(
               'uid' => $contact->uid,
-              'status' => 1,
               'updated' => REQUEST_TIME
             ))
           ->condition('contact_id', $contact->contact_id)
+          ->condition('status', 1)
           ->execute();
       }
+
+      return TRUE;
     }
     catch (Exception $e) {
       if (isset($transaction)) {
