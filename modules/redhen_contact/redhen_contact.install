@@ -94,7 +94,7 @@ function redhen_contact_schema() {
       ),
       'redhen_contact_user' => array(
         'table' => 'users',
-        'columns' => array('user_uid' => 'uid'),
+        'columns' => array('uid' => 'uid'),
       ),
       'redhen_contact_type' => array(
         'table' => 'redhen_contact_type',
@@ -177,7 +177,7 @@ function redhen_contact_schema() {
       ),
       'redhen_contact_revision_user' => array(
         'table' => 'users',
-        'columns' => array('user_uid' => 'uid'),
+        'columns' => array('uid' => 'uid'),
       ),
     ),
   );
@@ -255,7 +255,7 @@ function redhen_contact_schema() {
         'type' => 'int',
         'not null' => TRUE,
       ),
-      'user_uid' => array(
+      'uid' => array(
         'description' => 'The uid of the Drupal user connected to this redhen_contact.',
         'type' => 'int',
         'not null' => TRUE,
@@ -289,13 +289,13 @@ function redhen_contact_schema() {
       ),
       'redhen_contact_user_user' => array(
         'table' => 'users',
-        'columns' => array('user_uid' => 'uid'),
+        'columns' => array('uid' => 'uid'),
       ),
     ),
     'unique keys' => array(
-      'redhen_contact_user_status' => array('user_uid', 'status')
+      'redhen_contact_user_status' => array('uid', 'status')
     ),
-    'primary key' => array('contact_id', 'user_uid'),
+    'primary key' => array('contact_id', 'uid'),
   );
 
   return $schema;

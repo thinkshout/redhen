@@ -31,8 +31,8 @@ function redhen_registration_page(RedhenContact $contact) {
   $query = new EntityFieldQuery();
   $query->entityCondition('entity_type', 'registration');
 
-  if ($contact->user_uid) {
-    $query->propertyCondition('user_uid', $contact->user_uid, '=');
+  if ($contact->user) {
+    $query->propertyCondition('user_uid', $contact->user->uid, '=');
   }
   else {
     $query->propertyCondition('anon_mail', $contact->allEmail(), 'IN');

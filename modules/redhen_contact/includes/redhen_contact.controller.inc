@@ -51,7 +51,7 @@ class RedhenContactEntityController extends EntityAPIController {
         ->execute();
 
       // set the contact user
-      if ($contact->user_uid) {
+      if ($contact->uid) {
         $this->setUser($contact);
       }
 
@@ -130,7 +130,7 @@ class RedhenContactEntityController extends EntityAPIController {
       'rcu.contact_id = base.contact_id AND rcu.status = :status',
       array(':status' => 1)
     );
-    $query->fields('rcu', array('user_uid'));
+    $query->fields('rcu', array('uid'));
 
     return $query;
   }
@@ -147,7 +147,7 @@ class RedhenContactEntityController extends EntityAPIController {
       ->condition('contact_id', $contact->contact_id, '=')
       ->execute();
     if ($result) {
-      $rows = $result->fetchAllAssoc('user_uid');
+      $rows = $result->fetchAllAssoc('uid');
       $contact_user = reset($rows);
     }
 
@@ -157,7 +157,7 @@ class RedhenContactEntityController extends EntityAPIController {
         db_insert('redhen_contact_user')
           ->fields(array(
             'contact_id' => $contact->contact_id,
-            'user_uid' => $contact->user_uid,
+            'uid' => $contact->uid,
             'status' => 1,
             'created' => REQUEST_TIME,
             'updated' => REQUEST_TIME
@@ -165,11 +165,11 @@ class RedhenContactEntityController extends EntityAPIController {
           ->execute();
       }
       // same user, bail. doesn't matter if connection is active or inactive
-      else if ($contact_user->user_uid != $contact->user_uid) {
+      else if ($contact_user->uid != $contact->uid) {
         // update with new user
         db_update('redhen_contact_user')
           ->fields(array(
-              'user_uid' => $contact->user_uid,
+              'uid' => $contact->uid,
               'status' => 1,
               'updated' => REQUEST_TIME
             ))

@@ -320,7 +320,7 @@ function redhen_contact_contact_user_form_validate($form, &$form_state) {
     $user = user_load_by_name($form_state['values']['existing']);
     $result = db_select('redhen_contact_user', 'cu')
       ->fields('cu')
-      ->condition('user_uid',$user->uid, '=')
+      ->condition('uid',$user->uid, '=')
       ->condition('status', 1, '=')
       ->execute();
 
@@ -344,11 +344,11 @@ function redhen_contact_contact_user_form_submit($form, &$form_state) {
   switch ($form_state['values']['link_user']) {
     case 'existing':
       $user = user_load_by_name($form_state['values']['existing']);
-      $contact->user_uid = $user->uid;
+      $contact->uid = $user->uid;
       break;
     case 'new':
       if ($user = user_save(NULL, $form_state['values'])) {
-        $contact->user_uid = $user->uid;
+        $contact->uid = $user->uid;
       }
       else {
         drupal_set_message(t('Unable to create a new contact'));
@@ -357,7 +357,7 @@ function redhen_contact_contact_user_form_submit($form, &$form_state) {
       break;
   }
 
-  if ($contact->user_uid) {
+  if ($contact->uid) {
     $contact->setUser($contact);
     drupal_set_message(t('Drupal user %name has been linked to contact %contact.',
       array(

@@ -704,7 +704,7 @@ function redhen_membership_query($entity_type, $entity) {
  *   The redhen_contact that is being updated.
  */
 function redhen_membership_redhen_contact_update(RedhenContact $contact) {
-  if ($contact->user_uid) {
+  if ($contact->user) {
     // Get all the memberships associated with this user
     $memberships = redhen_membership_contact_memberships($contact);
     foreach ($memberships as $membership) {
@@ -772,7 +772,7 @@ function redhen_membership_entity_delete($entity, $entity_type) {
       }
       break;
     case 'redhen_contact':
-      if ($entity->user_uid) {
+      if ($entity->user) {
         // Get all the memberships associated with this user
         $memberships = redhen_membership_contact_memberships($entity);
         foreach ($memberships as $membership) {

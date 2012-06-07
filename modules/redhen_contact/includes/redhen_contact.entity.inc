@@ -15,7 +15,7 @@ class RedhenContact extends Entity {
     $name,
     $email,
     $contact_id = NULL,
-    $user_uid = NULL,
+    $uid = NULL,
     $user,
     $author_uid = NULL,
     $redhen_state = REDHEN_STATE_ACTIVE,
@@ -197,8 +197,8 @@ class RedhenContact extends Entity {
    */
   public function user() {
     $user = NULL;
-    if ($this->user_uid) {
-      $user = user_load($this->user_uid);
+    if ($this->uid) {
+      $user = user_load($this->uid);
     }
     return $user;
   }
@@ -241,7 +241,7 @@ class RedhenContactMetadataController extends EntityDefaultMetadataController {
       'label' => t("User"),
       'type' => 'user',
       'description' => t("The Drupal user assocaited with the contact."),
-      'schema field' => 'user_uid'
+      'schema field' => 'uid'
     );
     $properties['author'] = array(
       'label' => t("Author"),

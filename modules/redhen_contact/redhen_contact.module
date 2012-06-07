@@ -295,13 +295,13 @@ function redhen_contact_remove_contact_user(RedhenContact &$contact, $delete = F
   if ($delete) {
     db_delete('redhen_contact_user')
       ->condition('contact_id', $contact->contact_id)
-      ->condition('user_uid', $contact->user->uid)
+      ->condition('uid', $contact->user->uid)
       ->execute();
   }
   else {
     db_update('redhen_contact_user')
       ->condition('contact_id', $contact->contact_id)
-      ->condition('user_uid', $contact->user->uid)
+      ->condition('uid', $contact->user->uid)
       ->fields(array('status' => NULL))
       ->execute();
   }
@@ -309,7 +309,7 @@ function redhen_contact_remove_contact_user(RedhenContact &$contact, $delete = F
   module_invoke_all('redhen_contact_user_remove', $delete, $contact);
 
   unset($contact->user);
-  unset($contact->user_uid);
+  unset($contact->uid);
 }
 
 /**
@@ -327,7 +327,7 @@ function redhen_contact_save(RedhenContact $contact) {
     $emails = $contact->allEmail();
     foreach ($emails as $email) {
       if ($user = user_load_by_mail($email['value'])) {
-        $contact->user_uid = $user->uid;
+        $contact->uid = $user->uid;
         break;
       }
     }
@@ -433,10 +433,10 @@ function redhen_contact_contact_title(RedhenContact $contact) {
  */
 function redhen_contact_user_delete($account) {
   // clear the user relationship from a contact entity
-  $contacts = redhen_contact_load_multiple(array(), array('user_uid' => $account->uid));
+  $contacts = redhen_contact_load_multiple(array(), array('uid' => $account->uid));
   if($contacts) {
     $contact = reset($contacts);
-    $contact->user_uid = 0;
+    $contact->uid = NULL;
     redhen_contact_save($contact);
   }
 }
@@ -634,7 +634,7 @@ function redhen_contact_user_contact($account) {
   $contact = FALSE;
   $result = db_select('redhen_contact_user', 'rcu')
     ->fields('rcu', array('contact_id'))
-    ->condition('user_uid', $account->uid)
+    ->condition('uid', $account->uid)
     ->condition('status', 1)
     ->execute()
     ->fetchCol();
