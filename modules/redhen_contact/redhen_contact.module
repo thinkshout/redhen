@@ -162,7 +162,7 @@ function redhen_contact_menu() {
     'weight' => 2
   );
   $items['redhen/contact/%redhen_contact/view/user'] = array(
-    'title' => 'Drupal user link',
+    'title' => 'Drupal user',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('redhen_contact_contact_user_form', 2),
     'access callback' => 'redhen_contact_access',
