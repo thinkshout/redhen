@@ -208,7 +208,6 @@ function redhen_contact_contact_user_form($form, &$form_state, RedhenContact $co
       '#title' => t('Link a Drupal user'),
       '#type' => 'select',
       '#options' => array(
-        '' => t('None'),
         'existing' => t('Choose existing'),
         'new' => t('Create new')
       ),
@@ -317,7 +316,7 @@ function redhen_contact_unlink_user_submit($form, &$form_state) {
  */
 function redhen_contact_contact_user_form_validate($form, &$form_state) {
   // ensure user is not already linked to a contact
-  if ($form_state['values']['link_user'] == 'existing') {
+  if (isset($form_state['values']['link_user']) && $form_state['values']['link_user'] == 'existing') {
     $user = user_load_by_name($form_state['values']['existing']);
     $result = db_select('redhen_contact_user', 'cu')
       ->fields('cu')
