@@ -238,7 +238,8 @@ function redhen_contact_contact_user_form($form, &$form_state, RedhenContact $co
             '#type' => 'textfield',
             '#description' => $desc,
             '#default_value' => $default,
-            '#autocomplete_path' => 'user/autocomplete'
+            '#autocomplete_path' => 'user/autocomplete',
+            '#required' => TRUE
           );
 
           break;
