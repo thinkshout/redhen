@@ -432,13 +432,10 @@ function redhen_contact_contact_title(RedhenContact $contact) {
  * Implements hook_user_delete().
  */
 function redhen_contact_user_delete($account) {
-  // clear the user relationship from a contact entity
-  $contacts = redhen_contact_load_multiple(array(), array('uid' => $account->uid));
-  if($contacts) {
-    $contact = reset($contacts);
-    $contact->uid = NULL;
-    redhen_contact_save($contact);
-  }
+  // delete any contact user links
+  db_delete('redhen_contact_user')
+    ->condition('uid', $account->uid)
+    ->execute();
 }
 
 /**
