@@ -374,14 +374,23 @@ function redhen_contact_contact_user_form_submit($form, &$form_state) {
   }
 
   if ($contact->uid) {
-    $contact->setUser($contact);
-    drupal_set_message(t('Drupal user %name has been linked to contact %contact.',
-      array(
-        '%name' => $user->name,
-        '%contact' => $contact->label()
-      )
-    ));
-    $uri = entity_uri('redhen_contact', $contact);
-    $form_state['redirect'] = $uri['path'];
+    if ($contact->setUser($contact)) {
+      drupal_set_message(t('Drupal user %name has been linked to contact %contact.',
+        array(
+          '%name' => $user->name,
+          '%contact' => $contact->label()
+        )
+      ));
+      $uri = entity_uri('redhen_contact', $contact);
+      $form_state['redirect'] = $uri['path'];
+    }
+    else {
+      drupal_set_message(t('Unable to link Drupal user %name to contact %contact.',
+        array(
+          '%name' => $user->name,
+          '%contact' => $contact->label()
+        )
+      ), 'warning');
+    }
   }
 }
