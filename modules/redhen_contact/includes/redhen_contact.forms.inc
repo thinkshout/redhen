@@ -317,16 +317,31 @@ function redhen_contact_unlink_user_submit($form, &$form_state) {
  */
 function redhen_contact_contact_user_form_validate($form, &$form_state) {
   // ensure user is not already linked to a contact
-  if (isset($form_state['values']['link_user']) && $form_state['values']['link_user'] == 'existing') {
+  if (isset($form_state['values']['link_user']) && $form_state['values']['link_user'] == 'existing' && isset($form_state['values']['existing'])) {
+    $contact = $form_state['redhen_contact'];
+
     $user = user_load_by_name($form_state['values']['existing']);
     $result = db_select('redhen_contact_user', 'cu')
       ->fields('cu')
-      ->condition('uid',$user->uid, '=')
+      ->condition('uid', $user->uid, '=')
       ->condition('status', 1, '=')
       ->execute();
 
     if ($result->rowCount() > 0) {
       form_set_error('existing', t('Drupal user %name is already associated with a contact.',
+        array('%name' => $user->name)
+      ));
+    }
+
+    $result = db_select('redhen_contact_user', 'cu')
+      ->fields('cu')
+      ->condition('uid', $user->uid, '=')
+      ->condition('contact_id', $contact->contact_id, '=')
+      ->condition('status', NULL, 'is')
+      ->execute();
+
+    if ($result->rowCount() > 0) {
+      form_set_error('existing', t('Drupal user %name has been unlinked from this contact to prevent it from being reconnected.',
         array('%name' => $user->name)
       ));
     }
