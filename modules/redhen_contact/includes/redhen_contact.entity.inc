@@ -42,16 +42,6 @@ class RedhenContact extends Entity {
    * Override buildContent() to add contact properties.
    */
   public function buildContent($view_mode = 'full', $langcode = NULL) {
-    $content['name'] = array(
-      '#theme' => 'redhen_property_field',
-      '#label' => t('Name'),
-      '#items' => array(
-        array(
-          '#markup' => $this->name
-        ),
-       ),
-      '#classes' => 'field field-label-inline clearfix',
-    );
     $content['redhen_state'] = array(
       '#theme' => 'redhen_property_field',
       '#label' => t('State'),

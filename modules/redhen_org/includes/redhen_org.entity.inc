@@ -40,16 +40,6 @@ class RedhenOrg extends Entity {
    * Override buildContent() to add organization properties.
    */
   public function buildContent($view_mode = 'full', $langcode = NULL) {
-    $content['label'] = array(
-      '#theme' => 'redhen_property_field',
-      '#label' => t('Organization Name'),
-      '#items' => array(
-        array(
-          '#markup' => check_plain($this->label)
-        ),
-      ),
-      '#classes' => 'field field-label-inline clearfix',
-    );
     $content['redhen_state'] = array(
       '#theme' => 'redhen_property_field',
       '#label' => t('State'),
