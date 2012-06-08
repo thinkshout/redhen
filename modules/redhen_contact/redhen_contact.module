@@ -666,3 +666,37 @@ function redhen_contact_query_redhen_contact_label_alter(QueryAlterableInterface
     }
   }
 }
+
+/**
+ * Load a contact record from a user account.
+ *
+ * @param $account
+ * @param int $state
+ *   Redhen state. Defaults to active.
+ *
+ * @return array|mixed
+ */
+function redhen_contact_load_by_user($account, $state = REDHEN_STATE_ACTIVE) {
+  $contact = &drupal_static(__FUNCTION__ . $account->uid);
+  if (!$contact) {
+    $contacts = redhen_contact_load_multiple(FALSE, array(
+      'uid' => $account->uid,
+      'redhen_state' => $state
+    ));
+    if (!empty($contacts)) {
+      $contact = reset($contacts);
+    }
+  }
+  return $contact;
+}
+
+/**
+ * Implements hook_username_alter().
+ */
+function redhen_contact_username_alter(&$name, $account) {
+  $contact = redhen_contact_load_by_user($account);
+  // Display the contact label if the user is linked to a contact.
+  if ($contact) {
+    $name = t('@name', array('@name' => $contact->label()));
+  }
+}
