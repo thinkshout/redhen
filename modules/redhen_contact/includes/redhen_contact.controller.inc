@@ -124,12 +124,23 @@ class RedhenContactEntityController extends EntityAPIController {
    * @return SelectQuery
    */
   protected function buildQuery($ids, $conditions = array(), $revision_id = FALSE) {
-    $query = parent::buildQuery($ids, $conditions = array(), $revision_id = FALSE);
+    $query = parent::buildQuery($ids, $conditions, $revision_id);
 
     $query->leftJoin('redhen_contact_user', 'rcu',
       'rcu.contact_id = base.contact_id AND rcu.status = :status',
       array(':status' => 1)
     );
+
+    // if uid is a condition, ensure the join is against the right table
+    if (isset($conditions['uid'])) {
+      $query_conditions = &$query->conditions();
+      foreach ($query_conditions as $key => $condition) {
+        if ($condition['field'] == 'base.uid') {
+          $query_conditions[$key]['field'] = 'rcu.uid';
+        }
+      }
+    }
+
     $query->fields('rcu', array('uid'));
 
     return $query;

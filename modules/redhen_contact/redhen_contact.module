@@ -684,6 +684,7 @@ function redhen_contact_load_by_user($account, $state = REDHEN_STATE_ACTIVE) {
       'redhen_state' => $state
     ));
     if (!empty($contacts)) {
+      // there should always be only a single active user linked to an account
       $contact = reset($contacts);
     }
   }
