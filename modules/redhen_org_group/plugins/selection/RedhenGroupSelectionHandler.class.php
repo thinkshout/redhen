@@ -2,7 +2,7 @@
 
 
 /**
- * OG selection handler.
+ * RedHenGroup selection handler.
  */
 class RedhenGroupSelectionHandler extends EntityReference_SelectionHandler_Generic {
 
