@@ -52,7 +52,7 @@ function redhen_membership_membership_form($form, &$form_state, RedhenMembership
   $form['start_date'] = array(
     '#type' => 'textfield',
     '#title' => t('Start Date'),
-    '#description' => t('If set, the membership will be considered valid after this date.'),
+    '#description' => t('If set and RedHen is configured to automatically start/expire memberships, the membership state will be set to Active on this date.'),
     '#default_value' => isset($membership->start_date) ? date('m/d/Y', strtotime($membership->start_date)) : '',
     '#attributes' => array('class' => array("redhen-field-type-date")),
     '#weight' => -9,
@@ -61,7 +61,7 @@ function redhen_membership_membership_form($form, &$form_state, RedhenMembership
   $form['expire_date'] = array(
     '#type' => 'textfield',
     '#title' => t('Expiration Date'),
-    '#description' => t('If set, the membership will be considered valid before this date.'),
+    '#description' => t('If set and RedHen is configured to automatically start/expire memberships, the membership state will be set to Expired on this date.'),
     '#default_value' => isset($membership->expire_date) ? date('m/d/Y', strtotime($membership->expire_date)) : '',
     '#attributes' => array('class' => array("redhen-field-type-date")),
     '#weight' => -8,

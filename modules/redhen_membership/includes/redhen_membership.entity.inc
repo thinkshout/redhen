@@ -16,7 +16,6 @@ class RedhenMembership extends Entity {
     $entity_id,
     $entity = NULL,
     $membership_id = NULL,
-    $valid = FALSE,
     $author_uid = NULL,
     $start_date = NULL,
     $expire_date = NULL,
@@ -36,7 +35,7 @@ class RedhenMembership extends Entity {
       $this->membership_state = REDHEN_MEMBERSHIP_INACTIVE;
       $this->created = REQUEST_TIME;
     }
-    $this->valid = $this->valid();
+
     $this->entity = $this->entity();
   }
 
@@ -104,16 +103,6 @@ class RedhenMembership extends Entity {
       ),
       '#classes' => 'field field-label-inline clearfix',
     );
-    $content['valid'] = array(
-      '#theme' => 'redhen_property_field',
-      '#label' => t('Valid'),
-      '#items' => array(
-        array(
-          '#markup' => ($this->valid == TRUE) ? t('Valid') : t('Invalid')
-        ),
-      ),
-      '#classes' => 'field field-label-inline clearfix',
-    );
 
     return entity_get_controller($this->entityType)
       ->buildContent($this, $view_mode, $langcode, $content);
@@ -138,30 +127,6 @@ class RedhenMembership extends Entity {
     // $this->entity may not be populated yet
     $entity = reset(entity_load($this->entity_type, array($this->entity_id)));
     return "{$type->label} membership for {$entity->label()}";
-  }
-
-  /**
-   * Return if a membership is valid based on state and start/expire dates
-   *
-   * @return bool
-   */
-  public function valid() {
-    $valid = TRUE;
-    // Check state
-    if ($this->membership_state == REDHEN_MEMBERSHIP_ACTIVE) {
-      $now = strtotime('now');
-      $start = strtotime($this->start_date);
-      $expire = strtotime($this->expire_date);
-      // either start is after now or expire is before now
-      if ( ( ($start != '') && ($start > $now) ) ||
-        ( ($expire != '') && ($expire < $now) ) ) {
-        $valid = FALSE;
-      }
-    } else {
-      $valid = FALSE;
-    }
-
-    return $valid;
   }
 
   /**
