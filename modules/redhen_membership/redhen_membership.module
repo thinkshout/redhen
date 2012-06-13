@@ -766,7 +766,7 @@ function redhen_membership_entity_delete($entity, $entity_type) {
   switch ($entity_type) {
     case 'relation':
       if ($entity->relation_type == 'redhen_affiliation') {
-        redhen_membership_relation_toggle($entity);
+        redhen_membership_relation_toggle($entity, TRUE);
       }
       break;
     case 'redhen_contact':
@@ -791,21 +791,27 @@ function redhen_membership_entity_delete($entity, $entity_type) {
  * Toggle memberships based on a specific relation object.
  *
  * @param $relation
+ * @param $remove Bool
+ *  If we want to force remove roles from the contact/user.
  */
-function redhen_membership_relation_toggle($relation) {
+function redhen_membership_relation_toggle($relation, $remove = FALSE) {
   foreach ($relation->endpoints[LANGUAGE_NONE] as $endpoint) {
-    // Find the contact endpoint
+    // Find the organization endpoint
+    if ($endpoint['entity_type'] == 'redhen_org') {
+      $org = redhen_org_load($endpoint['entity_id']);
+    }
     if ($endpoint['entity_type'] == 'redhen_contact') {
       $contact = redhen_contact_load($endpoint['entity_id']);
-      // Contact may already be deleted
-      if ($contact) {
-        $memberships = redhen_membership_contact_memberships($contact);
-        foreach ($memberships as $membership) {
-          redhen_membership_toggle_roles($membership, array($contact));
-        }
-      }
     }
-  }  
+  }
+  // Organization or contact may already be deleted
+  if ($org && $contact) {
+    $memberships = redhen_membership_query('redhen_org', $org);
+    foreach ($memberships as $membership) {
+      redhen_membership_toggle_roles($membership, array($contact), $remove);
+    }
+  }
+
 }
 
 /**
