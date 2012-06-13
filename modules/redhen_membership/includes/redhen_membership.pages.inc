@@ -19,7 +19,7 @@ function redhen_membership_page($entity = NULL, $entity_type = NULL) {
     'start_date' => array('field' => 'start_date', 'type' => 'property', 'data' => 'Start Date', 'sort' => 'asc', 'specifier' => 'start_date'),
     'expire_date' => array('field' => 'expire_date', 'type' => 'property', 'data' => 'Expiration Date', 'sort' => 'asc', 'specifier' => 'expire_date'),
     'note' => array('field' => 'note', 'type' => 'property', 'data' => 'Note', 'sort' => 'asc', 'specifier' => 'note'),
-    'Valid',
+    'State',
     'Actions',
   );
 
