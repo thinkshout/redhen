@@ -572,7 +572,7 @@ function redhen_membership_contact_memberships(RedhenContact $contact, $state = 
     ->propertyCondition('entity_type', 'redhen_contact')
     ->propertyCondition('entity_id', $contact->internalIdentifier());
 
-  if ($state) {
+  if (isset($state)) {
     $query->propertyCondition('membership_state', $state);
   }
 
@@ -599,6 +599,10 @@ function redhen_membership_contact_memberships(RedhenContact $contact, $state = 
       ->entityCondition('entity_type', 'redhen_membership', '=')
       ->propertyCondition('entity_type', 'redhen_org')
       ->propertyCondition('entity_id', $org_ids);
+
+    if (isset($state)) {
+      $org_membership_query->propertyCondition('membership_state', $state);
+    }
 
     $org_membership_result = $org_membership_query->execute();
     if ($org_membership_result) {
