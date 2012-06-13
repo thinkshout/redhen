@@ -20,7 +20,7 @@ class RedhenMembership extends Entity {
     $author_uid = NULL,
     $start_date = NULL,
     $expire_date = NULL,
-    $redhen_state = REDHEN_STATE_ACTIVE,
+    $membership_state = REDHEN_MEMBERSHIP_INACTIVE,
     $type = '',
     $created = '',
     $updated = '';
@@ -33,7 +33,7 @@ class RedhenMembership extends Entity {
     // New membership. is_new might not be set so check for id
     if (!$this->membership_id) {
       $this->author_uid = $user->uid;
-      $this->redhen_state = REDHEN_STATE_ACTIVE;
+      $this->membership_state = REDHEN_MEMBERSHIP_INACTIVE;
       $this->created = REQUEST_TIME;
     }
     $this->valid = $this->valid();
@@ -93,12 +93,13 @@ class RedhenMembership extends Entity {
       );
     }
 
-    $content['redhen_state'] = array(
+    $membership_states = redhen_membership_state_options();
+    $content['membership_state'] = array(
       '#theme' => 'redhen_property_field',
       '#label' => t('State'),
       '#items' => array(
         array(
-          '#markup' => ($this->redhen_state == REDHEN_STATE_ACTIVE) ? t('Active') : t('Inactive')
+          '#markup' => $membership_states[$this->membership_state],
         ),
       ),
       '#classes' => 'field field-label-inline clearfix',
@@ -125,7 +126,7 @@ class RedhenMembership extends Entity {
    *  The REDHEN_STATE_* value to use
    */
   public function setState($state) {
-    $this->redhen_state = $state;
+    $this->membership_state = $state;
     $this->save();
   }
 
@@ -147,7 +148,7 @@ class RedhenMembership extends Entity {
   public function valid() {
     $valid = TRUE;
     // Check state
-    if ($this->redhen_state == REDHEN_STATE_ACTIVE) {
+    if ($this->membership_state == REDHEN_MEMBERSHIP_ACTIVE) {
       $now = strtotime('now');
       $start = strtotime($this->start_date);
       $expire = strtotime($this->expire_date);
@@ -234,15 +235,12 @@ class RedhenMembershipMetadataController extends EntityDefaultMetadataController
       'description' => t("The author of the membership record."),
       'schema field' => 'author_uid'
     );
-    $properties['redhen_state'] = array(
+    $properties['membership_state'] = array(
       'label' => t('State'),
       'filter' => TRUE,
       'field_type' => 'select',
-      'options' => array(
-        REDHEN_STATE_ACTIVE => t('Active'),
-        REDHEN_STATE_ARCHIVED => t('Archived')
-      ),
-    ) + $properties['redhen_state'];
+      'options' => redhen_membership_state_options(),
+    ) + $properties['membership_state'];
 
     return $info;
   }

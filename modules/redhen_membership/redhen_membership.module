@@ -6,6 +6,10 @@
  *
  */
 
+// Definitions
+define('REDHEN_MEMBERSHIP_INACTIVE', 0);
+define('REDHEN_MEMBERSHIP_ACTIVE', 1);
+define('REDHEN_MEMBERSHIP_EXPIRED', 2);
 
 /**
  * Implements hook_entity_info().
@@ -265,21 +269,6 @@ function redhen_membership_delete(RedhenMembership $membership) {
 }
 
 /**
- * Archive or restore a membership.
- *
- * @param $membership
- *   The full membership object to save.
- */
-function redhen_membership_archive(RedhenMembership $membership) {
-  // flip the state and save
-  $membership->redhen_state = !$membership->redhen_state;
-  redhen_membership_save($membership);
-  drupal_set_message(t('@membership has been updated.', array('@membership' => $membership->label())), 'status');
-
-  return $membership;
-}
-
-/**
  * Checks membership access for various operations.
  *
  * @param $op
@@ -346,7 +335,7 @@ function redhen_membership_field_extra_fields() {
           'description' => t('Membership note'),
           'weight' => 0,
         ),
-        'redhen_state' => array(
+        'membership_state' => array(
           'label' => t('State'),
           'description' => t('Membership state'),
           'weight' => 0,
@@ -358,7 +347,7 @@ function redhen_membership_field_extra_fields() {
           'description' => t('Membership name.'),
           'weight' => 0,
         ),
-        'redhen_state' => array(
+        'membership_state' => array(
           'label' => t('State'),
           'description' => t('Membership state'),
           'weight' => 0,
@@ -421,7 +410,7 @@ function redhen_membership_cron() {
 
   $activate_results = db_select('redhen_membership', 'me')
     ->fields('me')
-    ->condition('redhen_state', REDHEN_STATE_ARCHIVED)
+    ->condition('membership_state', REDHEN_MEMBERSHIP_INACTIVE)
     ->condition('start_date', date('Y-m-d 00:00:00'))
     ->execute()
     ->fetchAllAssoc('membership_id');
@@ -429,12 +418,13 @@ function redhen_membership_cron() {
   $memberships = redhen_membership_load_multiple(array_keys($activate_results));
 
   foreach ($memberships as $membership) {
+    // Set membership_state to REDHEN_MEMBERSHIP_ACTIVE
     redhen_membership_toggle_roles($membership);
   }
 
   $expire_results = db_select('redhen_membership', 'me')
     ->fields('me')
-    ->condition('redhen_state', REDHEN_STATE_ACTIVE)
+    ->condition('membership_state', REDHEN_MEMBERSIHP_ACTIVE)
     ->condition('expire_date', date('Y-m-d 00:00:00'))
     ->execute()
     ->fetchAllAssoc('membership_id');
@@ -442,6 +432,7 @@ function redhen_membership_cron() {
   $memberships = redhen_membership_load_multiple(array_keys($expire_results));
 
   foreach ($memberships as $membership) {
+    // Set membership_state to REDHEN_MEMBERSHIP_EXPIRED
     redhen_membership_toggle_roles($membership);
   }
 
@@ -486,13 +477,11 @@ function theme_redhen_membership_list($variables) {
   if (!empty($memberships)) {
     $rows = array();
     foreach($memberships as $membership) {
-      $archive = $membership->redhen_state == REDHEN_STATE_ACTIVE ? t('archive') : t('restore');
       $valid = $membership->valid == TRUE ? t('Yes') : t('No');
       $uri = entity_uri('redhen_membership', $membership);
       $actions = array(
         l(t('view'), $uri['path']),
         l(t('edit'), $uri['path'] . '/edit', array('query' => drupal_get_destination())),
-        l($archive, $uri['path'] . '/archive', array('query' => drupal_get_destination())),
         l(t('delete'), $uri['path'] . '/delete', array('query' => drupal_get_destination())),
       );
 
@@ -509,8 +498,6 @@ function theme_redhen_membership_list($variables) {
         );
 
       $row_classes = array();
-      // Set a class for the row depending on if the membership is active or archived
-      $row_classes[] = $membership->redhen_state == REDHEN_STATE_ACTIVE ? 'active' : 'archived';
       // Set a class for the row depending on if the membership is valid or not
       $row_classes[] = $membership->valid == TRUE ? 'valid' : 'invalid';
 
@@ -709,9 +696,9 @@ function redhen_membership_redhen_contact_update(RedhenContact $contact) {
     $memberships = redhen_membership_contact_memberships($contact);
     foreach ($memberships as $membership) {
       // If the contact is archived and this membership is attached to the contact, archive the membership
-      if ( ($contact->redhen_state !== REDHEN_STATE_ACTIVE) && ($membership->redhen_state == REDHEN_STATE_ACTIVE) &&
+      if ( ($contact->redhen_state !== REDHEN_STATE_ACTIVE) && ($membership->membership_state == REDHEN_MEMBERSHIP_ACTIVE) &&
         ($membership->entity_type == 'redhen_contact') && ($membership->entity_id == $contact->contact_id) ) {
-        $membership = redhen_membership_archive($membership);
+        $membership->setState(REDHEN_MEMBERSHIP_INACTIVE);
       }
       // Don't need this for the archive action, but do need it to catch new user linkage
       redhen_membership_toggle_roles($membership, array($contact));
@@ -731,8 +718,8 @@ function redhen_membership_redhen_org_update(RedHenOrg $org) {
   $memberships = redhen_membership_query('redhen_org', $org);
   foreach ($memberships as $membership) {
     // If the organization is archived and this membership is attached to the org, archive the membership
-    if ( ($org->redhen_state !== REDHEN_STATE_ACTIVE) && ($membership->redhen_state == REDHEN_STATE_ACTIVE) ) {
-      redhen_membership_archive($membership);
+    if ( ($org->redhen_state !== REDHEN_STATE_ACTIVE) && ($membership->membership_state == REDHEN_MEMBERSHIP_ACTIVE) ) {
+      $membership->setState(REDHEN_MEMBERSHIP_INACTIVE);
     }
   }
 }
@@ -808,4 +795,15 @@ function redhen_membership_relation_toggle($relation) {
       }
     }
   }  
+}
+
+/**
+ * Return an array of options for membership states
+ */
+function redhen_membership_state_options() {
+  return array(
+    REDHEN_MEMBERSHIP_ACTIVE => t('Active'),
+    REDHEN_MEMBERSHIP_INACTIVE => t('Inactive'),
+    REDHEN_MEMBERSHIP_EXPIRED => t('Expired'),
+  );
 }

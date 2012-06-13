@@ -73,11 +73,11 @@ function redhen_membership_schema() {
         'not null' => TRUE,
         'default' => 0,
       ),
-      'redhen_state' => array(
-        'description' => 'The redhen_state of this redhen_membership.',
+      'membership_state' => array(
+        'description' => 'The state of this redhen_membership.',
         'type' => 'int',
         'not null' => TRUE,
-        'default' => 1,
+        'default' => 0,
       ),
       'created' => array(
         'description' => 'The Unix timestamp when the redhen_membership was created.',
@@ -96,7 +96,7 @@ function redhen_membership_schema() {
       'redhen_membership_updated'       => array('updated'),
       'redhen_membership_created'       => array('created'),
       'redhen_membership_type'          => array(array('type', 4)),
-      'redhen_membership_redhen_state'  => array('redhen_state'),
+      'redhen_membership_membership_state'  => array('membership_state'),
       'redhen_membership_entity'        => array('entity_type', 'entity_id'),
     ),
     'unique keys' => array(

@@ -67,15 +67,12 @@ function redhen_membership_membership_form($form, &$form_state, RedhenMembership
     '#weight' => -8,
   );
 
-  $form['redhen_state'] = array(
+  $form['membership_state'] = array(
     '#type' => 'select',
     '#title' => t('State'),
-    '#description' => t('Membership state. Archived memberships do not confer benefits to contacts/users. Start and expiration dates will not change this setting. '),
-    '#options' => array(
-      REDHEN_STATE_ACTIVE => t('Active'),
-      REDHEN_STATE_ARCHIVED => t('Archived')
-    ),
-    '#default_value' => $membership->redhen_state,
+    '#description' => t('Membership state. Inactive or Expired memberships do not confer benefits to contacts/users.'),
+    '#options' => redhen_membership_state_options(),
+    '#default_value' => $membership->membership_state,
     '#weight' => -7,
   );
 
@@ -187,7 +184,7 @@ function redhen_membership_membership_form_submit($form, &$form_state) {
   $membership->note = $form_state['values']['note'];
   $membership->start_date = ($form_state['values']['start_date'] != '') ? date('Y-m-d', strtotime($form_state['values']['start_date'])) : NULL;
   $membership->expire_date = ($form_state['values']['expire_date'] != '') ? date('Y-m-d', strtotime($form_state['values']['expire_date'])) : NULL;
-  $membership->redhen_state = $form_state['values']['redhen_state'];
+  $membership->membership_state = $form_state['values']['membership_state'];
   $membership->entity_type = $entity_type;
   $membership->entity_id = entity_id($entity_type, $entity);
 
