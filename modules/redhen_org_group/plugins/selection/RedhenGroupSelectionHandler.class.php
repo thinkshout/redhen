@@ -4,7 +4,7 @@
 /**
  * OG selection handler.
  */
-class RedhenGroupSelectionHandler implements EntityReference_SelectionHandler {
+class RedhenGroupSelectionHandler extends EntityReference_SelectionHandler_Generic {
 
   protected function __construct($field, $instance) {
     $this->field = $field;
@@ -18,8 +18,8 @@ class RedhenGroupSelectionHandler implements EntityReference_SelectionHandler {
    *   A field datastructure.
    * @return EntityReferenceHandler
    */
-  public static function getInstance($field, $instance) {
-    return new RedhenGroupSelectionHandler($field, $instance);
+  public static function getInstance($field, $instance = NULL, $entity_type = NULL, $entity = NULL) {
+    return new RedhenGroupSelectionHandler($field, $instance, $entity_type, $entity);
   }
 
   /**
