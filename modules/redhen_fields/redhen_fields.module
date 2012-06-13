@@ -687,7 +687,7 @@ function redhen_fields_email_action($entity, $context) {
     }
     $params = array('context' => $context);
 
-    if (drupal_mail('system', 'action_send_email', $recipient, $language, $params)) {
+    if (drupal_mail('redhen_fields', 'email_action', $recipient, $language, $params)) {
       watchdog('action', 'Sent email to %recipient', array('%recipient' => $recipient));
     }
     else {
