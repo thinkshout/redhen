@@ -200,13 +200,14 @@ class RedhenMembershipMetadataController extends EntityDefaultMetadataController
       'description' => t("The author of the membership record."),
       'schema field' => 'author_uid'
     );
-    $properties['membership_state'] = array(
+    $properties['membership_state'] = array_merge($properties['membership_state'], array(
       'label' => t('State'),
       'filter' => TRUE,
-      'field_type' => 'select',
+      'field_type' => 'list',
+      'schema field' => 'membership_state',
       'options' => redhen_membership_state_options(),
-    ) + $properties['membership_state'];
-
+      'options list' => 'redhen_membership_state_options',
+    ));
     return $info;
   }
 }

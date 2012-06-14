@@ -824,3 +824,13 @@ function redhen_membership_state_options() {
     REDHEN_MEMBERSHIP_EXPIRED => t('Expired'),
   );
 }
+
+/**
+ * Implements hook_views_api().
+ */
+function redhen_membership_views_api() {
+  return array(
+    'api' => 3,
+    'path' => drupal_get_path('module', 'redhen_membership') . '/includes/views',
+  );
+}

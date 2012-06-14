@@ -12,3 +12,6 @@ files[] = includes/redhen_membership_type.admin.inc
 files[] = includes/redhen_membership.entity.inc
 files[] = includes/redhen_membership.controller.inc
 files[] = includes/redhen_membership_type.entity.inc
+; Views
+files[] = includes/views/redhen_membership_handler_relationship.inc
+files[] = includes/views/redhen_membership_handler_field_active_member_type.inc
