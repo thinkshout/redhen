@@ -255,10 +255,8 @@ class RedhenContactMetadataController extends EntityDefaultMetadataController {
       'label' => t('State'),
       'filter' => TRUE,
       'field_type' => 'select',
-      'options' => array(
-        REDHEN_STATE_ACTIVE => t('Active'),
-        REDHEN_STATE_ARCHIVED => t('Archived')
-      )
+      'options' => redhen_state_options(),
+      'options list' => 'redhen_state_options',
     ));
 
     return $info;

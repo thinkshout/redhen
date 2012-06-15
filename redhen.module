@@ -180,6 +180,16 @@ function redhen_entity_types() {
 }
 
 /**
+ * Callback to return an array of options for redhen states
+ */
+function redhen_state_options() {
+  return array(
+    REDHEN_STATE_ACTIVE => t('Active'),
+    REDHEN_STATE_ARCHIVED => t('Archived'),
+  );
+}
+
+/**
  * Theme handler for Redhen landing page
  *
  * @param $variables

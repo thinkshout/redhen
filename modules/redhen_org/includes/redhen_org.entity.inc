@@ -175,15 +175,13 @@ class RedhenOrgMetadataController extends EntityDefaultMetadataController {
       'schema field' => 'primary_contact_id'
     );
 
-    $properties['redhen_state'] = array(
+    $properties['redhen_state'] = array_merge($properties['redhen_state'], array(
       'label' => t('State'),
       'filter' => TRUE,
       'field_type' => 'select',
-      'options' => array(
-        REDHEN_STATE_ACTIVE => t('Active'),
-        REDHEN_STATE_ARCHIVED => t('Archived')
-      )
-    ) + $properties['redhen_state'];
+      'options' => redhen_state_options(),
+      'options list' => 'redhen_state_options'
+    ));
 
     return $info;
   }

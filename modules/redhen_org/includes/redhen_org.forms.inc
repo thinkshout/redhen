@@ -34,10 +34,7 @@ function redhen_org_org_form($form, &$form_state, $org) {
     '#type' => 'select',
     '#title' => t('State'),
     '#description' => t('Organization state.'),
-    '#options' => array(
-      REDHEN_STATE_ACTIVE => t('Active'),
-      REDHEN_STATE_ARCHIVED => t('Archived')
-    ),
+    '#options' => redhen_state_options(),
     '#default_value' => $org->redhen_state,
     '#weight' => 5,
   );
