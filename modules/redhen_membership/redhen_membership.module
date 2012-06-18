@@ -262,10 +262,18 @@ function redhen_membership_save(RedhenMembership $membership) {
 }
 
 /**
- * Deletes a membership from the db.
+ * Deletes multiple memberships by ID.
+ *
+ * @param $membership_ids
+ *   An array of membership IDs to delete.
+ *
+ * @return
+ *   TRUE on success, FALSE otherwise.
  */
-function redhen_membership_delete(RedhenMembership $membership) {
-  entity_get_controller('redhen_membership')->delete($membership);
+function redhen_membership_delete_multiple($membership_ids) {
+  $ret = entity_get_controller('redhen_membership')->delete($membership_ids);
+
+  return $ret;
 }
 
 /**
@@ -798,8 +806,8 @@ function redhen_membership_entity_delete($entity, $entity_type) {
       // no break because we want to run the code below redhen_org as well
     case 'redhen_org':
       $memberships = redhen_membership_query($entity_type, $entity);
-      foreach ($memberships as $membership) {
-        redhen_membership_delete($membership);
+      if (sizeof($memberships) > 0) {
+        redhen_membership_delete_multiple(array_keys($memberships));
       }
       break;
   }

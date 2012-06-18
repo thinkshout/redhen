@@ -233,7 +233,7 @@ function redhen_membership_membership_delete_form($form, &$form_state, $membersh
 function redhen_membership_membership_delete_form_submit($form, &$form_state) {
   $membership = $form_state['membership'];
 
-  redhen_membership_delete($membership);
+  redhen_membership_delete_multiple(array($membership->membership_id));
   drupal_set_message(t('%label has been deleted.', array('%label' => $membership->label())));
   watchdog('redhen_membership', 'Deleted membership %label.', array('%label' => $membership->label()), WATCHDOG_NOTICE);
 

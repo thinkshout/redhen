@@ -44,25 +44,39 @@ class RedhenMembershipEntityController extends EntityAPIController {
   }
 
   /**
-   * Deletes a membership.
+   * Deletes multiple memberships by id.
    *
-   * @param RedhenMembership $membership
-   *   The full membership object to delete.
+   * @param $membership_ids
+   *   An array of membership IDs to delete.
+   *
+   * @return
+   *   TRUE on success, FALSE otherwise.
    */
-  public function delete($membership) {
-    $transaction = db_transaction();
-    try {
-      // explicitly set the state to archived to trigger removal of roles
-      $membership->membership_state = REDHEN_MEMBERSHIP_INACTIVE;
-      redhen_membership_toggle_roles($membership);
+  public function delete($membership_ids,  DatabaseTransaction $transaction = NULL) {
+    if (!empty($membership_ids)) {
+      $memberships = $this->load($membership_ids, array());
 
-      parent::delete(array($membership->membership_id), $transaction);
+      // Toggle all roles for each of the memberships.
+      foreach ((array) $memberships as $membership_id => $membership) {
+        $membership->membership_state = REDHEN_MEMBERSHIP_INACTIVE;
+        $this->save($membership);
+      }
+
+      $transaction = db_transaction();
+      try {
+        parent::delete($membership_ids, $transaction);
+
+      }
+      catch (Exception $e) {
+        if (isset($transaction)) {
+          $transaction->rollback();
+        }
+        watchdog_exception($this->entityType, $e);
+        throw $e;
+      }
     }
-    catch (Exception $e) {
-      $transaction->rollback();
-      watchdog_exception('redhen_membership', $e);
-      throw $e;
-    }
+
+    return TRUE;
   }
 
 }

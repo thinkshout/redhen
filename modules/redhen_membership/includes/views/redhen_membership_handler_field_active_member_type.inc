@@ -7,7 +7,7 @@ class redhen_membership_handler_field_active_member_type extends views_handler_f
 
   function construct() {
     parent::construct();
-    // @todo needs work to be more abstract
+    // @todo needs work to be more abstract and avoid some errors since only one of these is typically available
     $this->additional_fields['org_id'] = array('table' => 'redhen_org', 'field' => 'org_id');
     $this->additional_fields['contact_id'] = array('table' => 'redhen_contact', 'field' => 'contact_id');
   }
