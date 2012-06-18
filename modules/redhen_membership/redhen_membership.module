@@ -404,6 +404,28 @@ function redhen_membership_type_delete(RedhenMembershipType $type) {
 }
 
 /**
+ * Implements hook_redhen_settings().
+ *
+ * @return array
+ */
+function redhen_membership_redhen_settings() {
+  return array(
+    'redhen_membership_cron_enable' => array(
+      '#type' => 'checkbox',
+      '#title' => t('Automatically enable memberships on their Start date'),
+      '#description' => t('If checked, RedHen will set Inactive memberships to Active on their Start date during cron runs.'),
+      '#default_value' => variable_get('redhen_membership_cron_enable', FALSE)
+    ),
+    'redhen_membership_cron_expire' => array(
+      '#type' => 'checkbox',
+      '#title' => t('Automatically expire memberships on their Expiration date'),
+      '#description' => t('If checked, RedHen will set Active memberships to Expired on their Expiration date during cron runs.'),
+      '#default_value' => variable_get('redhen_membership_cron_expire', FALSE)
+    ),
+  );
+}
+
+/**
  * Implements hook_cron().
  */
 function redhen_membership_cron() {
