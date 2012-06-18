@@ -179,16 +179,18 @@ function redhen_contact_menu() {
     'access arguments' => array('delete', 2),
     'type' => MENU_LOCAL_TASK,
     'file' => 'includes/redhen_contact.forms.inc',
-    'weight' => 4,
+    'weight' => 5,
   );
 
-  $items['redhen/contact/%redhen_contact/archive'] = array(
+  $items['redhen/contact/%redhen_contact/view/archive'] = array(
     'title' => 'Archive',
-    'page callback' => 'redhen_contact_archive',
-    'page arguments' => array(2),
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('redhen_contact_contact_archive_form', 2),
     'access callback' => 'redhen_contact_access',
-    'access arguments' => array('edit', 2),
-    'type' => MENU_CALLBACK,
+    'access arguments' => array('archive', 2),
+    'type' => MENU_LOCAL_TASK,
+    'file' => 'includes/redhen_contact.forms.inc',
+    'weight' => 4,
   );
 
   if (module_exists('devel')) {
@@ -339,19 +341,6 @@ function redhen_contact_save(RedhenContact $contact) {
 }
 
 /**
- * Archive or restore a contact.
- *
- * @param $contact
- *   The full contact object to save.
- */
-function redhen_contact_archive(RedhenContact $contact) {
-  // flip the state and save
-  $contact->redhen_state = !$contact->redhen_state;
-  redhen_contact_save($contact);
-  drupal_goto(drupal_get_destination());
-}
-
-/**
  * Checks contact access for various operations.
  *
  * @param $op
@@ -367,6 +356,11 @@ function redhen_contact_access($op, $contact = NULL, $account = NULL) {
   global $user;
   $account = isset($account) ? $account : $user;
 
+  // If it's already archived, no one can archive it again
+  if (($op == 'archive') && ($contact->redhen_state == REDHEN_STATE_ARCHIVED)) {
+    return FALSE;
+  }
+
   if (user_access('administer redhen contacts', $account)) {
     return TRUE;
   }
@@ -375,7 +369,11 @@ function redhen_contact_access($op, $contact = NULL, $account = NULL) {
     return TRUE;
   }
 
-  if (($op == 'create' || $op == 'edit' || $op == 'delete') && user_access('manage redhen contacts', $account)) {
+  if ( ($op == 'edit' || $op == 'archive') && user_access('manage redhen contacts', $account) && ($contact->redhen_state != REDHEN_STATE_ARCHIVED)) {
+    return TRUE;
+  }
+
+  if (($op == 'create' || $op == 'delete') && user_access('manage redhen contacts', $account)) {
     return TRUE;
   }
 
@@ -450,11 +448,6 @@ function redhen_contact_field_extra_fields() {
         'name' => array(
           'label' => t('Contact name'),
           'description' => t('Contact name'),
-          'weight' => 0,
-        ),
-        'redhen_state' => array(
-          'label' => t('State'),
-          'description' => t('Contact state'),
           'weight' => 0,
         ),
       ),
@@ -564,11 +557,9 @@ function theme_redhen_contact_list($variables) {
   if (!empty($contacts)) {
     $rows = array();
     foreach($contacts as $contact) {
-      $archive = $contact->redhen_state == REDHEN_STATE_ACTIVE ? t('archive') : t('restore');
       $uri = entity_uri('redhen_contact', $contact);
       $actions = array(
         l(t('edit'), $uri['path'] . '/view/edit', array('query' => drupal_get_destination())),
-        l($archive, $uri['path'] . '/archive', array('query' => drupal_get_destination())),
         l(t('delete'), $uri['path'] . '/view/delete', array('query' => drupal_get_destination())),
       );
 

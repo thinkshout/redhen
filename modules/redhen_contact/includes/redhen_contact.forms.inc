@@ -34,14 +34,6 @@ function redhen_contact_contact_form($form, &$form_state, $contact) {
     '#required' => TRUE,
     '#weight' => 5,
   );
-  $form['redhen_state'] = array(
-    '#type' => 'select',
-    '#title' => t('State'),
-    '#description' => t('Contact state.'),
-    '#options' => redhen_state_options(),
-    '#default_value' => $contact->redhen_state,
-    '#weight' => 10,
-  );
 
   // Add the field related form elements.
   $form_state['redhen_contact'] = $contact;
@@ -97,7 +89,6 @@ function redhen_contact_contact_form_submit($form, &$form_state) {
   // Save default parameters back into the $contact object.
   $contact->first_name = $form_state['values']['first_name'];
   $contact->last_name = $form_state['values']['last_name'];
-  $contact->redhen_state = $form_state['values']['redhen_state'];
 
   // @TODO Add a log field to existing entries
   $contact->log = '';
@@ -154,6 +145,49 @@ function redhen_contact_contact_delete_form_submit($form, &$form_state) {
   else {
     drupal_set_message(t('%title could not be deleted.', array('%title' => $contact->name)), 'error');
   }
+}
+
+/**
+ * Form callback: confirmation form for archiving a contact.
+ *
+ * @param $contact
+ *   The contact object to be archived.
+ *
+ * @see confirm_form()
+ */
+function redhen_contact_contact_archive_form($form, &$form_state, $contact) {
+  $form_state['redhen_contact'] = $contact;
+
+  // Ensure this include file is loaded when the form is rebuilt from the cache.
+  $form_state['build_info']['files']['form'] = drupal_get_path('module', 'redhen_contact') . '/includes/redhen_contact.forms.inc';
+
+  $form['#submit'][] = 'redhen_contact_contact_archive_form_submit';
+
+  $form = confirm_form($form,
+    t('Are you sure you want to archive %label?', array('%label' => $contact->name)),
+    '',
+    '<p>' . t('Archiving this contact cannot be undone.') . '</p>',
+    t('Archive'),
+    t('Cancel'),
+    'confirm'
+  );
+
+  return $form;
+}
+
+/**
+ * Submit callback for redhen_contact_contact_archive_form().
+ */
+function redhen_contact_contact_archive_form_submit($form, &$form_state) {
+  $contact = $form_state['redhen_contact'];
+
+  if ($contact->setState(REDHEN_STATE_ARCHIVED)) {
+    drupal_set_message(t('%label has been archived.', array('%label' => $contact->name)));
+  } else {
+    drupal_set_message(t('%label was not archived.', array('%label' => $contact->name)), WATCHDOG_ERROR);
+  }
+  $url = entity_uri($contact->entityType(), $contact);
+  drupal_goto($url['path']);
 }
 
 /**

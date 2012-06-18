@@ -197,6 +197,17 @@ class RedhenContact extends Entity {
     return entity_get_controller($this->entityType)->setUser($this);
   }
 
+  /**
+   * Set the redhen_state for a contact
+   *
+   * @param $state
+   *  The REDHEN_STATE_* value to use
+   */
+  public function setState($state) {
+    $this->redhen_state = $state;
+    return entity_get_controller($this->entityType)->save($this);
+  }
+
 }
 
 
