@@ -109,8 +109,8 @@ function redhen_membership_menu() {
     'page callback' => 'redhen_membership_page',
     'access callback' => 'redhen_membership_access',
     'access arguments' => array('view'),
-    'type' => MENU_LOCAL_TASK,
     'file' => 'includes/redhen_membership.pages.inc',
+    'weight' => 1,
   );
 
   foreach (redhen_entity_types() as $entity_type => $path) {

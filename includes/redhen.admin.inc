@@ -20,6 +20,11 @@ function redhen_landing_page() {
       'title' => 'Organizations',
       'description' => t('View, manage, and search organizations.')
     ),
+    'memberships' => array(
+      'path' => 'redhen/memberships',
+      'title' => 'Memberships',
+      'description' => t('View, manage, and search memberships.')
+    ),
     'structure' => array(
       'path' => 'admin/structure/redhen',
       'title' => 'Structure',
