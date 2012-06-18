@@ -430,32 +430,28 @@ function redhen_membership_redhen_settings() {
  */
 function redhen_membership_cron() {
 
-  $activate_results = db_select('redhen_membership', 'me')
-    ->fields('me')
-    ->condition('membership_state', REDHEN_MEMBERSHIP_INACTIVE)
-    ->condition('start_date', date('Y-m-d 00:00:00'))
-    ->execute()
-    ->fetchAllAssoc('membership_id');
+  if (variable_get('redhen_membership_cron_enable', FALSE)) {
+    $memberships = redhen_membership_load_multiple(FALSE, array(
+      'membership_state' => REDHEN_MEMBERSHIP_INACTIVE,
+      'start_date' => date('Y-m-d 00:00:00'),
+    ));
 
-  $memberships = redhen_membership_load_multiple(array_keys($activate_results));
-
-  foreach ($memberships as $membership) {
-    // Set membership_state to REDHEN_MEMBERSHIP_ACTIVE
-    redhen_membership_toggle_roles($membership);
+    foreach ($memberships as $membership) {
+      $membership->membership_state = REDHEN_MEMBERSHIP_ACTIVE;
+      redhen_membership_save($membership);
+    }
   }
 
-  $expire_results = db_select('redhen_membership', 'me')
-    ->fields('me')
-    ->condition('membership_state', REDHEN_MEMBERSIHP_ACTIVE)
-    ->condition('expire_date', date('Y-m-d 00:00:00'))
-    ->execute()
-    ->fetchAllAssoc('membership_id');
+  if (variable_get('redhen_membership_cron_expire', FALSE)) {
+    $memberships = redhen_membership_load_multiple(FALSE, array(
+      'membership_state' => REDHEN_MEMBERSHIP_ACTIVE,
+      'expire_date' => date('Y-m-d 00:00:00'),
+    ));
 
-  $memberships = redhen_membership_load_multiple(array_keys($expire_results));
-
-  foreach ($memberships as $membership) {
-    // Set membership_state to REDHEN_MEMBERSHIP_EXPIRED
-    redhen_membership_toggle_roles($membership);
+    foreach ($memberships as $membership) {
+      $membership->membership_state = REDHEN_MEMBERSHIP_EXPIRED;
+      redhen_membership_save($membership);
+    }
   }
 
 }
