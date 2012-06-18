@@ -172,13 +172,15 @@ function redhen_org_menu() {
     'file' => 'includes/redhen_org.forms.inc',
   );
 
-  $items['redhen/org/%redhen_org/archive'] = array(
+  $items['redhen/org/%redhen_org/view/archive'] = array(
     'title' => 'Archive',
-    'page callback' => 'redhen_org_archive',
-    'page arguments' => array(2),
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('redhen_org_org_archive_form', 2),
     'access callback' => 'redhen_org_access',
-    'access arguments' => array('edit', 2),
-    'type' => MENU_CALLBACK,
+    'access arguments' => array('archive', 2),
+    'type' => MENU_LOCAL_TASK,
+    'weight' => 9,
+    'file' => 'includes/redhen_org.forms.inc',
   );
 
   $items['redhen/org/%redhen_org/primary/%redhen_contact'] = array(
@@ -279,23 +281,6 @@ function redhen_org_load_multiple($org_ids = array(), $conditions = array(), $re
 }
 
 /**
- * Archive an org.
- *
- * @param $org
- *   The full org object to save.
- *
- * @return
- *   The saved org object.
- */
-function redhen_org_archive($org) {
-  // flip the state and save
-  $org->redhen_state = !$org->redhen_state;
-  drupal_set_message(t('@org has been updated.', array('@org' => $org->label())), 'status');
-  $org->save();
-  drupal_goto(drupal_get_destination());
-}
-
-/**
  * Checks org access for various operations.
  *
  * @param $op
@@ -311,6 +296,11 @@ function redhen_org_access($op, $org = NULL, $account = NULL) {
   global $user;
   $account = isset($account) ? $account : $user;
 
+  // If it's already archived, no one can archive it again
+  if (($op == 'archive') && ($org->redhen_state == REDHEN_STATE_ARCHIVED)) {
+    return FALSE;
+  }
+
   if (user_access('administer redhen orgs', $account)) {
     return TRUE;
   }
@@ -319,7 +309,11 @@ function redhen_org_access($op, $org = NULL, $account = NULL) {
     return TRUE;
   }
 
-  if (($op == 'create' || $op == 'edit' || $op == 'delete') && user_access('manage redhen orgs', $account)) {
+  if ( ($op == 'edit' || $op == 'archive') && user_access('manage redhen orgs', $account) && ($org->redhen_state != REDHEN_STATE_ARCHIVED)) {
+    return TRUE;
+  }
+
+  if (($op == 'create' || $op == 'delete') && user_access('manage redhen orgs', $account)) {
     return TRUE;
   }
 
@@ -386,11 +380,6 @@ function redhen_org_field_extra_fields() {
           'description' => t('Organization name'),
           'weight' => 0,
         ),
-        'redhen_state' => array(
-          'label' => t('State'),
-          'description' => t('Organization state'),
-          'weight' => 0,
-        ),
       ),
       'display' => array(
         'name' => array(
@@ -401,6 +390,11 @@ function redhen_org_field_extra_fields() {
         'redhen_state' => array(
           'label' => t('State'),
           'description' => t('Organization state'),
+          'weight' => 0,
+        ),
+        'primary_contact' => array(
+          'label' => t('Primary Contact'),
+          'description' => t('Primary contact display'),
           'weight' => 0,
         ),
       ),
@@ -494,11 +488,9 @@ function theme_redhen_org_list($variables) {
   if (!empty($orgs)) {
     $rows = array();
     foreach($orgs as $org) {
-      $archive = $org->redhen_state == REDHEN_STATE_ACTIVE ? t('archive') : t('restore');
       $uri = entity_uri('redhen_org', $org);
       $actions = array(
         l(t('edit'), $uri['path'] . '/view/edit', array('query' => drupal_get_destination())),
-        l($archive, $uri['path'] . '/archive', array('query' => drupal_get_destination())),
         l(t('delete'), $uri['path'] . '/view/delete', array('query' => drupal_get_destination())),
       );
 

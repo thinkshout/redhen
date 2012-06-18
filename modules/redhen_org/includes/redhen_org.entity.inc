@@ -96,7 +96,7 @@ class RedhenOrg extends Entity {
    */
   public function setState($state) {
     $this->redhen_state = $state;
-    $this->save();
+    return $this->save();
   }
 
   /**

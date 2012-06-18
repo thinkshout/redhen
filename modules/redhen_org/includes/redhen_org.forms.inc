@@ -30,15 +30,6 @@ function redhen_org_org_form($form, &$form_state, $org) {
     '#required' => TRUE,
     '#weight' => -6,
   );
-  $form['redhen_state'] = array(
-    '#type' => 'select',
-    '#title' => t('State'),
-    '#description' => t('Organization state.'),
-    '#options' => redhen_state_options(),
-    '#default_value' => $org->redhen_state,
-    '#weight' => 5,
-  );
-
 
   // Add the field related form elements.
   $form_state['redhen_org'] = $org;
@@ -93,7 +84,6 @@ function redhen_org_org_form_submit($form, &$form_state) {
 
   // Save default parameters back into the $org object.
   $org->label = $form_state['values']['label'];
-  $org->redhen_state = $form_state['values']['redhen_state'];
 
   // Notify field widgets.
   field_attach_submit('redhen_org', $org, $form, $form_state);
@@ -144,6 +134,49 @@ function redhen_org_org_delete_form_submit($form, &$form_state) {
   drupal_set_message(t('%label has been deleted.', array('%label' => $org->label)));
   watchdog('redhen_org', 'Deleted organization %label.', array('%label' => $org->label), WATCHDOG_NOTICE);
 
+}
+
+/**
+ * Form callback: confirmation form for archiving an organization.
+ *
+ * @param $org
+ *   The organization object to be archived.
+ *
+ * @see confirm_form()
+ */
+function redhen_org_org_archive_form($form, &$form_state, $org) {
+  $form_state['redhen_org'] = $org;
+
+  // Ensure this include file is loaded when the form is rebuilt from the cache.
+  $form_state['build_info']['files']['form'] = drupal_get_path('module', 'redhen_org') . '/includes/redhen_org.forms.inc';
+
+  $form['#submit'][] = 'redhen_org_org_archive_form_submit';
+
+  $form = confirm_form($form,
+    t('Are you sure you want to archive %label?', array('%label' => $org->label)),
+    '',
+    '<p>' . t('Archiving this organization cannot be undone.') . '</p>',
+    t('Archive'),
+    t('Cancel'),
+    'confirm'
+  );
+
+  return $form;
+}
+
+/**
+ * Submit callback for redhen_org_org_archive_form().
+ */
+function redhen_org_org_archive_form_submit($form, &$form_state) {
+  $org = $form_state['redhen_org'];
+
+  if ($org->setState(REDHEN_STATE_ARCHIVED)) {
+    drupal_set_message(t('%label has been archived.', array('%label' => $org->label)));
+  } else {
+    drupal_set_message(t('%label was not archived.', array('%label' => $org->label)), WATCHDOG_ERROR);
+  }
+  $url = entity_uri($org->entityType(), $org);
+  drupal_goto($url['path']);
 }
 
 /**
