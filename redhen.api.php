@@ -22,6 +22,16 @@ function hook_redhen_contact_can_delete($contact) {
 }
 
 /**
+ * Prevent an organization record from being deleted.
+ *
+ * @param RedhenOrg $org
+ * @return void
+ */
+function hook_redhen_org_can_delete(RedhenOrg $org) {
+
+}
+
+/**
  * Alter the display name for a contact.
  *
  * @param string $name
@@ -30,6 +40,16 @@ function hook_redhen_contact_can_delete($contact) {
  */
 function hook_redhen_contact_name_alter(&$name, RedhenContact $contact) {
   return $contact->last_name . ', ' . $contact->last_name;
+}
+
+/**
+ * Allow modules to act before an entity is deleted.
+ *
+ * @param string $entity_type ( redhen_org | redhen_contact )
+ * @param Entity $entity
+ */
+function hook_redhen_entity_predelete($entity_type, $entity) {
+
 }
 
 /**
