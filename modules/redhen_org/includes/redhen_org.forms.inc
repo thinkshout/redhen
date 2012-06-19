@@ -129,8 +129,7 @@ function redhen_org_org_delete_form($form, &$form_state, $org) {
 function redhen_org_org_delete_form_submit($form, &$form_state) {
   $org = $form_state['redhen_org'];
 
-  // No status returned from delete(), assume it worked
-  $org->delete();
+  redhen_org_delete_multiple(array($org->org_id));
   drupal_set_message(t('%label has been deleted.', array('%label' => $org->label)));
   watchdog('redhen_org', 'Deleted organization %label.', array('%label' => $org->label), WATCHDOG_NOTICE);
 

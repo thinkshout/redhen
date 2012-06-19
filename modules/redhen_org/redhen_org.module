@@ -15,7 +15,7 @@ function redhen_org_entity_info() {
     'redhen_org' => array(
       'label' => t('Organization'),
       'plural label' => t('Organizations'),
-      'controller class' => 'EntityAPIController',
+      'controller class' => 'RedhenOrgEntityController',
       'metadata controller class' => 'RedhenOrgMetadataController',
       'entity class' => 'RedhenOrg',
       'base table' => 'redhen_org',
@@ -278,6 +278,21 @@ function redhen_org_load_multiple($org_ids = array(), $conditions = array(), $re
   }
 
   return entity_load('redhen_org', $org_ids, $conditions, $reset);
+}
+
+/**
+ * Deletes multiple orgs by ID.
+ *
+ * @param $org_ids
+ *   An array of org IDs to delete.
+ *
+ * @return
+ *   TRUE on success, FALSE otherwise.
+ */
+function redhen_org_delete_multiple($org_ids) {
+  $ret = entity_get_controller('redhen_org')->delete($org_ids);
+
+  return $ret;
 }
 
 /**
