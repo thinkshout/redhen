@@ -156,7 +156,7 @@ class RedhenContactEntityController extends EntityAPIController {
    * @return bool
    *   TRUE if contact is successfully linked to user.
    */
-  public function setUser(RedhenContact $contact, DatabaseTransaction $transaction = NULL) {
+  public function setUser($contact, DatabaseTransaction $transaction = NULL) {
     $user_result = db_select('redhen_contact_user', 'cu')
       ->fields('cu')
       ->condition('uid', $contact->uid, '=')
