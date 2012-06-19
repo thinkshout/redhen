@@ -28,7 +28,7 @@ class RedhenMembershipEntityController extends EntityAPIController {
 
       // If the entity isn't set, this is a new membership. We need to load it in full to toggle roles later
       if (!$membership->entity) {
-        $membership = redhen_membership_load($membership->identifier());
+        $membership = redhen_membership_load($membership->membership_id);
       }
 
       // Toggle user roles as needed after saving the membership
@@ -58,8 +58,7 @@ class RedhenMembershipEntityController extends EntityAPIController {
 
       // Toggle all roles for each of the memberships.
       foreach ((array) $memberships as $membership_id => $membership) {
-        $membership->membership_state = REDHEN_MEMBERSHIP_INACTIVE;
-        $this->save($membership);
+        $membership->setState(REDHEN_MEMBERSHIP_INACTIVE);
       }
 
       $transaction = db_transaction();

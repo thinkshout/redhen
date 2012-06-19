@@ -720,48 +720,6 @@ function redhen_membership_query($entity_type, $entity) {
 }
 
 /**
- * Implements hook_ENTITY_TYPE_update().
- *
- * If there is a user associated with a contact, see if we need to set their role based on the contact's membership(s)
- *
- * @param RedhenContact $contact
- *   The redhen_contact that is being updated.
- */
-function redhen_membership_redhen_contact_update(RedhenContact $contact) {
-  if ($contact->user) {
-    // Get all the memberships associated with this user
-    $memberships = redhen_membership_contact_memberships($contact);
-    foreach ($memberships as $membership) {
-      // If the contact is archived and this membership is attached to the contact, archive the membership
-      if ( ($contact->redhen_state !== REDHEN_STATE_ACTIVE) && ($membership->membership_state == REDHEN_MEMBERSHIP_ACTIVE) &&
-        ($membership->entity_type == 'redhen_contact') && ($membership->entity_id == $contact->contact_id) ) {
-        $membership->setState(REDHEN_MEMBERSHIP_INACTIVE);
-      }
-      // Don't need this for the archive action, but do need it to catch new user linkage
-      redhen_membership_toggle_roles($membership, array($contact));
-
-    }
-  }
-}
-
-/**
- * Implements hook_ENTITY_TYPE_update().
- *
- * @param RedHenOrg $org
- *   The redhen_org that is being updated.
- */
-function redhen_membership_redhen_org_update(RedHenOrg $org) {
-  // Get all the memberships associated with this organization
-  $memberships = redhen_membership_query('redhen_org', $org);
-  foreach ($memberships as $membership) {
-    // If the organization is archived and this membership is attached to the org, archive the membership
-    if ( ($org->redhen_state !== REDHEN_STATE_ACTIVE) && ($membership->membership_state == REDHEN_MEMBERSHIP_ACTIVE) ) {
-      $membership->setState(REDHEN_MEMBERSHIP_INACTIVE);
-    }
-  }
-}
-
-/**
  * Implements hook_redhen_contact_user_remove().
  */
 function redhen_membership_redhen_contact_user_remove($delete, RedhenContact $contact) {
@@ -779,36 +737,80 @@ function redhen_membership_redhen_contact_user_remove($delete, RedhenContact $co
  */
 function redhen_membership_entity_insert($entity, $entity_type) {
   if ( ($entity_type == 'relation') && ($entity->relation_type == 'redhen_affiliation') ) {
-    redhen_membership_relation_toggle($entity);
+    $remove = ($entity->{REDHEN_RELATION_STATUS_FIELD}[LANGUAGE_NONE][0]['value']) ? FALSE : TRUE;
+    redhen_membership_relation_toggle($entity, $remove);
+  }
+}
+
+/**
+ * Implements hook_entity_update().
+ *
+ * React to entity updates that require roles to be toggled
+ */
+function redhen_membership_entity_update($entity, $entity_type) {
+  switch ($entity_type) {
+    case 'relation':
+      if ($entity->relation_type == 'redhen_affiliation') {
+        $remove = ($entity->{REDHEN_RELATION_STATUS_FIELD}[LANGUAGE_NONE][0]['value']) ? FALSE : TRUE;
+        redhen_membership_relation_toggle($entity, $remove);
+      }
+      break;
+    case 'redhen_contact':
+    case 'redhen_org':
+      // If the entity is archived, we want to archive their memberships
+      if ($entity->redhen_state !== REDHEN_STATE_ACTIVE) {
+        // Get all the memberships associated with this entitity
+        $memberships = redhen_membership_load_multiple(FALSE, array(
+          'entity_type' => $entity_type,
+          'entity_id' => $entity->internalIdentifier(),
+        ));
+        foreach ($memberships as $membership) {
+          if ($membership->membership_state == REDHEN_MEMBERSHIP_ACTIVE) {
+            $membership->setState(REDHEN_MEMBERSHIP_INACTIVE);
+          }
+        }
+      }
+      break;
   }
 }
 
 /**
  * Implements hook_entity_delete().
  *
- * React to entity insertions that require roles to be toggled
+ * React to entity deletions that require roles to be toggled
  */
 function redhen_membership_entity_delete($entity, $entity_type) {
+  if ( ($entity_type == 'relation') && ($entity->relation_type == 'redhen_affiliation') ) {
+    // force removal of roles for this relation
+    redhen_membership_relation_toggle($entity, TRUE);
+  }
+}
+
+/**
+ * Implemenets hook_redhen_entity_predelete().
+ * @param $entity
+ * @param $entity_type
+ */
+function redhen_membership_redhen_entity_predelete($entity, $entity_type) {
   switch ($entity_type) {
-    case 'relation':
-      if ($entity->relation_type == 'redhen_affiliation') {
-        redhen_membership_relation_toggle($entity, TRUE);
-      }
-      break;
     case 'redhen_contact':
+      // If the contact has a user associated with them we need to remove all of its roles from memberships.
       if ($entity->user) {
-        // Get all the memberships associated with this user
-        $memberships = redhen_membership_contact_memberships($entity);
-        foreach ($memberships as $membership) {
+        // Get all active memberships impacting this contact
+        $contact_memberships = redhen_membership_contact_memberships($entity, REDHEN_MEMBERSHIP_ACTIVE);
+        foreach ($contact_memberships as $membership) {
+          // Force remove of any roles associated with the membership
           redhen_membership_toggle_roles($membership, array($entity), TRUE);
         }
       }
-      // no break because we want to run the code below redhen_org as well
+      // No break because we want to also remove memberships associated with the contact
     case 'redhen_org':
-      $memberships = redhen_membership_query($entity_type, $entity);
-      if (sizeof($memberships) > 0) {
-        redhen_membership_delete_multiple(array_keys($memberships));
-      }
+      // Delete memberships that belong to the entity being deleted
+      $memberships = redhen_membership_load_multiple(FALSE, array(
+        'entity_type' => $entity_type,
+        'entity_id' => $entity->internalIdentifier(),
+      ));
+      redhen_membership_delete_multiple(array_keys($memberships));
       break;
   }
 }

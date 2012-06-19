@@ -284,3 +284,36 @@ function redhen_relation_autocomplete($relation_type = '', $entity_type_to_relat
   print drupal_json_encode($options);
   exit();
 }
+
+/**
+ * Implements hook_entity_update().
+ *
+ * React to entity updates that require connection states to be changed
+ */
+function redhen_relation_entity_update($entity, $entity_type) {
+  if ($entity_type == 'redhen_contact' || $entity_type == 'redhen_org') {
+    // If the entity is archived, we want to archive their relations
+    if ($entity->redhen_state !== REDHEN_STATE_ACTIVE) {
+      // Get all the relations associated with this entitity
+      $query = relation_query($entity_type, $entity->internalIdentifier());
+
+      // this hideous hack is to avoid triggering the node access system which we
+      // need to to in order to avoid infinite recursion in
+      // redhen_org_group:node_grants().
+      // time came from http://drupal.stackexchange.com/questions/3927/how-to-bypass-node-access-when-using-entityfieldquery
+      // ticket pointing to issue http://drupal.org/node/1541236.
+      $query->addMetaData('account', user_load(1));
+
+      $query->addTag('redhen_relation');
+      $results = $query->execute();
+
+      if ($results) {
+        $relations = relation_load_multiple(array_keys($results));
+        foreach ($relations as $relation) {
+          $relation->{REDHEN_RELATION_STATUS_FIELD}[LANGUAGE_NONE][0]['value'] = 0;
+          relation_save($relation);
+        }
+      }
+    }
+  }
+}
