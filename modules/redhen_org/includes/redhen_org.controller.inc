@@ -27,8 +27,7 @@ class RedhenOrgEntityController extends EntityAPIController {
       parent::save($org, $transaction);
 
       return $org;
-    }
-    catch (Exception $e) {
+    } catch (Exception $e) {
       $transaction->rollback();
       watchdog_exception($this->entityType, $e);
       throw $e;
@@ -44,7 +43,7 @@ class RedhenOrgEntityController extends EntityAPIController {
    * @return
    *   TRUE on success, FALSE otherwise.
    */
-  public function delete($org_ids,  DatabaseTransaction $transaction = NULL) {
+  public function delete($org_ids, DatabaseTransaction $transaction = NULL) {
     if (!empty($org_ids)) {
       $orgs = $this->load($org_ids, array());
 
@@ -52,16 +51,16 @@ class RedhenOrgEntityController extends EntityAPIController {
       foreach ((array) $orgs as $org_id => $org) {
         if (in_array(FALSE, module_invoke_all('redhen_org_can_delete', $org))) {
           unset($orgs[$org_id]);
-        } else {
+        }
+        else {
           module_invoke_all('redhen_entity_predelete', $org, 'redhen_org');
         }
       }
-      
+
       $transaction = db_transaction();
       try {
         parent::delete($org_ids, $transaction);
-      }
-      catch (Exception $e) {
+      } catch (Exception $e) {
         if (isset($transaction)) {
           $transaction->rollback();
         }

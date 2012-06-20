@@ -15,8 +15,20 @@ function redhen_org_page() {
   // setup the header for both the query and table
   $header = array(
     'type' => array('field' => 'type', 'type' => 'property', 'data' => 'Type', 'sort' => 'asc', 'specifier' => 'type'),
-    'label' => array('field' => 'label', 'type' => 'property', 'data' => 'Name', 'sort' => 'asc', 'specifier' => 'label'),
-    'updated' => array('field' => 'updated', 'type' => 'property', 'data' => 'Updated', 'sort' => 'desc', 'specifier' => 'updated'),
+    'label' => array(
+      'field' => 'label',
+      'type' => 'property',
+      'data' => 'Name',
+      'sort' => 'asc',
+      'specifier' => 'label'
+    ),
+    'updated' => array(
+      'field' => 'updated',
+      'type' => 'property',
+      'data' => 'Updated',
+      'sort' => 'desc',
+      'specifier' => 'updated'
+    ),
     'Actions',
   );
 
@@ -98,9 +110,9 @@ function _redhen_org_autocomplete($string) {
     ->tablesort($header)
     ->pager(10);
 
-  $query->propertyCondition('label', '%' . db_like($string) .'%', 'LIKE');
+  $query->propertyCondition('label', '%' . db_like($string) . '%', 'LIKE');
 
-  $result =  $query->execute();
+  $result = $query->execute();
 
   $orgs = redhen_org_load_multiple(array_keys($result['redhen_org']));
 

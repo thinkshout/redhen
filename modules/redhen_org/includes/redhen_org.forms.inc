@@ -5,7 +5,7 @@
  * Forms for creating, editing, and deleting organizations.
  */
 
-  function redhen_org_add($type) {
+function redhen_org_add($type) {
   $org = entity_get_controller('redhen_org')->create(array('type' => $type));
   return drupal_get_form('redhen_org_org_form', $org);
 }
@@ -171,7 +171,8 @@ function redhen_org_org_archive_form_submit($form, &$form_state) {
 
   if ($org->setState(REDHEN_STATE_ARCHIVED)) {
     drupal_set_message(t('%label has been archived.', array('%label' => $org->label)));
-  } else {
+  }
+  else {
     drupal_set_message(t('%label was not archived.', array('%label' => $org->label)), WATCHDOG_ERROR);
   }
   $url = entity_uri($org->entityType(), $org);
@@ -204,7 +205,10 @@ function redhen_org_set_primary_form($form, &$form_state, $org, $contact) {
   }
 
   $form = confirm_form($form,
-    t('Are you sure you want to change the primary contact for %org to %name?', array('%org' => $org->label, '%name' => $contact->name)),
+    t('Are you sure you want to change the primary contact for %org to %name?', array(
+      '%org' => $org->label,
+      '%name' => $contact->name
+    )),
     '',
     $existing,
     t('Change'),
@@ -225,10 +229,16 @@ function redhen_org_set_primary_form_submit($form, &$form_state) {
   $contact_name = $contact->name;
 
   if ($org->setPrimaryContact($contact)) {
-    drupal_set_message(t('%contact_name has been set as the primary contact for %org_name.', array('%contact_name' => $contact_name, '%org_name' => $org_name)));
+    drupal_set_message(t('%contact_name has been set as the primary contact for %org_name.', array(
+      '%contact_name' => $contact_name,
+      '%org_name' => $org_name
+    )));
   }
   else {
-    drupal_set_message(t('Unable to set %contact_name as the primary contact for %org_name.', array('%contact_name' => $contact_name, '%org_name' => $org_name)));
+    drupal_set_message(t('Unable to set %contact_name as the primary contact for %org_name.', array(
+      '%contact_name' => $contact_name,
+      '%org_name' => $org_name
+    )));
   }
 
   drupal_goto(drupal_get_destination());

@@ -122,7 +122,7 @@ function redhen_org_menu() {
   );
 
   $entity_info = entity_get_info('redhen_org');
-  foreach($entity_info['bundles'] as $key => $bundle) {
+  foreach ($entity_info['bundles'] as $key => $bundle) {
     $type_url_str = str_replace('_', '-', $key);
     $items['redhen/org/add/' . $type_url_str] = array(
       'title' => $bundle['label'],
@@ -198,7 +198,7 @@ function redhen_org_menu() {
     'title' => 'Autocomplete for RedHen Organizations',
     'page callback' => '_redhen_org_autocomplete',
     'access callback' => 'redhen_org_access',
-    'access arguments' => array('edit'),  //or whatever permission makes sense
+    'access arguments' => array('edit'), //or whatever permission makes sense
     'type' => MENU_CALLBACK,
     'file' => 'includes/redhen_org.pages.inc',
   );
@@ -324,7 +324,7 @@ function redhen_org_access($op, $org = NULL, $account = NULL) {
     return TRUE;
   }
 
-  if ( ($op == 'edit' || $op == 'archive') && user_access('manage redhen orgs', $account) && ($org->redhen_state != REDHEN_STATE_ARCHIVED)) {
+  if (($op == 'edit' || $op == 'archive') && user_access('manage redhen orgs', $account) && ($org->redhen_state != REDHEN_STATE_ARCHIVED)) {
     return TRUE;
   }
 
@@ -344,18 +344,18 @@ function redhen_org_access($op, $org = NULL, $account = NULL) {
  */
 function redhen_org_permission() {
   return array(
-    'administer redhen orgs' =>  array(
+    'administer redhen orgs' => array(
       'title' => t('Administer RedHen Organizations'),
       'description' => t('Perform administration tasks for RedHen Organizations.'),
     ),
-    'manage redhen orgs' =>  array(
+    'manage redhen orgs' => array(
       'title' => t('Manage RedHen Organizations'),
       'description' => t('Create, update or delete RedHen Organizations.'),
     ),
-    'access redhen orgs' =>  array(
-        'title' => t('Access Redhen Organizations'),
-        'description' => t('View for Redhen Organizations.'),
-      ),
+    'access redhen orgs' => array(
+      'title' => t('Access Redhen Organizations'),
+      'description' => t('View for Redhen Organizations.'),
+    ),
   );
 }
 
@@ -502,7 +502,7 @@ function theme_redhen_org_list($variables) {
   $header = $variables['header'];
   if (!empty($orgs)) {
     $rows = array();
-    foreach($orgs as $org) {
+    foreach ($orgs as $org) {
       $uri = entity_uri('redhen_org', $org);
       $actions = array(
         l(t('edit'), $uri['path'] . '/view/edit', array('query' => drupal_get_destination())),

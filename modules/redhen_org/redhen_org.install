@@ -71,10 +71,10 @@ function redhen_org_schema() {
       ),
     ),
     'indexes' => array(
-      'redhen_org_updated'       => array('updated'),
-      'redhen_org_created'       => array('created'),
-      'redhen_org_type'          => array(array('type', 4)),
-      'redhen_org_redhen_state'        => array('redhen_state'),
+      'redhen_org_updated' => array('updated'),
+      'redhen_org_created' => array('created'),
+      'redhen_org_type' => array(array('type', 4)),
+      'redhen_org_redhen_state' => array('redhen_state'),
     ),
     'unique keys' => array(
       'org_id' => array('org_id'),
