@@ -35,8 +35,7 @@ class RedhenMembershipEntityController extends EntityAPIController {
       redhen_membership_toggle_roles($membership);
 
       return $membership;
-    }
-    catch (Exception $e) {
+    } catch (Exception $e) {
       $transaction->rollback();
       watchdog_exception('redhen_membership', $e);
       throw $e;
@@ -52,7 +51,7 @@ class RedhenMembershipEntityController extends EntityAPIController {
    * @return
    *   TRUE on success, FALSE otherwise.
    */
-  public function delete($membership_ids,  DatabaseTransaction $transaction = NULL) {
+  public function delete($membership_ids, DatabaseTransaction $transaction = NULL) {
     if (!empty($membership_ids)) {
       $memberships = $this->load($membership_ids, array());
 
@@ -65,8 +64,7 @@ class RedhenMembershipEntityController extends EntityAPIController {
       try {
         parent::delete($membership_ids, $transaction);
 
-      }
-      catch (Exception $e) {
+      } catch (Exception $e) {
         if (isset($transaction)) {
           $transaction->rollback();
         }

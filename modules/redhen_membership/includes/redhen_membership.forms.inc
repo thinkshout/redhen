@@ -80,7 +80,7 @@ function redhen_membership_membership_form($form, &$form_state, RedhenMembership
     $membership->type = $form_state['values']['type'];
   }
   $options = array();
-  foreach($membership_types as $type) {
+  foreach ($membership_types as $type) {
     $options[$type->name] = $type->label;
   }
   $form['type'] = array(
@@ -153,7 +153,7 @@ function redhen_membership_membership_form_validate($form, &$form_state) {
   $expire = strtotime($form_state['values']['expire_date']);
 
   // check that expire date is after start date if both are set
-  if ( ($start != '') && ($expire != '') && ($start >= $expire) ) {
+  if (($start != '') && ($expire != '') && ($start >= $expire)) {
     form_set_error('expire_date', 'Expiration date must be after the start date.');
   }
 
@@ -170,7 +170,8 @@ function redhen_membership_membership_form_submit($form, &$form_state) {
   $membership = $form_state['membership'];
   if (isset($form_state['entity'])) {
     $entity = $form_state['entity'];
-  } else {
+  }
+  else {
     $entity = $membership->entity;
   }
   $entity_type = $entity->entityType();

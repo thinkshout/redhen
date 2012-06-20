@@ -15,7 +15,7 @@ class redhen_membership_handler_field_active_member_type extends views_handler_f
   function query() {
     $this->add_additional_fields();
     // @todo This needs work to be more abstract.
-    if ($this->table =='redhen_org') {
+    if ($this->table == 'redhen_org') {
       $id_field = 'org_id';
     }
     if ($this->table == 'redhen_contact') {
@@ -33,7 +33,8 @@ class redhen_membership_handler_field_active_member_type extends views_handler_f
       $memberships = redhen_membership_load_multiple(FALSE, array(
         'entity_type' => $this->table,
         'entity_id' => $entity_id,
-        'membership_state' => REDHEN_MEMBERSHIP_ACTIVE), TRUE);
+        'membership_state' => REDHEN_MEMBERSHIP_ACTIVE
+      ), TRUE);
 
       if ($memberships) {
         foreach ($memberships as $membership) {

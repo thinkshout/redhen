@@ -491,19 +491,19 @@ function theme_redhen_membership_add_list($variables) {
   return $output;
 }
 
-  /**
-   * Theme function for membership list.
-   *
-   * @param $variables
-   * @return string
-   */
+/**
+ * Theme function for membership list.
+ *
+ * @param $variables
+ * @return string
+ */
 function theme_redhen_membership_list($variables) {
   $memberships = $variables['memberships'];
   $header = $variables['header'];
   if (!empty($memberships)) {
     $rows = array();
     $membership_states = redhen_membership_state_options();
-    foreach($memberships as $membership) {
+    foreach ($memberships as $membership) {
       $uri = entity_uri('redhen_membership', $membership);
       $actions = array(
         l(t('view'), $uri['path']),
@@ -521,7 +521,7 @@ function theme_redhen_membership_list($variables) {
         $membership->note,
         $membership_states[$membership->membership_state],
         implode(' | ', $actions)
-        );
+      );
 
       $row_classes = array();
       // Set a class for the row depending on if the membership is active or not
@@ -660,12 +660,13 @@ function redhen_membership_toggle_roles(RedhenMembership $membership, $contacts 
     }
     foreach ($contacts as $contact) {
       if (isset($contact->user)) {
-        if ( ($membership->membership_state == REDHEN_MEMBERSHIP_ACTIVE) && (!$remove) ) {
+        if (($membership->membership_state == REDHEN_MEMBERSHIP_ACTIVE) && (!$remove)) {
           // only set if the user doesn't already have this role
           if (!isset($contact->user->roles[$membership_rid])) {
             $contact->user->roles[] = $membership_rid;
           }
-        } else {
+        }
+        else {
           // Get all active memberships for this contact
           $contact_memberships = redhen_membership_contact_memberships($contact, REDHEN_MEMBERSHIP_ACTIVE);
 
@@ -675,7 +676,7 @@ function redhen_membership_toggle_roles(RedhenMembership $membership, $contacts 
           if (!$remove) {
             foreach ($contact_memberships as $contact_membership) {
               $contact_membership_rid = $membership_types[$contact_membership->type]->role_id;
-              if ((isset($contact_membership_rid)) && ($contact_membership_rid == $membership_rid) ) {
+              if ((isset($contact_membership_rid)) && ($contact_membership_rid == $membership_rid)) {
                 // Found a matching active membership with the same role, abort the deletion
                 $delete = FALSE;
               }
@@ -736,7 +737,7 @@ function redhen_membership_redhen_contact_user_remove($delete, RedhenContact $co
  * React to entity insertions that require roles to be toggled
  */
 function redhen_membership_entity_insert($entity, $entity_type) {
-  if ( ($entity_type == 'relation') && ($entity->relation_type == 'redhen_affiliation') ) {
+  if (($entity_type == 'relation') && ($entity->relation_type == 'redhen_affiliation')) {
     $remove = ($entity->{REDHEN_RELATION_STATUS_FIELD}[LANGUAGE_NONE][0]['value']) ? FALSE : TRUE;
     redhen_membership_relation_toggle($entity, $remove);
   }
@@ -780,7 +781,7 @@ function redhen_membership_entity_update($entity, $entity_type) {
  * React to entity deletions that require roles to be toggled
  */
 function redhen_membership_entity_delete($entity, $entity_type) {
-  if ( ($entity_type == 'relation') && ($entity->relation_type == 'redhen_affiliation') ) {
+  if (($entity_type == 'relation') && ($entity->relation_type == 'redhen_affiliation')) {
     // force removal of roles for this relation
     redhen_membership_relation_toggle($entity, TRUE);
   }
@@ -803,7 +804,7 @@ function redhen_membership_redhen_entity_predelete($entity, $entity_type) {
           redhen_membership_toggle_roles($membership, array($entity), TRUE);
         }
       }
-      // No break because we want to also remove memberships associated with the contact
+    // No break because we want to also remove memberships associated with the contact
     case 'redhen_org':
       // Delete memberships that belong to the entity being deleted
       $memberships = redhen_membership_load_multiple(FALSE, array(
