@@ -15,14 +15,14 @@ function redhen_relation_install() {
       'relation_type' => 'redhen_connection',
       'label' => t('Personal connection'),
       'source_bundles' => array('redhen_contact:*'),
-      'r_unique' => true,
+      'r_unique' => TRUE,
     ),
     array(
       'relation_type' => 'redhen_affiliation',
       'label' => t('Organizational affiliation'),
       'reverse_label' => t('Affiliated with'),
-      'directional' => false,
-      'r_unique' => true,
+      'directional' => FALSE,
+      'r_unique' => TRUE,
       'source_bundles' => array('redhen_contact:*', 'redhen_org:*'),
     ),
   );
@@ -31,18 +31,38 @@ function redhen_relation_install() {
     relation_type_save($relation_type);
   }
 
-  // add relation fields
+  // add relation status field
   $status_field = array(
     'field_name' => REDHEN_RELATION_STATUS_FIELD,
     'type' => 'list_boolean',
     'locked' => TRUE,
     'cardinality' => 1,
     'settings' => array(
-      'allowed_values' => array('','')
+      'allowed_values' => array('Inactive', 'Active')
     )
   );
   field_create_field($status_field);
 
+  $bundles = array(
+    'redhen_affiliation' => 'Affiliation Status',
+    'redhen_connection' => 'Connection Status'
+  );
+  foreach ($bundles as $key => $label) {
+    field_create_instance(array(
+      'field_name' => REDHEN_RELATION_STATUS_FIELD,
+      'entity_type' => 'relation',
+      'bundle' => $key,
+      'label' => $label,
+      'required' => 0,
+      'default_value' => array(array('value' => 1)),
+      'widget' => array(
+        'type' => 'options_onoff',
+        'settings' => array('display_label' => 1)
+      )
+    ));
+  }
+
+  // add relation role field
   $role_field = array(
     'field_name' => REDHEN_RELATION_ROLES_FIELD,
     'type' => 'list_text',
@@ -53,32 +73,6 @@ function redhen_relation_install() {
     )
   );
   field_create_field($role_field);
-
-  field_create_instance(array(
-    'field_name' => REDHEN_RELATION_STATUS_FIELD,
-    'entity_type' => 'relation',
-    'bundle' => 'redhen_affiliation',
-    'label' => 'Affiliation Status',
-    'required' => 0,
-    'default_value' => array(array('value' => 1)),
-    'widget' => array(
-      'type' => 'options_onoff',
-      'settings' => array('display_label' => 1)
-    )
-  ));
-
-  field_create_instance(array(
-    'field_name' => REDHEN_RELATION_STATUS_FIELD,
-    'entity_type' => 'relation',
-    'bundle' => 'redhen_connection',
-    'label' => 'Connection Status',
-    'required' => 0,
-    'default_value' => array(array('value' => 1)),
-    'widget' => array(
-      'type' => 'options_onoff',
-      'settings' => array('display_label' => 1)
-    )
-  ));
 
   field_create_instance(array(
     'field_name' => REDHEN_RELATION_ROLES_FIELD,
