@@ -56,8 +56,7 @@ class RedhenContactEntityController extends EntityAPIController {
       }
 
       return $contact;
-    }
-    catch (Exception $e) {
+    } catch (Exception $e) {
       $transaction->rollback();
       watchdog_exception($this->entityType, $e);
       throw $e;
@@ -81,7 +80,8 @@ class RedhenContactEntityController extends EntityAPIController {
       foreach ((array) $contacts as $contact_id => $contact) {
         if (in_array(FALSE, module_invoke_all('redhen_contact_can_delete', $contact))) {
           unset($contacts[$contact_id]);
-        } else {
+        }
+        else {
           module_invoke_all('redhen_entity_predelete', $contact, 'redhen_contact');
         }
       }
@@ -104,8 +104,7 @@ class RedhenContactEntityController extends EntityAPIController {
           ->condition('contact_id', $contact_ids, 'IN')
           ->execute();
 
-      }
-      catch (Exception $e) {
+      } catch (Exception $e) {
         if (isset($transaction)) {
           $transaction->rollback();
         }
@@ -123,6 +122,7 @@ class RedhenContactEntityController extends EntityAPIController {
    * @param $ids
    * @param array $conditions
    * @param bool $revision_id
+   *
    * @return SelectQuery
    */
   protected function buildQuery($ids, $conditions = array(), $revision_id = FALSE) {
@@ -170,12 +170,16 @@ class RedhenContactEntityController extends EntityAPIController {
           return TRUE;
         }
         // this user is actively linked to a different contact
-        else if ($row->contact_id != $contact->contact_id && $row->status == 1) {
-          return FALSE;
-        }
-        // this user has been unlinked from this contact
-        else if ($row->contact_id == $contact->contact_id && $row->status == NULL) {
-          return FALSE;
+        else {
+          if ($row->contact_id != $contact->contact_id && $row->status == 1) {
+            return FALSE;
+          }
+          // this user has been unlinked from this contact
+          else {
+            if ($row->contact_id == $contact->contact_id && $row->status == NULL) {
+              return FALSE;
+            }
+          }
         }
       }
     }
@@ -192,12 +196,12 @@ class RedhenContactEntityController extends EntityAPIController {
       if ($contact_result->rowCount() == 0) {
         db_insert('redhen_contact_user')
           ->fields(array(
-            'contact_id' => $contact->contact_id,
-            'uid' => $contact->uid,
-            'status' => 1,
-            'created' => REQUEST_TIME,
-            'updated' => REQUEST_TIME
-            ))
+          'contact_id' => $contact->contact_id,
+          'uid' => $contact->uid,
+          'status' => 1,
+          'created' => REQUEST_TIME,
+          'updated' => REQUEST_TIME
+        ))
           ->execute();
       }
       // update existing link with different user
@@ -205,17 +209,16 @@ class RedhenContactEntityController extends EntityAPIController {
         // update with new user
         db_update('redhen_contact_user')
           ->fields(array(
-              'uid' => $contact->uid,
-              'updated' => REQUEST_TIME
-            ))
+          'uid' => $contact->uid,
+          'updated' => REQUEST_TIME
+        ))
           ->condition('contact_id', $contact->contact_id)
           ->condition('status', 1)
           ->execute();
       }
 
       return TRUE;
-    }
-    catch (Exception $e) {
+    } catch (Exception $e) {
       if (isset($transaction)) {
         $transaction->rollback();
       }
