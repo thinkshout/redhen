@@ -267,7 +267,7 @@ function redhen_org_group_node_access_records($node) {
 
   if (!empty($node->{REDHEN_ORG_GROUP_FIELD}) && $org_ids = field_get_items('node', $node, REDHEN_ORG_GROUP_FIELD)) {
     foreach ($org_ids as $org_id) {
-      if ($org = redhen_org_load($org_id)) {
+      if ($org = redhen_org_load($org_id['target_id'])) {
         if ($org_type = redhen_org_type_load($org->type)) {
           if (isset($org_type->group) && $org_type->group && $org_type->redhen_state = REDHEN_STATE_ACTIVE && $org_type->group_settings['private']) {
             $grants[] = array (
