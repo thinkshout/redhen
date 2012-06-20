@@ -272,7 +272,7 @@ function redhen_relation_autocomplete($relation_type = '', $entity_type_to_relat
     exit();
   }
 
-  $entity = array_pop(entity_load($entity_type, array($entity_id)));
+  $entity = entity_load_single($entity_type, $entity_id);
 
   $available_entities = redhen_relation_get_available_entities($entity, $entity_type_to_relate, $relation_type, $search, 10);
 
