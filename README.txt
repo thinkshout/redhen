@@ -38,6 +38,10 @@ RedHen CRM relies heavily on custom Drupal entity types and bundles. The [Entity
 
 * Finally, RedHen CRM ships with a "RedHen groups" sub-module that allows you to *groupify* RedHen organizations. Groupified organizations function similarly to [Organic Groups][6], in that they provide a simple container for managing private node content associated with each organization.
 
+## For more information
+
+More complete RedHen site administration docs will be coming soon. You can also check out the README.txt files contained with each submodule. For technical issues, please use the D.O. issue queue for RedHen: http://drupal.org/project/issues/redhen. For community support and to learn about RedHen usage, please consider joining the RedHen Drupal group: http://groups.drupal.org/redhen-crm.
+
 ## References
 
 [1]: http://thinkshout.com "ThinkShout, Inc"
