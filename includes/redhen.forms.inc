@@ -183,7 +183,8 @@ function redhen_filter_form_fields(&$form, $entity_type, $bundle) {
     '#title' => t('Filter by %bundle specific fields',
       array('%bundle' => $bundle)),
     '#collapsible' => FALSE,
-    '#id' => 'redhen_filter_fields_container'
+    '#id' => 'redhen_filter_fields_container',
+    '#access' => !empty($fields)
   );
 
   if (!empty($fields)) {
@@ -193,7 +194,8 @@ function redhen_filter_form_fields(&$form, $entity_type, $bundle) {
       $field_info = field_info_field($field['field_name']);
       // for now, we're only allowing fields that have tid or value single cols
       // @todo: expand to allow more field types
-      $column = reset(array_keys($field_info['columns']));
+      $columns = array_keys($field_info['columns']);
+      $column = reset($columns);
       if (in_array($column, array('value', 'tid'))) {
         $filters_count ++;
         $form['filter_fieldset']['filters']['fields'][$key][$column] = array(
