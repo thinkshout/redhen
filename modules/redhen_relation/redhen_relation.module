@@ -73,16 +73,23 @@ function redhen_relation_menu_alter(&$items) {
  * Custom title callback for relation pages.
  */
 function redhen_relation_page_title($relation) {
-  $relation_type = array_pop(relation_get_types(array($relation->relation_type)));
+  $relation_type = relation_type_load($relation->relation_type);
 
   $endpoints = field_get_items('relation', $relation, 'endpoints');
   foreach ($endpoints as $endpoint) {
-    $object_entities = entity_load($endpoint['entity_type'], array($endpoint['entity_id']));
-    $related_entities[] = reset($object_entities);
+    if ($endpoint['r_index'] == 0) {
+      $label1 = entity_load_single($endpoint['entity_type'], $endpoint['entity_id'])->label();
+    }
+    if ($endpoint['r_index'] == 1) {
+      $label2 = entity_load_single($endpoint['entity_type'], $endpoint['entity_id'])->label();
+    }
   }
 
-  return $relation_type->label . ' between ' . $related_entities[0]->label() . ' and ' . $related_entities[1]->label();
-
+  return t('@type between @label1 and @label2', array(
+    '@type' => $relation_type->label,
+    '@label1' => $label1,
+    '@label2' => $label2
+  ));
 }
 
 /**
