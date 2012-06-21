@@ -7,5 +7,6 @@ dependencies[] = redhen_contact
 dependencies[] = redhen_org
 
 dependencies[] = relation
+dependencies[] = relation_ui
 
 files[] = includes/redhen_relation.forms.inc
