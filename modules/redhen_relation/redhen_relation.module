@@ -324,3 +324,13 @@ function redhen_relation_entity_update($entity, $entity_type) {
     }
   }
 }
+
+/**
+ * Implements hook_views_api().
+ */
+function redhen_relation_views_api() {
+  return array(
+    'api' => 3,
+    'path' => drupal_get_path('module', 'redhen_relation') . '/includes/views',
+  );
+}

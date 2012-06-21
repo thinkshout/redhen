@@ -218,6 +218,21 @@ function redhen_note_load_multiple($note_ids = array(), $conditions = array(), $
 }
 
 /**
+ * Deletes multiple notes by ID.
+ *
+ * @param $note_ids
+ *   An array of note IDs to delete.
+ *
+ * @return
+ *   TRUE on success, FALSE otherwise.
+ */
+function redhen_note_delete_multiple($note_ids) {
+  $ret = entity_get_controller('redhen_note')->delete($note_ids);
+
+  return $ret;
+}
+
+/**
  * Display a note.
  *
  * @param  $note
