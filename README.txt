@@ -32,7 +32,7 @@ RedHen CRM relies heavily on custom Drupal entity types and bundles. The [Entity
 
 * Contact entities can also be associated with Drupal user accounts. Currently, these connections are managed from the contact entity edit screen. Contacts can be associated with existing Drupal user accounts, or a new Drupal user account can be created from the contact entity edit form.
 
-* **Notes** is another custom entity type and bundle provided by the "RedHen Notes" sub-module. Notes are fieldable - and provide a site administrator a simple tool for capturing tagged notes about contacts and organizations.
+* **Notes** is another custom entity type and bundle provided by the "RedHen Notes" sub-module. Notes provide a site administrator a simple tool for capturing tagged notes about contacts and organizations. (Technically, the note entity bundle is fieldable, though at this time there is no UI for doing so.)
 
 * The Notes module also integrates with the "RedHen engagement scoring" sub-module. Engagement scores allow a site administrator to track and score various types of interactions with contact entities.
 
