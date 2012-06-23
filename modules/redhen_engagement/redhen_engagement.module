@@ -338,3 +338,70 @@ function redhen_engagement_field_extra_fields_alter(&$info) {
     );
   }
 }
+
+/**
+ * Implements hook_rules_action_info() on behalf of the RedHen Engagement module.
+ */
+function redhen_engagement_rules_action_info() {	
+  $defaults = array(
+		'parameter' => array(
+			'score' => array(
+				'type' => 'list<integer>',
+				'label' => t('Engagement Score'),
+				'options list' => 'redhen_engagement_score_options', // Can't be an array. Needs to be a function call.
+			),
+		),
+    'group' => t('Engagement'),
+    'access callback' => 'redhen_engagement_access',
+  );
+  $actions['score_registration_engagement'] = $defaults + array(
+    'label' => t('Score registration engagement'),
+    'base' => 'rules_action_score_registration_engagement',
+  );
+	$actions['score_registration_engagement']['parameter']['registration'] = array(
+		'type' => 'registration',
+		'label' => t('Registration'),
+	  'description' => t('The registration entity to be scored.'),
+	);
+  return $actions;
+}
+
+/**
+ * Helper function for saving an engagement score when the Rule action is triggered.
+ */
+function rules_action_score_registration_engagement($score, $registration) {
+	if (!empty($registration->anon_mail)) {
+	  $query = new EntityFieldQuery;
+  	$query
+  	  ->entityCondition('entity_type', 'redhen_contact')
+      ->fieldCondition('redhen_contact_email', 'value', $registration->anon_mail, '=');
+  	$result = $query->execute();
+  	if (!empty($result)) {
+      foreach($result['redhen_contact'] as $contact_entity) {
+        $contact = $contact_entity;
+      }
+    }
+	}
+	elseif (!empty($registration->user_uid)) {
+	  $user = user_load($registration->user_uid);
+	  $contact = redhen_contact_load_by_user($user);
+	}
+	if (!empty($contact)) {
+	  foreach($score as $engagement_score) {
+  	  $engagement = redhen_engagement_create('engagement_score_' . $engagement_score, $contact->contact_id, 'Scored registration');
+      redhen_engagement_save($engagement); 
+  	}
+	}
+}
+
+/**
+ * Helper function for getting engagement score options.
+ */
+function redhen_engagement_score_options() {
+	$scores = redhen_engagement_get_scores();
+  $options = array();
+  foreach($scores as $score) {
+    $options[$score->engagement_score_id] = $score->label;
+  }
+	return $options;
+}
