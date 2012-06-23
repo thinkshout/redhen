@@ -5,23 +5,18 @@
  */
 class redhen_membership_handler_field_active_member_type extends views_handler_field_prerender_list {
 
-  function construct() {
-    parent::construct();
-    // @todo needs work to be more abstract and avoid some errors since only one of these is typically available
-    $this->additional_fields['org_id'] = array('table' => 'redhen_org', 'field' => 'org_id');
-    $this->additional_fields['contact_id'] = array('table' => 'redhen_contact', 'field' => 'contact_id');
-  }
-
   function query() {
-    $this->add_additional_fields();
-    // @todo This needs work to be more abstract.
+    $this->ensure_my_table();
+
     if ($this->table == 'redhen_org') {
       $id_field = 'org_id';
     }
     if ($this->table == 'redhen_contact') {
       $id_field = 'contact_id';
     }
-    $this->field_alias = $this->aliases[$id_field];
+    $this->field_alias = $this->query->add_field(NULL, $id_field);
+
+    $this->add_additional_fields();
   }
 
   function pre_render(&$values) {

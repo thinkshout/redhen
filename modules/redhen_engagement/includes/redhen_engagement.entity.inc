@@ -108,6 +108,8 @@ class RedhenEngagementMetadataController extends EntityDefaultMetadataController
       'description' => t("The date the note was created."),
       'type' => 'date',
       'schema field' => 'created',
+      'filter' => TRUE,
+      'field_type' => 'textfield'
     );
     $properties['author'] = array(
       'label' => t("Author"),
@@ -115,6 +117,18 @@ class RedhenEngagementMetadataController extends EntityDefaultMetadataController
       'description' => t("The author of the note."),
       'schema field' => 'author_uid'
     );
+
+    $scores = redhen_engagement_get_scores();
+    $options = array();
+    foreach ($scores as $score) {
+      $options[$score->engagement_score_id] = $score->label();
+    }
+    $properties['engagement_score_id'] = array(
+      'filter' => TRUE,
+      'field_type' => 'select',
+      'options' => $options
+    ) + $properties['type'];
+
 
     return $info;
   }

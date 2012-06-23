@@ -28,6 +28,9 @@ function redhen_org_group_install() {
 
     $field = field_create_field($field);
   }
+
+  // inform site admins that access grants need to be rebuilt
+  node_access_needs_rebuild(TRUE);
 }
 
 /**

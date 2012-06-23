@@ -100,6 +100,8 @@ function redhen_engagement_menu() {
  * @return array
  */
 function redhen_engagements_page(RedhenContact $contact) {
+  module_load_include('inc', 'redhen', 'includes/redhen.forms');
+
   $header = array(
     'Score' => array('data' => 'Score', 'field' => 'score', 'type' => 'property', 'specifier' => 'score'),
     'Type' => array('data' => 'Type', 'field' => 'type', 'type' => 'property', 'specifier' => 'type'),
@@ -109,13 +111,10 @@ function redhen_engagements_page(RedhenContact $contact) {
     'author' => array('data' => 'Author'),
   );
 
-  $query = new EntityFieldQuery();
-  $result = $query
-    ->entityCondition('entity_type', 'redhen_engagement')
-    ->propertyCondition('contact_id', $contact->contact_id)
-    ->tablesort($header)
-    ->pager(25)
-    ->execute();
+  $properties = isset($_GET['properties']) ? $_GET['properties'] : array();
+  $properties += array('contact_id' => $contact->contact_id);
+
+  $result = redhen_filter_query('redhen_engagement', $header, '', $properties);
 
   $rows = array();
   if ($result) {
@@ -149,6 +148,7 @@ function redhen_engagements_page(RedhenContact $contact) {
   }
 
   $render = array(
+    'form' => drupal_get_form('redhen_filter_form', 'redhen_engagement'),
     'table' => array(
       '#theme' => 'table',
       '#header' => $header,
