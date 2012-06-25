@@ -19,7 +19,7 @@ class RedhenMembership extends Entity {
     $author_uid = NULL,
     $start_date = NULL,
     $expire_date = NULL,
-    $membership_state = REDHEN_MEMBERSHIP_INACTIVE,
+    $membership_state = REDHEN_MEMBERSHIP_ACTIVE,
     $type = '',
     $created = '',
     $updated = '';
@@ -32,7 +32,7 @@ class RedhenMembership extends Entity {
     // New membership. is_new might not be set so check for id
     if (!$this->membership_id) {
       $this->author_uid = $user->uid;
-      $this->membership_state = REDHEN_MEMBERSHIP_INACTIVE;
+      $this->membership_state = REDHEN_MEMBERSHIP_ACTIVE;
       $this->created = REQUEST_TIME;
     }
 
