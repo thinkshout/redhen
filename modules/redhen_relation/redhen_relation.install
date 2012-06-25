@@ -80,7 +80,7 @@ function redhen_relation_install() {
     'bundle' => 'redhen_affiliation',
     'label' => 'Organization Role',
     'required' => 1,
-    'default_value' => array(array('value' => 0)),
+    'default_value' => array(array('value' => 1)),
     'widget' => array(
       'type' => 'options_select',
     )
