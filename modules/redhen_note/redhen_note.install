@@ -99,8 +99,11 @@ function redhen_note_install() {
     'bundle' => 'redhen_note',
     'label' => t('Message'),
     'widget' => array(
-      'type' => 'text',
+      'type' => 'text_textarea',
     ),
+    'settings' => array(
+      'text_processing' => 1,
+    )
   );
   field_create_instance($redhen_note_body_instance);
 
@@ -138,6 +141,10 @@ function redhen_note_install() {
   );
 
   field_create_instance($redhen_note_type_field_instance);
-
 }
 
+function redhen_note_uninstall() {
+  field_delete_instance('redhen_note_body', TRUE);
+  field_delete_instance('redhen_note_type', TRUE);
+  taxonomy_vocabulary_delete(taxonomy_vocabulary_machine_name_load('note_type')->vid);
+}
