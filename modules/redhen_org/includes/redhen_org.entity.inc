@@ -51,10 +51,11 @@ class RedhenOrg extends Entity {
       '#classes' => 'field field-label-inline clearfix',
     );
     if (isset($this->primary_contact->name)) {
+      $contact_array = $this->primary_contact->view('teaser');
       $content['primary_contact'] = array(
         '#theme' => 'fieldset',
         '#title' => t('Primary Contact'),
-        '#children' => drupal_render($this->primary_contact->view('teaser')),
+        '#children' => drupal_render($contact_array),
       );
     }
 
