@@ -113,7 +113,7 @@ function redhen_org_org_delete_form($form, &$form_state, $org) {
 
   $form = confirm_form($form,
     t('Are you sure you want to delete %label?', array('%label' => $org->label)),
-    '',
+    entity_uri('redhen_org', $org),
     '<p>' . t('Deleting this organization cannot be undone.') . '</p>',
     t('Delete'),
     t('Cancel'),
@@ -153,7 +153,7 @@ function redhen_org_org_archive_form($form, &$form_state, $org) {
 
   $form = confirm_form($form,
     t('Are you sure you want to archive %label?', array('%label' => $org->label)),
-    '',
+    entity_uri('redhen_org', $org),
     '<p>' . t('Archiving this organization cannot be undone.') . '</p>',
     t('Archive'),
     t('Cancel'),
@@ -209,7 +209,7 @@ function redhen_org_set_primary_form($form, &$form_state, $org, $contact) {
       '%org' => $org->label,
       '%name' => $contact->name
     )),
-    '',
+    entity_uri('redhen_org', $org),
     $existing,
     t('Change'),
     t('Cancel'),

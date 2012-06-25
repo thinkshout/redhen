@@ -77,7 +77,7 @@ function redhen_note_delete_form($form, &$form_state, $note) {
 
     $form = confirm_form($form,
       t('Are you sure you want to delete %title?', array('%title' => $title)),
-      '',
+      entity_uri('redhen_note', $note),
       '<p>' . t('Deleting this note cannot be undone.') . '</p>',
       t('Delete'),
       t('Cancel'),

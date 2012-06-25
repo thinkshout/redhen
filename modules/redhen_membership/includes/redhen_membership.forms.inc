@@ -218,7 +218,7 @@ function redhen_membership_membership_delete_form($form, &$form_state, $membersh
 
   $form = confirm_form($form,
     t('Are you sure you want to delete %label?', array('%label' => $membership->label())),
-    '',
+    entity_uri('redhen_membership', $membership),
     '<p>' . t('Deleting this membership cannot be undone.') . '</p>',
     t('Delete'),
     t('Cancel'),

@@ -121,7 +121,7 @@ function redhen_contact_contact_delete_form($form, &$form_state, $contact) {
 
   $form = confirm_form($form,
     t('Are you sure you want to delete %title?', array('%title' => $contact->name)),
-    '',
+    entity_uri('redhen_contact', $contact),
     '<p>' . t('Deleting this contact cannot be undone.') . '</p>',
     t('Delete'),
     t('Cancel'),
@@ -165,7 +165,7 @@ function redhen_contact_contact_archive_form($form, &$form_state, $contact) {
 
   $form = confirm_form($form,
     t('Are you sure you want to archive %label?', array('%label' => $contact->name)),
-    '',
+    entity_uri('redhen_contact', $contact),
     '<p>' . t('Archiving this contact cannot be undone.') . '</p>',
     t('Archive'),
     t('Cancel'),
@@ -187,7 +187,7 @@ function redhen_contact_contact_archive_form_submit($form, &$form_state) {
     drupal_set_message(t('%label was not archived.', array('%label' => $contact->name)), WATCHDOG_ERROR);
   }
   $url = entity_uri($contact->entityType(), $contact);
-  drupal_goto($url['path']);
+  $form_state['redirect'] = $url['path'];
 }
 
 /**
