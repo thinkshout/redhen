@@ -323,9 +323,9 @@ function redhen_contact_remove_contact_user(RedhenContact &$contact, $delete = F
  * @return
  *   The saved contact object.
  */
-function redhen_contact_save(RedhenContact $contact) {
+function redhen_contact_save(RedhenContact $contact, $link_user = FALSE) {
 
-  if (variable_get('redhen_contact_connect_users', FALSE)) {
+  if ($link_user || variable_get('redhen_contact_connect_users', FALSE)) {
     $emails = $contact->allEmail();
     foreach ($emails as $email) {
       if ($user = user_load_by_mail($email['value'])) {
