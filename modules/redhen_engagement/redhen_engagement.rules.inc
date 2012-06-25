@@ -42,6 +42,17 @@ function redhen_engagement_rules_action_info() {
   	  'description' => t('The comment entity to be scored.'),
   	); 
   }
+  if (module_exists('webform_rules')) {
+    $actions['score_webform_engagement'] = $defaults + array(
+      'label' => t('Score webform engagement'),
+      'base' => 'redhen_engagement_rules_action_score_webform',
+    );
+  	$actions['score_webform_engagement']['parameter']['webform'] = array(
+  		'type' => 'webform',
+  		'label' => t('Webform'),
+  	  'description' => t('The webform submission to be scored. <em>Note: At this time scoring of anonymous webform submissions is not supported.</em>'),
+  	); 
+  }
 
   return $actions;
 }
@@ -78,6 +89,24 @@ function redhen_engagement_rules_action_score_comment($score, $comment) {
 	if ($contact) {
     redhen_enagement_rules_action_score_contact($score, $contact, 'Scored comment', 'comment', $comment->cid);
 	}
+}
+
+/**
+ * Helper function for when the "webform enagement" Rule action is triggered.
+ *
+ * @TODO: This action depends on Webform Rules, so it can't be located just in redhen_engagement.
+ */
+function redhen_engagement_rules_action_score_webform($score, $webform) {
+  $result = db_query('SELECT w.nid, w.uid FROM {webform_submissions} w WHERE w.sid = :sid', array(':sid' => $webform['sid']));
+  foreach($result as $record) {
+    if ($record->uid != 0) {
+      $contact = redhen_engagement_rules_action_find_by_uid($record->uid);
+      $nid = $record->nid;
+    }
+  };
+  if ($contact) {
+    redhen_enagement_rules_action_score_contact($score, $contact, 'Scored webform submission', 'node', $nid);
+  }
 }
 
 /**
