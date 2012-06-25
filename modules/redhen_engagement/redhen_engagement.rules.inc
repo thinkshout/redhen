@@ -21,15 +21,15 @@ function redhen_engagement_rules_action_info() {
     'access callback' => 'redhen_engagement_access',
   );
   if (module_exists('registration')) {
+    $actions['score_registration_engagement'] = $defaults + array(
+      'label' => t('Score registration engagement'),
+      'base' => 'redhen_engagement_rules_action_score_registration',
+    );
     $actions['score_registration_engagement']['parameter']['registration'] = array(
   		'type' => 'registration',
   		'label' => t('Registration'),
   	  'description' => t('The registration entity to be scored.'),
   	);
-  	$actions['score_registration_engagement'] = $defaults + array(
-      'label' => t('Score registration engagement'),
-      'base' => 'redhen_engagement_rules_action_score_registration',
-    );
   }
   if (module_exists('comment')) {
     $actions['score_comment_engagement'] = $defaults + array(
