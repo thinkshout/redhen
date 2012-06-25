@@ -69,9 +69,9 @@ function redhen_filter_form($form, $form_state, $entity_type) {
           );
         }
 
-        if ($field_type == 'select' && isset($prop['options'])) {
-          $prop['options'] = array('' => t('-- Any --')) + $prop['options'];
-          $form['filter_fieldset']['filters']['properties'][$key]['#options'] = $prop['options'];
+        if ($field_type == 'select' && isset($prop['options list'])) {
+          $select_options = array('' => t('-- Any --')) + call_user_func($prop['options list']);
+          $form['filter_fieldset']['filters']['properties'][$key]['#options'] = $select_options;
         }
       }
     }

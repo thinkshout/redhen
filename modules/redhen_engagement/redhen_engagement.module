@@ -346,7 +346,7 @@ function redhen_engagement_score_options() {
 	$scores = redhen_engagement_get_scores();
   $options = array();
   foreach($scores as $score) {
-    $options[$score->engagement_score_id] = $score->label;
+    $options[$score->engagement_score_id] = $score->label();
   }
 	return $options;
 }

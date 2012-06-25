@@ -266,7 +266,6 @@ class RedhenContactMetadataController extends EntityDefaultMetadataController {
       'label' => t('State'),
       'filter' => TRUE,
       'field_type' => 'select',
-      'options' => redhen_state_options(),
       'options list' => 'redhen_state_options',
     ));
 

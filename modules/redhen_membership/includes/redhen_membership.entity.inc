@@ -205,7 +205,6 @@ class RedhenMembershipMetadataController extends EntityDefaultMetadataController
       'filter' => TRUE,
       'field_type' => 'list',
       'schema field' => 'membership_state',
-      'options' => redhen_membership_state_options(),
       'options list' => 'redhen_membership_state_options',
     ));
     return $info;
