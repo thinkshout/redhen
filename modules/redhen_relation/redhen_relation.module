@@ -326,6 +326,17 @@ function redhen_relation_entity_update($entity, $entity_type) {
 }
 
 /**
+ * Implements hook_entity_info_alter().
+ */
+function redhen_relation_entity_info_alter(&$entity_info) {
+  // Add teaser view mode to relations
+  $entity_info['relation']['view modes']['teaser'] = array(
+    'label' => t('Teaser'),
+    'custom settings' => TRUE,
+  );
+}
+
+/**
  * Implements hook_views_api().
  */
 function redhen_relation_views_api() {
