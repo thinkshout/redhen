@@ -668,7 +668,7 @@ function redhen_contact_query_redhen_contact_label_alter(QueryAlterableInterface
  * @return array|mixed
  */
 function redhen_contact_load_by_user($account, $state = REDHEN_STATE_ACTIVE) {
-  $contact = &drupal_static(__FUNCTION__ . $account->uid);
+  $contact = &drupal_static(__FUNCTION__ . $account->uid, FALSE);
   if (!$contact) {
     $contacts = redhen_contact_load_multiple(FALSE, array(
       'uid' => $account->uid,
