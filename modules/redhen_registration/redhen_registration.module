@@ -104,7 +104,7 @@ function theme_redhen_registration_list($variables) {
         'data' => array(
           $reg_type->label,
           l(entity_label($registration->entity_type, $registration->entity), $entity_uri['path']),
-          $registration->author->name,
+          $registration->author ? $registration->author->name : '',
           l($registration->mail, 'mailto:' . $registration->mail),
           $registration->count,
           format_date($registration->updated, 'short'),
