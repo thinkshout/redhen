@@ -663,7 +663,7 @@ function redhen_membership_toggle_roles(RedhenMembership $membership, $contacts 
         if (($membership->membership_state == REDHEN_MEMBERSHIP_ACTIVE) && (!$remove)) {
           // only set if the user doesn't already have this role
           if (!isset($contact->user->roles[$membership_rid])) {
-            $contact->user->roles[] = $membership_rid;
+            $contact->user->roles[$membership_rid] = TRUE;
           }
         }
         else {

@@ -23,15 +23,15 @@ function redhen_engagement_rules_action_info() {
 
   // registration
   if (module_exists('registration')) {
+    $actions['score_registration_engagement'] = $defaults + array(
+      'label' => t('Score registration engagement'),
+      'base' => 'redhen_engagement_rules_action_score_registration',
+    );
     $actions['score_registration_engagement']['parameter']['registration'] = array(
   		'type' => 'registration',
   		'label' => t('Registration'),
   	  'description' => t('The registration entity to be scored.'),
   	);
-  	$actions['score_registration_engagement'] = $defaults + array(
-      'label' => t('Score registration engagement'),
-      'base' => 'redhen_engagement_rules_action_score_registration',
-    );
   }
 
   // comment
