@@ -298,7 +298,8 @@ function redhen_engagement_redhen_note_form_submit($form, $form_state) {
   $score = $form_state['values']['engagement_score'];
   if (!empty($score)) {
     $note = $form_state['redhen_note'];
-    $redhen_engagement = redhen_engagement_create($score,
+    $redhen_engagement = redhen_engagement_create(
+      $score,
       $note->entity->internalIdentifier(),
       t('Created when saving note @note', array('@note' => $note->internalIdentifier())),
       'redhen_note',
