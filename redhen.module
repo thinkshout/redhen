@@ -46,11 +46,11 @@ function redhen_menu() {
  */
 function redhen_permission() {
   return array(
-    'administer redhen' =>  array(
+    'administer redhen' => array(
       'title' => t('Administer RedHen'),
       'description' => t('Perform administration tasks for my redhen.'),
     ),
-    'access redhen' =>  array(
+    'access redhen' => array(
       'title' => t('Access RedHen'),
       'description' => t('Access RedHen CRM.'),
     ),
@@ -124,7 +124,7 @@ function theme_redhen_property_field($variables) {
 function redhen_filter_query($entity_type, $header, $bundle = '', $properties = array(), $fields = array(), $items_page = 10) {
   $query = new EntityFieldQuery();
 
-    // build the query
+  // build the query
   $query
     ->entityCondition('entity_type', $entity_type, '=')
     ->tablesort($header)
@@ -136,7 +136,7 @@ function redhen_filter_query($entity_type, $header, $bundle = '', $properties = 
   }
 
   // add prop filters
-  foreach($properties as $key => $value) {
+  foreach ($properties as $key => $value) {
 
     $property_info = entity_get_all_property_info($entity_type);
     if ($value != '') {
@@ -155,8 +155,8 @@ function redhen_filter_query($entity_type, $header, $bundle = '', $properties = 
   }
 
   // add field filters
-  foreach($fields as $key => $field) {
-    foreach($field as $column => $value) {
+  foreach ($fields as $key => $field) {
+    foreach ($field as $column => $value) {
       if ($value != '') {
         $query->fieldCondition($key, $column, $value, 'CONTAINS', $key);
       }
@@ -193,6 +193,7 @@ function redhen_state_options() {
  * Theme handler for Redhen landing page
  *
  * @param $variables
+ *
  * @return array
  */
 function theme_redhen_home($variables) {
@@ -227,6 +228,7 @@ function theme_redhen_home($variables) {
  *
  * @param $path
  * @param $arg
+ *
  * @return string
  */
 function redhen_help($path, $arg) {

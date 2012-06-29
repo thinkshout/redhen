@@ -65,7 +65,7 @@ class RedhenNote extends Entity {
    */
   public function entity() {
     if (isset($this->entity_type)) {
-      $entity =  entity_load($this->entity_type, array($this->entity_id));
+      $entity = entity_load($this->entity_type, array($this->entity_id));
       return $entity[$this->entity_id];
     }
     else {
@@ -77,7 +77,7 @@ class RedhenNote extends Entity {
    * Get author of note
    */
   public function author() {
-    $user =  user_load($this->author_uid);
+    $user = user_load($this->author_uid);
     return $user;
   }
 
@@ -93,9 +93,8 @@ class RedhenNote extends Entity {
         $path = 'org';
         break;
     }
-    return array('path' => 'redhen/' . $path . '/' . $this->entity_id . '/note/' . $this->note_id .'/view');
+    return array('path' => 'redhen/' . $path . '/' . $this->entity_id . '/note/' . $this->note_id . '/view');
   }
-
 
 
 }

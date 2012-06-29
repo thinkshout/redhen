@@ -97,15 +97,32 @@ function redhen_engagement_menu() {
  * Page callback for showing a contacts engagements.
  *
  * @param RedhenContact $contact
+ *
  * @return array
  */
 function redhen_engagements_page(RedhenContact $contact) {
   module_load_include('inc', 'redhen', 'includes/redhen.forms');
 
   $header = array(
-    'Score' => array('data' => 'Score', 'field' => 'score', 'type' => 'property', 'specifier' => 'score'),
-    'Type' => array('data' => 'Type', 'field' => 'type', 'type' => 'property', 'specifier' => 'type'),
-    'Created' => array('field' => 'created', 'type' => 'property', 'data' => 'Created', 'sort' => 'desc', 'specifier' => 'created'),
+    'Score' => array(
+      'data' => 'Score',
+      'field' => 'score',
+      'type' => 'property',
+      'specifier' => 'score'
+    ),
+    'Type' => array(
+      'data' => 'Type',
+      'field' => 'type',
+      'type' => 'property',
+      'specifier' => 'type'
+    ),
+    'Created' => array(
+      'field' => 'created',
+      'type' => 'property',
+      'data' => 'Created',
+      'sort' => 'desc',
+      'specifier' => 'created'
+    ),
     'description' => array('data' => 'Description'),
     'source' => array('data' => 'Source'),
     'author' => array('data' => 'Author'),
@@ -119,7 +136,7 @@ function redhen_engagements_page(RedhenContact $contact) {
   $rows = array();
   if ($result) {
     $engagements = entity_load('redhen_engagement', array_keys($result['redhen_engagement']));
-    foreach($engagements as $engagement) {
+    foreach ($engagements as $engagement) {
       $author = user_load($engagement->author_uid);
       $author_uri = entity_uri('user', $author);
       $source = t('N/A');
@@ -143,7 +160,12 @@ function redhen_engagements_page(RedhenContact $contact) {
   else {
     // no results, set a message
     $rows[] = array(
-      'data' => array(array('data' => t('Sorry, there are no engagements that match your criteria.'), 'colspan' => 6))
+      'data' => array(
+        array(
+          'data' => t('Sorry, there are no engagements that match your criteria.'),
+          'colspan' => 6
+        )
+      )
     );
   }
 
@@ -218,6 +240,7 @@ function redhen_engagement_create($engagement_score_name, $contact_id,
  * Saves a Redhen Engagement
  *
  * @param RedhenEngagement $engagement
+ *
  * @return mixed
  */
 function redhen_engagement_save(RedhenEngagement $engagement) {
@@ -228,6 +251,7 @@ function redhen_engagement_save(RedhenEngagement $engagement) {
  * Return the engagement score for a contact.
  *
  * @param RedhenContact $contact
+ *
  * @return mixed
  */
 function redhen_engagement_contact_score(RedhenContact $contact) {
@@ -250,7 +274,7 @@ function redhen_engagement_contact_score(RedhenContact $contact) {
  */
 function redhen_engagement_permission() {
   return array(
-    'administer redhen engagements' =>  array(
+    'administer redhen engagements' => array(
       'title' => t('Administer Redhen Engagements'),
       'description' => t('Manage Redhen Engagement scores.'),
     ),
@@ -263,6 +287,7 @@ function redhen_engagement_permission() {
  *
  * @param $form
  * @param $form_state
+ *
  * @return mixed
  */
 function redhen_engagement_form_redhen_note_form_alter(&$form, &$form_state) {
@@ -273,7 +298,7 @@ function redhen_engagement_form_redhen_note_form_alter(&$form, &$form_state) {
 
   $scores = redhen_engagement_get_scores();
   $options = array('' => t('-- Select --'));
-  foreach($scores as $score) {
+  foreach ($scores as $score) {
     $options[$score->engagement_score_id] = $score->label;
   }
   $form['engagement_score'] = array(
@@ -281,7 +306,7 @@ function redhen_engagement_form_redhen_note_form_alter(&$form, &$form_state) {
     '#title' => t('Engagement Score'),
     '#description' => t('The selected engagement score, if any, will be applied to the contact when creating this note.'),
     '#weight' => 99,
-    '#options'=> $options
+    '#options' => $options
   );
 
   $form['#submit'][] = 'redhen_engagement_redhen_note_form_submit';
@@ -344,10 +369,10 @@ function redhen_engagement_field_extra_fields_alter(&$info) {
  * Helper function for getting engagement score options.
  */
 function redhen_engagement_score_options() {
-	$scores = redhen_engagement_get_scores();
+  $scores = redhen_engagement_get_scores();
   $options = array();
-  foreach($scores as $score) {
+  foreach ($scores as $score) {
     $options[$score->engagement_score_id] = $score->label();
   }
-	return $options;
+  return $options;
 }

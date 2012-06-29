@@ -62,7 +62,7 @@ function redhen_note_menu() {
   );
 
   foreach (redhen_entity_types() as $note_entity_type => $path) {
-    $items['redhen/' . $path .'/%' . $note_entity_type . '/notes'] = array(
+    $items['redhen/' . $path . '/%' . $note_entity_type . '/notes'] = array(
       'title' => 'Notes',
       'page callback' => 'redhen_note_notes_page',
       'page arguments' => array(2, $note_entity_type),
@@ -72,7 +72,7 @@ function redhen_note_menu() {
       'type' => MENU_LOCAL_TASK,
       'weight' => 3
     );
-    $items['redhen/' . $path .'/%' . $note_entity_type . '/notes/add'] = array(
+    $items['redhen/' . $path . '/%' . $note_entity_type . '/notes/add'] = array(
       'title' => 'Add Note',
       'page callback' => 'redhen_note_add',
       'page arguments' => array(2, $note_entity_type),
@@ -81,7 +81,7 @@ function redhen_note_menu() {
       'access arguments' => array('edit', 2),
       'type' => MENU_LOCAL_ACTION,
     );
-    $items['redhen/' . $path .'/%' . $note_entity_type . '/note/%redhen_note'] = array(
+    $items['redhen/' . $path . '/%' . $note_entity_type . '/note/%redhen_note'] = array(
       'title callback' => 'redhen_note_title',
       'title arguments' => array(4),
       'page callback' => 'redhen_note_view',
@@ -96,7 +96,7 @@ function redhen_note_menu() {
       'weight' => -10,
       'context' => MENU_CONTEXT_PAGE | MENU_CONTEXT_INLINE,
     );
-    $items['redhen/' . $path .'/%' . $note_entity_type . '/note/%redhen_note/view/edit'] = array(
+    $items['redhen/' . $path . '/%' . $note_entity_type . '/note/%redhen_note/view/edit'] = array(
       'title' => 'Edit',
       'page callback' => 'drupal_get_form',
       'page arguments' => array('redhen_note_form', 4),
@@ -105,7 +105,7 @@ function redhen_note_menu() {
       'type' => MENU_LOCAL_TASK,
       'file' => 'includes/redhen_note.forms.inc',
     );
-    $items['redhen/' . $path .'/%' . $note_entity_type . '/note/%redhen_note/view/delete'] = array(
+    $items['redhen/' . $path . '/%' . $note_entity_type . '/note/%redhen_note/view/delete'] = array(
       'title' => 'Delete',
       'page callback' => 'drupal_get_form',
       'page arguments' => array('redhen_note_delete_form', 4),
@@ -150,7 +150,8 @@ function redhen_note_access($op, $parent_entity, $account = NULL) {
     }
 
     if (($op == 'edit' || $op == 'create' || $op == 'delete')
-      && user_access('manage redhen notes', $account)) {
+      && user_access('manage redhen notes', $account)
+    ) {
       return TRUE;
     }
   }
@@ -163,18 +164,18 @@ function redhen_note_access($op, $parent_entity, $account = NULL) {
  */
 function redhen_note_permission() {
   return array(
-    'administer redhen notes' =>  array(
+    'administer redhen notes' => array(
       'title' => t('Administer Redhen Notes'),
       'description' => t('Perform administration tasks and manage the structure of RedHen Notes.'),
     ),
-    'manage redhen notes' =>  array(
+    'manage redhen notes' => array(
       'title' => t('Manage Redhen Notes'),
       'description' => t('Create, update or delete Redhen Notes.'),
     ),
-    'access redhen notes' =>  array(
-        'title' => t('Access Redhen Notes'),
-        'description' => t('View for Redhen Notes.'),
-      ),
+    'access redhen notes' => array(
+      'title' => t('Access Redhen Notes'),
+      'description' => t('View for Redhen Notes.'),
+    ),
   );
 }
 
@@ -234,6 +235,7 @@ function redhen_note_delete_multiple($note_ids) {
  *
  * @param  $note
  *   A Fully loaded note object.
+ *
  * @return void
  */
 function redhen_note_view($entity, $entity_type, RedhenNote $note) {
@@ -245,6 +247,7 @@ function redhen_note_view($entity, $entity_type, RedhenNote $note) {
  *
  * @param  $note
  *   A loaded note object.
+ *
  * @return void
  */
 function redhen_note_title(RedhenNote $note) {
@@ -260,7 +263,7 @@ function redhen_note_form_alter(&$form, &$form_state, $form_id) {
     $form['filter_fieldset']['filters']['properties']['created']['from']['#title'] = t('Recorded on or after');
     $form['filter_fieldset']['filters']['properties']['created']['to']['#title'] = t('Recorded on or before');
 
-    if(isset($form['filter_fieldset']['filters']['fields']['redhen_note_type'])) {
+    if (isset($form['filter_fieldset']['filters']['fields']['redhen_note_type'])) {
 
       $note_type_tax = taxonomy_vocabulary_machine_name_load('note_type');
       $note_type_tree = taxonomy_get_tree($note_type_tax->vid);
@@ -272,9 +275,9 @@ function redhen_note_form_alter(&$form, &$form_state, $form_id) {
 
       $form['filter_fieldset']['filters']['fields']['redhen_note_type'] = array(
         '#type' => 'select',
-         '#title' => t('Note Type'),
-         '#options' => $options,
-         '#default_value' => isset($_GET['fields']['redhen_note_type']) ? $_GET['fields']['redhen_note_type'] : NULL,
+        '#title' => t('Note Type'),
+        '#options' => $options,
+        '#default_value' => isset($_GET['fields']['redhen_note_type']) ? $_GET['fields']['redhen_note_type'] : NULL,
       );
     }
   }

@@ -13,11 +13,32 @@ module_load_include('inc', 'redhen', 'includes/redhen.forms');
 function redhen_contact_page() {
   // setup the header for both the query and table
   $header = array(
-    'type' => array('field' => 'type', 'type' => 'property', 'data' => 'Type', 'specifier' => 'type'),
-    'first_name' => array('field' => 'first_name', 'type' => 'property', 'data' => 'First Name', 'specifier' => 'first_name'),
-    'last_name' => array('field' => 'last_name', 'type' => 'property', 'data' => 'Last Name', 'specifier' => 'last_name'),
+    'type' => array(
+      'field' => 'type',
+      'type' => 'property',
+      'data' => 'Type',
+      'specifier' => 'type'
+    ),
+    'first_name' => array(
+      'field' => 'first_name',
+      'type' => 'property',
+      'data' => 'First Name',
+      'specifier' => 'first_name'
+    ),
+    'last_name' => array(
+      'field' => 'last_name',
+      'type' => 'property',
+      'data' => 'Last Name',
+      'specifier' => 'last_name'
+    ),
     'email' => array('data' => t('Email')),
-    'updated' => array('field' => 'updated', 'type' => 'property', 'data' => 'Updated', 'sort' => 'desc', 'specifier' => 'updated'),
+    'updated' => array(
+      'field' => 'updated',
+      'type' => 'property',
+      'data' => 'Updated',
+      'sort' => 'desc',
+      'specifier' => 'updated'
+    ),
     'Actions',
   );
 
@@ -65,6 +86,7 @@ function redhen_contact_types_list_page() {
  * Page callback for adding a contact.
  *
  * @param $type
+ *
  * @return array|mixed
  */
 function redhen_contact_add_page($type) {

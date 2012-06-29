@@ -364,6 +364,7 @@ function redhen_org_permission() {
  *
  * @param  $org
  *   A Fully loaded org object.
+ *
  * @return void
  */
 function redhen_org_view(RedhenOrg $org) {
@@ -375,6 +376,7 @@ function redhen_org_view(RedhenOrg $org) {
  *
  * @param  $org
  *   A loaded org object.
+ *
  * @return void
  */
 function redhen_org_org_title(RedhenOrg $org) {
@@ -442,6 +444,7 @@ function redhen_org_type_access($op, $type = NULL, $account = NULL) {
  *
  * @param $type
  *   The machine-readable name of an organization type to load.
+ *
  * @return
  *   An organization type array or FALSE if $type does not exist.
  */
@@ -495,6 +498,7 @@ function theme_redhen_org_add_list($variables) {
  * Theme function for organization list.
  *
  * @param $variables
+ *
  * @return string
  */
 function theme_redhen_org_list($variables) {

@@ -49,11 +49,11 @@ class RedhenContact extends Entity {
         array(
           '#markup' => ($this->redhen_state == REDHEN_STATE_ACTIVE) ? t('Active') : t('Inactive')
         ),
-       ),
+      ),
       '#classes' => 'field field-label-inline clearfix',
     );
 
-    if($this->user) {
+    if ($this->user) {
       $user_uri = entity_uri('user', $this->user);
       $content['user'] = array(
         '#theme' => 'redhen_property_field',
@@ -62,7 +62,7 @@ class RedhenContact extends Entity {
           array(
             '#markup' => l($this->user->name, $user_uri['path'])
           ),
-         ),
+        ),
         '#classes' => 'field field-label-inline clearfix',
       );
     }
@@ -75,13 +75,13 @@ class RedhenContact extends Entity {
           array(
             '#markup' => $this->engagement_score
           ),
-         ),
+        ),
         '#classes' => 'field field-label-inline clearfix',
       );
     }
 
     return entity_get_controller($this->entityType)
-			->buildContent($this, $view_mode, $langcode, $content);
+      ->buildContent($this, $view_mode, $langcode, $content);
   }
 
   /**
@@ -107,7 +107,7 @@ class RedhenContact extends Entity {
    * @return string
    */
   protected function name() {
-    $name =  $this->first_name . ' ' . $this->last_name;
+    $name = $this->first_name . ' ' . $this->last_name;
     $context = array(
       'contact' => clone $this,
     );
@@ -122,7 +122,7 @@ class RedhenContact extends Entity {
    */
   protected function defaultEmail() {
     if (!empty($this->{REDHEN_CONTACT_EMAIL_FIELD})) {
-      foreach($this->{REDHEN_CONTACT_EMAIL_FIELD}[LANGUAGE_NONE] as $email) {
+      foreach ($this->{REDHEN_CONTACT_EMAIL_FIELD}[LANGUAGE_NONE] as $email) {
         if ($email['default']) {
           return $email['value'];
         }
@@ -148,11 +148,12 @@ class RedhenContact extends Entity {
    * Determine if contact has a given email.
    *
    * @param $email
+   *
    * @return bool
    */
   public function hasEmail($email) {
     if (!empty($this->{REDHEN_CONTACT_EMAIL_FIELD})) {
-      foreach($this->{REDHEN_CONTACT_EMAIL_FIELD}[LANGUAGE_NONE] as $contact_email) {
+      foreach ($this->{REDHEN_CONTACT_EMAIL_FIELD}[LANGUAGE_NONE] as $contact_email) {
         if ($contact_email['value'] === $email) {
           return TRUE;
         }

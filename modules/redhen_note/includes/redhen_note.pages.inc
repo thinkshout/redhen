@@ -23,7 +23,7 @@ function redhen_note_add($entity, $entity_type) {
  */
 function redhen_note_notes_page($entity, $entity_type) {
 
-  list($entity_id,,) = entity_extract_ids($entity_type, $entity);
+  list($entity_id, ,) = entity_extract_ids($entity_type, $entity);
 
   switch ($entity_type) {
     case 'redhen_contact':
@@ -38,8 +38,20 @@ function redhen_note_notes_page($entity, $entity_type) {
     'Body',
     'Note Type',
     'Author',
-    'updated' => array('field' => 'updated', 'type' => 'property', 'data' => 'Updated', 'sort' => 'asc', 'specifier' => 'updated'),
-    'created' => array('field' => 'created', 'type' => 'property', 'data' => 'Created', 'sort' => 'asc', 'specifier' => 'created'),
+    'updated' => array(
+      'field' => 'updated',
+      'type' => 'property',
+      'data' => 'Updated',
+      'sort' => 'asc',
+      'specifier' => 'updated'
+    ),
+    'created' => array(
+      'field' => 'created',
+      'type' => 'property',
+      'data' => 'Created',
+      'sort' => 'asc',
+      'specifier' => 'created'
+    ),
     'Actions',
   );
 
@@ -58,7 +70,7 @@ function redhen_note_notes_page($entity, $entity_type) {
   $rows = array();
   if ($result) {
     $notes = redhen_note_load_multiple(array_keys($result['redhen_note']));
-    foreach($notes as $note) {
+    foreach ($notes as $note) {
       $actions = array(
         l('view', 'redhen/' . $path . '/' . $entity_id . '/note/' . $note->note_id . '/view'),
         l('edit', 'redhen/' . $path . '/' . $entity_id . '/note/' . $note->note_id . '/view/edit', array('query' => drupal_get_destination())),
@@ -71,12 +83,13 @@ function redhen_note_notes_page($entity, $entity_type) {
 
       $rows[] = array(
         'data' => array(
-          substr($body,0,5) . ' ...',
-          (isset($type->name)) ? $type->name: '',
+          substr($body, 0, 5) . ' ...',
+          (isset($type->name)) ? $type->name : '',
           $note->author->name,
           format_date($note->updated, 'short'),
           format_date($note->created, 'short'),
-          implode(' | ', $actions))
+          implode(' | ', $actions)
+        )
       );
     }
   }
@@ -85,7 +98,10 @@ function redhen_note_notes_page($entity, $entity_type) {
     $rows[] = array(
       'data' => array(
         array(
-          'data' => t('Sorry, there are no note that match your criteria.'), 'colspan' => 7))
+          'data' => t('Sorry, there are no note that match your criteria.'),
+          'colspan' => 7
+        )
+      )
     );
   }
 
@@ -97,7 +113,7 @@ function redhen_note_notes_page($entity, $entity_type) {
       '#rows' => $rows
     ),
     'pager' => array(
-    '#theme' => 'pager'
+      '#theme' => 'pager'
     )
   );
 

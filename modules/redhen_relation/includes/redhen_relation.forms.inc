@@ -12,6 +12,7 @@
  * @param $form_state
  * @param RedhenContact|RedhenOrg $entity
  * @param stdClass $relation
+ *
  * @return array
  */
 function redhen_relation_connection_form($form, &$form_state, $entity) {
@@ -29,7 +30,7 @@ function redhen_relation_connection_form($form, &$form_state, $entity) {
 
   // load all available relation types
   $options = array();
-  foreach($relation_types as $type) {
+  foreach ($relation_types as $type) {
     $options[$type->relation_type] = $type->label;
   }
   $form['relation_type'] = array(
@@ -106,14 +107,19 @@ function redhen_relation_connection_form_validate($form, &$form_state) {
 
     if (isset($matches[2]) && ($matches[2] > 0)) {
       // set the endpoints field to the selected values.
-      $endpoints =array (
-        array('entity_type' => $entity->entityType(),
-          'entity_id' => $entity->internalIdentifier()),
-        array('entity_type' => $form_state['entity_to_relate_type'],
-          'entity_id' => $matches[2]),
+      $endpoints = array(
+        array(
+          'entity_type' => $entity->entityType(),
+          'entity_id' => $entity->internalIdentifier()
+        ),
+        array(
+          'entity_type' => $form_state['entity_to_relate_type'],
+          'entity_id' => $matches[2]
+        ),
       );
       $form_state['values']['endpoints'][LANGUAGE_NONE] = $endpoints;
-    } else {
+    }
+    else {
       form_set_error('entity_to_relate', 'Invalid connection.');
     }
 

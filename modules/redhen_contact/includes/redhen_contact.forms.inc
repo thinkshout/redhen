@@ -183,7 +183,8 @@ function redhen_contact_contact_archive_form_submit($form, &$form_state) {
 
   if ($contact->setState(REDHEN_STATE_ARCHIVED)) {
     drupal_set_message(t('%label has been archived.', array('%label' => $contact->name)));
-  } else {
+  }
+  else {
     drupal_set_message(t('%label was not archived.', array('%label' => $contact->name)), WATCHDOG_ERROR);
   }
   $url = entity_uri($contact->entityType(), $contact);

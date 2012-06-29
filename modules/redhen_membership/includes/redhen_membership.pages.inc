@@ -14,7 +14,13 @@ function redhen_membership_page($entity = NULL, $entity_type = NULL) {
 
   // setup the header for both the query and table
   $header = array(
-    'type' => array('field' => 'type', 'type' => 'property', 'data' => 'Type', 'sort' => 'asc', 'specifier' => 'type'),
+    'type' => array(
+      'field' => 'type',
+      'type' => 'property',
+      'data' => 'Type',
+      'sort' => 'asc',
+      'specifier' => 'type'
+    ),
     'Applies to',
     'start_date' => array(
       'field' => 'start_date',
@@ -30,7 +36,13 @@ function redhen_membership_page($entity = NULL, $entity_type = NULL) {
       'sort' => 'asc',
       'specifier' => 'expire_date'
     ),
-    'note' => array('field' => 'note', 'type' => 'property', 'data' => 'Note', 'sort' => 'asc', 'specifier' => 'note'),
+    'note' => array(
+      'field' => 'note',
+      'type' => 'property',
+      'data' => 'Note',
+      'sort' => 'asc',
+      'specifier' => 'note'
+    ),
     'State',
     'Actions',
   );
@@ -125,6 +137,7 @@ function redhen_membership_types_list_page() {
  * Page callback for adding a membership.
  *
  * @param $type
+ *
  * @return array|mixed
  */
 function redhen_membership_add_page($org = NULL) {

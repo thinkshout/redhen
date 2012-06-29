@@ -52,8 +52,8 @@ function redhen_relation_menu() {
     'title' => 'Autocomplete for RedHen Relations',
     'page callback' => 'redhen_relation_autocomplete',
     'page arguments' => array(3, 4, 5, 6, 7),
-    'access callback' => TRUE,  // @todo Set permissions
-    'type' => MENU_CALLBACK ,
+    'access callback' => TRUE, // @todo Set permissions
+    'type' => MENU_CALLBACK,
   );
 
   return $items;
@@ -97,19 +97,19 @@ function redhen_relation_page_title($relation) {
  */
 function redhen_relation_permission() {
   return array(
-    'view redhen org connections' =>  array(
+    'view redhen org connections' => array(
       'title' => t('Access RedHen Org Connections'),
       'description' => t('View the connections for an organization.'),
     ),
-    'view redhen contact connections' =>  array(
+    'view redhen contact connections' => array(
       'title' => t('Access RedHen Contact Connections'),
       'description' => t('View the connections for a contact.'),
     ),
-    'edit redhen org connections' =>  array(
+    'edit redhen org connections' => array(
       'title' => t('Manage RedHen Org Connections'),
       'description' => t('Add and edit connections for an organization.'),
     ),
-    'edit redhen contact connections' =>  array(
+    'edit redhen contact connections' => array(
       'title' => t('Manage RedHen Contact Connections'),
       'description' => t('Add and edit connections for a contact.'),
     ),
@@ -138,6 +138,7 @@ function redhen_relation_access($op, $entity) {
  * Page callback for listing connections.
  *
  * @param RedhenContact|RedhenOrg $entity
+ *
  * @return array|null|string
  */
 function redhen_relation_connections_page($entity) {
@@ -173,7 +174,8 @@ function redhen_relation_connections_page($entity) {
           if ($entity->primary_contact_id !== $related_entity->contact_id) {
             $entity_uri = entity_uri('redhen_org', $entity);
             $data[] = l('set as primary', $entity_uri['path'] . '/primary/' . $related_entity->contact_id, array('query' => drupal_get_destination()));
-          } else {
+          }
+          else {
             $data[] = t('Primary');
             $row_classes[] = 'primary_contact';
           }
@@ -183,8 +185,10 @@ function redhen_relation_connections_page($entity) {
       }
     }
 
-    $header = array(t('Connection'), t('Type'), t('Name'), t('Status'),
-      t('Created'), t('Author'), t('Actions'));
+    $header = array(
+      t('Connection'), t('Type'), t('Name'), t('Status'),
+      t('Created'), t('Author'), t('Actions')
+    );
 
     if ($entity->entityType() == 'redhen_org') {
       $header[] = t('Primary contact');
@@ -239,7 +243,7 @@ function redhen_relation_relations($entity, $relation_type = NULL) {
 
   if ($results) {
     $relations = relation_load_multiple(array_keys($results));
-    foreach($relations as $relation) {
+    foreach ($relations as $relation) {
       $rid = entity_id('relation', $relation);
       $related_entities[$rid] = array();
       $duplicate = FALSE; // To make sure duplicates of $entity get included in object list.
@@ -269,6 +273,7 @@ function redhen_relation_relations($entity, $relation_type = NULL) {
  * @param $relation_type
  * @param $search
  * @param $limit
+ *
  * @return array
  */
 function redhen_relation_get_available_entities($entity, $entity_type_to_relate, $relation_type, $search = '', $limit = 0) {
@@ -285,7 +290,7 @@ function redhen_relation_get_available_entities($entity, $entity_type_to_relate,
     $info = entity_get_info($entity_type_to_relate);
     $idKey = $info['entity keys']['id'];
     $to_exclude = array();
-    foreach($existing as $relation_id => $related_entities) {
+    foreach ($existing as $relation_id => $related_entities) {
       foreach ($related_entities as $related_entity) {
         $to_exclude[] = entity_id($related_entity->entityType(), $related_entity);
       }
@@ -303,7 +308,7 @@ function redhen_relation_get_available_entities($entity, $entity_type_to_relate,
     $query->propertyCondition('label', $search, 'CONTAINS');
   }
 
-  if ($limit > 0 ) {
+  if ($limit > 0) {
     $query->range(0, $limit);
   }
 

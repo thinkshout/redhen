@@ -122,7 +122,7 @@ function redhen_contact_menu() {
   );
 
   $entity_info = entity_get_info('redhen_contact');
-  foreach($entity_info['bundles'] as $key => $bundle) {
+  foreach ($entity_info['bundles'] as $key => $bundle) {
     $type_url_str = str_replace('_', '-', $key);
     $items['redhen/contact/add/' . $type_url_str] = array(
       'title' => $bundle['label'],
@@ -369,7 +369,7 @@ function redhen_contact_access($op, $contact = NULL, $account = NULL) {
     return TRUE;
   }
 
-  if ( ($op == 'edit' || $op == 'archive') && user_access('manage redhen contacts', $account) && ($contact->redhen_state != REDHEN_STATE_ARCHIVED)) {
+  if (($op == 'edit' || $op == 'archive') && user_access('manage redhen contacts', $account) && ($contact->redhen_state != REDHEN_STATE_ARCHIVED)) {
     return TRUE;
   }
 
@@ -389,18 +389,18 @@ function redhen_contact_access($op, $contact = NULL, $account = NULL) {
  */
 function redhen_contact_permission() {
   return array(
-    'administer redhen contacts' =>  array(
+    'administer redhen contacts' => array(
       'title' => t('Administer RedHen Contacts'),
       'description' => t('Perform administration tasks for RedHen Contacts.'),
     ),
-    'manage redhen contacts' =>  array(
+    'manage redhen contacts' => array(
       'title' => t('Manage RedHen Contacts'),
       'description' => t('Create, update or delete RedHen Contacts.'),
     ),
-    'access redhen contacts' =>  array(
-        'title' => t('Access Redhen Contacts'),
-        'description' => t('View for Redhen Contacts.'),
-      ),
+    'access redhen contacts' => array(
+      'title' => t('Access Redhen Contacts'),
+      'description' => t('View for Redhen Contacts.'),
+    ),
   );
 }
 
@@ -409,6 +409,7 @@ function redhen_contact_permission() {
  *
  * @param  $contact
  *   A Fully loaded contact object.
+ *
  * @return void
  */
 function redhen_contact_view(RedhenContact $contact) {
@@ -420,6 +421,7 @@ function redhen_contact_view(RedhenContact $contact) {
  *
  * @param  $contact
  *   A loaded contact object.
+ *
  * @return void
  */
 function redhen_contact_contact_title(RedhenContact $contact) {
@@ -497,6 +499,7 @@ function redhen_contact_type_access($op, $type = NULL, $account = NULL) {
  *
  * @param $type
  *   The machine-readable name of a contact type to load.
+ *
  * @return
  *   A contact type array or FALSE if $type does not exist.
  */
@@ -549,6 +552,7 @@ function theme_redhen_contact_add_list($variables) {
  * Theme function for contact list.
  *
  * @param $variables
+ *
  * @return string
  */
 function theme_redhen_contact_list($variables) {
@@ -556,7 +560,7 @@ function theme_redhen_contact_list($variables) {
   $header = $variables['header'];
   if (!empty($contacts)) {
     $rows = array();
-    foreach($contacts as $contact) {
+    foreach ($contacts as $contact) {
       $uri = entity_uri('redhen_contact', $contact);
       $actions = array(
         l(t('edit'), $uri['path'] . '/view/edit', array('query' => drupal_get_destination())),
@@ -571,7 +575,8 @@ function theme_redhen_contact_list($variables) {
           l($contact->last_name, $uri['path']),
           l($contact->email, 'mailto:' . $contact->email),
           format_date($contact->updated, 'short'),
-          implode(' | ', $actions))
+          implode(' | ', $actions)
+        )
       );
     }
 
@@ -607,7 +612,8 @@ function redhen_contact_redhen_settings() {
       '#title' => t('Connect users to Redhen contacts'),
       '#description' => t('If checked, Redhen will attempt to connect Drupal users to Redhen contacts by matching email addresses when a contact is updated.'),
       '#default_value' => variable_get('redhen_contact_connect_users', FALSE)
-  ));
+    )
+  );
 }
 
 /**

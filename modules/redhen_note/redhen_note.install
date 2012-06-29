@@ -58,9 +58,9 @@ function redhen_note_schema() {
       ),
     ),
     'indexes' => array(
-      'redhen_note_updated'       => array('updated'),
-      'redhen_note_created'       => array('created'),
-      'redhen_note_type'          => array(array('type', 4)),
+      'redhen_note_updated' => array('updated'),
+      'redhen_note_created' => array('created'),
+      'redhen_note_type' => array(array('type', 4)),
     ),
     'unique keys' => array(
       'note_id' => array('note_id'),
@@ -123,7 +123,7 @@ function redhen_note_install() {
         array(
           'vocabulary' => 'note_type',
           'parent' => 0,
-         ),
+        ),
       ),
     ),
   );

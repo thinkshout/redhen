@@ -54,7 +54,7 @@ function redhen_fields_field_schema($field) {
 function redhen_fields_install() {
   // Clear the field cache so the redhen_email type is found
   field_cache_clear();
-  
+
   // if the field doesn't already exist, create required email field to be used with contacts
   $prior_field = field_read_field(REDHEN_CONTACT_EMAIL_FIELD, array('include_inactive' => TRUE));
   if (empty($prior_field)) {

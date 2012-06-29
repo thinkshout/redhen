@@ -202,11 +202,11 @@ function redhen_fields_field_validate($entity_type, $entity, $field, $instance, 
           $emails[] = $item['value'];
         }
       }
-      if(!empty($emails) && (count(array_unique($emails)) < count($emails))) {
-        $errors[$field['field_name']][$langcode][count($items)-2][] = array(
+      if (!empty($emails) && (count(array_unique($emails)) < count($emails))) {
+        $errors[$field['field_name']][$langcode][count($items) - 2][] = array(
           'error' => 'redhen_fields_invalid_email',
           'message' => t('%name: Is already in use by this contact.', array('%name' => t($instance['label']))),
-          'delta' => count($items)-2,
+          'delta' => count($items) - 2,
         );
       }
 
@@ -249,10 +249,10 @@ function redhen_fields_field_validate($entity_type, $entity, $field, $instance, 
 
       // ensure at least one email is marked as primary
       if ($email_entered && !$default) {
-        $errors[$field['field_name']][$langcode][count($items)-2][] = array(
+        $errors[$field['field_name']][$langcode][count($items) - 2][] = array(
           'error' => 'redhen_fields_invalid_email',
           'message' => t('One email must be marked as primary.'),
-          'delta' => count($items)-2,
+          'delta' => count($items) - 2,
         );
       }
       break;
@@ -266,11 +266,12 @@ function redhen_fields_field_validate($entity_type, $entity, $field, $instance, 
  * @param $entity_type
  * @param $entity
  * @param $value
+ *
  * @return bool
  */
 function redhen_fields_email_in_use($field, $entity_type, $entity, $value) {
   if ($value) {
-    list($entity_id,,) = entity_extract_ids($entity_type, $entity);
+    list($entity_id, ,) = entity_extract_ids($entity_type, $entity);
     $query = new EntityFieldQuery();
     $found = $query
       ->entityCondition('entity_type', $entity_type, '=')
@@ -334,7 +335,10 @@ function redhen_fields_field_formatter_view($entity_type, $entity, $field, $inst
     case 'redhen_email_formatter':
       $element['#theme'] = 'field__redhen_fields_email_formatter';
       foreach ($items as $delta => $item) {
-        $output = theme('redhen_fields_email_formatter_row', array('item' => $item, 'delta' => $delta));
+        $output = theme('redhen_fields_email_formatter_row', array(
+          'item' => $item,
+          'delta' => $delta
+        ));
         $element[$delta] = array('#markup' => $output);
       }
       $element['#attached']['css'] = array(drupal_get_path('module', 'redhen_fields') . '/redhen_fields.css');
@@ -457,7 +461,10 @@ function redhen_fields_field_widget_error($element, $error, $form, &$form_state)
 function template_preprocess_redhen_fields_email_formatter_row(&$variables) {
   $item = $variables['item'];
 
-  $image = theme('image', array('path' => '/misc/watchdog-ok.png', 'alt' => t('Enabled')));
+  $image = theme('image', array(
+    'path' => '/misc/watchdog-ok.png',
+    'alt' => t('Enabled')
+  ));
 
   $variables['default'] = ($item['default']) ? $image : '&nbsp;';
   $variables['hold'] = ($item['hold']) ? $image : '&nbsp;';
@@ -633,8 +640,8 @@ function redhen_fields_email_action_submit($form, $form_state) {
   // Process the HTML form to store configuration. The keyed array that
   // we return will be serialized to the database.
   $params = array(
-    'subject'   => $form_values['subject'],
-    'message'   => $form_values['message'],
+    'subject' => $form_values['subject'],
+    'message' => $form_values['message'],
   );
   return $params;
 }

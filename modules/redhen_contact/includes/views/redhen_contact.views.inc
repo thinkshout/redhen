@@ -9,7 +9,7 @@
  * Implements hook_views_data().
  */
 function redhen_contact_views_data() {
-  $data['redhen_contact']['table']['group']  = t('Contacts');
+  $data['redhen_contact']['table']['group'] = t('Contacts');
 
   $data['redhen_contact']['table']['base'] = array(
     'field' => 'contact_id',
@@ -36,7 +36,7 @@ function redhen_contact_views_data() {
       'handler' => 'views_handler_sort',
     ),
   );
-  
+
   $data['redhen_contact']['redhen_state'] = array(
     'title' => t('Contact State'),
     'help' => t("The state of the contact record."),

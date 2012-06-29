@@ -25,6 +25,7 @@ function redhen_registration_menu() {
  * Return a list of registrations for a given contact.
  *
  * @param RedhenContact $contact
+ *
  * @return array
  */
 function redhen_registration_page(RedhenContact $contact) {
@@ -42,12 +43,33 @@ function redhen_registration_page(RedhenContact $contact) {
 
   // setup the header for both the query and table
   $header = array(
-    'type' => array('field' => 'type', 'type' => 'property', 'data' => 'Type', 'specifier' => 'type'),
+    'type' => array(
+      'field' => 'type',
+      'type' => 'property',
+      'data' => 'Type',
+      'specifier' => 'type'
+    ),
     'entity' => array('data' => 'Parent Entity'),
     'author' => array('data' => 'Author'),
-    'email' => array('field' => 'mail', 'type' => 'property', 'data' => 'Email', 'specifier' => 'mail'),
-    'count' => array('field' => 'count', 'type' => 'property', 'data' => 'Count', 'specifier' => 'count'),
-    'updated' => array('field' => 'updated', 'type' => 'property', 'data' => 'Updated', 'sort' => 'desc', 'specifier' => 'updated'),
+    'email' => array(
+      'field' => 'mail',
+      'type' => 'property',
+      'data' => 'Email',
+      'specifier' => 'mail'
+    ),
+    'count' => array(
+      'field' => 'count',
+      'type' => 'property',
+      'data' => 'Count',
+      'specifier' => 'count'
+    ),
+    'updated' => array(
+      'field' => 'updated',
+      'type' => 'property',
+      'data' => 'Updated',
+      'sort' => 'desc',
+      'specifier' => 'updated'
+    ),
     'Actions',
   );
 
@@ -83,6 +105,7 @@ function redhen_registration_theme() {
  * Theme function for registration list.
  *
  * @param $variables
+ *
  * @return string
  */
 function theme_redhen_registration_list($variables) {
@@ -90,7 +113,7 @@ function theme_redhen_registration_list($variables) {
   $header = $variables['header'];
   if (!empty($registrations)) {
     $rows = array();
-    foreach($registrations as $registration) {
+    foreach ($registrations as $registration) {
       $uri = entity_uri('registration', $registration);
       $actions = array(
         l(t('view'), $uri['path'], array('query' => drupal_get_destination())),
@@ -108,7 +131,8 @@ function theme_redhen_registration_list($variables) {
           l($registration->mail, 'mailto:' . $registration->mail),
           $registration->count,
           format_date($registration->updated, 'short'),
-          implode(' | ', $actions))
+          implode(' | ', $actions)
+        )
       );
     }
 

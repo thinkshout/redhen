@@ -33,7 +33,7 @@ function redhen_filter_form($form, $form_state, $entity_type) {
     );
 
     // add a form field for each property
-    foreach($property_info as $key => $prop) {
+    foreach ($property_info as $key => $prop) {
       if (isset($prop['filter']) && $prop['filter']) {
         $field_type = isset($prop['field_type']) ? $prop['field_type'] : $prop['type'];
 
@@ -43,7 +43,7 @@ function redhen_filter_form($form, $form_state, $entity_type) {
           $default_value['from'] = ($default_value['from'] == '') ? '' :
             date('m/d/Y', strtotime($default_value['from']));
           $default_value['to'] = ($default_value['to'] == '') ? '' :
-            date('m/d/Y', strtotime($default_value['to']));;
+            date('m/d/Y', strtotime($default_value['to']));
         }
 
         if ($prop['type'] == 'date') {
@@ -79,7 +79,7 @@ function redhen_filter_form($form, $form_state, $entity_type) {
     // add bundles; will load additional field filters on change
     $type_options = array('' => t('-- Any --'));
     $entity_info = entity_get_info($entity_type);
-    foreach($entity_info['bundles'] as $key => $bundle) {
+    foreach ($entity_info['bundles'] as $key => $bundle) {
       $type_options[$key] = $bundle['label'];
     }
 
@@ -190,14 +190,14 @@ function redhen_filter_form_fields(&$form, $entity_type, $bundle) {
   if (!empty($fields)) {
     // loop through each field adding a filter
     $filters_count = 0;
-    foreach($fields as $key => $field) {
+    foreach ($fields as $key => $field) {
       $field_info = field_info_field($field['field_name']);
       // for now, we're only allowing fields that have tid or value single cols
       // @todo: expand to allow more field types
       $columns = array_keys($field_info['columns']);
       $column = reset($columns);
       if (in_array($column, array('value', 'tid'))) {
-        $filters_count ++;
+        $filters_count++;
         $form['filter_fieldset']['filters']['fields'][$key][$column] = array(
           '#type' => 'textfield',
           '#title' => $field['label'],

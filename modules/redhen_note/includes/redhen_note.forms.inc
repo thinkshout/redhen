@@ -13,6 +13,7 @@
  * @param RedhenContact|RedhenOrg $entity
  * @param $entity_type
  * @param stdClass $redhen_note
+ *
  * @return array
  */
 function redhen_note_form($form, &$form_state, $redhen_note) {
@@ -42,14 +43,14 @@ function redhen_note_form_validate($form, &$form_state) {
 function redhen_note_form_submit($form, &$form_state) {
   $redhen_note = $form_state['redhen_note'];
 
-  list($entity_id,,) = entity_extract_ids($redhen_note->entity_type,$redhen_note->entity);
+  list($entity_id, ,) = entity_extract_ids($redhen_note->entity_type, $redhen_note->entity);
   $redhen_note->entity_id = $entity_id;
 
   field_attach_submit('redhen_note', $redhen_note, $form, $form_state);
 
   if ($redhen_note->save()) {
     $entity = $redhen_note->entity;
-    $entity_type =  $redhen_note->entity_type;
+    $entity_type = $redhen_note->entity_type;
     drupal_set_message(t('The note has been saved.'));
     $uri = entity_uri($entity_type, $entity);
     $form_state['redirect'] = $uri['path'] . "/notes";
@@ -73,16 +74,16 @@ function redhen_note_delete_form($form, &$form_state, $note) {
 
   $form['#submit'][] = 'redhen_note_delete_form_submit';
 
-    $title = $note->label();
+  $title = $note->label();
 
-    $form = confirm_form($form,
-      t('Are you sure you want to delete %title?', array('%title' => $title)),
-      entity_uri('redhen_note', $note),
-      '<p>' . t('Deleting this note cannot be undone.') . '</p>',
-      t('Delete'),
-      t('Cancel'),
-      'confirm'
-    );
+  $form = confirm_form($form,
+    t('Are you sure you want to delete %title?', array('%title' => $title)),
+    entity_uri('redhen_note', $note),
+    '<p>' . t('Deleting this note cannot be undone.') . '</p>',
+    t('Delete'),
+    t('Cancel'),
+    'confirm'
+  );
 
   return $form;
 }

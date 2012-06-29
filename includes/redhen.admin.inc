@@ -2,7 +2,7 @@
 
 /**
  * @file
- * 
+ *
  */
 
 /**
@@ -46,9 +46,9 @@ function redhen_landing_page() {
  */
 function redhen_settings() {
   $form['intro'] = array(
-     '#type' => 'item',
-     '#markup' => t('RedHen CRM settings.'),
-   );
+    '#type' => 'item',
+    '#markup' => t('RedHen CRM settings.'),
+  );
 
   // allow other modules to inject their own settings.
   $form += module_invoke_all('redhen_settings');

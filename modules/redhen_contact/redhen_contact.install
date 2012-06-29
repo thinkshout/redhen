@@ -73,11 +73,11 @@ function redhen_contact_schema() {
       ),
     ),
     'indexes' => array(
-      'redhen_contact_updated'       => array('updated'),
-      'redhen_contact_created'       => array('created'),
-      'redhen_contact_type'          => array(array('type', 4)),
-      'redhen_contact_author'        => array('author_uid'),
-      'redhen_contact_redhen_state'        => array('redhen_state'),
+      'redhen_contact_updated' => array('updated'),
+      'redhen_contact_created' => array('created'),
+      'redhen_contact_type' => array(array('type', 4)),
+      'redhen_contact_author' => array('author_uid'),
+      'redhen_contact_redhen_state' => array('redhen_state'),
     ),
     'unique keys' => array(
       'contact_id' => array('contact_id'),
