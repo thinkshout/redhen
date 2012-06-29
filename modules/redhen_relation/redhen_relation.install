@@ -83,7 +83,8 @@ function redhen_relation_install() {
     'default_value' => array(array('value' => 1)),
     'widget' => array(
       'type' => 'options_select',
-    )
+    ),
+    'description' => t('This is a placeholder field to control what actions a contact in an organization can perform. Access control to be implemented.')
   ));
 
   entity_info_cache_clear();
