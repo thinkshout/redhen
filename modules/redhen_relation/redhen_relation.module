@@ -14,7 +14,7 @@ function redhen_relation_menu() {
     'title' => 'Connections',
     'page callback' => 'redhen_relation_connections_page',
     'page arguments' => array(2, 'redhen_contact'),
-    'access callback' => 'redhen_contact_access',
+    'access callback' => 'redhen_relation_access',
     'access arguments' => array('view', 2),
     'type' => MENU_LOCAL_TASK,
     'weight' => -5,
@@ -24,7 +24,7 @@ function redhen_relation_menu() {
     'page callback' => 'drupal_get_form',
     'page arguments' => array('redhen_relation_connection_form', 2),
     'file' => 'includes/redhen_relation.forms.inc',
-    'access callback' => 'redhen_contact_access',
+    'access callback' => 'redhen_relation_access',
     'access arguments' => array('edit', 2),
     'type' => MENU_LOCAL_ACTION,
   );
@@ -34,7 +34,7 @@ function redhen_relation_menu() {
     'title' => 'Connections',
     'page callback' => 'redhen_relation_connections_page',
     'page arguments' => array(2, 'redhen_org'),
-    'access callback' => 'redhen_org_access',
+    'access callback' => 'redhen_relation_access',
     'access arguments' => array('view', 2),
     'type' => MENU_LOCAL_TASK,
     'weight' => -5,
@@ -44,7 +44,7 @@ function redhen_relation_menu() {
     'page callback' => 'drupal_get_form',
     'page arguments' => array('redhen_relation_connection_form', 2),
     'file' => 'includes/redhen_relation.forms.inc',
-    'access callback' => 'redhen_org_access',
+    'access callback' => 'redhen_relation_access',
     'access arguments' => array('edit', 2),
     'type' => MENU_LOCAL_ACTION,
   );
@@ -90,6 +90,48 @@ function redhen_relation_page_title($relation) {
     '@label1' => $label1,
     '@label2' => $label2
   ));
+}
+
+/**
+ * Implements hook_permission().
+ */
+function redhen_relation_permission() {
+  return array(
+    'view redhen org connections' =>  array(
+      'title' => t('Access RedHen Org Connections'),
+      'description' => t('View the connections for an organization.'),
+    ),
+    'view redhen contact connections' =>  array(
+      'title' => t('Access RedHen Contact Connections'),
+      'description' => t('View the connections for a contact.'),
+    ),
+    'edit redhen org connections' =>  array(
+      'title' => t('Manage RedHen Org Connections'),
+      'description' => t('Add and edit connections for an organization.'),
+    ),
+    'edit redhen contact connections' =>  array(
+      'title' => t('Manage RedHen Contact Connections'),
+      'description' => t('Add and edit connections for a contact.'),
+    ),
+  );
+}
+
+/**
+ * Access callback for viewing and managing relations.
+ *
+ * @param $op
+ * @param $entity
+ *
+ * @return bool
+ */
+function redhen_relation_access($op, $entity) {
+  $entity_type = $entity->entityType();
+  $type = $entity_type == 'redhen_contact' ? 'contact' : 'org';
+  if (entity_access($op, $entity_type, $entity) && user_access("$op redhen $type connections")) {
+    return TRUE;
+  }
+
+  return FALSE;
 }
 
 /**
