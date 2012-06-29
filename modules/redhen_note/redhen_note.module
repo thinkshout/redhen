@@ -56,9 +56,9 @@ function redhen_note_menu() {
 
   $items['admin/structure/redhen/notes'] = array(
     'title' => 'Notes',
-    'description' => 'Manage Redhen notes',
+    'description' => 'Manage RedHen notes',
     'page callback' => 'redhen_note_admin_page',
-    'access arguments' => array('administer redhen notes'), //TODO: add access control
+    'access arguments' => array('administer redhen notes'),
   );
 
   foreach (redhen_entity_types() as $note_entity_type => $path) {
@@ -66,7 +66,7 @@ function redhen_note_menu() {
       'title' => 'Notes',
       'page callback' => 'redhen_note_notes_page',
       'page arguments' => array(2, $note_entity_type),
-      'access callback' => 'redhen_' . $path . '_access',
+      'access callback' => 'redhen_note_access',
       'access arguments' => array('view', 2),
       'file' => 'includes/redhen_note.pages.inc',
       'type' => MENU_LOCAL_TASK,
@@ -77,7 +77,7 @@ function redhen_note_menu() {
       'page callback' => 'redhen_note_add',
       'page arguments' => array(2, $note_entity_type),
       'file' => 'includes/redhen_note.pages.inc',
-      'access callback' => 'redhen_' . $path . '_access',
+      'access callback' => 'redhen_note_access',
       'access arguments' => array('edit', 2),
       'type' => MENU_LOCAL_ACTION,
     );
@@ -86,7 +86,7 @@ function redhen_note_menu() {
       'title arguments' => array(4),
       'page callback' => 'redhen_note_view',
       'page arguments' => array(2, $note_entity_type, 4),
-      'access callback' => 'redhen_' . $path . '_access',
+      'access callback' => 'redhen_note_access',
       'access arguments' => array('view', 2),
       'weight' => 10,
     );
@@ -100,7 +100,7 @@ function redhen_note_menu() {
       'title' => 'Edit',
       'page callback' => 'drupal_get_form',
       'page arguments' => array('redhen_note_form', 4),
-      'access callback' => 'redhen_' . $path . '_access',
+      'access callback' => 'redhen_note_access',
       'access arguments' => array('edit', 4),
       'type' => MENU_LOCAL_TASK,
       'file' => 'includes/redhen_note.forms.inc',
@@ -109,7 +109,7 @@ function redhen_note_menu() {
       'title' => 'Delete',
       'page callback' => 'drupal_get_form',
       'page arguments' => array('redhen_note_delete_form', 4),
-      'access callback' => 'redhen_' . $path . '_access',
+      'access callback' => 'redhen_note_access',
       'access arguments' => array('delete', 4),
       'type' => MENU_LOCAL_TASK,
       'weight' => 10,
@@ -139,47 +139,44 @@ function redhen_note_admin_page() {
  * @param $account
  *   The user to check for. Leave it to NULL to check for the current user.
  */
-// @todo: Granular permissions?
-//function redhen_note_access($op, $note = NULL, $account = NULL) {
-//  global $user;
-//  $account = isset($account) ? $account : $user;
-//
-//  if (user_access('administer redhen notes', $account)) {
-//    return TRUE;
-//  }
-//
-//  if ($op == 'view' && user_access('access redhen notes', $account)) {
-//    return TRUE;
-//  }
-//
-//  if (($op == 'edit' || $op == 'create' || $op == 'delete')
-//    && user_access('manage redhen notes', $account)) {
-//    return TRUE;
-//  }
-//
-//  return FALSE;
-//}
+function redhen_note_access($op, $parent_entity, $account = NULL) {
+  if (entity_access($op, $parent_entity->entityType(), $parent_entity, $account)) {
+    if (user_access('administer redhen notes', $account)) {
+      return TRUE;
+    }
+
+    if ($op == 'view' && user_access('access redhen notes', $account)) {
+      return TRUE;
+    }
+
+    if (($op == 'edit' || $op == 'create' || $op == 'delete')
+      && user_access('manage redhen notes', $account)) {
+      return TRUE;
+    }
+  }
+
+  return FALSE;
+}
 
 /**
  * Implements hook_permission().
  */
-// @todo: Granular permissions?
-//function redhen_note_permission() {
-//  return array(
-//    'administer redhen notes' =>  array(
-//      'title' => t('Administer Redhen Notes'),
-//      'description' => t('Perform administration tasks for Redhen Notes.'),
-//    ),
-//    'manage redhen notes' =>  array(
-//      'title' => t('Manage Redhen Notes'),
-//      'description' => t('Create, update or delete Redhen Notes.'),
-//    ),
-//    'access redhen notes' =>  array(
-//        'title' => t('Access Redhen Notes'),
-//        'description' => t('View for Redhen Notes.'),
-//      ),
-//  );
-//}
+function redhen_note_permission() {
+  return array(
+    'administer redhen notes' =>  array(
+      'title' => t('Administer Redhen Notes'),
+      'description' => t('Perform administration tasks and manage the structure of RedHen Notes.'),
+    ),
+    'manage redhen notes' =>  array(
+      'title' => t('Manage Redhen Notes'),
+      'description' => t('Create, update or delete Redhen Notes.'),
+    ),
+    'access redhen notes' =>  array(
+        'title' => t('Access Redhen Notes'),
+        'description' => t('View for Redhen Notes.'),
+      ),
+  );
+}
 
 /**
  * Loads a note by ID.
