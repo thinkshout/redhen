@@ -9,3 +9,5 @@ files[] = includes/redhen.admin.inc
 files[] = includes/redhen.forms.inc
 
 configure = admin/config/redhen
+
+php = 5.3
