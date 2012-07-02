@@ -242,7 +242,7 @@ class RedhenContactMetadataController extends EntityDefaultMetadataController {
     $properties['user'] = array(
       'label' => t("User"),
       'type' => 'user',
-      'description' => t("The Drupal user assocaited with the contact."),
+      'description' => t("The Drupal user associated with the contact."),
       'schema field' => 'uid'
     );
     $properties['author'] = array(

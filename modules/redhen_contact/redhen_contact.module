@@ -617,7 +617,7 @@ function redhen_contact_redhen_settings() {
 }
 
 /**
- * Return a RedHen contact assocaited with a givin Drupal account.
+ * Return a RedHen contact associated with a givin Drupal account.
  *
  * @param $account
  *
