@@ -5,6 +5,7 @@ core = 7.x
 
 dependencies[] = redhen
 dependencies[] = taxonomy
+dependencies[] = text
 
 files[] = includes/redhen_note.forms.inc
 
