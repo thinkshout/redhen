@@ -8,6 +8,7 @@ dependencies[] = redhen_org
 
 dependencies[] = relation (7.x-1.x-dev)
 dependencies[] = relation_ui
+dependencies[] = list
 
 files[] = includes/redhen_relation.forms.inc
 files[] = includes/views/redhen_relation_handler_field_primary_contact.inc
