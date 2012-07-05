@@ -462,7 +462,7 @@ function redhen_membership_redhen_settings() {
 function redhen_membership_cron() {
 
   if (variable_get('redhen_membership_cron_enable', FALSE)) {
-    $memberships = redhen_membership_load_multiple(FALSE, array(
+    $memberships = redhen_membership_query(array(
       'membership_state' => REDHEN_MEMBERSHIP_INACTIVE,
       'start_date' => date('Y-m-d 00:00:00'),
     ));
@@ -474,7 +474,7 @@ function redhen_membership_cron() {
   }
 
   if (variable_get('redhen_membership_cron_expire', FALSE)) {
-    $memberships = redhen_membership_load_multiple(FALSE, array(
+    $memberships = redhen_membership_query(array(
       'membership_state' => REDHEN_MEMBERSHIP_ACTIVE,
       'expire_date' => date('Y-m-d 00:00:00'),
     ));
@@ -604,6 +604,34 @@ function redhen_membership_membership_contacts(RedhenMembership $membership) {
 }
 
 /**
+ * Standard membership query
+ *
+ * @param array $conditions
+ *  Keyed array of entity properties to use as conditions in the query
+ *
+ * @return array
+ */
+function redhen_membership_query($conditions) {
+
+  $membership_query = new EntityFieldQuery();
+  $memberships = array();
+
+  // build the query
+  $membership_query->entityCondition('entity_type', 'redhen_membership', '=');
+
+  foreach ($conditions as $field => $value) {
+    $membership_query->propertyCondition($field, $value);
+  }
+
+  $membership_results = $membership_query->execute();
+  if (isset($membership_results['redhen_membership'])) {
+    $memberships = redhen_membership_load_multiple(array_keys($membership_results['redhen_membership']));
+  }
+
+  return $memberships;
+}
+
+/**
  * Returns an array of memberships associated with a contact
  *
  * @param RedhenContact $contact
@@ -614,25 +642,15 @@ function redhen_membership_membership_contacts(RedhenMembership $membership) {
  */
 function redhen_membership_contact_memberships(RedhenContact $contact, $state = NULL) {
 
-  $contact_membership_keys = array();
-  $query = new EntityFieldQuery();
-  // build the query
-  $query
-    ->entityCondition('entity_type', 'redhen_membership', '=')
-    ->propertyCondition('entity_type', 'redhen_contact')
-    ->propertyCondition('entity_id', $contact->internalIdentifier());
+  $contact_memberships = redhen_membership_query(array(
+      'entity_type' => 'redhen_contact',
+      'entity_id' => $contact->internalIdentifier(),
+      'membership_state' => $state
+    )
+  );
 
-  if (isset($state)) {
-    $query->propertyCondition('membership_state', $state);
-  }
-
-  $result = $query->execute();
-  if ($result) {
-    $contact_membership_keys = array_keys($result['redhen_membership']);
-  }
-
-  // Get memberships through org affiliations
-  $org_membership_keys = array();
+  // Get any memberships that exist through org affiliations
+  $org_memberships = array();
   $org_ids = array();
   // Get all affiliated org ids.
   $relations = redhen_relation_relations($contact, 'redhen_affiliation');
@@ -642,27 +660,15 @@ function redhen_membership_contact_memberships(RedhenContact $contact, $state = 
     }
   }
   if (count($org_ids) > 0) {
-    $org_membership_query = new EntityFieldQuery();
-
-    // build the query
-    $org_membership_query
-      ->entityCondition('entity_type', 'redhen_membership', '=')
-      ->propertyCondition('entity_type', 'redhen_org')
-      ->propertyCondition('entity_id', $org_ids);
-
-    if (isset($state)) {
-      $org_membership_query->propertyCondition('membership_state', $state);
-    }
-
-    $org_membership_result = $org_membership_query->execute();
-    if ($org_membership_result) {
-      $org_membership_keys = array_keys($org_membership_result['redhen_membership']);
-    }
+    $org_memberships = redhen_membership_query(array(
+        'entity_type' => 'redhen_org',
+        'entity_id' => $org_ids,
+        'membership_state' => $state
+      )
+    );
   }
 
-  $membership_ids = array_merge($contact_membership_keys, $org_membership_keys);
-
-  return redhen_membership_load_multiple($membership_ids);
+  return array_merge($contact_memberships, $org_memberships);
 }
 
 /**
@@ -674,16 +680,18 @@ function redhen_membership_contact_memberships(RedhenContact $contact, $state = 
  *  If the role should be removed regardless of membership_state
  */
 function redhen_membership_toggle_roles(RedhenMembership $membership, $contacts = array(), $remove = FALSE) {
-  $membership_types = redhen_membership_get_types();
-  // If there is a role set for this membership type
-  $membership_rid = $membership_types[$membership->type]->role_id;
+  $membership_type = redhen_membership_type_load($membership->type);
+  $membership_rid = $membership_type->role_id;
   if (!empty($membership_rid)) {
-    // If not provided, get the contacts associated with this membership
+    // If there is a role set for this membership type check if we need to add/remove that role from any drupal users
     if (empty($contacts)) {
+      // If no contact(s) provided, get any contacts associated with this membership (directly or through a relation)
       $contacts = redhen_membership_membership_contacts($membership);
     }
     foreach ($contacts as $contact) {
+      // check if the contact has a user linked to them
       if (isset($contact->user)) {
+        // If the membership is active, we are not forcing removal of roles, and the user doesn't already have the role
         if (($membership->membership_state == REDHEN_MEMBERSHIP_ACTIVE) && (!$remove)) {
           // only set if the user doesn't already have this role
           if (!isset($contact->user->roles[$membership_rid])) {
@@ -691,24 +699,25 @@ function redhen_membership_toggle_roles(RedhenMembership $membership, $contacts 
           }
         }
         else {
-          // Get all active memberships for this contact
+          // We're not adding a role, so check if we need to remove a role
+
+          // Get all active memberships for this contact so we can check for roles that should be maintained
           $contact_memberships = redhen_membership_contact_memberships($contact, REDHEN_MEMBERSHIP_ACTIVE);
 
           // Iterate through the memberships looking for memberships that assign the role we want to delete.
           $delete = TRUE;
-
           if (!$remove) {
             foreach ($contact_memberships as $contact_membership) {
               $contact_membership_rid = $membership_types[$contact_membership->type]->role_id;
               if ((isset($contact_membership_rid)) && ($contact_membership_rid == $membership_rid)) {
-                // Found a matching active membership with the same role, abort the deletion
+                // Found a matching active membership with the same role, abort the deletion since the user should keep the role
                 $delete = FALSE;
               }
             }
           }
 
           if ($delete) {
-            // No active memberships with the same role_id were found, so we go ahead and delete
+            // No active memberships with the same role_id were found, so we go ahead and remove the role
             unset($contact->user->roles[$membership_rid]);
           }
         }
@@ -716,33 +725,6 @@ function redhen_membership_toggle_roles(RedhenMembership $membership, $contacts 
       }
     }
   }
-}
-
-/**
- * Standard membership query
- *
- * @param $entity_type
- * @param $entity
- *
- * @return array
- */
-function redhen_membership_query($entity_type, $entity) {
-
-  $membership_query = new EntityFieldQuery();
-  $memberships = array();
-
-  // build the query
-  $membership_query
-    ->entityCondition('entity_type', 'redhen_membership', '=')
-    ->propertyCondition('entity_type', $entity_type)
-    ->propertyCondition('entity_id', entity_id($entity_type, $entity));
-
-  $membership_results = $membership_query->execute();
-  if (isset($membership_results['redhen_membership'])) {
-    $memberships = redhen_membership_load_multiple(array_keys($membership_results['redhen_membership']));
-  }
-
-  return $memberships;
 }
 
 /**
@@ -786,7 +768,7 @@ function redhen_membership_entity_update($entity, $entity_type) {
       // If the entity is archived, we want to archive their memberships
       if ($entity->redhen_state !== REDHEN_STATE_ACTIVE) {
         // Get all the memberships associated with this entitity
-        $memberships = redhen_membership_load_multiple(FALSE, array(
+        $memberships = redhen_membership_query(array(
           'entity_type' => $entity_type,
           'entity_id' => $entity->internalIdentifier(),
         ));
@@ -833,7 +815,7 @@ function redhen_membership_redhen_entity_predelete($entity, $entity_type) {
     // No break because we want to also remove memberships associated with the contact
     case 'redhen_org':
       // Delete memberships that belong to the entity being deleted
-      $memberships = redhen_membership_load_multiple(FALSE, array(
+      $memberships = redhen_membership_query(array(
         'entity_type' => $entity_type,
         'entity_id' => $entity->internalIdentifier(),
       ));
@@ -861,7 +843,10 @@ function redhen_membership_relation_toggle($relation, $remove = FALSE) {
   }
   // Organization or contact may already be deleted
   if ($org && $contact) {
-    $memberships = redhen_membership_query('redhen_org', $org);
+    $memberships = redhen_membership_query(array(
+      'entity_type' => 'redhen_org',
+      'entity_id' => entity_id('redhen_org', $org)
+    ));
     foreach ($memberships as $membership) {
       redhen_membership_toggle_roles($membership, array($contact), $remove);
     }

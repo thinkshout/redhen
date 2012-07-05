@@ -25,11 +25,11 @@ class redhen_membership_handler_field_active_member_type extends views_handler_f
 
     foreach ($values as $value) {
       $entity_id = $this->get_value($value, NULL, TRUE);
-      $memberships = redhen_membership_load_multiple(FALSE, array(
+      $memberships = redhen_membership_query(array(
         'entity_type' => $this->table,
         'entity_id' => $entity_id,
         'membership_state' => REDHEN_MEMBERSHIP_ACTIVE
-      ), TRUE);
+      ));
 
       if ($memberships) {
         foreach ($memberships as $membership) {
