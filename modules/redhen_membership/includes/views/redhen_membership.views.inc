@@ -21,9 +21,9 @@ function redhen_membership_views_data_alter(&$data) {
     $data[$info['base table']]['redhen_membership_rel'] = array(
       'group' => t('Membership'),
       'title' => t('@entity to Membership',
-        array('@entity' => ucfirst($info['label']))),
+        array('@entity' => drupal_ucfirst($info['label']))),
       'help' => t('The Membership associated with the @entity entity.',
-        array('@entity' => ucfirst($info['label']))),
+        array('@entity' => drupal_ucfirst($info['label']))),
       'relationship' => array(
         'entity' => $entity_type,
         'handler' => 'redhen_membership_handler_relationship',
@@ -39,9 +39,9 @@ function redhen_membership_views_data_alter(&$data) {
     $data[$info['base table']]['redhen_membership_active_member_type'] = array(
       'group' => t('Membership'),
       'title' => t('@entity active membership type(s)',
-        array('@entity' => ucfirst($info['label']))),
+        array('@entity' => drupal_ucfirst($info['label']))),
       'help' => t('The active membership type(s) of the @entity entity.',
-        array('@entity' => ucfirst($info['label']))),
+        array('@entity' => drupal_ucfirst($info['label']))),
       'field' => array(
         'handler' => 'redhen_membership_handler_field_active_member_type',
       ),
@@ -51,7 +51,7 @@ function redhen_membership_views_data_alter(&$data) {
     $data['redhen_membership']['redhen_membership_related_' . $entity_type] = array(
       'group' => t('Membership'),
       'title' => t('Membership to @entity',
-        array('@entity' => ucfirst($info['label']))),
+        array('@entity' => drupal_ucfirst($info['label']))),
       'help' => t('The @entity entity that is associated with the Membership.',
         array('@entity' => $info['label'])),
       'relationship' => array(
