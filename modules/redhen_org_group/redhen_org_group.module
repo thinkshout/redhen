@@ -183,6 +183,12 @@ function redhen_org_group_contact_groups($account, $private = FALSE, $bundle = N
 
   // get all orgs the given account is connected to
   $group_types = array_keys(redhen_org_group_group_types($private, $bundle));
+
+  // there are no group types, so the contact is obviously not in an org group
+  if (empty($group_types)) {
+    return array();
+  }
+
   if ($contact = redhen_contact_user_contact($account)) {
     $relations = redhen_relation_relations($contact, 'redhen_affiliation');
     foreach ($relations as $relation_id => $orgs) {
