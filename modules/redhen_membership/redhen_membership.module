@@ -91,7 +91,7 @@ function redhen_membership_entity_info_alter(&$entity_info) {
           'path' => 'admin/structure/redhen/membership_types/manage/%redhen_membership_type',
           'real path' => 'admin/structure/redhen/membership_types/manage/' . $type,
           'bundle argument' => 5,
-          'access arguments' => array('administer redhen_membership types'),
+          'access arguments' => array('administer redhen membership types'),
         ),
       );
     }
@@ -107,7 +107,6 @@ function redhen_membership_menu() {
   $items['redhen/memberships'] = array(
     'title' => 'Memberships',
     'page callback' => 'redhen_membership_page',
-    'access callback' => 'user_access',
     'access arguments' => array('list redhen memberships'),
     'file' => 'includes/redhen_membership.pages.inc',
     'weight' => 1,
@@ -220,6 +219,10 @@ function redhen_membership_theme() {
  */
 function redhen_membership_permission() {
   return array(
+    'administer redhen membership types' => array(
+      'title' => t('Administer RedHen Membership Types'),
+      'description' => t('Perform administration tasks and manage the structure of RedHen Memberships.'),
+    ),
     'list redhen memberships' => array(
       'title' => t('List RedHen Memberships'),
       'description' => t('List all memberships.'),
@@ -403,7 +406,7 @@ function redhen_membership_get_types($name = NULL) {
  * Access callback for the entity API.
  */
 function redhen_membership_type_access($op, $type = NULL, $account = NULL) {
-  return user_access('administer redhen_membership types', $account);
+  return user_access('administer redhen membership types', $account);
 }
 
 /**
