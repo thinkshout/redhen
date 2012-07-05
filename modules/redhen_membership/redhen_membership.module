@@ -107,8 +107,8 @@ function redhen_membership_menu() {
   $items['redhen/memberships'] = array(
     'title' => 'Memberships',
     'page callback' => 'redhen_membership_page',
-    'access callback' => 'redhen_membership_access',
-    'access arguments' => array('view'),
+    'access callback' => 'user_access',
+    'access arguments' => array('list redhen memberships'),
     'file' => 'includes/redhen_membership.pages.inc',
     'weight' => 1,
   );
@@ -175,15 +175,6 @@ function redhen_membership_menu() {
     'file' => 'includes/redhen_membership.forms.inc',
   );
 
-  $items['redhen/membership/%redhen_membership/archive'] = array(
-    'title' => 'Archive',
-    'page callback' => 'redhen_membership_archive',
-    'page arguments' => array(2),
-    'access callback' => 'redhen_membership_access',
-    'access arguments' => array('edit', 2),
-    'type' => MENU_CALLBACK,
-  );
-
   if (module_exists('devel')) {
     $items['redhen/membership/%redhen_membership/devel'] = array(
       'title' => 'Devel',
@@ -222,6 +213,60 @@ function redhen_membership_theme() {
       'variables' => array('memberships' => NULL, 'header' => NULL),
     )
   );
+}
+
+/**
+ * Implements hook_permission().
+ */
+function redhen_membership_permission() {
+  return array(
+    'list redhen memberships' => array(
+      'title' => t('List RedHen Memberships'),
+      'description' => t('List all memberships.'),
+    ),
+    'view redhen org memberships' => array(
+      'title' => t('Access RedHen Org Memberships'),
+      'description' => t('View the memberships for an organization.'),
+    ),
+    'view redhen contact memberships' => array(
+      'title' => t('Access RedHen Contact Memberships'),
+      'description' => t('View the memberships for a contact.'),
+    ),
+    'edit redhen org memberships' => array(
+      'title' => t('Manage RedHen Org Memberships'),
+      'description' => t('Add and edit memberships for an organization.'),
+    ),
+    'edit redhen contact memberships' => array(
+      'title' => t('Manage RedHen Contact Memberships'),
+      'description' => t('Add and edit memberships for a contact.'),
+    ),
+  );
+}
+
+/**
+ * Access callback for viewing and managing memberships.
+ *
+ * @param $op
+ * @param $entity
+ *
+ * @return bool
+ */
+function redhen_membership_access($op, $entity = NULL) {
+  dpm($op);
+  //dpm($entity);
+  // If this is a view/edit/delete op on a specific membership, load the entity the membership references first
+  if ($entity->entityType() == 'redhen_membership') {
+    $entity = entity_load_single($entity->entity_type, $entity->entity_id);
+  }
+
+  $entity_type = $entity->entityType();
+
+  $type = $entity_type == 'redhen_contact' ? 'contact' : 'org';
+  if (entity_access($op, $entity_type, $entity) && user_access("$op redhen $type memberships")) {
+    return TRUE;
+  }
+
+  return FALSE;
 }
 
 /**
@@ -279,37 +324,6 @@ function redhen_membership_delete_multiple($membership_ids) {
   $ret = entity_get_controller('redhen_membership')->delete($membership_ids);
 
   return $ret;
-}
-
-/**
- * Checks membership access for various operations.
- *
- * @param $op
- *   The operation being performed. One of 'view', 'update', 'create' or
- *   'delete'.
- * @param $membership
- *   Optionally a membership to check access for or for the create operation the
- *   membership type. If nothing is given access permissions for all memberships are returned.
- * @param $account
- *   The user to check for. Leave it to NULL to check for the current user.
- */
-function redhen_membership_access($op, $membership = NULL, $account = NULL) {
-  global $user;
-  $account = isset($account) ? $account : $user;
-
-  if (user_access('administer memberships', $account)) {
-    return TRUE;
-  }
-
-  if ($op == 'view' && user_access('access memberships', $account)) {
-    return TRUE;
-  }
-
-  if (isset($membership) && is_string($membership) && $op == 'create' && user_access('create ' . $membership . ' memberships', $account)) {
-    return TRUE;
-  }
-
-  return FALSE;
 }
 
 /**
