@@ -389,6 +389,10 @@ function redhen_contact_access($op, $contact = NULL, $account = NULL) {
  */
 function redhen_contact_permission() {
   return array(
+    'administer redhen_contact types' => array(
+      'title' => t('Administer RedHen Contact Types'),
+      'description' => t('Manage RedHen contact types and their structure.'),
+    ),
     'administer redhen contacts' => array(
       'title' => t('Administer RedHen Contacts'),
       'description' => t('Perform administration tasks for RedHen Contacts.'),
