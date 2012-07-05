@@ -159,14 +159,14 @@ function redhen_filter_form_validate($form, &$form_state) {
  */
 function redhen_filter_form_submit($form, &$form_state) {
   $filters = $form_state['values']['filters'];
-  drupal_goto($_GET['q'], array('query' => $filters));
+  $form_state['redirect'] = array($_GET['q'], array('query' => $filters));
 }
 
 /**
  * Submit handler to reset the filter form.
  */
-function redhen_filter_form_reset() {
-  drupal_goto($_GET['q']);
+function redhen_filter_form_reset($form, &$form_state) {
+  $form_state['redirect'] = array($_GET['q']);
 }
 
 /**
