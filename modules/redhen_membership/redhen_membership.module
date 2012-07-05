@@ -255,8 +255,6 @@ function redhen_membership_permission() {
  * @return bool
  */
 function redhen_membership_access($op, $entity = NULL) {
-  dpm($op);
-  //dpm($entity);
   // If this is a view/edit/delete op on a specific membership, load the entity the membership references first
   if ($entity->entityType() == 'redhen_membership') {
     $entity = entity_load_single($entity->entity_type, $entity->entity_id);
