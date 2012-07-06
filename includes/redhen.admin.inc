@@ -10,32 +10,47 @@
  */
 function redhen_landing_page() {
   $items = array(
-    'contacts' => array(
+    'contact' => array(
+      'module' => 'redhen_contact',
       'path' => 'redhen/contact',
       'title' => 'Contacts',
-      'description' => t('View, manage, and search contacts.')
+      'description' => t('View, manage, and search contacts.'),
+      'permission' => 'access redhen contacts'
     ),
-    'orgs' => array(
+    'org' => array(
+      'module' => 'redhen_org',
       'path' => 'redhen/org',
       'title' => 'Organizations',
-      'description' => t('View, manage, and search organizations.')
+      'description' => t('View, manage, and search organizations.'),
+      'permission' => 'access redhen orgs'
     ),
-    'memberships' => array(
+    'membership' => array(
+      'module' => 'redhen_membership',
       'path' => 'redhen/memberships',
       'title' => 'Memberships',
-      'description' => t('View, manage, and search memberships.')
+      'description' => t('View, manage, and search memberships.'),
+      'permission' => 'access redhen memberships'
     ),
     'structure' => array(
       'path' => 'admin/structure/redhen',
       'title' => 'Structure',
-      'description' => t('Define bundles and manage fields for RedHen entities.')
+      'description' => t('Define bundles and manage fields for RedHen entities.'),
+      'permission' => 'administer redhen'
     ),
     'settings' => array(
       'path' => 'admin/config/redhen',
       'title' => 'Settings',
-      'description' => t('RedHen configuration and settings.')
+      'description' => t('RedHen configuration and settings.'),
+      'permission' => 'administer redhen'
     ),
   );
+
+  foreach ($items as $key => $item) {
+    if ((isset($item['module']) && !module_exists($item['module'])) || !user_access($item['permission'])) {
+      unset($items[$key]);
+    }
+  }
+
   return theme('redhen_home', array('items' => $items));
 }
 
