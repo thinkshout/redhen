@@ -347,7 +347,7 @@ function redhen_relation_autocomplete($relation_type = '', $entity_type_to_relat
 function redhen_relation_entity_update($entity, $entity_type) {
   if ($entity_type == 'redhen_contact' || $entity_type == 'redhen_org') {
     // If the entity is archived, we want to archive their relations
-    if ($entity->redhen_state !== REDHEN_STATE_ACTIVE) {
+    if ($entity->redhen_state != REDHEN_STATE_ACTIVE) {
       // Get all the relations associated with this entitity
       $query = relation_query($entity_type, $entity->internalIdentifier());
 
