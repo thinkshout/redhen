@@ -332,7 +332,8 @@ function redhen_contact_unlink_user_submit($form, &$form_state) {
   $contact = $form_state['redhen_contact'];
   $delete = ($form_state['clicked_button']['#parents'][0] == 'delete');
   $user = $contact->user;
-  redhen_contact_remove_contact_user($contact, $delete);
+  // @todo: change to use method in the controller
+  $contact->deleteUser($delete);
   drupal_set_message(t('The Drupal user %name has been %action from this contact.',
     array(
       '%name' => $user->name,
@@ -406,7 +407,7 @@ function redhen_contact_contact_user_form_submit($form, &$form_state) {
   }
 
   if ($contact->uid) {
-    if ($contact->setUser($contact)) {
+    if ($contact->save()) {
       drupal_set_message(t('Drupal user %name has been linked to contact %contact.',
         array(
           '%name' => $user->name,
