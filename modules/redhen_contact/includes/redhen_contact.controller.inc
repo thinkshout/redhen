@@ -52,7 +52,7 @@ class RedhenContactEntityController extends EntityAPIController {
 
       // set the contact user
       if ($contact->uid) {
-        $this->setUser($contact);
+        $this->setUser($contact, $transaction);
       }
 
       return $contact;
@@ -203,6 +203,8 @@ class RedhenContactEntityController extends EntityAPIController {
           'updated' => REQUEST_TIME
         ))
           ->execute();
+        $contact->user = $contact->user();
+        module_invoke_all('redhen_contact_user_update', 'insert', $contact);
       }
       // update existing link with different user
       else {
@@ -215,6 +217,17 @@ class RedhenContactEntityController extends EntityAPIController {
           ->condition('contact_id', $contact->contact_id)
           ->condition('status', 1)
           ->execute();
+
+        // Clone the contact to populate with the old user info
+        $old_contact = clone $contact;
+        $old_user = $contact_result->fetchAssoc();
+        $old_contact->uid = $old_user->uid;
+        $old_contact->user = $old_contact->user();
+
+        // Populate the user property with the new user
+        $contact->user = $contact->user();
+
+        module_invoke_all('redhen_contact_user_update', 'update', $contact, $old_contact);
       }
 
       return TRUE;
@@ -227,4 +240,46 @@ class RedhenContactEntityController extends EntityAPIController {
     }
   }
 
+  /**
+   * Delete or unlink the active user for a contact.
+   *
+   * @param $contact
+   * @param bool $delete
+   *   If true, the connection is deleted and can be recreated. False sets the
+   *   connection to inactive which will prevent it from being reconnected on
+   *   subsequent attemps.
+   *
+   * @return bool
+   *   TRUE if user is successfully deleted or unlinked from contact.
+   */
+  public function deleteUser($contact, $delete = FALSE, DatabaseTransaction $transaction = NULL) {
+    try {
+      if ($delete) {
+        db_delete('redhen_contact_user')
+          ->condition('contact_id', $contact->contact_id)
+          ->condition('uid', $contact->user->uid)
+          ->execute();
+      }
+      else {
+        db_update('redhen_contact_user')
+          ->condition('contact_id', $contact->contact_id)
+          ->condition('uid', $contact->user->uid)
+          ->fields(array('status' => NULL))
+          ->execute();
+      }
+
+      module_invoke_all('redhen_contact_user_update', 'delete', $contact);
+
+      unset($contact->user);
+      unset($contact->uid);
+
+      return TRUE;
+    } catch (Exception $e) {
+      if (isset($transaction)) {
+        $transaction->rollback();
+      }
+      watchdog_exception($this->entityType, $e);
+      throw $e;
+    }
+  }
 }
