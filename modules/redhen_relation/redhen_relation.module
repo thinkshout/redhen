@@ -147,7 +147,6 @@ function redhen_relation_connections_page($entity) {
     foreach ($related as $relation_id => $related_entities) {
       $relation = relation_load($relation_id);
       $relation_uri = entity_uri('relation', $relation);
-      $relation_type = relation_type_load($relation->relation_type);
       foreach ($related_entities as $related_entity) {
         $object_label = entity_label($related_entity->entityType(), $related_entity);
         $object_uri = entity_uri($related_entity->entityType(), $related_entity);
