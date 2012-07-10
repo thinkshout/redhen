@@ -12,7 +12,7 @@ function redhen_relation_install() {
   // Add default relationships
   $relation_types_info = array(
     array(
-      'relation_type' => 'redhen_connection',
+      'relation_type' => REDHEN_RELATION_CONNECTION,
       'label' => t('Personal connection'),
       'source_bundles' => array('redhen_contact:*'),
       'r_unique' => TRUE,
@@ -45,7 +45,7 @@ function redhen_relation_install() {
 
   $bundles = array(
     REDHEN_RELATION_AFFILIATION => 'Affiliation Status',
-    'redhen_connection' => 'Connection Status'
+    REDHEN_RELATION_CONNECTION => 'Connection Status'
   );
   foreach ($bundles as $key => $label) {
     field_create_instance(array(

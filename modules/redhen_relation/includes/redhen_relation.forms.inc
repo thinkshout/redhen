@@ -56,7 +56,7 @@ function redhen_relation_connection_form($form, &$form_state, $entity) {
 
   // determine the entity type we're going to relate to
   $entity_type_to_relate = 'redhen_org';
-  if ($entity->entityType() === 'redhen_org' || $relation->relation_type == 'redhen_connection') {
+  if ($entity->entityType() === 'redhen_org' || $relation->relation_type == REDHEN_RELATION_CONNECTION) {
     $entity_type_to_relate = 'redhen_contact';
   }
   $form_state['entity_to_relate_type'] = $entity_type_to_relate;
