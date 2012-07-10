@@ -86,7 +86,7 @@ function redhen_relation_page_title($relation) {
   }
 
   return t('@type between @label1 and @label2', array(
-    '@type' => $relation_type->label,
+    '@type' => relation_get_type_label($relation_type),
     '@label1' => $label1,
     '@label2' => $label2
   ));
@@ -166,7 +166,7 @@ function redhen_relation_connections_page($entity) {
         );
 
         $data = array(
-          l($relation_type->label, $relation_uri['path']),
+          l(relation_get_type_label($relation), $relation_uri['path']),
           $related_entity_info['label'],
           l($object_label, $object_uri['path']),
           $active,
