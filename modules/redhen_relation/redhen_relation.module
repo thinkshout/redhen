@@ -152,7 +152,13 @@ function redhen_relation_connections_page($entity) {
         $object_label = entity_label($related_entity->entityType(), $related_entity);
         $object_uri = entity_uri($related_entity->entityType(), $related_entity);
         $author = user_load($relation->uid);
-        $active = $relation->{REDHEN_RELATION_STATUS_FIELD}[LANGUAGE_NONE][0]['value'];
+        if (strpos($relation->relation_type, 'redhen_') === FALSE) {
+          $active = t('NA', array(), array('context' => 'redhen_relation'));
+        }
+        else {
+          $items = field_get_items('relation', $relation, REDHEN_RELATION_STATUS_FIELD);
+          $active = ($items[0]['value']) ? t('Active', array(), array('context' => 'redhen_relation')) : t('Inactive', array(), array('context' => 'redhen_relation'));
+        }
         $related_entity_info = entity_get_info($related_entity->entityType());
         $operations = array(
           l('edit', $relation_uri['path'] . '/edit', array('query' => drupal_get_destination())),
@@ -163,7 +169,7 @@ function redhen_relation_connections_page($entity) {
           l($relation_type->label, $relation_uri['path']),
           $related_entity_info['label'],
           l($object_label, $object_uri['path']),
-          ($active) ? t('Active') : t('Inactive'),
+          $active,
           date('m/d/Y', $relation->created),
           $author->name,
           implode(' | ', $operations)
