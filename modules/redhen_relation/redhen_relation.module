@@ -2,6 +2,8 @@
 
 define('REDHEN_RELATION_STATUS_FIELD', 'redhen_relation_status');
 define('REDHEN_RELATION_ROLES_FIELD', 'redhen_relation_roles');
+define('REDHEN_RELATION_AFFILIATION', 'redhen_affiliation');
+define('REDHEN_RELATION_CONNECTION', 'redhen_connection');
 
 /**
  * Implements hook_menu().

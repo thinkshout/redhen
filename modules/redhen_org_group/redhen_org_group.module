@@ -190,7 +190,7 @@ function redhen_org_group_contact_groups($account, $private = FALSE, $bundle = N
   }
 
   if ($contact = redhen_contact_user_contact($account)) {
-    $relations = redhen_relation_relations($contact, 'redhen_affiliation');
+    $relations = redhen_relation_relations($contact, REDHEN_RELATION_AFFILIATION);
     foreach ($relations as $relation_id => $orgs) {
       foreach ($orgs as $org) {
         if (in_array($org->type, $group_types)) {

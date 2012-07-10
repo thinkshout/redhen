@@ -18,7 +18,7 @@ function redhen_relation_install() {
       'r_unique' => TRUE,
     ),
     array(
-      'relation_type' => 'redhen_affiliation',
+      'relation_type' => REDHEN_RELATION_AFFILIATION,
       'label' => t('Organizational affiliation'),
       'reverse_label' => t('Affiliated with'),
       'directional' => FALSE,
@@ -44,7 +44,7 @@ function redhen_relation_install() {
   field_create_field($status_field);
 
   $bundles = array(
-    'redhen_affiliation' => 'Affiliation Status',
+    REDHEN_RELATION_AFFILIATION => 'Affiliation Status',
     'redhen_connection' => 'Connection Status'
   );
   foreach ($bundles as $key => $label) {
@@ -77,7 +77,7 @@ function redhen_relation_install() {
   field_create_instance(array(
     'field_name' => REDHEN_RELATION_ROLES_FIELD,
     'entity_type' => 'relation',
-    'bundle' => 'redhen_affiliation',
+    'bundle' => REDHEN_RELATION_AFFILIATION,
     'label' => 'Organization Role',
     'required' => 1,
     'default_value' => array(array('value' => 1)),
