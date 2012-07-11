@@ -6,7 +6,7 @@ core = 7.x
 dependencies[] = redhen_contact
 dependencies[] = redhen_org
 
-dependencies[] = relation (7.x-1.x-dev)
+dependencies[] = relation
 dependencies[] = relation_ui
 dependencies[] = list
 
