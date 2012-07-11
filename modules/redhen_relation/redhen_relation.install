@@ -21,9 +21,10 @@ function redhen_relation_install() {
       'relation_type' => REDHEN_RELATION_AFFILIATION,
       'label' => t('Organizational affiliation'),
       'reverse_label' => t('Affiliated with'),
-      'directional' => FALSE,
+      'directional' => TRUE,
       'r_unique' => TRUE,
-      'source_bundles' => array('redhen_contact:*', 'redhen_org:*'),
+      'source_bundles' => array('redhen_contact:*'),
+      'target_bundles' => array('redhen_org:*'),
     ),
   );
   foreach ($relation_types_info as $relation_type_info) {
