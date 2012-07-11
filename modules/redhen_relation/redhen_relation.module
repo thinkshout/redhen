@@ -177,7 +177,8 @@ function redhen_relation_connections_page($entity) {
         );
         $row_classes = array();
 
-        if ($entity->entityType() == 'redhen_org') {
+        // add primary contact handling for redhen_orgs and contacts
+        if ($entity->entityType() == 'redhen_org' && $related_entity->entityType() == 'redhen_contact') {
           if ($entity->primary_contact_id !== $related_entity->contact_id) {
             $entity_uri = entity_uri('redhen_org', $entity);
             $data[] = l('set as primary', $entity_uri['path'] . '/primary/' . $related_entity->contact_id, array('query' => drupal_get_destination()));
@@ -186,6 +187,9 @@ function redhen_relation_connections_page($entity) {
             $data[] = t('Primary');
             $row_classes[] = 'primary_contact';
           }
+        }
+        else if($entity->entityType() == 'redhen_org') {
+          $data[] = t('NA', array(), array('context' => 'redhen_relation'));
         }
 
         $rows[] = array('data' => $data, 'class' => $row_classes);
