@@ -18,6 +18,14 @@
 function redhen_relation_connection_form($form, &$form_state, $entity) {
   $relation_types = relation_get_available_types($entity->entityType(), $entity->bundle(), 'both');
 
+  // there are no valid relation types for this entity, so exit w/message.
+  if (empty($relation_types)) {
+    $form['message'] = array(
+      '#markup' => t('%label has no valid relation types so a connection cannot be made.', array('%label' => $entity->label()))
+    );
+    return $form;
+  }
+
   // instantiate new relation based on default or submitted relation type
   $relation_type = isset($form_state['values']['relation_type']) ?
     $form_state['values']['relation_type'] :
@@ -31,11 +39,10 @@ function redhen_relation_connection_form($form, &$form_state, $entity) {
   // load all available relation types
   $options = array();
   foreach ($relation_types as $type) {
-    if ($type->directional) {
-      list($endpoint_entity_type) = explode(':', $type->source_bundles[0]);
-    }
+    list($endpoint_entity_type) = explode(':', $type->source_bundles[0]);
+    $reverse = $type->directional & ($endpoint_entity_type == $entity->entityType());
 
-    $options[$type->relation_type] = relation_get_type_label($type, $endpoint_entity_type == $entity->entityType());
+    $options[$type->relation_type] = relation_get_type_label($type, $reverse);
   }
   $form['relation_type'] = array(
     '#title' => t('Connection type'),
