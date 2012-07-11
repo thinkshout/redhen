@@ -547,7 +547,7 @@ function theme_redhen_contact_add_list($variables) {
     $output .= '</dl>';
   }
   else {
-    $output = '<p>' . t('You have not created any contact types yet. Go to the <a href="@create-contact">contact type creation page</a> to add a new contact type.', array('@create-contact' => url('admin/structure/redhen/contact-types'))) . '</p>';
+    $output = '<p>' . t('You have not created any contact types yet. Go to the <a href="@create-contact">contact type creation page</a> to add a new contact type.', array('@create-contact' => url('admin/structure/redhen/contact_types'))) . '</p>';
   }
   return $output;
 }
