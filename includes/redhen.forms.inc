@@ -87,7 +87,7 @@ function redhen_filter_form($form, $form_state, $entity_type) {
     if (count($entity_info['bundles']) == 1) {
       $bundle = array_keys($entity_info['bundles']);
       $bundle = $bundle[0];
-      redhen_filter_form_fields(&$form, $entity_type, $bundle);
+      redhen_filter_form_fields($form, $entity_type, $bundle);
     }
     else {
       $form['filter_fieldset']['filters']['bundle'] = array(
