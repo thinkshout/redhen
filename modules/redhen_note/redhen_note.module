@@ -289,3 +289,15 @@ function redhen_note_form_alter(&$form, &$form_state, $form_id) {
     }
   }
 }
+
+/**
+ * Implements hook_entity_delete().
+ */
+function redhen_note_entity_delete($entity, $type) {
+  // Delete redhen_note who's parent entity has been deleted
+  list($id) = entity_extract_ids($type, $entity);
+  db_delete('redhen_note')
+    ->condition('entity_type', $type)
+    ->condition('entity_id', $id)
+    ->execute();
+}
