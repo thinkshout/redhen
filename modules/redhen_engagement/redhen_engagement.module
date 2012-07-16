@@ -376,3 +376,13 @@ function redhen_engagement_score_options() {
   }
   return $options;
 }
+
+/**
+ * Implements hook_entity_delete().
+ */
+function redhen_engagement_redhen_contact_delete(RedhenContact $contact) {
+  // Delete engagements when the parent contact is deleted.
+  db_delete('redhen_engagement')
+    ->condition('contact_id', $contact->contact_id)
+    ->execute();
+}
