@@ -101,7 +101,7 @@ function redhen_note_menu() {
       'page callback' => 'drupal_get_form',
       'page arguments' => array('redhen_note_form', 4),
       'access callback' => 'redhen_note_access',
-      'access arguments' => array('edit', 4),
+      'access arguments' => array('edit', 2),
       'type' => MENU_LOCAL_TASK,
       'file' => 'includes/redhen_note.forms.inc',
     );
@@ -110,7 +110,7 @@ function redhen_note_menu() {
       'page callback' => 'drupal_get_form',
       'page arguments' => array('redhen_note_delete_form', 4),
       'access callback' => 'redhen_note_access',
-      'access arguments' => array('delete', 4),
+      'access arguments' => array('delete', 2),
       'type' => MENU_LOCAL_TASK,
       'weight' => 10,
       'file' => 'includes/redhen_note.forms.inc',
