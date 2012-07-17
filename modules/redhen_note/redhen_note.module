@@ -180,6 +180,44 @@ function redhen_note_permission() {
 }
 
 /**
+ * Implements hook_field_extra_fields().
+ */
+function redhen_note_field_extra_fields() {
+  $extra = array();
+
+
+    $extra['redhen_note']['redhen_note'] = array(
+      'form' => array(
+        'author' => array(
+          'label' => t('Author'),
+          'description' => t('Author of the note'),
+          'weight' => -5,
+        ),
+        'created' => array(
+          'label' => t('Created date'),
+          'description' => t('Date/time the note was created.'),
+          'weight' => -4,
+        ),
+      ),
+      'display' => array(
+        'author' => array(
+          'label' => t('Author'),
+          'description' => t('Author of the note.'),
+          'weight' => -5,
+        ),
+        'created' => array(
+          'label' => t('Created date'),
+          'description' => t('Date/time the note was created.'),
+          'weight' => -4,
+        ),
+      ),
+    );
+
+
+  return $extra;
+}
+
+/**
  * Loads a note by ID.
  */
 function redhen_note_load($note_id) {
