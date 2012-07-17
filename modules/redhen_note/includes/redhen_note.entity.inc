@@ -37,7 +37,29 @@ class RedhenNote extends Entity {
    * Override buildContent() to add note properties.
    */
   public function buildContent($view_mode = 'full', $langcode = NULL) {
-    $content[''] = array();
+
+    $content['author'] = array(
+      '#theme' => 'redhen_property_field',
+      '#label' => t('Author'),
+      '#items' => array(
+        array(
+          '#markup' => $this->author->name,
+        ),
+      ),
+      '#classes' => 'field field-label-inline clearfix',
+    );
+
+    $content['created'] = array(
+      '#theme' => 'redhen_property_field',
+      '#label' => t('Created'),
+      '#items' => array(
+        array(
+          '#markup' => format_date($this->created),
+        ),
+      ),
+      '#classes' => 'field field-label-inline clearfix',
+    );
+
     return entity_get_controller($this->entityType)
       ->buildContent($this, $view_mode, $langcode, $content);
   }
