@@ -137,7 +137,7 @@ class RedhenContactEntityController extends EntityAPIController {
     if (isset($conditions['uid'])) {
       $query_conditions = &$query->conditions();
       foreach ($query_conditions as $key => $condition) {
-        if ($condition['field'] == 'base.uid') {
+        if (isset($condition['field']) && $condition['field'] == 'base.uid') {
           $query_conditions[$key]['field'] = 'rcu.uid';
         }
       }
