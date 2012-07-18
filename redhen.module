@@ -42,6 +42,32 @@ function redhen_menu() {
 }
 
 /**
+ * Implements hook_admin_menu_output_build().
+ *
+ * Add RedHen to the admin menu.
+ */
+function redhen_admin_menu_output_build(&$content) {
+  // Load menu builder functions.
+  module_load_include('inc', 'admin_menu');
+  // Because it isn't assigned an explicit menu, the 'redhen' menu item is
+  // added to the 'navigation' menu by default. However, in case it has been
+  // moved to a different menu, query to find the menu name.
+  if ($menu_name = db_query("SELECT menu_name FROM {menu_links} WHERE router_path = 'redhen'")->fetchField()) {
+    $items = admin_menu_links_menu(admin_menu_tree($menu_name));
+    if (isset($items['redhen'])) {
+      // Peg position to that of the admin/people menu item.
+      if (isset($content['menu']['admin/people'])) {
+	      $items['redhen']['#weight'] = $content['menu']['admin/people']['#weight'];
+      }
+      // Change title from "CRM Dashboard". No need for t() here because it's a
+      // product name.
+      $items['redhen']['#title'] = 'RedHen';
+      $content['menu']['redhen'] = $items['redhen'];
+    }
+  }
+}
+
+/**
  * Implements hook_permission().
  */
 function redhen_permission() {
