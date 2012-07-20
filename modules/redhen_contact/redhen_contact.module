@@ -123,8 +123,7 @@ function redhen_contact_menu() {
 
   $entity_info = entity_get_info('redhen_contact');
   foreach ($entity_info['bundles'] as $key => $bundle) {
-    $type_url_str = str_replace('_', '-', $key);
-    $items['redhen/contact/add/' . $type_url_str] = array(
+    $items['redhen/contact/add/' . $key] = array(
       'title' => $bundle['label'],
       'title callback' => 'check_plain',
       'description' => isset($bundle['description']) ? $bundle['description'] : '',
