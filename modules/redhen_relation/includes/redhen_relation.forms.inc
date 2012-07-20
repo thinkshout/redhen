@@ -164,7 +164,7 @@ function redhen_relation_connection_form_validate($form, &$form_state) {
     // set the relation type based on selected value before validating
     $relation->relation_type = $form_state['values']['relation_type'];
 
-    field_attach_form_validate('relation', $relation, $form, &$form_state);
+    field_attach_form_validate('relation', $relation, $form, $form_state);
   }
 }
 

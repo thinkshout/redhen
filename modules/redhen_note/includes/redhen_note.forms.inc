@@ -34,7 +34,7 @@ function redhen_note_form($form, &$form_state, $redhen_note) {
  */
 function redhen_note_form_validate($form, &$form_state) {
   $redhen_note = $form_state['redhen_note'];
-  field_attach_form_validate('redhen_note', $redhen_note, $form, &$form_state);
+  field_attach_form_validate('redhen_note', $redhen_note, $form, $form_state);
 }
 
 /**
