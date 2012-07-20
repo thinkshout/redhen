@@ -16,7 +16,7 @@
  * @return array
  */
 function redhen_relation_connection_form($form, &$form_state, $entity) {
-  $relation_types = relation_get_available_types($entity->entityType(), $entity->bundle(), 'both');
+  $relation_types = redhen_relation_get_available_types($entity->entityType(), $entity->bundle(), 'both');
 
   // there are no valid relation types for this entity, so exit w/message.
   if (empty($relation_types)) {
@@ -58,7 +58,8 @@ function redhen_relation_connection_form($form, &$form_state, $entity) {
         'type' => 'throbber',
         'message' => t('Retrieving fields for this connection type.')
       )
-    )
+    ),
+    '#description' => t('Connections are only allowed between contacts and organizations.')
   );
 
   // determine the entity type we're going to relate to

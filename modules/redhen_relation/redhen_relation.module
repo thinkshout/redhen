@@ -290,6 +290,10 @@ function redhen_relation_relations($entity, $relation_type = NULL) {
 function redhen_relation_get_available_entities($entity, $entity_type_to_relate, $relation_type, $search = '', $limit = 0) {
   $entities = array();
 
+  if (!in_array($entity_type_to_relate, array('redhen_contact', 'redhen_org'))) {
+    return $entities;
+  }
+
   $query = new EntityFieldQuery();
   $query
     ->entityCondition('entity_type', $entity_type_to_relate)
@@ -402,4 +406,40 @@ function redhen_relation_views_api() {
     'api' => 3,
     'path' => drupal_get_path('module', 'redhen_relation') . '/includes/views',
   );
+}
+
+/**
+ * Wrapper around relation_get_available_types() to return only relation types
+ * between RedHen entities.
+ *
+ * @param $entity_type
+ *   redhen_contact or redhen_org
+ * @param $bundle
+ *
+ * @return array
+ */
+function redhen_relation_get_available_types($entity_type, $bundle) {
+  $relation_types = relation_get_available_types($entity_type, $bundle, 'both');
+
+  foreach ($relation_types as $key => $relation_type) {
+    $redhen_types = array('redhen_contact', 'redhen_org');
+
+    foreach ($relation_type->source_bundles as $source_bundle) {
+      list($source_entity_type) = explode(':', $source_bundle);
+      if (!in_array($source_entity_type, $redhen_types)) {
+        unset($relation_types[$key]);
+        break;
+      }
+    }
+
+    foreach ($relation_type->target_bundles as $target_bundle) {
+      list($target_entity_type) = explode(':', $target_bundle);
+      if (!in_array($target_entity_type, $redhen_types)) {
+        unset($relation_types[$key]);
+        break;
+      }
+    }
+  }
+
+  return $relation_types;
 }
