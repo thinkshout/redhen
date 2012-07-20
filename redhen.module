@@ -115,7 +115,7 @@ function redhen_theme() {
         'label' => '',
         'content_attributes' => NULL,
         'items' => array(),
-        'item_attributes' => array(array()),
+        'item_attributes' => array(0 => ''),
         'classes' => '',
         'attributes' => '',
       )
