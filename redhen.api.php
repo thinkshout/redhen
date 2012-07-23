@@ -23,6 +23,21 @@ function hook_redhen_contact_can_delete($contact) {
 }
 
 /**
+ * Act on the contact when the link to a drupal user account is modified
+ *
+ * @param string $op ( insert | delete )
+ * @param $contact
+ *  The RedhenContact object with the new user drupal user info
+ * @param $old_contact
+ *  The RedhenContact object with the old user info
+ *
+ * @return void
+ */
+function hook_redhen_contact_user_update($op, $contact, $old_contact = NULL) {
+
+}
+
+/**
  * Prevent an organization record from being deleted.
  *
  * @param RedhenOrg $org

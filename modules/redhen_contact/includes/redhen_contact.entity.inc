@@ -198,6 +198,10 @@ class RedhenContact extends Entity {
     return entity_get_controller($this->entityType)->setUser($this);
   }
 
+  public function deleteUser($delete) {
+    return entity_get_controller($this->entityType)->deleteUser($this, $delete);
+  }
+
   /**
    * Set the redhen_state for a contact
    *

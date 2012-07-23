@@ -303,36 +303,6 @@ function redhen_contact_delete_multiple($contact_ids) {
 }
 
 /**
- * Remove the connection between a contact and Drupal user.
- *
- * @param RedhenContact $contact
- * @param bool $delete
- *   If true, the connection is deleted and can be recreated. False sets the
- *   connection to inactive which will prevent it from being reconnected on
- *   subsequent attemps.
- */
-function redhen_contact_remove_contact_user(RedhenContact &$contact, $delete = FALSE) {
-  if ($delete) {
-    db_delete('redhen_contact_user')
-      ->condition('contact_id', $contact->contact_id)
-      ->condition('uid', $contact->user->uid)
-      ->execute();
-  }
-  else {
-    db_update('redhen_contact_user')
-      ->condition('contact_id', $contact->contact_id)
-      ->condition('uid', $contact->user->uid)
-      ->fields(array('status' => NULL))
-      ->execute();
-  }
-
-  module_invoke_all('redhen_contact_user_remove', $delete, $contact);
-
-  unset($contact->user);
-  unset($contact->uid);
-}
-
-/**
  * Saves a contact.
  *
  * @param $contact
