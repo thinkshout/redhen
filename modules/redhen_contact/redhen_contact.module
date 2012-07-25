@@ -740,3 +740,17 @@ function redhen_contact_user_category_access($account) {
   }
 }
 
+
+/**
+ * Implements hook_user_view().
+ *
+ * @param $account
+ * @param $view_mode
+ * @param $langcode
+ */
+function redhen_contact_user_view($account, $view_mode, $langcode) {
+  // include contact view if access allowed
+  if (user_access('view own redhen contact') && $contact = redhen_contact_load_by_user($account)) {
+    $account->content['redhen_contact'] = redhen_contact_view($contact, $view_mode);
+  }
+}
