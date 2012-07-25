@@ -391,7 +391,15 @@ function redhen_contact_permission() {
     ),
     'access redhen contacts' => array(
       'title' => t('Access Redhen Contacts'),
-      'description' => t('View for Redhen Contacts.'),
+      'description' => t('View RedHen Contacts.'),
+    ),
+    'view own redhen contact' => array(
+      'title' => t('Access Own Redhen Contact.'),
+      'description' => t('View your own contact information.'),
+    ),
+    'edit own redhen contact' => array(
+      'title' => t('Edit Own Redhen Contact.'),
+      'description' => t('Edit your own contact information.'),
     ),
   );
 }
