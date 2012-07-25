@@ -209,6 +209,8 @@ class RedhenContact extends Entity {
    *  The REDHEN_STATE_* value to use
    */
   public function setState($state) {
+    // allow other modules to act on a state change
+    module_invoke_all('redhen_contact_set_state', $this->redhen_state, $state);
     $this->redhen_state = $state;
     return entity_get_controller($this->entityType)->save($this);
   }

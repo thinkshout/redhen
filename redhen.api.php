@@ -61,6 +61,16 @@ function hook_redhen_contact_name_alter(&$name, RedhenContact $contact) {
 }
 
 /**
+ * Act on a state change for a contact.
+ *
+ * @param $old_state
+ * @param $new_state
+ */
+function hook_redhen_contact_set_state($old_state, $new_state) {
+
+}
+
+/**
  * Allow modules to act before an entity is deleted.
  *
  * @param string $entity_type ( redhen_org | redhen_contact )
