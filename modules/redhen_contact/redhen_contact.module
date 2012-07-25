@@ -404,8 +404,8 @@ function redhen_contact_permission() {
  *
  * @return void
  */
-function redhen_contact_view(RedhenContact $contact) {
-  return $contact->view();
+function redhen_contact_view(RedhenContact $contact, $view_mode = 'full') {
+  return $contact->view($view_mode);
 }
 
 /**
