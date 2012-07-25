@@ -90,7 +90,7 @@ function redhen_contact_types_list_page() {
  * @return array|mixed
  */
 function redhen_contact_add_page($type) {
-  $contact = entity_get_controller('redhen_contact')->create(array('type' => $type));
+  $contact = redhen_contact_create(array('type' => $type));
   module_load_include('inc', 'redhen_contact', 'includes/redhen_contact.forms');
   return drupal_get_form('redhen_contact_contact_form', $contact);
 }
