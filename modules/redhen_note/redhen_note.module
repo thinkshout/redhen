@@ -339,3 +339,14 @@ function redhen_note_entity_delete($entity, $type) {
     ->condition('entity_id', $id)
     ->execute();
 }
+
+/**
+ * Implements hook_views_api().
+ */
+function redhen_note_views_api() {
+  return array(
+    'api' => 3,
+    'path' => drupal_get_path('module', 'redhen_note') . '/includes/views',
+  );
+}
+
