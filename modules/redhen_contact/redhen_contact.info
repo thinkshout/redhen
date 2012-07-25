@@ -15,11 +15,5 @@ files[] = includes/redhen_contact.entity.inc
 files[] = includes/redhen_contact.controller.inc
 files[] = includes/redhen_contact_type.entity.inc
 
-; Views handlers
-files[] = includes/views/handlers/redhen_contact_handler_field_contact_link.inc
-files[] = includes/views/handlers/redhen_contact_handler_field_contact_link_edit.inc
-files[] = includes/views/handlers/redhen_contact_handler_field_contact_link_delete.inc
-files[] = includes/views/handlers/redhen_contact_handler_field_contact_state.inc
-
 ; Tests
 ;files[] = tests/redhen_contact.test
