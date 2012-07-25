@@ -90,9 +90,6 @@ function redhen_contact_contact_form_submit($form, &$form_state) {
   $contact->first_name = $form_state['values']['first_name'];
   $contact->last_name = $form_state['values']['last_name'];
 
-  // @TODO Add a log field to existing entries
-  $contact->log = '';
-
   // Notify field widgets.
   field_attach_submit('redhen_contact', $contact, $form, $form_state);
 
