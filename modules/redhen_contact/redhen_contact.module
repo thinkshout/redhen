@@ -690,3 +690,16 @@ function redhen_contact_username_alter(&$name, $account) {
     $name = t('@name', array('@name' => $contact->label()));
   }
 }
+
+/**
+ * Create a new contact object.
+ *
+ * @param array $values
+ *   Associative array of values. At least include array('type' => $type)
+ *
+ * @return RedhenContact
+ */
+function redhen_contact_create(array $values = array()) {
+  return entity_get_controller('redhen_contact')->create($values);
+}
+
