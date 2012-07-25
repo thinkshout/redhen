@@ -726,7 +726,7 @@ function redhen_contact_user_categories() {
 
 /**
  * Access callback for redhen_contact_user_categories().
- * 
+ *
  * @param $account
  *
  * @return bool
@@ -740,6 +740,34 @@ function redhen_contact_user_category_access($account) {
   }
 }
 
+/**
+ * Implements hook_form_FORM_ID_alter() for the user edit form.
+ */
+function redhen_contact_form_user_profile_form_alter(&$form, &$form_state) {
+  $category = $form['#user_category'];
+  if ($category == 'redhen_contact') {
+    $contact = redhen_contact_load_by_user($form['#user']);
+    module_load_include('inc', 'redhen_contact', 'includes/redhen_contact.forms');
+
+    // add a submit handler to redirect back to user profile
+    $contact_form = array('#submit' => array('redhen_contact_user_form_submit'));
+    $form['redhen_contact'] = redhen_contact_contact_form($contact_form, $form_state, $contact);
+
+    // unset the profile save button, let the contact form handle it
+    unset($form['actions']);
+  }
+}
+
+/**
+ * Submit handler for the redhen contact user category.
+ * 
+ * @param $form
+ * @param $form_state
+ */
+function redhen_contact_user_form_submit($form, &$form_state) {
+  $uri = user_uri($form['#user']);
+  $form_state['redirect'] = $uri;
+}
 
 /**
  * Implements hook_user_view().

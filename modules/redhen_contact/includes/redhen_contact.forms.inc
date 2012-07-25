@@ -47,16 +47,16 @@ function redhen_contact_contact_form($form, &$form_state, $contact) {
 
   // We add the form's #submit array to this button along with the actual submit
   // handler to preserve any submit handlers added by a form callback_wrapper.
-  $submit = array();
+  $submit = array('redhen_contact_contact_form_submit');
 
   if (!empty($form['#submit'])) {
-    $submit += $form['#submit'];
+    $submit = array_merge($submit, $form['#submit']);
   }
 
   $form['actions']['submit'] = array(
     '#type' => 'submit',
     '#value' => t('Save contact'),
-    '#submit' => $submit + array('redhen_contact_contact_form_submit'),
+    '#submit' => $submit,
   );
 
   // We append the validate handler to #validate in case a form callback_wrapper
