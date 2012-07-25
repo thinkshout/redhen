@@ -711,3 +711,32 @@ function redhen_contact_create(array $values = array()) {
   return entity_get_controller('redhen_contact')->create($values);
 }
 
+/**
+ * Implements hook_user_categories().
+ */
+function redhen_contact_user_categories() {
+  return array(array(
+    'name' => 'redhen_contact',
+    'title' => t('RedHen Contact'),
+    'weight' => 1,
+    'access callback' => 'redhen_contact_user_category_access',
+    'access arguments' => array(1)
+  ));
+}
+
+/**
+ * Access callback for redhen_contact_user_categories().
+ * 
+ * @param $account
+ *
+ * @return bool
+ */
+function redhen_contact_user_category_access($account) {
+  if (user_access('edit own redhen contact') && redhen_contact_load_by_user($account)) {
+    return TRUE;
+  }
+  else {
+    return FALSE;
+  }
+}
+
