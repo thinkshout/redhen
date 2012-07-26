@@ -378,15 +378,15 @@ function redhen_org_permission() {
 }
 
 /**
- * Display a org.
+ * Display an organization
  *
- * @param  $org
- *   A Fully loaded org object.
- *
- * @return void
+ * @param RedhenOrg $org
+ * @param string $view_mode
+ * @param null $langcode
+ * @param null $page
  */
-function redhen_org_view(RedhenOrg $org) {
-  return $org->view();
+function redhen_org_view(RedhenOrg $org, $view_mode = 'full', $langcode = NULL, $page = NULL) {
+  return entity_view('redhen_org', array($org), $view_mode, $langcode, $page);
 }
 
 /**
