@@ -689,8 +689,7 @@ function redhen_fields_email_action($entity, $context) {
     $context['node'] = $entity;
   }
 
-  $recepient = FALSE;
-
+  $recipient = FALSE;
   switch ($entity->entityType()) {
     case 'redhen_org':
       // If we have a primary contact, send email to them
