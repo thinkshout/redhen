@@ -634,7 +634,18 @@ function redhen_fields_email_action_form($context) {
     $context['message'] = '';
   }
 
-  // @todo Add configurable options
+  // explain what's going to happen
+  if ($context['entity_type'] == 'redhen_contact') {
+    $msg = t('This message will be sent to the configured email field for each selected contact.');
+  }
+  else {
+    $msg = t('This message will be sent to the default email address of the primary contact for each selected organization.');
+  }
+
+  $form['info'] = array(
+    '#type' => 'item',
+    '#markup' => $msg
+  );
 
   $form['subject'] = array(
     '#type' => 'textfield',
