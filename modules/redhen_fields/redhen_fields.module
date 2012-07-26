@@ -310,7 +310,9 @@ function redhen_fields_field_load($entity_type, $entities, $field, $instances, $
 function redhen_fields_field_presave($entity_type, $entity, $field, $instance, $langcode, &$items) {
   // Move values from the options array to the items array
   foreach ($items as $delta => $item) {
-    $items[$delta] = $items[$delta] + $items[$delta]['options'];
+    if (isset($items[$delta]['options'])) {
+      $items[$delta] = $items[$delta] + $items[$delta]['options'];
+    }
   }
 }
 
