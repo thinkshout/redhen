@@ -234,14 +234,14 @@ function redhen_fields_field_validate($entity_type, $entity, $field, $instance, 
           }
 
           // ensure only a single default email is selected
-          if ($default && $item['default']) {
+          if ($default && $item['options']['default']) {
             $errors[$field['field_name']][$langcode][$delta][] = array(
               'error' => 'redhen_fields_multiple_default',
               'message' => t('Only one email may be marked as primary.'),
               'delta' => $delta,
             );
           }
-          if ($item['default']) {
+          if ($item['options']['default']) {
             $default = TRUE;
           }
         }
@@ -299,6 +299,18 @@ function redhen_fields_field_load($entity_type, $entities, $field, $instances, $
     foreach ($items[$id] as $delta => $item) {
       $items[$id][$delta]['label'] = $field['settings']['labels'][$item['label_id']];
     }
+  }
+}
+
+/**
+ * Implements hook_field_presave().
+ *
+ * @see hook_field_presave()
+ */
+function redhen_fields_field_presave($entity_type, $entity, $field, $instance, $langcode, &$items) {
+  // Move values from the options array to the items array
+  foreach ($items as $delta => $item) {
+    $items[$delta] = $items[$delta] + $items[$delta]['options'];
   }
 }
 
@@ -399,7 +411,16 @@ function redhen_fields_field_widget_form(&$form, &$form_state, $field, $instance
         '#size' => 35,
         '#weight' => -1
       );
-      $element['label_id'] = array(
+      $element['options'] = array(
+        '#type' => 'container',
+        '#attributes' => array(
+          'class' => array(
+            drupal_html_class($field['type']) . '-options',
+          ),
+        ),
+        '#weight' => 1,
+      );
+      $element['options']['label_id'] = array(
         '#title' => t('Label'),
         '#type' => 'select',
         '#multiple' => FALSE,
@@ -407,20 +428,19 @@ function redhen_fields_field_widget_form(&$form, &$form_state, $field, $instance
         '#default_value' => isset($items[$delta]['label_id']) ? $items[$delta]['label_id'] : NULL,
         '#weight' => 1
       );
-      $element['hold'] = array(
+      $element['options']['hold'] = array(
         '#title' => t('Hold'),
         '#type' => 'checkbox',
         '#default_value' => isset($items[$delta]['hold']) ? $items[$delta]['hold'] : FALSE,
         '#weight' => 2
       );
-      $element['bulk'] = array(
+      $element['options']['bulk'] = array(
         '#title' => t('Bulk'),
         '#type' => 'checkbox',
         '#default_value' => isset($items[$delta]['bulk']) ? $items[$delta]['bulk'] : FALSE,
         '#weight' => 2
       );
-
-      $element['default'] = array(
+      $element['options']['default'] = array(
         '#title' => t('Primary'),
         '#type' => 'checkbox',
         '#default_value' => isset($items[$delta]['default']) ? $items[$delta]['default'] : $delta == 0,
@@ -445,7 +465,7 @@ function redhen_fields_field_widget_error($element, $error, $form, &$form_state)
       $error_element = $element['value'];
       break;
     case 'redhen_fields_multiple_default':
-      $error_element = $element['default'];
+      $error_element = $element['options']['default'];
       break;
     default:
       $error_element = $element;
