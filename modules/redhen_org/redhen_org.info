@@ -5,10 +5,6 @@ core = 7.x
 
 dependencies[] = redhen
 
-files[] = includes/redhen_org_type.admin.inc
-files[] = includes/redhen_org_type.forms.inc
-files[] = includes/redhen_org_type.pages.inc
-
 ; Classes
 files[] = includes/redhen_org.entity.inc
 files[] = includes/redhen_org.controller.inc
