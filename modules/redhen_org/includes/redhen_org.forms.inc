@@ -18,9 +18,6 @@ function redhen_org_add($type) {
  *     with only an org type defined.
  */
 function redhen_org_org_form($form, &$form_state, $org) {
-  // Ensure this include file is loaded when the form is rebuilt from the cache.
-  $form_state['build_info']['files']['form'] = drupal_get_path('module', 'redhen_org') . '/includes/redhen_org.forms.inc';
-
   // Add the default field elements.
   $form['label'] = array(
     '#type' => 'textfield',
@@ -93,9 +90,6 @@ function redhen_org_org_form_submit($form, &$form_state) {
 function redhen_org_org_delete_form($form, &$form_state, $org) {
   $form_state['redhen_org'] = $org;
 
-  // Ensure this include file is loaded when the form is rebuilt from the cache.
-  $form_state['build_info']['files']['form'] = drupal_get_path('module', 'redhen_org') . '/includes/redhen_org.forms.inc';
-
   $form['#submit'][] = 'redhen_org_org_delete_form_submit';
 
   $form = confirm_form($form,
@@ -132,9 +126,6 @@ function redhen_org_org_delete_form_submit($form, &$form_state) {
  */
 function redhen_org_org_archive_form($form, &$form_state, $org) {
   $form_state['redhen_org'] = $org;
-
-  // Ensure this include file is loaded when the form is rebuilt from the cache.
-  $form_state['build_info']['files']['form'] = drupal_get_path('module', 'redhen_org') . '/includes/redhen_org.forms.inc';
 
   $form['#submit'][] = 'redhen_org_org_archive_form_submit';
 
@@ -179,9 +170,6 @@ function redhen_org_org_archive_form_submit($form, &$form_state) {
 function redhen_org_set_primary_form($form, &$form_state, $org, $contact) {
   $form_state['redhen_org'] = $org;
   $form_state['redhen_contact'] = $contact;
-
-  // Ensure this include file is loaded when the form is rebuilt from the cache.
-  $form_state['build_info']['files']['form'] = drupal_get_path('module', 'redhen_org') . '/includes/redhen_org.forms.inc';
 
   $form['#submit'][] = 'redhen_org_set_primary_form_submit';
 

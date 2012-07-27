@@ -96,7 +96,6 @@ function redhen_org_types_list_page($type = 'default') {
  */
 function redhen_org_add_page($type) {
   $org = entity_get_controller('redhen_org')->create(array('type' => $type));
-  module_load_include('inc', 'redhen_org', 'includes/redhen_org.forms');
   return drupal_get_form('redhen_org_org_form', $org);
 }
 

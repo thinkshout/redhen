@@ -6,6 +6,7 @@
  *
  */
 
+module_load_include('inc', 'redhen_org', 'includes/redhen_org.forms');
 
 /**
  * Implements hook_entity_info().
@@ -158,8 +159,7 @@ function redhen_org_menu() {
     'access callback' => 'redhen_org_access',
     'access arguments' => array('delete', 2),
     'type' => MENU_LOCAL_TASK,
-    'weight' => 10,
-    'file' => 'includes/redhen_org.forms.inc',
+    'weight' => 10
   );
   $items['redhen/org/%redhen_org/view/edit'] = array(
     'title' => 'Edit',
@@ -167,8 +167,7 @@ function redhen_org_menu() {
     'page arguments' => array('redhen_org_org_form', 2),
     'access callback' => 'redhen_org_access',
     'access arguments' => array('edit', 2),
-    'type' => MENU_LOCAL_TASK,
-    'file' => 'includes/redhen_org.forms.inc',
+    'type' => MENU_LOCAL_TASK
   );
 
   $items['redhen/org/%redhen_org/view/archive'] = array(
@@ -178,8 +177,7 @@ function redhen_org_menu() {
     'access callback' => 'redhen_org_access',
     'access arguments' => array('archive', 2),
     'type' => MENU_LOCAL_TASK,
-    'weight' => 9,
-    'file' => 'includes/redhen_org.forms.inc',
+    'weight' => 9
   );
 
   $items['redhen/org/%redhen_org/primary/%redhen_contact'] = array(
@@ -188,8 +186,7 @@ function redhen_org_menu() {
     'page arguments' => array('redhen_org_set_primary_form', 2, 4),
     'access callback' => 'redhen_org_access',
     'access arguments' => array('edit', 2),
-    'type' => MENU_CALLBACK,
-    'file' => 'includes/redhen_org.forms.inc',
+    'type' => MENU_CALLBACK
   );
 
   // path with autocomplete function for cities
