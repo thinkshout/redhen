@@ -41,23 +41,10 @@ function redhen_org_org_form($form, &$form_state, $org) {
     '#weight' => 40,
   );
 
-  // We add the form's #submit array to this button along with the actual submit
-  // handler to preserve any submit handlers added by a form callback_wrapper.
-  $submit = array();
-
-  if (!empty($form['#submit'])) {
-    $submit += $form['#submit'];
-  }
-
   $form['actions']['submit'] = array(
     '#type' => 'submit',
     '#value' => t('Save organization'),
-    '#submit' => $submit + array('redhen_org_org_form_submit'),
   );
-
-  // We append the validate handler to #validate in case a form callback_wrapper
-  // is used to add validate handlers earlier.
-  $form['#validate'][] = 'redhen_org_org_form_validate';
 
   return $form;
 }
