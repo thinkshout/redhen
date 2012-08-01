@@ -16,12 +16,12 @@
 
 .field-type-redhen-email .email-address {
   float: left;
-  width: 200px;
+  width: 300px;
 }
 
-.field-type-redhen-email .email-label-section {
+.field-type-redhen-email .email-label {
   float: left;
-  width: 300px;
+  width: 100px;
 }
 
 .field-type-redhen-email .bulk-label,

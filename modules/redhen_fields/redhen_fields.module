@@ -580,7 +580,8 @@ function theme_field__redhen_fields_email_formatter($variables) {
     $output .= '<div class="field-label"' . $variables['title_attributes'] . '>' . $variables['label'] . ':&nbsp;</div>';
   }
 
-  $output .= '<div class="legend"><div class="email-label-section">' . t('Address') . '</div>';
+  $output .= '<div class="legend"><div class="email-address">' . t('Address') . '</div>';
+  $output .= '<div class="email-label">' . t('Label') . '</div>';
   $output .= '<div class="bulk-label">' . t('Bulk mailings?') . '</div>';
   $output .= '<div class="hold-label">' . t('On hold?') . '</div>';
   $output .= '<div class="primary-label">' . t('Primary') . '</div></div>';
