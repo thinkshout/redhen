@@ -16,10 +16,13 @@
  *
  * @param string $contact
  *
- * @return void
+ * @return bool
  */
-function hook_redhen_contact_can_delete($contact) {
-
+function hook_redhen_contact_can_delete(RedhenContact $contact) {
+  // prevent the deletion of active contacts
+  if ($contact->redhen_state == REDHEN_STATE_ACTIVE) {
+    return FALSE;
+  }
 }
 
 /**
@@ -33,7 +36,7 @@ function hook_redhen_contact_can_delete($contact) {
  *
  * @return void
  */
-function hook_redhen_contact_user_update($op, $contact, $old_contact = NULL) {
+function hook_redhen_contact_user_update($op, RedhenContact $contact, $old_contact = NULL) {
 
 }
 
