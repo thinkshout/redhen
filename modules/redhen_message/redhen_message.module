@@ -1,0 +1,238 @@
+<?php
+
+/**
+ * @file
+ * RedHen integration with the Messgae module
+ */
+
+function redhen_message_default_message_type_category() {
+  $items = array();
+  $items['redhen_activity_message'] = entity_import('message_type_category', '{
+    "category" : "redhen_activity_message",
+    "description" : "A message produced when action is taken on a RedHen entity.",
+    "language" : "",
+    "rdf_mapping" : []
+  }');
+  return $items;
+}
+
+function redhen_message_default_message_type() {
+  $items = array();
+
+  $items['redhen_contact_created'] = entity_import('message_type', '{
+    "name" : "redhen_contact_created",
+    "description" : "RedHen Contact: created",
+    "argument_keys" : [],
+    "argument" : [],
+    "category" : "redhen_activity_message",
+    "data" : { "purge" : { "override" : 0, "enabled" : 0, "quota" : "", "days" : "" } },
+    "language" : "",
+    "arguments" : null,
+    "message_order_display_name" : { "und" : [ { "value" : "Contact", "format" : null } ] },
+    "message_text" : { "und" : [
+        {
+          "value" : "<p>Contact !name has been created.</p>",
+          "format" : "filtered_html"
+        }
+      ]
+    },
+    "rdf_mapping" : []
+  }');
+
+  $items['redhen_org_created'] = entity_import('message_type', '{
+    "name" : "redhen_org_created",
+    "description" : "RedHen Organization: created",
+    "argument_keys" : [],
+    "argument" : [],
+    "category" : "redhen_activity_message",
+    "data" : { "purge" : { "override" : 0, "enabled" : 0, "quota" : "", "days" : "" } },
+    "language" : "",
+    "arguments" : null,
+    "message_order_display_name" : { "und" : [ { "value" : "Contact", "format" : null } ] },
+    "message_text" : { "und" : [
+        {
+          "value" : "<p>Organization !name has been created.</p>",
+          "format" : "filtered_html"
+        }
+      ]
+    },
+    "rdf_mapping" : []
+  }');
+
+  return $items;
+}
+
+
+/**
+ * Refresh the fields attached to the message types we support.
+ */
+function redhen_message_field_refresh() {
+
+  $instance = array(
+    'field_name' => MESSAGE_FIELD_MESSAGE_TEXT,
+    'bundle' => 'commerce_order_message',
+    'entity_type' => 'message_type',
+    'label' => t('Message text'),
+    'description' => t('This is the text of all messages of this type.'),
+    'required' => TRUE,
+    'settings' => array(
+      'text_processing' => 1,
+    ),
+  );
+  if ($existing_instance = field_info_instance($instance['entity_type'], $instance['field_name'], $instance['bundle'])) {
+    field_update_instance($instance);
+  }
+  else {
+    field_create_instance($instance);
+  }
+
+  $fields['message_redhen_contact']['field'] = array (
+    'type' => 'entityreference',
+    'module' => 'entityreference',
+    'cardinality' => '1',
+    'translatable' => FALSE,
+    'settings' => array(
+      'target_type' => 'redhen_contact',
+      'handler' => 'base',
+      'handler_settings' => array(
+        'target_bundles' => array(),
+        'sort' => array(
+          'type' => 'property',
+          'property' => 'contact_id',
+          'direction' => 'ASC',
+        ),
+      ),
+    ),
+    'locked' => TRUE,
+  );
+  $fields['message_redhen_contact']['instances'][] = array(
+    'entity_type' => 'message',
+    'bundles' => array('redhen_contact_created'),
+    'label' => 'Contact',
+    'required' => TRUE,
+    'widget' => array(
+      'type' => 'entityreference_autocomplete',
+      'module' => 'entityreference',
+      'settings' => array(
+        'match_operator' => 'CONTAINS',
+        'size' => '60',
+        'path' => '',
+      ),
+    ),
+    'settings' => array(),
+    'display' => array(
+      'default' => array(
+        'label' => 'above',
+        'type' => 'entityreference_label',
+        'settings' => array(
+          'link' => false,
+        ),
+        'module' => 'entityreference',
+        'weight' => 0,
+      ),
+    ),
+  );
+
+  $fields['message_redhen_org']['field'] = array (
+    'type' => 'entityreference',
+    'module' => 'entityreference',
+    'cardinality' => '1',
+    'translatable' => FALSE,
+    'settings' => array(
+      'target_type' => 'redhen_org',
+      'handler' => 'base',
+      'handler_settings' => array(
+        'target_bundles' => array(),
+        'sort' => array(
+          'type' => 'property',
+          'property' => 'org_id',
+          'direction' => 'ASC',
+        ),
+      ),
+    ),
+    'locked' => TRUE,
+  );
+  $fields['message_redhen_org']['instances'][] = array(
+    'entity_type' => 'message',
+    'bundles' => array('redhen_org_created'),
+    'label' => 'Organization',
+    'required' => TRUE,
+    'widget' => array(
+      'type' => 'entityreference_autocomplete',
+      'module' => 'entityreference',
+      'settings' => array(
+        'match_operator' => 'CONTAINS',
+        'size' => '60',
+        'path' => '',
+      ),
+    ),
+    'settings' => array(),
+    'display' => array(
+      'default' => array(
+        'label' => 'above',
+        'type' => 'entityreference_label',
+        'settings' => array(
+          'link' => false,
+        ),
+        'module' => 'entityreference',
+        'weight' => 0,
+      ),
+    ),
+  );
+  // allow other modules to alter these fields
+  drupal_alter('redhen_message_fields', $fields);
+
+  // Create the missing fields.
+  foreach ($fields as $field_name => $info) {
+    $field = $info['field'];
+    $field += array(
+      'field_name' => $field_name,
+    );
+    if (!field_info_field($field_name)) {
+      field_create_field($field);
+    }
+
+    foreach ($info['instances'] as $instance) {
+      foreach ($instance['bundles'] as $bundle) {
+        $instance['bundle'] = $bundle;
+        unset($instance['bundles']);
+        $instance['field_name'] = $field_name;
+        if (!field_info_instance($instance['entity_type'], $instance['field_name'], $instance['bundle'])) {
+          field_create_instance($instance);
+        }
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_field_access().
+ */
+function redhen_message_field_access($op, $field, $entity_type, $entity, $account) {
+  if ($op == 'edit' && $field['field_name'] == 'message_redhen_contact') {
+    return FALSE;
+  }
+}
+
+/**
+ * Implements hook_flush_caches().
+ */
+function redhen_message_flush_caches() {
+  redhen_message_field_refresh();
+}
+
+function redhen_message_entity_insert($entity, $type) {
+  if (in_array($type, array('redhen_contact', 'redhen_org'))) {
+    $message = message_create("{$type}_created", array('arguments' => array(
+      '!name' => $entity->label()
+    )));
+    message_save($message);
+  }
+}
+
+/**
+ * Implements hook_entity_update().
+ */
+function redhen_message_entity_update($entity, $type) {
+
+}
