@@ -263,25 +263,34 @@ function redhen_message_flush_caches() {
 }
 
 function redhen_message_entity_insert($entity, $type) {
-  if (in_array($type, array('redhen_contact', 'redhen_org'))) {
-    global $user;
-    $message = message_create("{$type}_created", array('arguments' => array(
-      '!name' => $entity->label()
-    )), $user);
-    $wrapper = entity_metadata_wrapper('message', $message);
-    $ref_field_name = "message_{$type}";
-    $wrapper->$ref_field_name->set($entity);
-    $wrapper->save();
-
-    message_save($message);
-  }
+  redhen_message_message_save($entity, $type, 'created');
 }
 
 /**
  * Implements hook_entity_update().
  */
 function redhen_message_entity_update($entity, $type) {
+  redhen_message_message_save($entity, $type, 'updated');
+}
 
+function redhen_message_message_save($entity, $type, $op) {
+  switch ($type) {
+    case 'redhen_contact':
+    case 'redhen_org':
+      global $user;
+      $message = message_create("{$type}_{$op}", array('arguments' => array(
+        '!name' => $entity->label()
+      )), $user);
+      $wrapper = entity_metadata_wrapper('message', $message);
+      $ref_field_name = "message_{$type}";
+      $wrapper->$ref_field_name->set($entity);
+      $wrapper->save();
+
+      message_save($message);
+      break;
+    default:
+      return;
+  }
 }
 
 function redhen_message_activity_page($entity, $entity_type) {
@@ -293,8 +302,10 @@ function redhen_message_activity_page($entity, $entity_type) {
 
   $messages = message_load_multiple(array_keys($results['message']));
   foreach ($messages as $message) {
+    $message_type = message_type_load($message->type);
     $rows[] = array(
       format_date($message->timestamp),
+      $message_type->description,
       $message->getText()
     );
   }
@@ -302,6 +313,6 @@ function redhen_message_activity_page($entity, $entity_type) {
   return array(
     '#theme' => 'table',
     '#rows' => $rows,
-    '#header' => array(t('Date'), t('Message'))
+    '#header' => array(t('Date'), t('Type'), t('Message'))
   );
 }
