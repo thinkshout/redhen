@@ -95,9 +95,11 @@ function redhen_note_delete_form_submit($form, &$form_state) {
   $note = $form_state['redhen_note'];
 
   $title = $note->label();
+  $entity_url = entity_uri($note->entity_type, $note->entity);
 
   // No status returned from delete(), assume it worked
-  $note->delete();
+  redhen_note_delete_multiple(array($note->note_id));
   drupal_set_message(t('%title has been deleted.', array('%title' => $title)));
   watchdog('redhen_note', 'Deleted note %title.', array('%title' => $title), WATCHDOG_NOTICE);
+  $form_state['redirect'] = $entity_url['path'] . '/notes';
 }
