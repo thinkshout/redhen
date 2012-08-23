@@ -5,6 +5,8 @@
  * RedHen integration with the Messgae module
  */
 
+module_load_include('inc', 'redhen', 'includes/redhen.forms');
+
 /**
  * Implements hook_default_message_type_category().
  */
@@ -424,11 +426,31 @@ function redhen_message_message_save($entity, $type, $op) {
  * @return array
  */
 function redhen_message_activity_page($entity, $entity_type) {
-  $query = new EntityFieldQuery();
-  $results = $query
-    ->entityCondition('entity_type', 'message')
-    ->fieldCondition("message_{$entity_type}", 'target_id', $entity->identifier())
-    ->execute();
+  $header = array(
+    'timestamp' => array(
+      'field' => 'timestamp',
+      'type' => 'property',
+      'data' => 'Created',
+      'specifier' => 'timestamp',
+      'sort' => 'desc',
+    ),
+    'type' => array(
+      'field' => 'Type',
+      'type' => 'property',
+      'data' => 'Type',
+      'specifier' => 'type'
+    ),
+    'message' => array(
+      'data' => 'Message',
+    )
+  );
+
+  $fields = array(
+    "message_{$entity_type}" => array(
+      'target_id' => $entity->identifier()
+    )
+  );
+  $results = redhen_filter_query('message', $header, '', array(), $fields);
 
   $messages = message_load_multiple(array_keys($results['message']));
   foreach ($messages as $message) {
@@ -441,8 +463,11 @@ function redhen_message_activity_page($entity, $entity_type) {
   }
 
   return array(
-    '#theme' => 'table',
-    '#rows' => $rows,
-    '#header' => array(t('Date'), t('Type'), t('Message'))
-  );
+     'form' => drupal_get_form('redhen_filter_form', 'message'),
+     'contacts' => array(
+       '#theme' => 'table',
+       '#rows' => $rows,
+       '#header' => $header
+     )
+   );
 }
