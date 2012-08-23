@@ -65,6 +65,26 @@ function redhen_message_default_message_type() {
     "rdf_mapping" : []
   }');
 
+  $items['redhen_note'] = entity_import('message_type', '{
+    "name" : "redhen_note",
+    "description" : "RedHen Note",
+    "argument_keys" : [],
+    "argument" : [],
+    "category" : "redhen_activity_message",
+    "data" : { "purge" : { "override" : 0, "enabled" : 0, "quota" : "", "days" : "" } },
+    "language" : "",
+    "arguments" : null,
+    "message_order_display_name" : { "und" : [ { "value" : "Contact", "format" : null } ] },
+    "message_text" : { "und" : [
+        {
+          "value" : "A note of type %type has been !op for %name.",
+          "format" : "plain_text"
+        }
+      ]
+    },
+    "rdf_mapping" : []
+  }');
+
   return $items;
 }
 
@@ -88,14 +108,13 @@ function redhen_message_menu() {
 }
 
 /**
- * Checks note access for various operations.
+ * Determine access to RedHen messages.
  *
  * @param $op
  *   The operation being performed. One of 'view', 'update', 'create' or
  *   'delete'.
- * @param $note
- *   Optionally a note to check access for or for the create operation the
- *   note type. If nothing is given access permissions for all orgs are returned.
+ * @param $parent_entity
+ *   Message parent entity.
  * @param $account
  *   The user to check for. Leave it to NULL to check for the current user.
  */
@@ -153,7 +172,7 @@ function redhen_message_field_refresh() {
   );
   $fields['message_redhen_contact']['instances'][] = array(
     'entity_type' => 'message',
-    'bundles' => array('redhen_contact_crud'),
+    'bundles' => array('redhen_contact_crud', 'redhen_note'),
     'label' => 'Contact',
     'required' => TRUE,
     'widget' => array(
@@ -280,10 +299,10 @@ function redhen_message_entity_update($entity, $type) {
 }
 
 function redhen_message_message_save($entity, $type, $op) {
+  global $user;
   switch ($type) {
     case 'redhen_contact':
     case 'redhen_org':
-      global $user;
       $message = message_create("{$type}_crud", array('arguments' => array(
         '%name' => $entity->label(),
         '!op' => $op
@@ -293,7 +312,19 @@ function redhen_message_message_save($entity, $type, $op) {
       $wrapper->$ref_field_name->set($entity);
       $wrapper->save();
 
-//      message_save($message);
+      break;
+    case 'redhen_note':
+      $items = field_get_items('redhen_note', $entity, 'redhen_note_type');
+      $type = taxonomy_term_load($items[0]['tid']);
+      $message = message_create('redhen_note', array('arguments' => array(
+        '%name' => $entity->entity->label(),
+        '!op' => $op,
+        '%type' => $type->name
+      )), $user);
+      $wrapper = entity_metadata_wrapper('message', $message);
+      $wrapper->message_redhen_contact->set($entity->entity);
+      $wrapper->save();
+
       break;
     default:
       return;
