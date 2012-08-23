@@ -463,11 +463,14 @@ function redhen_message_activity_page($entity, $entity_type) {
   }
 
   return array(
-     'form' => drupal_get_form('redhen_filter_form', 'message'),
-     'contacts' => array(
-       '#theme' => 'table',
-       '#rows' => $rows,
-       '#header' => $header
-     )
-   );
+    'form' => drupal_get_form('redhen_filter_form', 'message'),
+    'table' => array(
+      '#theme' => 'table',
+      '#rows' => $rows,
+      '#header' => $header
+    ),
+    'pager' => array(
+      '#theme' => 'pager',
+    )
+  );
 }
