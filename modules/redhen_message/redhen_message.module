@@ -5,6 +5,9 @@
  * RedHen integration with the Messgae module
  */
 
+/**
+ * Implements hook_default_message_type_category().
+ */
 function redhen_message_default_message_type_category() {
   $items = array();
   $items['redhen_activity_message'] = entity_import('message_type_category', '{
@@ -16,12 +19,15 @@ function redhen_message_default_message_type_category() {
   return $items;
 }
 
+/**
+ * Implements hook_default_message_type().
+ */
 function redhen_message_default_message_type() {
   $items = array();
 
   $items['redhen_contact_created'] = entity_import('message_type', '{
-    "name" : "redhen_contact_created",
-    "description" : "RedHen Contact: created",
+    "name" : "redhen_contact_crud",
+    "description" : "RedHen Contact",
     "argument_keys" : [],
     "argument" : [],
     "category" : "redhen_activity_message",
@@ -31,8 +37,8 @@ function redhen_message_default_message_type() {
     "message_order_display_name" : { "und" : [ { "value" : "Contact", "format" : null } ] },
     "message_text" : { "und" : [
         {
-          "value" : "<p>Contact !name has been created.</p>",
-          "format" : "filtered_html"
+          "value" : "Contact %name has been !op.",
+          "format" : "plain_text"
         }
       ]
     },
@@ -40,8 +46,8 @@ function redhen_message_default_message_type() {
   }');
 
   $items['redhen_org_created'] = entity_import('message_type', '{
-    "name" : "redhen_org_created",
-    "description" : "RedHen Organization: created",
+    "name" : "redhen_org_crud",
+    "description" : "RedHen Organization",
     "argument_keys" : [],
     "argument" : [],
     "category" : "redhen_activity_message",
@@ -51,8 +57,8 @@ function redhen_message_default_message_type() {
     "message_order_display_name" : { "und" : [ { "value" : "Contact", "format" : null } ] },
     "message_text" : { "und" : [
         {
-          "value" : "<p>Organization !name has been created.</p>",
-          "format" : "filtered_html"
+          "value" : "Organization %name has been !op.",
+          "format" : "plain_text"
         }
       ]
     },
@@ -165,7 +171,7 @@ function redhen_message_field_refresh() {
         'label' => 'above',
         'type' => 'entityreference_label',
         'settings' => array(
-          'link' => false,
+          'link' => FALSE,
         ),
         'module' => 'entityreference',
         'weight' => 0,
@@ -212,7 +218,7 @@ function redhen_message_field_refresh() {
         'label' => 'above',
         'type' => 'entityreference_label',
         'settings' => array(
-          'link' => false,
+          'link' => FALSE,
         ),
         'module' => 'entityreference',
         'weight' => 0,
@@ -279,7 +285,8 @@ function redhen_message_message_save($entity, $type, $op) {
     case 'redhen_org':
       global $user;
       $message = message_create("{$type}_{$op}", array('arguments' => array(
-        '!name' => $entity->label()
+        '%name' => $entity->label(),
+        '!op' => $op
       )), $user);
       $wrapper = entity_metadata_wrapper('message', $message);
       $ref_field_name = "message_{$type}";
