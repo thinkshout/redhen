@@ -25,7 +25,7 @@ function redhen_message_default_message_type_category() {
 function redhen_message_default_message_type() {
   $items = array();
 
-  $items['redhen_contact_created'] = entity_import('message_type', '{
+  $items['redhen_contact_crud'] = entity_import('message_type', '{
     "name" : "redhen_contact_crud",
     "description" : "RedHen Contact",
     "argument_keys" : [],
@@ -45,7 +45,7 @@ function redhen_message_default_message_type() {
     "rdf_mapping" : []
   }');
 
-  $items['redhen_org_created'] = entity_import('message_type', '{
+  $items['redhen_org_crud'] = entity_import('message_type', '{
     "name" : "redhen_org_crud",
     "description" : "RedHen Organization",
     "argument_keys" : [],
@@ -153,7 +153,7 @@ function redhen_message_field_refresh() {
   );
   $fields['message_redhen_contact']['instances'][] = array(
     'entity_type' => 'message',
-    'bundles' => array('redhen_contact_created'),
+    'bundles' => array('redhen_contact_crud'),
     'label' => 'Contact',
     'required' => TRUE,
     'widget' => array(
@@ -200,7 +200,7 @@ function redhen_message_field_refresh() {
   );
   $fields['message_redhen_org']['instances'][] = array(
     'entity_type' => 'message',
-    'bundles' => array('redhen_org_created'),
+    'bundles' => array('redhen_org_crud'),
     'label' => 'Organization',
     'required' => TRUE,
     'widget' => array(
@@ -284,7 +284,7 @@ function redhen_message_message_save($entity, $type, $op) {
     case 'redhen_contact':
     case 'redhen_org':
       global $user;
-      $message = message_create("{$type}_{$op}", array('arguments' => array(
+      $message = message_create("{$type}_crud", array('arguments' => array(
         '%name' => $entity->label(),
         '!op' => $op
       )), $user);
@@ -293,7 +293,7 @@ function redhen_message_message_save($entity, $type, $op) {
       $wrapper->$ref_field_name->set($entity);
       $wrapper->save();
 
-      message_save($message);
+//      message_save($message);
       break;
     default:
       return;
