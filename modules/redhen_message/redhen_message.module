@@ -105,6 +105,26 @@ function redhen_message_default_message_type() {
     "rdf_mapping" : []
   }');
 
+  $items['redhen_engagement'] = entity_import('message_type', '{
+    "name" : "redhen_engagement",
+    "description" : "RedHen Engagement",
+    "argument_keys" : [],
+    "argument" : [],
+    "category" : "redhen_activity_message",
+    "data" : { "purge" : { "override" : 0, "enabled" : 0, "quota" : "", "days" : "" } },
+    "language" : "",
+    "arguments" : null,
+    "message_order_display_name" : { "und" : [ { "value" : "Contact", "format" : null } ] },
+    "message_text" : { "und" : [
+        {
+          "value" : "An engagement of type %type with a score of %score has been !op for %name.",
+          "format" : "plain_text"
+        }
+      ]
+    },
+    "rdf_mapping" : []
+  }');
+
   return $items;
 }
 
@@ -192,7 +212,7 @@ function redhen_message_field_refresh() {
   );
   $fields['message_redhen_contact']['instances'][] = array(
     'entity_type' => 'message',
-    'bundles' => array('redhen_contact_crud', 'redhen_note', 'redhen_relation'),
+    'bundles' => array('redhen_contact_crud', 'redhen_note', 'redhen_relation', 'redhen_engagement'),
     'label' => 'Contact',
     'required' => TRUE,
     'widget' => array(
@@ -361,6 +381,8 @@ function redhen_message_message_save($entity, $type, $op) {
       if (in_array($entity->relation_type, array('redhen_affiliation', 'redhen_connection'))) {
         $relation_type = relation_type_load($entity->relation_type);
         $endpoints = field_get_items('relation', $entity, 'endpoints');
+
+        // save a message for each entity in the relationship
         foreach ($endpoints as $endpoint) {
           $endpoint_entity = entity_load_single($endpoint['entity_type'], $endpoint['entity_id']);
           $message = message_create('redhen_relation', array('arguments' => array(
@@ -373,6 +395,20 @@ function redhen_message_message_save($entity, $type, $op) {
           $wrapper->save();
         }
       }
+      break;
+    case 'redhen_engagement':
+      $score = redhen_engagement_get_scores($entity->engagement_score_id);
+      $contact = redhen_contact_load($entity->contact_id);
+      $message = message_create('redhen_engagement', array('arguments' => array(
+        '%name' => $contact->label(),
+        '!op' => $op,
+        '%type' => $score->label(),
+        '%score' => $score->score
+      )), $user);
+      $wrapper = entity_metadata_wrapper('message', $message);
+      $wrapper->message_redhen_contact->set($contact);
+      $wrapper->save();
+
       break;
     default:
       return;
