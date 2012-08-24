@@ -161,7 +161,7 @@ function redhen_filter_query($entity_type, $header, $bundle = '', $properties = 
     $query->entityCondition('bundle', $bundle, '=');
   }
 
-  // add prop filters
+  // add property filters
   foreach ($properties as $key => $value) {
 
     $property_info = entity_get_all_property_info($entity_type);
@@ -169,13 +169,21 @@ function redhen_filter_query($entity_type, $header, $bundle = '', $properties = 
       //Processing for date ranges
       if ($property_info[$key]['type'] == 'date') {
         if ($value['from'] != '') {
-          $query->propertyCondition($key, strtotime($value['from']), '>=');
-          //Add 24 hours for full day search
-          $query->propertyCondition($key, strtotime($value['to']) + 86400, '<=');
+          $conditions = array(
+            strtotime($value['from']),
+            // Add 24 hours for full day search
+            strtotime($value['to']) + 86400,
+          );
+          $query->propertyCondition($key, $conditions, 'BETWEEN');
         }
       }
       else {
-        $query->propertyCondition($key, $value);
+        // NULL operator will allow literal or array for $value
+        $operator = NULL;
+        if (isset($property_info[$key]['filter_operator']) && !is_array($value)) {
+          $operator =  $property_info[$key]['filter_operator'];
+        }
+        $query->propertyCondition($key, $value, $operator);
       }
     }
   }

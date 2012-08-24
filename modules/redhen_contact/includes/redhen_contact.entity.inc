@@ -224,8 +224,9 @@ class RedhenContact extends Entity {
  * Redhen utilizes custom property attributes to determine if a property
  * should be available as a filter on the listing page. These attributes are
  *   filter: TRUE to add as a filter.
+ *   filter_operator: EFQ supported operators. Defaults to = or IN depending on value submitted
  *   field_type: textfield, select, etc.
- *   options: array of options for seelct field types.
+ *   options list: callback that returns the options for this field.
  */
 class RedhenContactMetadataController extends EntityDefaultMetadataController {
 
