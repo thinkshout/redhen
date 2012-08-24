@@ -445,21 +445,33 @@ function redhen_message_activity_page($entity, $entity_type) {
     )
   );
 
-  $fields = array(
-    "message_{$entity_type}" => array(
-      'target_id' => $entity->identifier()
-    )
-  );
-  $results = redhen_filter_query('message', $header, '', array(), $fields);
 
-  $messages = message_load_multiple(array_keys($results['message']));
-  foreach ($messages as $message) {
-    $message_type = message_type_load($message->type);
-    $rows[] = array(
-      format_date($message->timestamp),
-      $message_type->description,
-      $message->getText()
+  // need to ensure the query doesn't execute when posing the form
+  $result = FALSE;
+  if (!isset($_POST['form_id'])) {
+    $fields = array(
+      "message_{$entity_type}" => array(
+        'target_id' => $entity->identifier()
+      )
     );
+
+    $bundle = isset($_GET['bundle']) ? $_GET['bundle'] : '';
+    $properties = isset($_GET['properties']) ? $_GET['properties'] : array();
+    $fields += isset($_GET['fields']) ? $_GET['fields'] : array();
+    $result = redhen_filter_query('message', $header, $bundle, $properties, $fields);
+  }
+
+  $rows = array();
+  if ($result) {
+    $messages = message_load_multiple(array_keys($result['message']));
+    foreach ($messages as $message) {
+      $message_type = message_type_load($message->type);
+      $rows[] = array(
+        format_date($message->timestamp),
+        $message_type->description,
+        $message->getText()
+      );
+    }
   }
 
   return array(
