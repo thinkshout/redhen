@@ -430,18 +430,21 @@ function redhen_message_activity_page($entity, $entity_type) {
     'timestamp' => array(
       'field' => 'timestamp',
       'type' => 'property',
-      'data' => 'Created',
+      'data' => t('Created'),
       'specifier' => 'timestamp',
       'sort' => 'desc',
     ),
     'type' => array(
       'field' => 'Type',
       'type' => 'property',
-      'data' => 'Type',
+      'data' => t('Type'),
       'specifier' => 'type'
     ),
+    'author' => array(
+      'data' => t('Author'),
+    ),
     'message' => array(
-      'data' => 'Message',
+      'data' => t('Message'),
     )
   );
 
@@ -466,9 +469,12 @@ function redhen_message_activity_page($entity, $entity_type) {
     $messages = message_load_multiple(array_keys($result['message']));
     foreach ($messages as $message) {
       $message_type = message_type_load($message->type);
+      $author = user_load($message->uid);
+      $url = user_uri($author);
       $rows[] = array(
         format_date($message->timestamp),
         $message_type->description,
+        l($author->name, $url['path']),
         $message->getText()
       );
     }
