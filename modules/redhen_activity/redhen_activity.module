@@ -393,7 +393,8 @@ function redhen_activity_message_save($entity, $type, $op) {
             '%type' => $relation_type->label
           )), $user);
           $wrapper = entity_metadata_wrapper('message', $message);
-          $wrapper->message_{$type}->set($endpoint_entity);
+          $ref_field_name = "message_{$endpoint_entity->entityType()}";
+          $wrapper->$ref_field_name->set($endpoint_entity);
           $wrapper->save();
         }
       }
@@ -463,6 +464,7 @@ function redhen_activity_activity_page($entity, $entity_type) {
     $fields += isset($_GET['fields']) ? $_GET['fields'] : array();
     $result = redhen_filter_query('message', $header, $bundle, $properties, $fields);
   }
+
   $rows = array();
   if ($result) {
     $messages = message_load_multiple(array_keys($result['message']));
@@ -479,6 +481,7 @@ function redhen_activity_activity_page($entity, $entity_type) {
     }
   }
 
+  //@todo: theme
   return array(
     'form' => drupal_get_form('redhen_filter_form', 'message'),
     'table' => array(
