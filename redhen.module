@@ -272,7 +272,7 @@ function redhen_help($path, $arg) {
  *
  * @return string
  */
-function redhen_format_date($timestamp) {
+function redhen_format_date($timestamp, $type = 'short') {
   if ($timestamp >= strtotime("today")) {
     $date = t("Today at !date", array('!date' => date('g:ia', $timestamp)));
   }
@@ -280,7 +280,7 @@ function redhen_format_date($timestamp) {
     $date = t("Yesterday at !date", array('!date' => date('g:ia', $timestamp)));
   }
   else {
-    $date = format_date($timestamp);
+    $date = format_date($timestamp, $type);
   }
 
   return $date;
