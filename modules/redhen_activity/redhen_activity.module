@@ -316,11 +316,11 @@ function redhen_activity_field_refresh() {
 /**
  * Implements hook_field_access().
  */
-//function redhen_activity_field_access($op, $field, $entity_type, $entity, $account) {
-//  if ($op == 'edit' && $field['field_name'] == 'message_redhen_contact') {
-//    return FALSE;
-//  }
-//}
+function redhen_activity_field_access($op, $field, $entity_type, $entity, $account) {
+  if ($op == 'edit' && in_array($field['field_name'], array('message_redhen_contact', 'message_redhen_org'))) {
+    return FALSE;
+  }
+}
 
 /**
  * Implements hook_flush_caches().
