@@ -10,7 +10,7 @@ module_load_include('inc', 'redhen', 'includes/redhen.forms');
 /**
  * Implements hook_default_message_type_category().
  */
-function redhen_message_default_message_type_category() {
+function redhen_activity_default_message_type_category() {
   $items = array();
   $items['redhen_activity_message'] = entity_import('message_type_category', '{
     "category" : "redhen_activity_message",
@@ -24,7 +24,7 @@ function redhen_message_default_message_type_category() {
 /**
  * Implements hook_default_message_type().
  */
-function redhen_message_default_message_type() {
+function redhen_activity_default_message_type() {
   $items = array();
 
   $items['redhen_contact_crud'] = entity_import('message_type', '{
@@ -133,13 +133,13 @@ function redhen_message_default_message_type() {
 /**
  * Implements hook_menu().
  */
-function redhen_message_menu() {
+function redhen_activity_menu() {
   foreach (redhen_entity_types() as $entity_type => $path) {
     $items['redhen/' . $path . '/%' . $entity_type . '/activity'] = array(
       'title' => 'Activity',
-      'page callback' => 'redhen_message_activity_page',
+      'page callback' => 'redhen_activity_activity_page',
       'page arguments' => array(2, $entity_type),
-      'access callback' => 'redhen_message_access',
+      'access callback' => 'redhen_activity_access',
       'access arguments' => array('view', 2),
       'type' => MENU_LOCAL_TASK,
       'weight' => 10
@@ -160,7 +160,7 @@ function redhen_message_menu() {
  * @param $account
  *   The user to check for. Leave it to NULL to check for the current user.
  */
-function redhen_message_access($op, $parent_entity, $account = NULL) {
+function redhen_activity_access($op, $parent_entity, $account = NULL) {
   if (entity_access($op, $parent_entity->entityType(), $parent_entity, $account)) {
     if ($op == 'view' && user_access('access redhen messages', $account)) {
       return TRUE;
@@ -173,7 +173,7 @@ function redhen_message_access($op, $parent_entity, $account = NULL) {
 /**
  * Refresh the fields attached to the message types we support.
  */
-function redhen_message_field_refresh() {
+function redhen_activity_field_refresh() {
 
   $instance = array(
     'field_name' => MESSAGE_FIELD_MESSAGE_TEXT,
@@ -288,7 +288,7 @@ function redhen_message_field_refresh() {
   );
 
   // allow other modules to alter these fields
-  drupal_alter('redhen_message_fields', $fields);
+  drupal_alter('redhen_activity_fields', $fields);
 
   // Create the missing fields.
   foreach ($fields as $field_name => $info) {
@@ -316,7 +316,7 @@ function redhen_message_field_refresh() {
 /**
  * Implements hook_field_access().
  */
-//function redhen_message_field_access($op, $field, $entity_type, $entity, $account) {
+//function redhen_activity_field_access($op, $field, $entity_type, $entity, $account) {
 //  if ($op == 'edit' && $field['field_name'] == 'message_redhen_contact') {
 //    return FALSE;
 //  }
@@ -325,22 +325,22 @@ function redhen_message_field_refresh() {
 /**
  * Implements hook_flush_caches().
  */
-function redhen_message_flush_caches() {
-  redhen_message_field_refresh();
+function redhen_activity_flush_caches() {
+  redhen_activity_field_refresh();
 }
 
 /**
  * Implements hook_entity_insert().
  */
-function redhen_message_entity_insert($entity, $type) {
-  redhen_message_message_save($entity, $type, 'created');
+function redhen_activity_entity_insert($entity, $type) {
+  redhen_activity_message_save($entity, $type, 'created');
 }
 
 /**
  * Implements hook_entity_update().
  */
-function redhen_message_entity_update($entity, $type) {
-  redhen_message_message_save($entity, $type, 'updated');
+function redhen_activity_entity_update($entity, $type) {
+  redhen_activity_message_save($entity, $type, 'updated');
 }
 
 /**
@@ -350,7 +350,7 @@ function redhen_message_entity_update($entity, $type) {
  * @param $type
  * @param $op
  */
-function redhen_message_message_save($entity, $type, $op) {
+function redhen_activity_message_save($entity, $type, $op) {
   global $user;
   switch ($type) {
     case 'redhen_contact':
@@ -425,7 +425,7 @@ function redhen_message_message_save($entity, $type, $op) {
  *
  * @return array
  */
-function redhen_message_activity_page($entity, $entity_type) {
+function redhen_activity_activity_page($entity, $entity_type) {
   $header = array(
     'timestamp' => array(
       'field' => 'timestamp',
@@ -495,7 +495,7 @@ function redhen_message_activity_page($entity, $entity_type) {
 /**
  * Implements hook_entity_property_info_alter().
  */
-function redhen_message_entity_property_info_alter(&$info) {
+function redhen_activity_entity_property_info_alter(&$info) {
   $properties = &$info['message']['properties'];
 
   // ensure the timestamp is a filter for RedHen forms
