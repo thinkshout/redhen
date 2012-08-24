@@ -134,6 +134,13 @@ function redhen_activity_default_message_type() {
  * Implements hook_menu().
  */
 function redhen_activity_menu() {
+  $items['redhen/activity'] = array(
+    'title' => 'RedHen Activity',
+    'page callback' => 'redhen_activity_activity_page',
+    'access arguments' => array('access redhen messages'),
+    'description' => 'View RedHen CRM activity.',
+  );
+
   foreach (redhen_entity_types() as $entity_type => $path) {
     $items['redhen/' . $path . '/%' . $entity_type . '/activity'] = array(
       'title' => 'Activity',
@@ -454,7 +461,7 @@ function redhen_activity_message_save($entity, $type, $op) {
  *
  * @return array
  */
-function redhen_activity_activity_page($entity, $entity_type) {
+function redhen_activity_activity_page($entity = NULL, $entity_type = NULL) {
   $header = array(
     'timestamp' => array(
       'field' => 'timestamp',
@@ -472,6 +479,9 @@ function redhen_activity_activity_page($entity, $entity_type) {
     'author' => array(
       'data' => t('Author'),
     ),
+    'source' => array(
+      'data' => t('Source'),
+    ),
     'message' => array(
       'data' => t('Message'),
     )
@@ -481,11 +491,14 @@ function redhen_activity_activity_page($entity, $entity_type) {
   // need to ensure the query doesn't execute when posing the form
   $result = FALSE;
   if (!isset($_POST['form_id'])) {
-    $fields = array(
-      "message_{$entity_type}" => array(
-        'target_id' => $entity->identifier()
-      )
-    );
+    $fields = array();
+    if ($entity && $entity_type) {
+      $fields = array(
+	"message_{$entity_type}" => array(
+	  'target_id' => $entity->identifier()
+	)
+      );
+    }
 
     $bundle = isset($_GET['bundle']) ? $_GET['bundle'] : '';
     $properties = isset($_GET['properties']) ? $_GET['properties'] : array();
@@ -497,13 +510,45 @@ function redhen_activity_activity_page($entity, $entity_type) {
   if ($result) {
     $messages = message_load_multiple(array_keys($result['message']));
     foreach ($messages as $message) {
+      switch ($message->type) {
+	case 'redhen_engagement':
+	case 'redhen_contact_crud':
+	  $ref_field = 'message_redhen_contact';
+	  $ref_entity_type = 'redhen_contact';
+	  break;
+	case 'redhen_org_crud':
+	  $ref_field = 'message_redhen_org';
+	  $ref_entity_type = 'redhen_org';
+	  break;
+	case 'redhen_relation':
+	case 'redhen_note':
+	  if (!empty($message->message_redhen_contact)) {
+	    $ref_field = 'message_redhen_contact';
+	    $ref_entity_type = 'redhen_contact';
+	  }
+	  else{
+	    $ref_field = 'message_redhen_org';
+	    $ref_entity_type = 'redhen_org';
+	  }
+	  break;
+      }
+      $source_entity = entity_load_single($ref_entity_type, $message->{$ref_field}[LANGUAGE_NONE][0]['target_id']);
+      if ($source_entity) {
+	$source_uri = entity_uri($ref_entity_type, $source_entity);
+	$source = l($source_entity->label(), $source_uri['path']);
+      }
+      else {
+       $source = t('Deleted');
+      }
+
       $message_type = message_type_load($message->type);
-      $author = user_load($message->uid);
+      $author = $message->user();
       $url = user_uri($author);
       $rows[] = array(
         redhen_format_date($message->timestamp),
         $message_type->description,
         l($author->name, $url['path']),
+	$source,
         $message->getText()
       );
     }
