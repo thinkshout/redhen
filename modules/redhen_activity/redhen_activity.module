@@ -99,7 +99,7 @@ function redhen_activity_default_message_type() {
     "message_order_display_name" : { "und" : [ { "value" : "Contact", "format" : null } ] },
     "message_text" : { "und" : [
         {
-          "value" : "A connection of type %type has been !op for %name.",
+          "value" : "A connection of type %type has been %op between %name1 and %name2.",
           "format" : "plain_text"
         }
       ]
@@ -347,6 +347,7 @@ function redhen_activity_entity_update($entity, $type) {
  * Implements hook_entity_delete().
  */
 function redhen_activity_entity_delete($entity, $type) {
+  // only log deletion of contacts and orgs due to cascades
   if (in_array($type, array('redhen_contact', 'redhen_org'))) {
     redhen_activity_message_save($entity, $type, 'deleted');
   }
@@ -393,12 +394,16 @@ function redhen_activity_message_save($entity, $type, $op) {
         $relation_type = relation_type_load($entity->relation_type);
         $endpoints = field_get_items('relation', $entity, 'endpoints');
 
+        $endpoint_entities = array(
+          entity_load_single($endpoints[0]['entity_type'], $endpoints[0]['entity_id']),
+          entity_load_single($endpoints[1]['entity_type'], $endpoints[1]['entity_id'])
+        );
         // save a message for each entity in the relationship
-        foreach ($endpoints as $endpoint) {
-          $endpoint_entity = entity_load_single($endpoint['entity_type'], $endpoint['entity_id']);
+        foreach ($endpoint_entities as $endpoint_entity) {
           $message = message_create('redhen_relation', array('arguments' => array(
-            '%name' => $endpoint_entity->label(),
-            '!op' => $op,
+            '%name1' => $endpoint_entities[0]->label(),
+            '%name2' => $endpoint_entities[1]->label(),
+            '%op' => $op,
             '%type' => $relation_type->label
           )), $user);
           $wrapper = entity_metadata_wrapper('message', $message);
