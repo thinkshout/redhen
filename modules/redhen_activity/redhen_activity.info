@@ -1,0 +1,11 @@
+name = RedHen Activity
+description = Activity tracking for RedHen leveraging the Message module.
+package = RedHen
+core = 7.x
+
+dependencies[] = redhen
+dependencies[] = redhen_contact
+dependencies[] = redhen_org
+
+dependencies[] = message
+dependencies[] = entityreference

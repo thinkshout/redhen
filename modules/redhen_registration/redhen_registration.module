@@ -130,7 +130,7 @@ function theme_redhen_registration_list($variables) {
           $registration->author ? $registration->author->name : '',
           l($registration->mail, 'mailto:' . $registration->mail),
           $registration->count,
-          format_date($registration->updated, 'short'),
+          redhen_format_date($registration->updated, 'short'),
           implode(' | ', $actions)
         )
       );

@@ -1,0 +1,535 @@
+<?php
+
+/**
+ * @file
+ * RedHen integration with the Messgae module
+ */
+
+module_load_include('inc', 'redhen', 'includes/redhen.forms');
+
+/**
+ * Implements hook_default_message_type_category().
+ */
+function redhen_activity_default_message_type_category() {
+  $items = array();
+  $items['redhen_activity_message'] = entity_import('message_type_category', '{
+    "category" : "redhen_activity_message",
+    "description" : "A message produced when action is taken on a RedHen entity.",
+    "language" : "",
+    "rdf_mapping" : []
+  }');
+  return $items;
+}
+
+/**
+ * Implements hook_default_message_type().
+ */
+function redhen_activity_default_message_type() {
+  $items = array();
+
+  $items['redhen_contact_crud'] = entity_import('message_type', '{
+    "name" : "redhen_contact_crud",
+    "description" : "RedHen Contact",
+    "argument_keys" : [],
+    "argument" : [],
+    "category" : "redhen_activity_message",
+    "data" : { "purge" : { "override" : 0, "enabled" : 0, "quota" : "", "days" : "" } },
+    "language" : "",
+    "arguments" : null,
+    "message_order_display_name" : { "und" : [ { "value" : "Contact", "format" : null } ] },
+    "message_text" : { "und" : [
+        {
+          "value" : "Contact %name has been !op.",
+          "format" : "plain_text"
+        }
+      ]
+    },
+    "rdf_mapping" : []
+  }');
+
+  $items['redhen_org_crud'] = entity_import('message_type', '{
+    "name" : "redhen_org_crud",
+    "description" : "RedHen Organization",
+    "argument_keys" : [],
+    "argument" : [],
+    "category" : "redhen_activity_message",
+    "data" : { "purge" : { "override" : 0, "enabled" : 0, "quota" : "", "days" : "" } },
+    "language" : "",
+    "arguments" : null,
+    "message_order_display_name" : { "und" : [ { "value" : "Contact", "format" : null } ] },
+    "message_text" : { "und" : [
+        {
+          "value" : "Organization %name has been !op.",
+          "format" : "plain_text"
+        }
+      ]
+    },
+    "rdf_mapping" : []
+  }');
+
+  $items['redhen_note'] = entity_import('message_type', '{
+    "name" : "redhen_note",
+    "description" : "RedHen Note",
+    "argument_keys" : [],
+    "argument" : [],
+    "category" : "redhen_activity_message",
+    "data" : { "purge" : { "override" : 0, "enabled" : 0, "quota" : "", "days" : "" } },
+    "language" : "",
+    "arguments" : null,
+    "message_order_display_name" : { "und" : [ { "value" : "Contact", "format" : null } ] },
+    "message_text" : { "und" : [
+        {
+          "value" : "A note of type %type has been !op for %name.",
+          "format" : "plain_text"
+        }
+      ]
+    },
+    "rdf_mapping" : []
+  }');
+
+  $items['redhen_relation'] = entity_import('message_type', '{
+    "name" : "redhen_relation",
+    "description" : "RedHen Relation",
+    "argument_keys" : [],
+    "argument" : [],
+    "category" : "redhen_activity_message",
+    "data" : { "purge" : { "override" : 0, "enabled" : 0, "quota" : "", "days" : "" } },
+    "language" : "",
+    "arguments" : null,
+    "message_order_display_name" : { "und" : [ { "value" : "Contact", "format" : null } ] },
+    "message_text" : { "und" : [
+        {
+          "value" : "A connection of type %type has been %op between %name1 and %name2.",
+          "format" : "plain_text"
+        }
+      ]
+    },
+    "rdf_mapping" : []
+  }');
+
+  $items['redhen_engagement'] = entity_import('message_type', '{
+    "name" : "redhen_engagement",
+    "description" : "RedHen Engagement",
+    "argument_keys" : [],
+    "argument" : [],
+    "category" : "redhen_activity_message",
+    "data" : { "purge" : { "override" : 0, "enabled" : 0, "quota" : "", "days" : "" } },
+    "language" : "",
+    "arguments" : null,
+    "message_order_display_name" : { "und" : [ { "value" : "Contact", "format" : null } ] },
+    "message_text" : { "und" : [
+        {
+          "value" : "An engagement of type %type with a score of %score has been !op for %name.",
+          "format" : "plain_text"
+        }
+      ]
+    },
+    "rdf_mapping" : []
+  }');
+
+  return $items;
+}
+
+/**
+ * Implements hook_menu().
+ */
+function redhen_activity_menu() {
+  foreach (redhen_entity_types() as $entity_type => $path) {
+    $items['redhen/' . $path . '/%' . $entity_type . '/activity'] = array(
+      'title' => 'Activity',
+      'page callback' => 'redhen_activity_activity_page',
+      'page arguments' => array(2, $entity_type),
+      'access callback' => 'redhen_activity_access',
+      'access arguments' => array('view', 2),
+      'type' => MENU_LOCAL_TASK,
+      'weight' => 10
+    );
+  }
+
+  return $items;
+}
+
+/**
+ * Determine access to RedHen messages.
+ *
+ * @param $op
+ *   The operation being performed. One of 'view', 'update', 'create' or
+ *   'delete'.
+ * @param $parent_entity
+ *   Message parent entity.
+ * @param $account
+ *   The user to check for. Leave it to NULL to check for the current user.
+ */
+function redhen_activity_access($op, $parent_entity, $account = NULL) {
+  if (entity_access($op, $parent_entity->entityType(), $parent_entity, $account)) {
+    if ($op == 'view' && user_access('access redhen messages', $account)) {
+      return TRUE;
+    }
+  }
+
+  return FALSE;
+}
+
+/**
+ * Refresh the fields attached to the message types we support.
+ */
+function redhen_activity_field_refresh() {
+
+  $instance = array(
+    'field_name' => MESSAGE_FIELD_MESSAGE_TEXT,
+    'bundle' => 'redhen_activity_message',
+    'entity_type' => 'message_type',
+    'label' => t('Message text'),
+    'description' => t('This is the text of all messages of this type.'),
+    'required' => TRUE,
+    'settings' => array(
+      'text_processing' => 1,
+    ),
+  );
+  if ($existing_instance = field_info_instance($instance['entity_type'], $instance['field_name'], $instance['bundle'])) {
+    field_update_instance($instance);
+  }
+  else {
+    field_create_instance($instance);
+  }
+
+  $fields['message_redhen_contact']['field'] = array (
+    'type' => 'entityreference',
+    'module' => 'entityreference',
+    'cardinality' => '1',
+    'translatable' => FALSE,
+    'settings' => array(
+      'target_type' => 'redhen_contact',
+      'handler' => 'base',
+      'handler_settings' => array(
+        'target_bundles' => array(),
+        'sort' => array(
+          'type' => 'property',
+          'property' => 'contact_id',
+          'direction' => 'ASC',
+        ),
+      ),
+    ),
+    'locked' => TRUE,
+  );
+  $fields['message_redhen_contact']['instances'][] = array(
+    'entity_type' => 'message',
+    'bundles' => array('redhen_contact_crud', 'redhen_note', 'redhen_relation', 'redhen_engagement'),
+    'label' => 'Contact',
+    'required' => TRUE,
+    'widget' => array(
+      'type' => 'entityreference_autocomplete',
+      'module' => 'entityreference',
+      'settings' => array(
+        'match_operator' => 'CONTAINS',
+        'size' => '60',
+        'path' => '',
+      ),
+    ),
+    'settings' => array(),
+    'display' => array(
+      'default' => array(
+        'label' => 'above',
+        'type' => 'entityreference_label',
+        'settings' => array(
+          'link' => FALSE,
+        ),
+        'module' => 'entityreference',
+        'weight' => 0,
+      ),
+    ),
+  );
+
+  $fields['message_redhen_org']['field'] = array (
+    'type' => 'entityreference',
+    'module' => 'entityreference',
+    'cardinality' => '1',
+    'translatable' => FALSE,
+    'settings' => array(
+      'target_type' => 'redhen_org',
+      'handler' => 'base',
+      'handler_settings' => array(
+        'target_bundles' => array(),
+        'sort' => array(
+          'type' => 'property',
+          'property' => 'org_id',
+          'direction' => 'ASC',
+        ),
+      ),
+    ),
+    'locked' => TRUE,
+  );
+  $fields['message_redhen_org']['instances'][] = array(
+    'entity_type' => 'message',
+    'bundles' => array('redhen_org_crud', 'redhen_note', 'redhen_relation'),
+    'label' => 'Organization',
+    'required' => TRUE,
+    'widget' => array(
+      'type' => 'entityreference_autocomplete',
+      'module' => 'entityreference',
+      'settings' => array(
+        'match_operator' => 'CONTAINS',
+        'size' => '60',
+        'path' => '',
+      ),
+    ),
+    'settings' => array(),
+    'display' => array(
+      'default' => array(
+        'label' => 'above',
+        'type' => 'entityreference_label',
+        'settings' => array(
+          'link' => FALSE,
+        ),
+        'module' => 'entityreference',
+        'weight' => 0,
+      ),
+    ),
+  );
+
+  // allow other modules to alter these fields
+  drupal_alter('redhen_activity_fields', $fields);
+
+  // Create the missing fields.
+  foreach ($fields as $field_name => $info) {
+    $field = $info['field'];
+    $field += array(
+      'field_name' => $field_name,
+    );
+    if (!field_info_field($field_name)) {
+      field_create_field($field);
+    }
+
+    foreach ($info['instances'] as $instance) {
+      foreach ($instance['bundles'] as $bundle) {
+        $instance['bundle'] = $bundle;
+        unset($instance['bundles']);
+        $instance['field_name'] = $field_name;
+        if (!field_info_instance($instance['entity_type'], $instance['field_name'], $instance['bundle'])) {
+          field_create_instance($instance);
+        }
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_field_access().
+ */
+function redhen_activity_field_access($op, $field, $entity_type, $entity, $account) {
+  if ($op == 'edit' && in_array($field['field_name'], array('message_redhen_contact', 'message_redhen_org'))) {
+    return FALSE;
+  }
+}
+
+/**
+ * Implements hook_flush_caches().
+ */
+function redhen_activity_flush_caches() {
+  redhen_activity_field_refresh();
+}
+
+/**
+ * Implements hook_entity_insert().
+ */
+function redhen_activity_entity_insert($entity, $type) {
+  redhen_activity_message_save($entity, $type, 'created');
+}
+
+/**
+ * Implements hook_entity_update().
+ */
+function redhen_activity_entity_update($entity, $type) {
+  redhen_activity_message_save($entity, $type, 'updated');
+}
+
+/**
+ * Implements hook_entity_delete().
+ */
+function redhen_activity_entity_delete($entity, $type) {
+  // only log deletion of contacts and orgs due to cascades
+//  if (in_array($type, array('redhen_contact', 'redhen_org'))) {
+    redhen_activity_message_save($entity, $type, 'deleted');
+//  }
+}
+
+/**
+ * Save a message.
+ *
+ * @param $entity
+ * @param $type
+ * @param $op
+ */
+function redhen_activity_message_save($entity, $type, $op) {
+  global $user;
+  switch ($type) {
+    case 'redhen_contact':
+    case 'redhen_org':
+      $message = message_create("{$type}_crud", array('arguments' => array(
+        '%name' => $entity->label(),
+        '!op' => $op
+      )), $user);
+      $wrapper = entity_metadata_wrapper('message', $message);
+      $ref_field_name = "message_{$type}";
+      $wrapper->$ref_field_name->set($entity);
+      $wrapper->save();
+
+      break;
+    case 'redhen_note':
+      if ($entity->entity) {
+        $items = field_get_items('redhen_note', $entity, 'redhen_note_type');
+        $note_type = taxonomy_term_load($items[0]['tid']);
+        $message = message_create('redhen_note', array('arguments' => array(
+          '%name' => $entity->entity->label(),
+          '!op' => $op,
+          '%type' => $note_type->name
+        )), $user);
+        $wrapper = entity_metadata_wrapper('message', $message);
+        $ref_field_name = "message_{$entity->entity_type}";
+        $wrapper->$ref_field_name->set($entity->entity);
+        $wrapper->save();
+      }
+
+      break;
+    case 'relation':
+      if (in_array($entity->relation_type, array('redhen_affiliation', 'redhen_connection'))) {
+        $relation_type = relation_type_load($entity->relation_type);
+        $endpoints = field_get_items('relation', $entity, 'endpoints');
+
+        $endpoint_entities = array(
+          entity_load_single($endpoints[0]['entity_type'], $endpoints[0]['entity_id']),
+          entity_load_single($endpoints[1]['entity_type'], $endpoints[1]['entity_id'])
+        );
+        // save a message for each entity in the relationship
+        foreach ($endpoint_entities as $endpoint_entity) {
+          if ($endpoint_entity) {
+            $label1 = $endpoint_entities[0] ? $endpoint_entities[0]->label() :
+              t('Entity !type with an ID of !id', array(
+                '!type' => $endpoints[0]['entity_type'],
+                '!id' =>  $endpoints[0]['entity_id']
+              ));
+            $label2 = $endpoint_entities[1] ? $endpoint_entities[1]->label() :
+              t('Entity !type with an ID of !id', array(
+                '!type' => $endpoints[1]['entity_type'],
+                '!id' =>  $endpoints[1]['entity_id']
+              ));
+            $message = message_create('redhen_relation', array('arguments' => array(
+              '%name1' => $label1,
+              '%name2' => $label2,
+              '%op' => $op,
+              '%type' => $relation_type->label
+            )), $user);
+            $wrapper = entity_metadata_wrapper('message', $message);
+            $ref_field_name = "message_{$endpoint_entity->entityType()}";
+            $wrapper->$ref_field_name->set($endpoint_entity);
+            $wrapper->save();
+          }
+        }
+      }
+      break;
+    case 'redhen_engagement':
+      $score = redhen_engagement_get_scores($entity->engagement_score_id);
+      $contact = redhen_contact_load($entity->contact_id);
+      $message = message_create('redhen_engagement', array('arguments' => array(
+        '%name' => $contact->label(),
+        '!op' => $op,
+        '%type' => $score->label(),
+        '%score' => $score->score
+      )), $user);
+      $wrapper = entity_metadata_wrapper('message', $message);
+      $wrapper->message_redhen_contact->set($contact);
+      $wrapper->save();
+
+      break;
+    default:
+      return;
+  }
+}
+
+/**
+ * Page callback for a list of activities.
+ *
+ * @param $entity
+ * @param $entity_type
+ *
+ * @return array
+ */
+function redhen_activity_activity_page($entity, $entity_type) {
+  $header = array(
+    'timestamp' => array(
+      'field' => 'timestamp',
+      'type' => 'property',
+      'data' => t('Created'),
+      'specifier' => 'timestamp',
+      'sort' => 'desc',
+    ),
+    'type' => array(
+      'field' => 'Type',
+      'type' => 'property',
+      'data' => t('Type'),
+      'specifier' => 'type'
+    ),
+    'author' => array(
+      'data' => t('Author'),
+    ),
+    'message' => array(
+      'data' => t('Message'),
+    )
+  );
+
+
+  // need to ensure the query doesn't execute when posing the form
+  $result = FALSE;
+  if (!isset($_POST['form_id'])) {
+    $fields = array(
+      "message_{$entity_type}" => array(
+        'target_id' => $entity->identifier()
+      )
+    );
+
+    $bundle = isset($_GET['bundle']) ? $_GET['bundle'] : '';
+    $properties = isset($_GET['properties']) ? $_GET['properties'] : array();
+    $fields += isset($_GET['fields']) ? $_GET['fields'] : array();
+    $result = redhen_filter_query('message', $header, $bundle, $properties, $fields);
+  }
+
+  $rows = array();
+  if ($result) {
+    $messages = message_load_multiple(array_keys($result['message']));
+    foreach ($messages as $message) {
+      $message_type = message_type_load($message->type);
+      $author = user_load($message->uid);
+      $url = user_uri($author);
+      $rows[] = array(
+        redhen_format_date($message->timestamp),
+        $message_type->description,
+        l($author->name, $url['path']),
+        $message->getText()
+      );
+    }
+  }
+
+  //@todo: theme
+  return array(
+    'form' => drupal_get_form('redhen_filter_form', 'message'),
+    'table' => array(
+      '#theme' => 'table',
+      '#rows' => $rows,
+      '#header' => $header
+    ),
+    'pager' => array(
+      '#theme' => 'pager',
+    )
+  );
+}
+
+/**
+ * Implements hook_entity_property_info_alter().
+ */
+function redhen_activity_entity_property_info_alter(&$info) {
+  $properties = &$info['message']['properties'];
+
+  // ensure the timestamp is a filter for RedHen forms
+  $properties['timestamp']['filter'] = TRUE;
+  $properties['timestamp']['field_type'] = 'textfield';
+}
