@@ -344,6 +344,15 @@ function redhen_activity_entity_update($entity, $type) {
 }
 
 /**
+ * Implements hook_entity_delete().
+ */
+function redhen_activity_entity_delete($entity, $type) {
+  if (in_array($type, array('redhen_contact', 'redhen_org'))) {
+    redhen_activity_message_save($entity, $type, 'deleted');
+  }
+}
+
+/**
  * Save a message.
  *
  * @param $entity
