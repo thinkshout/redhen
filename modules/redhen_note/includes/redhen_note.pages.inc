@@ -86,8 +86,8 @@ function redhen_note_notes_page($entity, $entity_type) {
           substr($body, 0, 5) . ' ...',
           (isset($type->name)) ? $type->name : '',
           $note->author->name,
-          format_date($note->updated, 'short'),
-          format_date($note->created, 'short'),
+          redhen_format_date($note->updated),
+          redhen_format_date($note->created),
           implode(' | ', $actions)
         )
       );

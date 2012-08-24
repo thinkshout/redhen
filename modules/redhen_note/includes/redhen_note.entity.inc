@@ -21,12 +21,11 @@ class RedhenNote extends Entity {
   public function __construct(array $values = array()) {
     parent::__construct($values, 'redhen_note');
 
+    $this->entity = $this->entity();
+    $this->author = $this->author();
+
     // New note. is_new might not be set so check for id
-    if ($this->note_id) {
-      $this->entity = $this->entity();
-      $this->author = $this->author();
-    }
-    else {
+    if (!$this->note_id) {
       global $user;
       $this->created = REQUEST_TIME;
       $this->author_uid = $user->uid;
@@ -54,7 +53,7 @@ class RedhenNote extends Entity {
       '#label' => t('Created'),
       '#items' => array(
         array(
-          '#markup' => format_date($this->created),
+          '#markup' => redhen_format_date($this->created),
         ),
       ),
       '#classes' => 'field field-label-inline clearfix',
@@ -86,9 +85,9 @@ class RedhenNote extends Entity {
    * Get entity note is attached to
    */
   public function entity() {
-    if (isset($this->entity_type)) {
-      $entity = entity_load($this->entity_type, array($this->entity_id));
-      return $entity[$this->entity_id];
+    if (isset($this->entity_type) && isset($this->entity_id)) {
+      $entity = entity_load_single($this->entity_type, $this->entity_id);
+      return $entity ? $entity : NULL;
     }
     else {
       return NULL;
@@ -99,8 +98,13 @@ class RedhenNote extends Entity {
    * Get author of note
    */
   public function author() {
-    $user = user_load($this->author_uid);
-    return $user;
+    if (isset($this->author_uid)) {
+      $user = user_load($this->author_uid);
+      return $user;
+    }
+    else {
+      return NULL;
+    }
   }
 
   /**

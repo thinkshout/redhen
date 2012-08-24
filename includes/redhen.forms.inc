@@ -20,7 +20,7 @@ function redhen_filter_form($form, $form_state, $entity_type) {
       '#title' => t('Filters'),
       '#collapsible' => TRUE,
       // expand fieldset if the list was filtered
-      '#collapsed' => (empty($_GET['properties']) && empty($_GET['fields']))
+      '#collapsed' => (empty($_GET['properties']) && empty($_GET['fields']) && empty($_GET['bundle']))
     );
 
     $form['filter_fieldset']['filters'] = array(
