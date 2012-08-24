@@ -190,9 +190,17 @@ function redhen_filter_query($entity_type, $header, $bundle = '', $properties = 
 
   // add field filters
   foreach ($fields as $key => $field) {
+    $field_info = field_info_field($key);
     foreach ($field as $column => $value) {
+      $operator = 'CONTAINS';
+      // Basic handling for from/to searching of single value date fields
+      if ($field_info['type'] == 'date') {
+        $operator = 'BETWEEN';
+        $value[0] = date('Y-m-d', strtotime($value[0]));
+        $value[1] = date('Y-m-d', strtotime($value[1]));
+      }
       if ($value != '') {
-        $query->fieldCondition($key, $column, $value, 'CONTAINS', $key);
+        $query->fieldCondition($key, $column, $value, $operator, $key);
       }
     }
   }

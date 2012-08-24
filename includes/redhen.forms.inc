@@ -37,7 +37,7 @@ function redhen_filter_form($form, $form_state, $entity_type) {
       if (isset($prop['filter']) && $prop['filter']) {
         $field_type = isset($prop['field_type']) ? $prop['field_type'] : $prop['type'];
 
-        // conver datetime defaults to date strings
+        // convert datetime defaults to date strings
         $default_value = isset($_GET['properties'][$key]) ? $_GET['properties'][$key] : NULL;
         if ($prop['type'] == 'date' && !empty($default_value)) {
           $default_value['from'] = ($default_value['from'] == '') ? '' :
@@ -198,18 +198,37 @@ function redhen_filter_form_fields(&$form, $entity_type, $bundle) {
       $column = reset($columns);
       if (in_array($column, array('value', 'tid'))) {
         $filters_count++;
-        $form['filter_fieldset']['filters']['fields'][$key][$column] = array(
-          '#type' => 'textfield',
-          '#title' => $field['label'],
-          '#default_value' => isset($_GET['fields'][$key][$column]) ?
-            $_GET['fields'][$key][$column] : NULL,
-        );
+        // Basic handling for from/to searching of single value date fields
+        if ($field_info['type'] == 'date') {
+          $form['filter_fieldset']['filters']['fields'][$key][$column][] = array(
+            '#type' => 'textfield',
+            '#title' => $field['label'] . ' from',
+            '#attributes' => array('class' => array("redhen-field-type-date")),
+            '#default_value' => isset($_GET['fields'][$key][$column][0]) ?
+              $_GET['fields'][$key][$column][0] : NULL
+          );
+          $form['filter_fieldset']['filters']['fields'][$key][$column][] = array(
+            '#type' => 'textfield',
+            '#title' => $field['label'] . ' to',
+            '#attributes' => array('class' => array("redhen-field-type-date")),
+            '#default_value' => isset($_GET['fields'][$key][$column][1]) ?
+              $_GET['fields'][$key][$column][1] : NULL
+          );
+        }
+        else {
+          $form['filter_fieldset']['filters']['fields'][$key][$column] = array(
+            '#type' => 'textfield',
+            '#title' => $field['label'],
+            '#default_value' => isset($_GET['fields'][$key][$column]) ?
+              $_GET['fields'][$key][$column] : NULL,
+          );
 
-        // override for select lists
-        if ($field['widget']['type'] == 'options_select') {
-          $options = array('' => t('-- Any --')) + $field_info['settings']['allowed_values'];
-          $form['filter_fieldset']['filters']['fields'][$key][$column]['#type'] = 'select';
-          $form['filter_fieldset']['filters']['fields'][$key][$column]['#options'] = $options;
+          // override for select lists
+          if ($field['widget']['type'] == 'options_select') {
+            $options = array('' => t('-- Any --')) + $field_info['settings']['allowed_values'];
+            $form['filter_fieldset']['filters']['fields'][$key][$column]['#type'] = 'select';
+            $form['filter_fieldset']['filters']['fields'][$key][$column]['#options'] = $options;
+          }
         }
       }
     }
