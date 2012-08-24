@@ -533,7 +533,7 @@ function theme_redhen_org_list($variables) {
       $data = array(
         $redhen_org_type->label,
         l($org->label, $uri['path']),
-        format_date($org->updated, 'short'),
+        redhen_format_date($org->updated, 'short'),
         implode(' | ', $actions)
       );
 

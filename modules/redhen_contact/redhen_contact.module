@@ -574,7 +574,7 @@ function theme_redhen_contact_list($variables) {
           l($contact->first_name, $uri['path']),
           l($contact->last_name, $uri['path']),
           l($contact->email, 'mailto:' . $contact->email),
-          format_date($contact->updated, 'short'),
+          redhen_format_date($contact->updated, 'short'),
           implode(' | ', $actions)
         )
       );

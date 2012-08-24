@@ -53,7 +53,7 @@ class RedhenNote extends Entity {
       '#label' => t('Created'),
       '#items' => array(
         array(
-          '#markup' => format_date($this->created),
+          '#markup' => redhen_format_date($this->created),
         ),
       ),
       '#classes' => 'field field-label-inline clearfix',
