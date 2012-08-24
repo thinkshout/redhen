@@ -463,7 +463,6 @@ function redhen_message_activity_page($entity, $entity_type) {
     $fields += isset($_GET['fields']) ? $_GET['fields'] : array();
     $result = redhen_filter_query('message', $header, $bundle, $properties, $fields);
   }
-
   $rows = array();
   if ($result) {
     $messages = message_load_multiple(array_keys($result['message']));
@@ -472,7 +471,7 @@ function redhen_message_activity_page($entity, $entity_type) {
       $author = user_load($message->uid);
       $url = user_uri($author);
       $rows[] = array(
-        format_date($message->timestamp),
+        redhen_format_date($message->timestamp),
         $message_type->description,
         l($author->name, $url['path']),
         $message->getText()
