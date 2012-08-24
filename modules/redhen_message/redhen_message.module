@@ -486,3 +486,14 @@ function redhen_message_activity_page($entity, $entity_type) {
     )
   );
 }
+
+/**
+ * Implements hook_entity_property_info_alter().
+ */
+function redhen_message_entity_property_info_alter(&$info) {
+  $properties = &$info['message']['properties'];
+
+  // ensure the timestamp is a filter for RedHen forms
+  $properties['timestamp']['filter'] = TRUE;
+  $properties['timestamp']['field_type'] = 'textfield';
+}
