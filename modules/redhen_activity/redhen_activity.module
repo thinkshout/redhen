@@ -2,7 +2,7 @@
 
 /**
  * @file
- * RedHen integration with the Messgae module
+ * RedHen integration with the Message module
  */
 
 module_load_include('inc', 'redhen', 'includes/redhen.forms');
@@ -28,7 +28,7 @@ function redhen_activity_default_message_type() {
   $items = array();
 
   $items['redhen_contact_crud'] = entity_import('message_type', '{
-    "name" : "redhen_contact_crud",
+    "name" : "redhen_contact",
     "description" : "RedHen Contact",
     "argument_keys" : [],
     "argument" : [],
@@ -47,8 +47,8 @@ function redhen_activity_default_message_type() {
     "rdf_mapping" : []
   }');
 
-  $items['redhen_org_crud'] = entity_import('message_type', '{
-    "name" : "redhen_org_crud",
+  $items['redhen_org'] = entity_import('message_type', '{
+    "name" : "redhen_org",
     "description" : "RedHen Organization",
     "argument_keys" : [],
     "argument" : [],
@@ -134,6 +134,8 @@ function redhen_activity_default_message_type() {
  * Implements hook_menu().
  */
 function redhen_activity_menu() {
+  $items = array();
+
   $items['redhen/activity'] = array(
     'title' => 'RedHen Activity',
     'page callback' => 'redhen_activity_activity_page',
@@ -221,7 +223,7 @@ function redhen_activity_field_refresh() {
   );
   $fields['message_redhen_contact']['instances'][] = array(
     'entity_type' => 'message',
-    'bundles' => array('redhen_contact_crud', 'redhen_note', 'redhen_relation', 'redhen_engagement'),
+    'bundles' => array('redhen_contact', 'redhen_note', 'redhen_relation', 'redhen_engagement'),
     'label' => 'Contact',
     'required' => TRUE,
     'widget' => array(
@@ -268,7 +270,7 @@ function redhen_activity_field_refresh() {
   );
   $fields['message_redhen_org']['instances'][] = array(
     'entity_type' => 'message',
-    'bundles' => array('redhen_org_crud', 'redhen_note', 'redhen_relation'),
+    'bundles' => array('redhen_org', 'redhen_note', 'redhen_relation'),
     'label' => 'Organization',
     'required' => TRUE,
     'widget' => array(
@@ -354,10 +356,7 @@ function redhen_activity_entity_update($entity, $type) {
  * Implements hook_entity_delete().
  */
 function redhen_activity_entity_delete($entity, $type) {
-  // only log deletion of contacts and orgs due to cascades
-//  if (in_array($type, array('redhen_contact', 'redhen_org'))) {
-    redhen_activity_message_save($entity, $type, 'deleted');
-//  }
+  redhen_activity_message_save($entity, $type, 'deleted');
 }
 
 /**
@@ -512,11 +511,11 @@ function redhen_activity_activity_page($entity = NULL, $entity_type = NULL) {
     foreach ($messages as $message) {
       switch ($message->type) {
 	case 'redhen_engagement':
-	case 'redhen_contact_crud':
+	case 'redhen_contact':
 	  $ref_field = 'message_redhen_contact';
 	  $ref_entity_type = 'redhen_contact';
 	  break;
-	case 'redhen_org_crud':
+	case 'redhen_org':
 	  $ref_field = 'message_redhen_org';
 	  $ref_entity_type = 'redhen_org';
 	  break;
