@@ -39,8 +39,8 @@ function redhen_activity_default_message_type() {
     "message_order_display_name" : { "und" : [ { "value" : "Contact", "format" : null } ] },
     "message_text" : { "und" : [
         {
-          "value" : "Contact %name has been !op.",
-          "format" : "plain_text"
+          "value" : "Contact %name has been <strong>!op</strong>.",
+          "format" : "redhen_activity_message"
         }
       ]
     },
@@ -59,8 +59,8 @@ function redhen_activity_default_message_type() {
     "message_order_display_name" : { "und" : [ { "value" : "Contact", "format" : null } ] },
     "message_text" : { "und" : [
         {
-          "value" : "Organization %name has been !op.",
-          "format" : "plain_text"
+          "value" : "Organization %name has been <strong>!op</strong>.",
+          "format" : "redhen_activity_message"
         }
       ]
     },
@@ -79,8 +79,8 @@ function redhen_activity_default_message_type() {
     "message_order_display_name" : { "und" : [ { "value" : "Contact", "format" : null } ] },
     "message_text" : { "und" : [
         {
-          "value" : "A note of type %type has been !op for %name.",
-          "format" : "plain_text"
+          "value" : "A note of type %type has been <strong>!op</strong> for %name.",
+          "format" : "redhen_activity_message"
         }
       ]
     },
@@ -99,8 +99,8 @@ function redhen_activity_default_message_type() {
     "message_order_display_name" : { "und" : [ { "value" : "Contact", "format" : null } ] },
     "message_text" : { "und" : [
         {
-          "value" : "A connection of type %type has been %op between %name1 and %name2.",
-          "format" : "plain_text"
+          "value" : "A connection of type %type has been <strong>!op</strong> between %name1 and %name2.",
+          "format" : "redhen_activity_message"
         }
       ]
     },
@@ -119,8 +119,8 @@ function redhen_activity_default_message_type() {
     "message_order_display_name" : { "und" : [ { "value" : "Contact", "format" : null } ] },
     "message_text" : { "und" : [
         {
-          "value" : "An engagement of type %type with a score of %score has been !op for %name.",
-          "format" : "plain_text"
+          "value" : "An engagement of type %type with a score of %score has been <strong>!op</strong> for %name.",
+          "format" : "redhen_activity_message"
         }
       ]
     },
@@ -403,7 +403,7 @@ function redhen_activity_message_save($entity, $type, $op) {
             $message = message_create('redhen_relation', array('arguments' => array(
               '%name1' => $label1,
               '%name2' => $label2,
-              '%op' => $op,
+              '!op' => $op,
               '%type' => $relation_type->label
             )), $user);
             $wrapper = entity_metadata_wrapper('message', $message);
