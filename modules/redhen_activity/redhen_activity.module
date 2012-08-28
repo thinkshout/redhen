@@ -27,7 +27,7 @@ function redhen_activity_default_message_type_category() {
 function redhen_activity_default_message_type() {
   $items = array();
 
-  $items['redhen_contact_crud'] = entity_import('message_type', '{
+  $items['redhen_contact'] = entity_import('message_type', '{
     "name" : "redhen_contact",
     "description" : "RedHen Contact",
     "argument_keys" : [],
@@ -183,25 +183,6 @@ function redhen_activity_access($op, $parent_entity, $account = NULL) {
  * Refresh the fields attached to the message types we support.
  */
 function redhen_activity_field_refresh() {
-
-  $instance = array(
-    'field_name' => MESSAGE_FIELD_MESSAGE_TEXT,
-    'bundle' => 'redhen_activity_message',
-    'entity_type' => 'message_type',
-    'label' => t('Message text'),
-    'description' => t('This is the text of all messages of this type.'),
-    'required' => TRUE,
-    'settings' => array(
-      'text_processing' => 1,
-    ),
-  );
-  if ($existing_instance = field_info_instance($instance['entity_type'], $instance['field_name'], $instance['bundle'])) {
-    field_update_instance($instance);
-  }
-  else {
-    field_create_instance($instance);
-  }
-
   $fields['message_redhen_contact']['field'] = array (
     'type' => 'entityreference',
     'module' => 'entityreference',
@@ -297,7 +278,7 @@ function redhen_activity_field_refresh() {
   );
 
   // allow other modules to alter these fields
-  drupal_alter('redhen_activity_fields', $fields);
+  drupal_alter('redhen_activity_message_fields', $fields);
 
   // Create the missing fields.
   foreach ($fields as $field_name => $info) {
@@ -371,7 +352,7 @@ function redhen_activity_message_save($entity, $type, $op) {
   switch ($type) {
     case 'redhen_contact':
     case 'redhen_org':
-      $message = message_create("{$type}_crud", array('arguments' => array(
+      $message = message_create($type, array('arguments' => array(
         '%name' => $entity->label(),
         '!op' => $op
       )), $user);
