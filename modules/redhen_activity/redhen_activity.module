@@ -127,27 +127,25 @@ function redhen_activity_default_message_type() {
     "rdf_mapping" : []
   }');
 
-  if (module_exists('redhen_membership')) {
-    $items['redhen_membership'] = entity_import('message_type', '{
-      "name" : "redhen_membership",
-      "description" : "RedHen Membership",
-      "argument_keys" : [],
-      "argument" : [],
-      "category" : "redhen_activity_message",
-      "data" : { "purge" : { "override" : 0, "enabled" : 0, "quota" : "", "days" : "" } },
-      "language" : "",
-      "arguments" : null,
-      "message_order_display_name" : { "und" : [ { "value" : "Membership", "format" : null } ] },
-      "message_text" : { "und" : [
-          {
-            "value" : "Membership %name of type %type has been <strong>!op</strong> for %entity_name.",
-            "format" : "redhen_activity_message"
-          }
-        ]
-      },
-      "rdf_mapping" : []
-    }');
-  }
+  $items['redhen_membership'] = entity_import('message_type', '{
+    "name" : "redhen_membership",
+    "description" : "RedHen Membership",
+    "argument_keys" : [],
+    "argument" : [],
+    "category" : "redhen_activity_message",
+    "data" : { "purge" : { "override" : 0, "enabled" : 0, "quota" : "", "days" : "" } },
+    "language" : "",
+    "arguments" : null,
+    "message_order_display_name" : { "und" : [ { "value" : "Membership", "format" : null } ] },
+    "message_text" : { "und" : [
+        {
+          "value" : "Membership %name of type %type has been <strong>!op</strong> for %entity_name.",
+          "format" : "redhen_activity_message"
+        }
+      ]
+    },
+    "rdf_mapping" : []
+  }');
 
   return $items;
 }
