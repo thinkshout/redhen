@@ -127,6 +127,28 @@ function redhen_activity_default_message_type() {
     "rdf_mapping" : []
   }');
 
+  if (module_exists('redhen_membership')) {
+    $items['redhen_membership'] = entity_import('message_type', '{
+      "name" : "redhen_membership",
+      "description" : "RedHen Membership",
+      "argument_keys" : [],
+      "argument" : [],
+      "category" : "redhen_activity_message",
+      "data" : { "purge" : { "override" : 0, "enabled" : 0, "quota" : "", "days" : "" } },
+      "language" : "",
+      "arguments" : null,
+      "message_order_display_name" : { "und" : [ { "value" : "Membership", "format" : null } ] },
+      "message_text" : { "und" : [
+          {
+            "value" : "Membership %name of type %type has been <strong>!op</strong> for %entity_name.",
+            "format" : "redhen_activity_message"
+          }
+        ]
+      },
+      "rdf_mapping" : []
+    }');
+  }
+
   return $items;
 }
 
@@ -208,7 +230,8 @@ function redhen_activity_field_refresh() {
       'redhen_contact',
       'redhen_note',
       'redhen_relation',
-      'redhen_engagement'
+      'redhen_engagement',
+      'redhen_membership'
     ),
     'label' => 'Contact',
     'required' => TRUE,
@@ -256,7 +279,7 @@ function redhen_activity_field_refresh() {
   );
   $fields['message_redhen_org']['instances'][] = array(
     'entity_type' => 'message',
-    'bundles' => array('redhen_org', 'redhen_note', 'redhen_relation'),
+    'bundles' => array('redhen_org', 'redhen_note', 'redhen_relation', 'redhen_membership'),
     'label' => 'Organization',
     'required' => TRUE,
     'widget' => array(
@@ -441,6 +464,23 @@ function redhen_activity_message_save($entity, $type, $op) {
       $wrapper->save();
 
       break;
+    case 'redhen_membership':
+      $parent_entity = entity_load_single($entity->entity_type, $entity->entity_id);
+      $message = message_create('redhen_membership', array(
+        'arguments' => array(
+          '%name' => $entity->label(),
+          '!op' => $op,
+          '%type' => $entity->type,
+          '%entity_name' => $parent_entity->label()
+        )
+      ), $user);
+      $wrapper = entity_metadata_wrapper('message', $message);
+      $ref_field_name = "message_{$parent_entity->entityType()}";
+      $wrapper->$ref_field_name->set($parent_entity);
+      $wrapper->save();
+
+      break;
+
     default:
       return;
   }
@@ -515,6 +555,7 @@ function redhen_activity_activity_page($entity = NULL, $entity_type = NULL) {
           break;
         case 'redhen_relation':
         case 'redhen_note':
+        case 'redhen_membership':
           if (!empty($message->message_redhen_contact)) {
             $ref_field = 'message_redhen_contact';
             $ref_entity_type = 'redhen_contact';
