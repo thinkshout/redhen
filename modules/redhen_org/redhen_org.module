@@ -359,6 +359,10 @@ function redhen_org_access($op, $org = NULL, $account = NULL) {
  */
 function redhen_org_permission() {
   return array(
+    'administer redhen_org types' => array(
+      'title' => t('Administer RedHen Organization Types'),
+      'description' => t('Manage RedHen organization types and their structure.'),
+    ),
     'administer redhen orgs' => array(
       'title' => t('Administer RedHen Organizations'),
       'description' => t('Perform administration tasks for RedHen Organizations.'),
