@@ -537,65 +537,17 @@ function redhen_activity_activity_page($entity = NULL, $entity_type = NULL) {
     $result = redhen_filter_query('message', $header, $bundle, $properties, $fields);
   }
 
-  $rows = array();
+  $messages = array();
   if ($result) {
     $messages = message_load_multiple(array_keys($result['message']));
-    foreach ($messages as $message) {
-      switch ($message->type) {
-        case 'redhen_engagement':
-        case 'redhen_contact':
-          $ref_field = 'message_redhen_contact';
-          $ref_entity_type = 'redhen_contact';
-          break;
-        case 'redhen_org':
-          $ref_field = 'message_redhen_org';
-          $ref_entity_type = 'redhen_org';
-          break;
-        case 'redhen_relation':
-        case 'redhen_note':
-        case 'redhen_membership':
-          if (!empty($message->message_redhen_contact)) {
-            $ref_field = 'message_redhen_contact';
-            $ref_entity_type = 'redhen_contact';
-          }
-          else {
-            $ref_field = 'message_redhen_org';
-            $ref_entity_type = 'redhen_org';
-          }
-          break;
-      }
-      $source_entity = entity_load_single($ref_entity_type, $message->{$ref_field}[LANGUAGE_NONE][0]['target_id']);
-      if ($source_entity) {
-        $source_uri = entity_uri($ref_entity_type, $source_entity);
-        $source = l($source_entity->label(), $source_uri['path']);
-      }
-      else {
-        $source = t('Deleted');
-      }
-
-      $message_type = message_type_load($message->type);
-      $author = $message->user();
-      $url = user_uri($author);
-      $rows[] = array(
-        redhen_format_date($message->timestamp),
-        $message_type->description,
-        l($author->name, $url['path']),
-        $source,
-        $message->getText()
-      );
-    }
   }
 
-  //@todo: theme
   return array(
     'form' => drupal_get_form('redhen_filter_form', 'message'),
-    'table' => array(
-      '#theme' => 'table',
-      '#rows' => $rows,
+    'messages' => array(
+      '#theme' => 'redhen_activity_list',
+      '#messages' => $messages,
       '#header' => $header
-    ),
-    'pager' => array(
-      '#theme' => 'pager',
     )
   );
 }
@@ -609,4 +561,104 @@ function redhen_activity_entity_property_info_alter(&$info) {
   // ensure the timestamp is a filter for RedHen forms
   $properties['timestamp']['filter'] = TRUE;
   $properties['timestamp']['field_type'] = 'textfield';
+}
+
+/**
+ * Implements hook_theme().
+ */
+function redhen_activity_theme() {
+  return array(
+    'redhen_activity_list' => array(
+      'variables' => array('messages' => NULL, 'header' => NULL),
+    )
+  );
+}
+
+/**
+ * Theme function for activity message list.
+ *
+ * @param $variables
+ *
+ * @return string
+ */
+function theme_redhen_activity_list($variables) {
+  $messages = $variables['messages'];
+  $header = $variables['header'];
+
+  if (!empty($messages)) {
+    $rows = array();
+    foreach ($messages as $message) {
+      $message_type = message_type_load($message->type);
+      $author = $message->user();
+      $url = user_uri($author);
+      $source_entity = redhen_activity_source_entity($message);
+      if ($source_entity) {
+        $source_uri = entity_uri($source_entity->entityType(), $source_entity);
+        $source = l($source_entity->label(), $source_uri['path']);
+      }
+
+      $rows[] = array(
+        'data' => array(
+          redhen_format_date($message->timestamp),
+          $message_type->description,
+          l($author->name, $url['path']),
+          $source,
+          $message->getText()
+        )
+      );
+    }
+
+    $render['table'] = array(
+      '#theme' => 'table',
+      '#header' => $header,
+      '#rows' => $rows
+    );
+    $render['pager'] = array(
+      '#theme' => 'pager',
+    );
+  }
+  else {
+    // no results, set a message
+    $render['no-result'] = array(
+      '#type' => 'markup',
+      '#markup' => t('Sorry, there are no activities that match your criteria.'),
+    );
+  }
+
+  return render($render);
+}
+
+/**
+ * Return the source entity of an activity message.
+ *
+ * @param $message
+ *
+ * @return mixed
+ */
+function redhen_activity_source_entity($message) {
+  switch ($message->type) {
+    case 'redhen_engagement':
+    case 'redhen_contact':
+      $ref_field = 'message_redhen_contact';
+      $ref_entity_type = 'redhen_contact';
+      break;
+    case 'redhen_org':
+      $ref_field = 'message_redhen_org';
+      $ref_entity_type = 'redhen_org';
+      break;
+    case 'redhen_relation':
+    case 'redhen_note':
+    case 'redhen_membership':
+      if (!empty($message->message_redhen_contact)) {
+        $ref_field = 'message_redhen_contact';
+        $ref_entity_type = 'redhen_contact';
+      }
+      else {
+        $ref_field = 'message_redhen_org';
+        $ref_entity_type = 'redhen_org';
+      }
+      break;
+  }
+  $source_entity = entity_load_single($ref_entity_type, $message->{$ref_field}[LANGUAGE_NONE][0]['target_id']);
+  return $source_entity;
 }
