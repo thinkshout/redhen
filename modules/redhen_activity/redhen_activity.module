@@ -56,7 +56,7 @@ function redhen_activity_default_message_type() {
     "data" : { "purge" : { "override" : 0, "enabled" : 0, "quota" : "", "days" : "" } },
     "language" : "",
     "arguments" : null,
-    "message_order_display_name" : { "und" : [ { "value" : "Contact", "format" : null } ] },
+    "message_order_display_name" : { "und" : [ { "value" : "Organization", "format" : null } ] },
     "message_text" : { "und" : [
         {
           "value" : "Organization %name has been <strong>!op</strong>.",
@@ -76,7 +76,7 @@ function redhen_activity_default_message_type() {
     "data" : { "purge" : { "override" : 0, "enabled" : 0, "quota" : "", "days" : "" } },
     "language" : "",
     "arguments" : null,
-    "message_order_display_name" : { "und" : [ { "value" : "Contact", "format" : null } ] },
+    "message_order_display_name" : { "und" : [ { "value" : "Note", "format" : null } ] },
     "message_text" : { "und" : [
         {
           "value" : "A note of type %type has been <strong>!op</strong> for %name.",
@@ -96,7 +96,7 @@ function redhen_activity_default_message_type() {
     "data" : { "purge" : { "override" : 0, "enabled" : 0, "quota" : "", "days" : "" } },
     "language" : "",
     "arguments" : null,
-    "message_order_display_name" : { "und" : [ { "value" : "Contact", "format" : null } ] },
+    "message_order_display_name" : { "und" : [ { "value" : "Connection", "format" : null } ] },
     "message_text" : { "und" : [
         {
           "value" : "A connection of type %type has been <strong>!op</strong> between %name1 and %name2.",
@@ -116,7 +116,7 @@ function redhen_activity_default_message_type() {
     "data" : { "purge" : { "override" : 0, "enabled" : 0, "quota" : "", "days" : "" } },
     "language" : "",
     "arguments" : null,
-    "message_order_display_name" : { "und" : [ { "value" : "Contact", "format" : null } ] },
+    "message_order_display_name" : { "und" : [ { "value" : "Engagement", "format" : null } ] },
     "message_text" : { "und" : [
         {
           "value" : "An engagement of type %type with a score of %score has been <strong>!op</strong> for %name.",
