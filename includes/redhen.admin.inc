@@ -31,6 +31,12 @@ function redhen_landing_page() {
       'description' => t('View, manage, and search memberships.'),
       'permission' => 'access redhen memberships'
     ),
+    'activity' => array(
+      'path' => 'redhen/activity',
+      'title' => 'Activity',
+      'description' => t('RedHen activity stream.'),
+      'permission' => 'access redhen activity'
+    ),
     'structure' => array(
       'path' => 'admin/structure/redhen',
       'title' => 'Structure',
@@ -42,7 +48,7 @@ function redhen_landing_page() {
       'title' => 'Settings',
       'description' => t('RedHen configuration and settings.'),
       'permission' => 'administer redhen'
-    ),
+    )
   );
 
   foreach ($items as $key => $item) {
