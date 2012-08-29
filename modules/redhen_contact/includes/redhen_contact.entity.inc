@@ -16,7 +16,6 @@ class RedhenContact extends Entity {
     $uid = NULL,
     $author_uid = NULL,
     $redhen_state = REDHEN_STATE_ACTIVE,
-    $engagement_score = NULL,
     $type = '',
     $created = '',
     $updated = '';
@@ -89,7 +88,7 @@ class RedhenContact extends Entity {
   protected function defaultLabel() {
     $type = redhen_contact_get_types($this->type);
     $wrapper = entity_metadata_wrapper('redhen_contact', $this);
-    $name = $wrapper->name->value();
+    $name = $wrapper->full_name->value();
     return $name . ' (' . $type->label . ')';
   }
 
@@ -98,17 +97,6 @@ class RedhenContact extends Entity {
    */
   protected function defaultUri() {
     return array('path' => 'redhen/contact/' . $this->identifier());
-  }
-
-  /**
-   * Return the contact formatted name, by default a concatenation of first and
-   * last names. Can be changed by overriding this class or implementing
-   * hook_redhen_contact_name_alter().
-   *
-   * @return string
-   */
-  protected function name() {
-
   }
 
   /**
