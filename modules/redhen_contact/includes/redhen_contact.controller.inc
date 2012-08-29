@@ -203,7 +203,6 @@ class RedhenContactEntityController extends EntityAPIController {
           'updated' => REQUEST_TIME
         ))
           ->execute();
-        $contact->user = $contact->user();
         module_invoke_all('redhen_contact_user_update', 'insert', $contact);
       }
       // update existing link with different user
@@ -222,10 +221,6 @@ class RedhenContactEntityController extends EntityAPIController {
         $old_contact = clone $contact;
         $old_user = $contact_result->fetchAssoc();
         $old_contact->uid = $old_user->uid;
-        $old_contact->user = $old_contact->user();
-
-        // Populate the user property with the new user
-        $contact->user = $contact->user();
 
         module_invoke_all('redhen_contact_user_update', 'update', $contact, $old_contact);
       }
@@ -254,23 +249,24 @@ class RedhenContactEntityController extends EntityAPIController {
    */
   public function deleteUser($contact, $delete = FALSE, DatabaseTransaction $transaction = NULL) {
     try {
+      $wrapper = entity_metadata_wrapper('redhen_contact', $contact);
+      $user = $wrapper->user->value();      
       if ($delete) {
         db_delete('redhen_contact_user')
           ->condition('contact_id', $contact->contact_id)
-          ->condition('uid', $contact->user->uid)
+          ->condition('uid', $user->uid)
           ->execute();
       }
       else {
         db_update('redhen_contact_user')
           ->condition('contact_id', $contact->contact_id)
-          ->condition('uid', $contact->user->uid)
+          ->condition('uid', $user->uid)
           ->fields(array('status' => NULL))
           ->execute();
       }
 
       module_invoke_all('redhen_contact_user_update', 'delete', $contact);
 
-      unset($contact->user);
       unset($contact->uid);
 
       return TRUE;

@@ -200,18 +200,21 @@ function redhen_contact_contact_user_form($form, &$form_state, RedhenContact $co
   $form_state['redhen_contact'] = $contact;
   $form['#attributes'] = array('id' => 'redhen-contact-user-form');
 
-  if ($contact->user) {
-    $user_uri = entity_uri('user', $contact->user);
+  $wrapper = entity_metadata_wrapper('redhen_contact', $contact);
+  $user = $wrapper->user->value();
+  
+  if ($user) {
+    $user_uri = entity_uri('user', $user);
     $form['existing_user'] = array(
       '#type' => 'container',
       array(
         'message' => array(
           '#markup' => t('!user is currently linked with %contact.', array(
-            '!user' => l($contact->user->name, $user_uri['path']),
+            '!user' => l($user->name, $user_uri['path']),
             '%contact' => $contact->label()
           ))
         ),
-        'user' => user_view($contact->user)
+        'user' => user_view($user)
       ),
       array(
         'user_actions' => array(
@@ -328,7 +331,8 @@ function redhen_contact_select_user_callback($form, &$form_state) {
 function redhen_contact_unlink_user_submit($form, &$form_state) {
   $contact = $form_state['redhen_contact'];
   $delete = ($form_state['clicked_button']['#parents'][0] == 'delete');
-  $user = $contact->user;
+  $wrapper = entity_metadata_wrapper('redhen_contact', $contact);
+  $user = $wrapper->user->value();
   $contact->deleteUser($delete);
   drupal_set_message(t('The Drupal user %name has been %action from this contact.',
     array(
