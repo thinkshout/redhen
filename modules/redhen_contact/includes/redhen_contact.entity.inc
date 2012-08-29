@@ -12,11 +12,8 @@ class RedhenContact extends Entity {
   public
     $first_name = '',
     $last_name = '',
-    $name,
-    $email,
     $contact_id = NULL,
     $uid = NULL,
-    $user,
     $author_uid = NULL,
     $redhen_state = REDHEN_STATE_ACTIVE,
     $engagement_score = NULL,
@@ -33,15 +30,17 @@ class RedhenContact extends Entity {
       field_attach_load('redhen_contact', array($this->contact_id => $this));
     }
 
-    $this->name = $this->name();
     $this->email = $this->defaultEmail();
-    $this->user = $this->user();
   }
 
   /**
    * Override buildContent() to add contact properties.
    */
   public function buildContent($view_mode = 'full', $langcode = NULL) {
+
+    $wrapper = entity_metadata_wrapper('redhen_contact', $this);
+    $user = $wrapper->user->value();
+    
     $content['redhen_state'] = array(
       '#theme' => 'redhen_property_field',
       '#label' => t('State'),
@@ -53,14 +52,14 @@ class RedhenContact extends Entity {
       '#classes' => 'field field-label-inline clearfix',
     );
 
-    if ($this->user) {
-      $user_uri = entity_uri('user', $this->user);
+    if ($user) {
+      $user_uri = entity_uri('user', $user);
       $content['user'] = array(
         '#theme' => 'redhen_property_field',
         '#label' => t('Drupal User'),
         '#items' => array(
           array(
-            '#markup' => l($this->user->name, $user_uri['path'])
+            '#markup' => l($user->name, $user_uri['path'])
           ),
         ),
         '#classes' => 'field field-label-inline clearfix',
@@ -89,7 +88,9 @@ class RedhenContact extends Entity {
    */
   protected function defaultLabel() {
     $type = redhen_contact_get_types($this->type);
-    return $this->name . ' (' . $type->label . ')';
+    $wrapper = entity_metadata_wrapper('redhen_contact', $this);
+    $name = $wrapper->name->value();
+    return $name . ' (' . $type->label . ')';
   }
 
   /**
@@ -107,12 +108,7 @@ class RedhenContact extends Entity {
    * @return string
    */
   protected function name() {
-    $name = $this->first_name . ' ' . $this->last_name;
-    $context = array(
-      'contact' => clone $this,
-    );
-    drupal_alter('redhen_contact_name', $name, $context);
-    return $name;
+
   }
 
   /**
@@ -181,19 +177,6 @@ class RedhenContact extends Entity {
     );
   }
 
-  /**
-   * Return the active user linked to this contact.
-   *
-   * @return mixed|null
-   */
-  public function user() {
-    $user = NULL;
-    if ($this->uid) {
-      $user = user_load($this->uid);
-    }
-    return $user;
-  }
-
   public function setUser() {
     return entity_get_controller($this->entityType)->setUser($this);
   }
@@ -239,18 +222,53 @@ class RedhenContactMetadataController extends EntityDefaultMetadataController {
       'description' => t("The date the contact was created."),
       'type' => 'date',
       'schema field' => 'created',
+      'setter callback' => 'entity_property_verbatim_set',
     );
     $properties['updated'] = array(
       'label' => t("Updated"),
       'description' => t("The date the contact was updated."),
       'type' => 'date',
       'schema field' => 'updated',
+      'setter callback' => 'entity_property_verbatim_set',
     );
+
+    $properties['first_name'] = array_merge($properties['first_name'], array(
+      'label' => t('First Name'),
+      'filter' => TRUE,
+      'field_type' => 'textfield',
+      'setter callback' => 'entity_property_verbatim_set',
+    ));
+    $properties['last_name'] = array_merge($properties['last_name'], array(
+      'label' => t('Last Name'),
+      'filter' => TRUE,
+      'field_type' => 'textfield',
+      'setter callback' => 'entity_property_verbatim_set',
+    ));
+
+    $properties['full_name'] = array(
+      'label' => t('Full name'),
+      'description' => t('The full name of the contact.'),
+      'filter' => TRUE,
+      'type' => 'text',
+      'getter callback' => 'redhen_contact_property_full_name_get',
+      'computed' => TRUE,
+      'entity views field' => TRUE,
+    );
+
+    $properties['redhen_state'] = array_merge($properties['redhen_state'], array(
+      'label' => t('State'),
+      'filter' => TRUE,
+      'field_type' => 'select',
+      'options list' => 'redhen_state_options',
+      'setter callback' => 'entity_property_verbatim_set',
+    ));
+
+    // Entities
     $properties['user'] = array(
       'label' => t("User"),
       'type' => 'user',
       'description' => t("The Drupal user associated with the contact."),
-      'schema field' => 'uid'
+      'getter callback' => 'redhen_contact_property_user_get',
     );
     $properties['author'] = array(
       'label' => t("Author"),
@@ -259,26 +277,28 @@ class RedhenContactMetadataController extends EntityDefaultMetadataController {
       'schema field' => 'author_uid'
     );
 
-    $properties['first_name'] = array_merge($properties['first_name'], array(
-      'label' => t('First Name'),
-      'filter' => TRUE,
-      'field_type' => 'textfield'
-    ));
-    $properties['last_name'] = array_merge($properties['last_name'], array(
-      'label' => t('Last Name'),
-      'filter' => TRUE,
-      'field_type' => 'textfield'
-    ));
-
-    $properties['redhen_state'] = array_merge($properties['redhen_state'], array(
-      'label' => t('State'),
-      'filter' => TRUE,
-      'field_type' => 'select',
-      'options list' => 'redhen_state_options',
-    ));
-
     return $info;
   }
 
 }
 
+/**
+ * Callback to get $contact->full_name
+ */
+function redhen_contact_property_full_name_get(RedhenContact $contact, array $options, $property_name, $entity_type) {
+  $name = $contact->first_name . ' ' . $contact->last_name;
+  $context = array(
+    'contact' => clone $contact,
+  );
+  drupal_alter('redhen_contact_name', $name, $context);
+  return $name;
+}
+
+/**
+ * Callback to get $contact->user.
+ */
+function redhen_contact_property_user_get(RedhenContact $contact, array $options, $property_name, $entity_type) {
+  if (is_numeric($contact->uid)) {
+    return entity_load_single('user', $contact->uid);
+  }
+}
