@@ -367,7 +367,7 @@ function redhen_engagement_field_extra_fields_alter(&$info) {
   foreach (redhen_contact_get_types() as $type => $contact_type) {
     $info['redhen_contact'][$type]['display']['engagement_score'] = array(
       'label' => t('Engagement Score'),
-      'description' => t('This contacts engagement score.'),
+      'description' => t('The engagement score for this contact.'),
       'weight' => 0,
     );
   }
