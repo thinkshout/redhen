@@ -96,7 +96,9 @@ function redhen_contact_contact_form_submit($form, &$form_state) {
   // Save the contact.
   $contact = redhen_contact_save($contact);
 
-  drupal_set_message(t('Contact %name saved.', array('%name' => $contact->name)));
+  $wrapper = entity_metadata_wrapper('redhen_contact', $contact);
+
+  drupal_set_message(t('Contact %name saved.', array('%name' => $wrapper->full_name->value())));
   $form_state['redirect'] = 'redhen/contact/' . $contact->contact_id;
 }
 
@@ -116,8 +118,10 @@ function redhen_contact_contact_delete_form($form, &$form_state, $contact) {
 
   $form['#submit'][] = 'redhen_contact_contact_delete_form_submit';
 
+  $wrapper = entity_metadata_wrapper('redhen_contact', $contact);
+
   $form = confirm_form($form,
-    t('Are you sure you want to delete %title?', array('%title' => $contact->name)),
+    t('Are you sure you want to delete %title?', array('%title' => $wrapper->full_name->value())),
     entity_uri('redhen_contact', $contact),
     '<p>' . t('Deleting this contact cannot be undone.') . '</p>',
     t('Delete'),
@@ -134,13 +138,16 @@ function redhen_contact_contact_delete_form($form, &$form_state, $contact) {
 function redhen_contact_contact_delete_form_submit($form, &$form_state) {
   $contact = $form_state['redhen_contact'];
 
+  $wrapper = entity_metadata_wrapper('redhen_contact', $contact);
+  $full_name = $wrapper->full_name->value();
+  
   if (redhen_contact_delete_multiple(array($contact->contact_id))) {
-    drupal_set_message(t('%title has been deleted.', array('%title' => $contact->name)));
-    watchdog('redhen_contact', 'Deleted contact %title.', array('%title' => $contact->name), WATCHDOG_NOTICE);
+    drupal_set_message(t('%title has been deleted.', array('%title' => $full_name)));
+    watchdog('redhen_contact', 'Deleted contact %title.', array('%title' => $full_name), WATCHDOG_NOTICE);
     $form_state['redirect'] = 'redhen/contact';
   }
   else {
-    drupal_set_message(t('%title could not be deleted.', array('%title' => $contact->name)), 'error');
+    drupal_set_message(t('%title could not be deleted.', array('%title' => $full_name)), 'error');
   }
 }
 
@@ -160,8 +167,11 @@ function redhen_contact_contact_archive_form($form, &$form_state, $contact) {
 
   $form['#submit'][] = 'redhen_contact_contact_archive_form_submit';
 
+  $wrapper = entity_metadata_wrapper('redhen_contact', $contact);
+  $full_name = $wrapper->full_name->value();
+
   $form = confirm_form($form,
-    t('Are you sure you want to archive %label?', array('%label' => $contact->name)),
+    t('Are you sure you want to archive %label?', array('%label' => $full_name)),
     entity_uri('redhen_contact', $contact),
     '<p>' . t('Archiving this contact cannot be undone.') . '</p>',
     t('Archive'),
@@ -178,11 +188,14 @@ function redhen_contact_contact_archive_form($form, &$form_state, $contact) {
 function redhen_contact_contact_archive_form_submit($form, &$form_state) {
   $contact = $form_state['redhen_contact'];
 
+  $wrapper = entity_metadata_wrapper('redhen_contact', $contact);
+  $full_name = $wrapper->full_name->value();
+  
   if ($contact->setState(REDHEN_STATE_ARCHIVED)) {
-    drupal_set_message(t('%label has been archived.', array('%label' => $contact->name)));
+    drupal_set_message(t('%label has been archived.', array('%label' => $full_name)));
   }
   else {
-    drupal_set_message(t('%label was not archived.', array('%label' => $contact->name)), WATCHDOG_ERROR);
+    drupal_set_message(t('%label was not archived.', array('%label' => $full_name)), WATCHDOG_ERROR);
   }
   $url = entity_uri($contact->entityType(), $contact);
   $form_state['redirect'] = $url['path'];
