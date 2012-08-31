@@ -273,7 +273,6 @@ class RedhenContactMetadataController extends EntityDefaultMetadataController {
 }
 
 /**
-<<<<<<< HEAD
  * RedhenContact Views Controller class.
  */
 class RedhenContactViewsController extends EntityDefaultViewsController {
