@@ -175,14 +175,19 @@ function redhen_org_set_primary_form($form, &$form_state, $org, $contact) {
 
   $existing = '';
 
-  if (isset($org->primary_contact->name)) {
-    $existing = '<p>' . t('%old_primary will no longer be the primary contact.', array('%old_primary' => $org->primary_contact->name)) . '</p>';
+  $wrapper = entity_metadata_wrapper('redhen_org', $org);
+  $primary_contact = $wrapper->primary_contact->value();
+  if ($primary_contact) {
+    $primary_contact_wrapper = entity_metadata_wrapper('redhen_contact', $primary_contact);
+    $contact_name = $primary_contact_wrapper->full_name->value();
+    $existing = '<p>' . t('%old_primary will no longer be the primary contact.', array('%old_primary' => $contact_name)) . '</p>';
   }
 
+  $contact_wrapper = entity_metadata_wrapper('redhen_contact', $contact);
   $form = confirm_form($form,
     t('Are you sure you want to change the primary contact for %org to %name?', array(
       '%org' => $org->label,
-      '%name' => $contact->name
+      '%name' => $contact_wrapper->full_name->value(),
     )),
     entity_uri('redhen_org', $org),
     $existing,
@@ -201,7 +206,8 @@ function redhen_org_set_primary_form_submit($form, &$form_state) {
   $org = $form_state['redhen_org'];
   $contact = $form_state['redhen_contact'];
   $org_name = $org->label;
-  $contact_name = $contact->name;
+  $contact_wrapper = entity_metadata_wrapper('redhen_contact', $contact);
+  $contact_name = $contact_wrapper->full_name->value();
 
   if ($org->setPrimaryContact($contact)) {
     drupal_set_message(t('%contact_name has been set as the primary contact for %org_name.', array(

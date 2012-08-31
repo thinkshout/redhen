@@ -14,7 +14,6 @@ class RedhenOrg extends Entity {
     $name = '',
     $org_id = NULL,
     $primary_contact_id = NULL,
-    $primary_contact = NULL,
     $author_uid = NULL,
     $redhen_state = REDHEN_STATE_ACTIVE,
     $type = '',
@@ -33,13 +32,16 @@ class RedhenOrg extends Entity {
       $this->created = REQUEST_TIME;
     }
 
-    $this->primary_contact = $this->primaryContact();
   }
 
   /**
    * Override buildContent() to add organization properties.
    */
   public function buildContent($view_mode = 'full', $langcode = NULL) {
+
+    $wrapper = entity_metadata_wrapper('redhen_org', $this);
+    $primary_contact = $wrapper->primary_contact->value();
+
     $content['redhen_state'] = array(
       '#theme' => 'redhen_property_field',
       '#label' => t('State'),
@@ -50,8 +52,8 @@ class RedhenOrg extends Entity {
       ),
       '#classes' => 'field field-label-inline clearfix',
     );
-    if (isset($this->primary_contact->name)) {
-      $contact_array = $this->primary_contact->view('teaser');
+    if (isset($primary_contact->contact_id)) {
+      $contact_array = $primary_contact->view('teaser');
       $content['primary_contact'] = array(
         '#theme' => 'fieldset',
         '#title' => t('Primary Contact'),
@@ -115,19 +117,6 @@ class RedhenOrg extends Entity {
     return array('path' => 'redhen/org/' . $this->identifier());
   }
 
-  /**
-   * Return a primary contact object if possible.
-   *
-   * @return RedhenContact|null
-   */
-  protected function primaryContact() {
-    $contact = NULL;
-    if (isset($this->primary_contact_id)) {
-      $contact = redhen_contact_load($this->primary_contact_id);
-    }
-    return $contact;
-  }
-
 }
 
 /**
@@ -164,25 +153,26 @@ class RedhenOrgMetadataController extends EntityDefaultMetadataController {
       'type' => 'date',
       'schema field' => 'updated',
     );
-    $properties['author'] = array(
-      'label' => t("Author"),
-      'type' => 'user',
-      'description' => t("The author of the organization record."),
-      'schema field' => 'author_uid'
-    );
-    $properties['primary_contact'] = array(
-      'label' => t("Primary contact"),
-      'type' => 'redhen_contact',
-      'description' => t("The primary contact for the organization."),
-      'schema field' => 'primary_contact_id'
-    );
-
     $properties['redhen_state'] = array_merge($properties['redhen_state'], array(
       'label' => t('State'),
       'filter' => TRUE,
       'field_type' => 'select',
       'options list' => 'redhen_state_options'
     ));
+
+    // Entities
+    $properties['primary_contact'] = array(
+      'label' => t("Primary contact"),
+      'type' => 'redhen_contact',
+      'description' => t("The primary contact for the organization."),
+      'schema field' => 'primary_contact_id'
+    );
+    $properties['author'] = array(
+      'label' => t("Author"),
+      'type' => 'user',
+      'description' => t("The author of the organization record."),
+      'schema field' => 'author_uid'
+    );
 
     return $info;
   }
