@@ -282,3 +282,61 @@ class RedhenContactMetadataController extends EntityDefaultMetadataController {
 
 }
 
+/**
+ * RedhenContact Views Controller class.
+ */
+class RedhenContactViewsController extends EntityDefaultViewsController {
+
+  /**
+   * Add extra fields to views_data().
+   */
+  public function views_data() {
+    $data = parent::views_data();
+
+    // Base table definition for redhen_contact_user so we can use it for joins
+    $data['redhen_contact_user']['table']['group'] = t('User');
+
+    $data['redhen_contact_user']['table']['join'] = array(
+      'redhen_contact' => array(
+        'left_field' => 'contact_id',
+        'field' => 'contact_id',
+        // Only join where the linkage is active
+        'extra' => array(array('field' => 'status', 'value' => '1', 'operator' => '=')),
+      ),
+      'users' => array(
+        'left_field' => 'uid',
+        'field' => 'uid',
+        // Only join where the linkage is active
+        'extra' => array(array('field' => 'status', 'value' => '1', 'operator' => '=')),
+      ),
+    );
+
+    // Add user relationship to contacts
+    $data['redhen_contact']['table']['join'] = array(
+      'users' => array(
+        'left_table' => 'redhen_contact_user',
+        'left_field' => 'contact_id',
+        'field' => 'contact_id',
+
+      ),
+      'redhen_contact_user' => array(
+        'left_field' => 'contact_id',
+        'field' => 'contact_id',
+      ),
+    );
+
+    $data['users']['table']['join'] = array(
+      'redhen_contact' => array(
+        'left_table' => 'redhen_contact_user',
+        'left_field' => 'uid',
+        'field' => 'uid',
+      ),
+      'redhen_contact_user' => array(
+        'left_field' => 'uid',
+        'field' => 'uid',
+      ),
+    );
+
+    return $data;
+  }
+}

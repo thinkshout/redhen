@@ -16,6 +16,7 @@ function redhen_contact_entity_info() {
       'controller class' => 'RedhenContactEntityController',
       'metadata controller class' => 'RedhenContactMetadataController',
       'entity class' => 'RedhenContact',
+      'views controller class' => 'RedhenContactViewsController',
       'base table' => 'redhen_contact',
       'revision table' => 'redhen_contact_revision',
       'fieldable' => TRUE,
@@ -675,7 +676,7 @@ function redhen_contact_query_redhen_contact_label_alter(QueryAlterableInterface
  */
 function redhen_contact_load_by_user($account, $state = REDHEN_STATE_ACTIVE) {
   $contact = &drupal_static(__FUNCTION__ . $account->uid, FALSE);
-  if (!$contact) {
+  if (!$contact && isset($account->uid)) {
     $contacts = redhen_contact_load_multiple(FALSE, array(
       'uid' => $account->uid,
       'redhen_state' => $state
