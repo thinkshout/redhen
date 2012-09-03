@@ -6,7 +6,7 @@
  */
 
 /**
- * Return a form array for adding/editing a connection.
+ * Return a form array for adding/editing a note.
  *
  * @param $form
  * @param $form_state
@@ -16,8 +16,9 @@
  *
  * @return array
  */
-function redhen_note_form($form, &$form_state, $redhen_note) {
+function redhen_note_form($form, &$form_state, $redhen_note, $entity = NULL) {
   $form_state['redhen_note'] = $redhen_note;
+  $form_state['entity'] = $entity;
 
   field_attach_form('redhen_note', $redhen_note, $form, $form_state);
 
@@ -43,13 +44,20 @@ function redhen_note_form_validate($form, &$form_state) {
 function redhen_note_form_submit($form, &$form_state) {
   $redhen_note = $form_state['redhen_note'];
 
-  list($entity_id, ,) = entity_extract_ids($redhen_note->entity_type, $redhen_note->entity);
+  if (isset($form_state['entity'])) {
+    $entity = $form_state['entity'];
+  }
+  else {
+    $wrapper = entity_metadata_wrapper('redhen_note', $redhen_note);
+    $entity = $wrapper->entity->value();
+  }
+
+  list($entity_id, ,) = entity_extract_ids($redhen_note->entity_type, $entity);
   $redhen_note->entity_id = $entity_id;
 
   field_attach_submit('redhen_note', $redhen_note, $form, $form_state);
 
   if ($redhen_note->save()) {
-    $entity = $redhen_note->entity;
     $entity_type = $redhen_note->entity_type;
     drupal_set_message(t('The note has been saved.'));
     $uri = entity_uri($entity_type, $entity);
@@ -94,8 +102,11 @@ function redhen_note_delete_form($form, &$form_state, $note) {
 function redhen_note_delete_form_submit($form, &$form_state) {
   $note = $form_state['redhen_note'];
 
+  $wrapper = entity_metadata_wrapper('redhen_note', $note);
+  $entity = $wrapper->entity->value();
+
   $title = $note->label();
-  $entity_url = entity_uri($note->entity_type, $note->entity);
+  $entity_url = entity_uri($note->entity_type, $entity);
 
   // No status returned from delete(), assume it worked
   redhen_note_delete_multiple(array($note->note_id));

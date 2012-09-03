@@ -13,9 +13,8 @@ module_load_include('inc', 'redhen', 'includes/redhen.forms');
 function redhen_note_add($entity, $entity_type) {
   $redhen_note = entity_get_controller('redhen_note')->create(array('type' => 'redhen_note'));
   $redhen_note->entity_type = $entity_type;
-  $redhen_note->entity = $entity;
   module_load_include('inc', 'redhen_note', 'includes/redhen_note.forms');
-  return drupal_get_form('redhen_note_form', $redhen_note);
+  return drupal_get_form('redhen_note_form', $redhen_note, $entity);
 }
 
 /*
@@ -81,11 +80,13 @@ function redhen_note_notes_page($entity, $entity_type) {
       $type_tid = (empty($note->redhen_note_type) == 1) ? '' : $note->redhen_note_type[LANGUAGE_NONE][0]['tid'];
       $type = taxonomy_term_load($type_tid);
 
+      $wrapper = entity_metadata_wrapper('redhen_note', $note);
+      $author = $wrapper->author->value();
       $rows[] = array(
         'data' => array(
           substr($body, 0, 5) . ' ...',
           (isset($type->name)) ? $type->name : '',
-          $note->author->name,
+          (isset($author->name)) ? $author->name : '',
           redhen_format_date($note->updated),
           redhen_format_date($note->created),
           implode(' | ', $actions)

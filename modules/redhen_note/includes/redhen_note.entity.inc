@@ -12,17 +12,12 @@ class RedhenNote extends Entity {
   public
     $note_id = NULL,
     $author_uid = NULL,
-    $author = NULL,
     $type = '',
-    $entity = NULL,
     $created = '',
     $updated = '';
 
   public function __construct(array $values = array()) {
     parent::__construct($values, 'redhen_note');
-
-    $this->entity = $this->entity();
-    $this->author = $this->author();
 
     // New note. is_new might not be set so check for id
     if (!$this->note_id) {
@@ -37,12 +32,15 @@ class RedhenNote extends Entity {
    */
   public function buildContent($view_mode = 'full', $langcode = NULL) {
 
+    $wrapper = entity_metadata_wrapper('redhen_note', $this);
+    $author = $wrapper->author->value();
+
     $content['author'] = array(
       '#theme' => 'redhen_property_field',
       '#label' => t('Author'),
       '#items' => array(
         array(
-          '#markup' => $this->author->name,
+          '#markup' => $author->name,
         ),
       ),
       '#classes' => 'field field-label-inline clearfix',
@@ -67,7 +65,9 @@ class RedhenNote extends Entity {
    * Override label() to add note label.
    */
   public function label() {
-    return "Note {$this->note_id} on {$this->entity->label()}";
+    $wrapper = entity_metadata_wrapper('redhen_note', $this);
+    $entity = $wrapper->entity->value();
+    return "Note {$this->note_id} on {$entity->label()}";
   }
 
   /**
@@ -79,32 +79,6 @@ class RedhenNote extends Entity {
   public function save() {
     $this->updated = REQUEST_TIME;
     return parent::save();
-  }
-
-  /*
-   * Get entity note is attached to
-   */
-  public function entity() {
-    if (isset($this->entity_type) && isset($this->entity_id)) {
-      $entity = entity_load_single($this->entity_type, $this->entity_id);
-      return $entity ? $entity : NULL;
-    }
-    else {
-      return NULL;
-    }
-  }
-
-  /*
-   * Get author of note
-   */
-  public function author() {
-    if (isset($this->author_uid)) {
-      $user = user_load($this->author_uid);
-      return $user;
-    }
-    else {
-      return NULL;
-    }
   }
 
   /**
@@ -148,22 +122,44 @@ class RedhenNoteMetadataController extends EntityDefaultMetadataController {
       'filter' => TRUE,
       'field_type' => 'textfield',
       'schema field' => 'created',
+      'setter callback' => 'entity_property_verbatim_set'
     );
     $properties['updated'] = array(
       'label' => t("Updated"),
       'description' => t("The date the note was updated."),
       'type' => 'date',
       'schema field' => 'updated',
+      'setter callback' => 'entity_property_verbatim_set'
     );
+
+    // Entities
     $properties['author'] = array(
-      'label' => t("Author"),
+      'label' => t("Author entity"),
       'type' => 'user',
       'description' => t("The author of the note."),
-      'schema field' => 'author_uid'
+      'schema field' => 'author_uid',
+    );
+
+    $properties['entity'] = array(
+      'label' => t("Host entity"),
+      'type' => 'entity',
+      'schema field' => 'entity',
+      'description' => t("The host entity."),
+      'getter callback' => 'redhen_note_property_host_get',
+      'setter callback' => 'entity_property_verbatim_set',
     );
 
     return $info;
   }
 
+}
+
+/**
+ * Callback to get $note->entity.
+ *
+ * @see redhen_note_entity_property_info().
+ */
+function redhen_note_property_host_get(RedhenNote $note, array $options, $property_name, $entity_type) {
+  return entity_load_single($note->entity_type, $note->entity_id);
 }
 

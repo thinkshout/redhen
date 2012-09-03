@@ -391,19 +391,21 @@ function redhen_activity_message_save($entity, $type, $op) {
 
       break;
     case 'redhen_note':
-      if ($entity->entity) {
+      $wrapper = entity_metadata_wrapper('redhen_note', $entity);
+      $parent_entity = $wrapper->entity->value();
+      if ($parent_entity) {
         $items = field_get_items('redhen_note', $entity, 'redhen_note_type');
         $note_type = taxonomy_term_load($items[0]['tid']);
         $message = message_create('redhen_note', array(
           'arguments' => array(
-            '%name' => $entity->entity->label(),
+            '%name' => $parent_entity->label(),
             '!op' => $op,
             '%type' => $note_type->name
           )
         ), $user);
         $wrapper = entity_metadata_wrapper('message', $message);
         $ref_field_name = "message_{$entity->entity_type}";
-        $wrapper->$ref_field_name->set($entity->entity);
+        $wrapper->$ref_field_name->set($parent_entity);
         $wrapper->save();
       }
 
@@ -463,7 +465,8 @@ function redhen_activity_message_save($entity, $type, $op) {
 
       break;
     case 'redhen_membership':
-      $parent_entity = entity_load_single($entity->entity_type, $entity->entity_id);
+      $wrapper = entity_metadata_wrapper('redhen_membership', $entity);
+      $parent_entity = $wrapper->entity->value();
       $message = message_create('redhen_membership', array(
         'arguments' => array(
           '%name' => $entity->label(),

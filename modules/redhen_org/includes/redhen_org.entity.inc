@@ -138,7 +138,8 @@ class RedhenOrgMetadataController extends EntityDefaultMetadataController {
     $properties['label'] = array(
       'label' => t('Organization Name'),
       'filter' => TRUE,
-      'field_type' => 'textfield'
+      'field_type' => 'textfield',
+      'setter callback' => 'entity_property_verbatim_set',
     ) + $properties['label'];
 
     $properties['created'] = array(
@@ -146,18 +147,21 @@ class RedhenOrgMetadataController extends EntityDefaultMetadataController {
       'description' => t("The date the organization was created."),
       'type' => 'date',
       'schema field' => 'created',
+      'setter callback' => 'entity_property_verbatim_set',
     );
     $properties['updated'] = array(
       'label' => t("Updated"),
       'description' => t("The date the organization was updated."),
       'type' => 'date',
       'schema field' => 'updated',
+      'setter callback' => 'entity_property_verbatim_set',
     );
     $properties['redhen_state'] = array_merge($properties['redhen_state'], array(
       'label' => t('State'),
       'filter' => TRUE,
       'field_type' => 'select',
-      'options list' => 'redhen_state_options'
+      'options list' => 'redhen_state_options',
+      'setter callback' => 'entity_property_verbatim_set',
     ));
 
     // Entities
