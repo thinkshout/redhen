@@ -70,22 +70,30 @@ function redhen_note_notes_page($entity, $entity_type) {
   if ($result) {
     $notes = redhen_note_load_multiple(array_keys($result['redhen_note']));
     foreach ($notes as $note) {
-      $actions = array(
-        l('view', 'redhen/' . $path . '/' . $entity_id . '/note/' . $note->note_id . '/view'),
-        l('edit', 'redhen/' . $path . '/' . $entity_id . '/note/' . $note->note_id . '/view/edit', array('query' => drupal_get_destination())),
-        l('delete', 'redhen/' . $path . '/' . $entity_id . '/note/' . $note->note_id . '/view/delete', array('query' => drupal_get_destination())),
-      );
-
-      $body = $note->redhen_note_body[LANGUAGE_NONE][0]['value'];
-      $type_tid = (empty($note->redhen_note_type) == 1) ? '' : $note->redhen_note_type[LANGUAGE_NONE][0]['tid'];
-      $type = taxonomy_term_load($type_tid);
-
       $wrapper = entity_metadata_wrapper('redhen_note', $note);
       $author = $wrapper->author->value();
+      $entity = $wrapper->entity->value();
+      $entity_uri = entity_uri($note->entity_type, $entity);
+
+      $actions = array(
+        l('view', $entity_uri['path'] . '/note/' . $note->note_id . '/view'),
+        l('edit', $entity_uri['path'] .  '/note/' . $note->note_id . '/view/edit', array('query' => drupal_get_destination())),
+        l('delete', $entity_uri['path'] .  '/note/' . $note->note_id . '/view/delete', array('query' => drupal_get_destination())),
+      );
+
+      $body = field_get_items('redhen_note', $note, 'redhen_note_body');
+      $teaser = render(field_view_value('redhen_note', $note, 'redhen_note_body', $body[0], 'teaser'));
+
+      $types = array();
+      $type_values = field_get_items('redhen_note', $note, 'redhen_note_type');
+      foreach ($type_values as $type_value) {
+        $types[] = render(field_view_value('redhen_note', $note, 'redhen_note_type', $type_value, 'teaser'));
+      }
+
       $rows[] = array(
         'data' => array(
-          substr($body, 0, 5) . ' ...',
-          (isset($type->name)) ? $type->name : '',
+          $teaser,
+          implode(', ', $types),
           (isset($author->name)) ? $author->name : '',
           redhen_format_date($note->updated),
           redhen_format_date($note->created),

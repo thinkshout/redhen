@@ -39,6 +39,10 @@ function redhen_note_entity_info() {
           'label' => t('Full note'),
           'custom settings' => FALSE,
         ),
+        'teaser' => array(
+          'label' => t('Teaser'),
+          'custom settings' => TRUE,
+        )
       ),
       'uri callback' => 'entity_class_uri',
       'token type' => 'redhen_note',
