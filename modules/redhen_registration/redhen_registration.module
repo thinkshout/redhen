@@ -32,8 +32,11 @@ function redhen_registration_page(RedhenContact $contact) {
   $query = new EntityFieldQuery();
   $query->entityCondition('entity_type', 'registration');
 
-  if ($contact->user) {
-    $query->propertyCondition('user_uid', $contact->user->uid, '=');
+  $wrapper = entity_metadata_wrapper('redhen_contact', $contact);
+  $user = $wrapper->user->value();
+
+  if ($user) {
+    $query->propertyCondition('user_uid', $user->uid, '=');
   }
   else {
     $query->propertyCondition('anon_mail', $contact->allEmail(), 'IN');
@@ -146,11 +149,12 @@ function theme_redhen_registration_list($variables) {
     );
   }
   else {
+    $wrapper = entity_metadata_wrapper('redhen_contact', $variables['contact']);
     // no results, set a message
     $render['no-result'] = array(
       '#type' => 'markup',
       '#markup' => t('There are no registrations for %name.',
-        array('%name' => $variables['contact']->name)),
+        array('%name' => $wrapper->full_name->value())),
     );
   }
 
