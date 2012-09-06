@@ -21,37 +21,27 @@ function redhen_note_add($entity, $entity_type) {
  * Show notes and actions
  */
 function redhen_note_notes_page($entity, $entity_type) {
-
   list($entity_id, ,) = entity_extract_ids($entity_type, $entity);
 
-  switch ($entity_type) {
-    case 'redhen_contact':
-      $path = 'contact';
-      break;
-    case 'redhen_org':
-      $path = 'org';
-      break;
-  }
-
   $header = array(
-    'Body',
-    'Note Type',
-    'Author',
+    t('Body'),
+    t('Note Type'),
+    t('Author'),
     'updated' => array(
       'field' => 'updated',
       'type' => 'property',
-      'data' => 'Updated',
+      'data' => t('Updated'),
       'sort' => 'asc',
       'specifier' => 'updated'
     ),
     'created' => array(
       'field' => 'created',
       'type' => 'property',
-      'data' => 'Created',
+      'data' => t('Created'),
       'sort' => 'asc',
       'specifier' => 'created'
     ),
-    'Actions',
+    t('Actions'),
   );
 
   // need to ensure the query doesn't execute when posing the form
@@ -64,7 +54,6 @@ function redhen_note_notes_page($entity, $entity_type) {
     $fields = isset($_GET['fields']) ? $_GET['fields'] : array();
     $result = redhen_filter_query('redhen_note', $header, $bundle, $properties, $fields);
   }
-
 
   $rows = array();
   if ($result) {
@@ -81,19 +70,18 @@ function redhen_note_notes_page($entity, $entity_type) {
         l('delete', $entity_uri['path'] .  '/note/' . $note->note_id . '/view/delete', array('query' => drupal_get_destination())),
       );
 
-      $body = field_get_items('redhen_note', $note, 'redhen_note_body');
-      $teaser = render(field_view_value('redhen_note', $note, 'redhen_note_body', $body[0], 'teaser'));
-
-      $types = array();
-      $type_values = field_get_items('redhen_note', $note, 'redhen_note_type');
-      foreach ($type_values as $type_value) {
-        $types[] = render(field_view_value('redhen_note', $note, 'redhen_note_type', $type_value, 'teaser'));
-      }
+      $teaser = field_view_value('redhen_note', $note, 'redhen_note_body',
+        $wrapper->redhen_note_body->value(),
+        array(
+          'label' => 'hidden',
+          'type' => 'text_trimmed',
+          'settings' => array('trim_length' => 100)
+      ));
 
       $rows[] = array(
         'data' => array(
-          $teaser,
-          implode(', ', $types),
+          render($teaser),
+          $wrapper->redhen_note_type->value()->name,
           (isset($author->name)) ? $author->name : '',
           redhen_format_date($note->updated),
           redhen_format_date($note->created),
