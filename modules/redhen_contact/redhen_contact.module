@@ -326,6 +326,16 @@ function redhen_contact_save(RedhenContact $contact, $link_user = FALSE) {
 
   $contact->save();
 
+  if (variable_get('redhen_contact_mirror_email', FALSE)) {
+    $wrapper = entity_metadata_wrapper('redhen_contact', $contact);
+    $user = $wrapper->user->value();
+
+    // IF we have a linked user and primary email, but they don't match, set the user email
+    if ($user && $contact->email && $contact->email !== $user->mail) {
+      user_save($user, array('mail' => $contact->email));
+    }
+  }
+
   return $contact;
 }
 
@@ -613,6 +623,12 @@ function redhen_contact_redhen_settings() {
       '#title' => t('Connect users to Redhen contacts'),
       '#description' => t('If checked, Redhen will attempt to connect Drupal users to Redhen contacts by matching email addresses when a contact is updated.'),
       '#default_value' => variable_get('redhen_contact_connect_users', FALSE)
+    ),
+    'redhen_contact_mirror_email' => array(
+      '#type' => 'checkbox',
+      '#title' => t('Mirror RedHen Contact email to Drupal user'),
+      '#description' => t('If checked, RedHen will mirror the primary email of a RedHen Contact with the email of the linked user account. The email field on the Drupal user form will also be disabled.'),
+      '#default_value' => variable_get('redhen_contact_mirror_email', FALSE)
     )
   );
 }
@@ -756,6 +772,15 @@ function redhen_contact_form_user_profile_form_alter(&$form, &$form_state) {
 
     // unset the profile save button, let the contact form handle it
     unset($form['actions']);
+  }
+
+  // If we're mirroring the contact's email address - disable the field
+  if (variable_get('redhen_contact_mirror_email', FALSE)) {
+    $contact = redhen_contact_load_by_user($form['#user']);
+    if ($contact) {
+      $form['account']['mail']['#disabled'] = TRUE;
+      $form['account']['mail']['#description'] .= ' ' . t('The email address for this account is managed by RedHen.');
+    }
   }
 }
 
