@@ -324,12 +324,6 @@ function redhen_note_form_alter(&$form, &$form_state, $form_id) {
     }
   }
 
-  if ($form_id == 'taxonomy_form_term') {
-    $category_vocab = taxonomy_vocabulary_machine_name_load('note_type');
-    if ($form['#vocabulary']->vid == $category_vocab->vid) {
-      unset($form['actions']['delete']);
-    }
-  }
 }
 
 /**
