@@ -109,7 +109,7 @@ function redhen_note_install() {
 
   //Redhen Note Type Taxonomy field
   taxonomy_vocabulary_save((object) array(
-    'name' => 'Type',
+    'name' => 'Note type',
     'machine_name' => 'note_type',
   ));
 
