@@ -290,14 +290,12 @@ function redhen_contact_contact_user_form($form, &$form_state, RedhenContact $co
           break;
 
         case 'new';
-          user_account_form($form, $form_state);
+          // Use the core user registration form, with some adjustments
+          $form = user_register_form($form, $form_state);
           // default value for email field
           $form['account']['mail']['#default_value'] = $contact->email;
           $form['account']['name']['#default_value'] = $contact->label();
-          $form['#user_category'] = 'account';
-          $account = new stdClass();
-          $account->uid = 0;
-          $form['#user'] = $account;
+          $form['#submit'][] = 'redhen_contact_contact_user_form_submit';
       }
     }
 
@@ -409,13 +407,8 @@ function redhen_contact_contact_user_form_submit($form, &$form_state) {
       $contact->uid = $user->uid;
       break;
     case 'new':
-      if ($user = user_save(NULL, $form_state['values'])) {
-        $contact->uid = $user->uid;
-      }
-      else {
-        drupal_set_message(t('Unable to create a new contact'));
-      }
-
+      $user = $form_state['user'];
+      $contact->uid = $user->uid;
       break;
   }
 
