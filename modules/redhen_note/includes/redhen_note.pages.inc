@@ -95,7 +95,7 @@ function redhen_note_notes_page($entity, $entity_type) {
     $rows[] = array(
       'data' => array(
         array(
-          'data' => t('Sorry, there are no note that match your criteria.'),
+          'data' => t('Sorry, there are no notes that match your criteria.'),
           'colspan' => 7
         )
       )
