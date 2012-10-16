@@ -128,7 +128,7 @@ function redhen_note_menu() {
  * Admin page for Redhen Notes
  */
 function redhen_note_admin_page() {
-  return 'Administrate Redhen Note fields and display';
+  return t('Administer Redhen Note fields and display');
 }
 
 /**
@@ -310,7 +310,7 @@ function redhen_note_form_alter(&$form, &$form_state, $form_id) {
       $note_type_tax = taxonomy_vocabulary_machine_name_load('note_type');
       $note_type_tree = taxonomy_get_tree($note_type_tax->vid);
 
-      $options = array('' => 'All');
+      $options = array('' => t('All'));
       foreach ($note_type_tree as $term) {
         $options[$term->tid] = $term->name;
       }

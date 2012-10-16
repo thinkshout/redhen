@@ -65,9 +65,9 @@ function redhen_note_notes_page($entity, $entity_type) {
       $entity_uri = entity_uri($note->entity_type, $entity);
 
       $actions = array(
-        l('view', $entity_uri['path'] . '/note/' . $note->note_id . '/view'),
-        l('edit', $entity_uri['path'] .  '/note/' . $note->note_id . '/view/edit', array('query' => drupal_get_destination())),
-        l('delete', $entity_uri['path'] .  '/note/' . $note->note_id . '/view/delete', array('query' => drupal_get_destination())),
+        l(t('view'), $entity_uri['path'] . '/note/' . $note->note_id . '/view'),
+        l(t('edit'), $entity_uri['path'] .  '/note/' . $note->note_id . '/view/edit', array('query' => drupal_get_destination())),
+        l(t('delete'), $entity_uri['path'] .  '/note/' . $note->note_id . '/view/delete', array('query' => drupal_get_destination())),
       );
 
       $teaser = field_view_value('redhen_note', $note, 'redhen_note_body',

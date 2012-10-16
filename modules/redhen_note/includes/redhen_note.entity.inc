@@ -67,7 +67,8 @@ class RedhenNote extends Entity {
   public function label() {
     $wrapper = entity_metadata_wrapper('redhen_note', $this);
     $entity = $wrapper->entity->value();
-    return "Note {$this->note_id} on {$entity->label()}";
+    // Don't sanitize here as this function should produce unsanitized output.
+    return t('Note !id on !label', array('!id' => $this->note_id, '!label' => $entity->label()));
   }
 
   /**

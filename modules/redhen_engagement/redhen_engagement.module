@@ -105,13 +105,13 @@ function redhen_engagements_page(RedhenContact $contact) {
 
   $header = array(
     'Score' => array(
-      'data' => 'Score',
+      'data' => t('Score'),
       'field' => 'score',
       'type' => 'property',
       'specifier' => 'score'
     ),
     'Type' => array(
-      'data' => 'Type',
+      'data' => t('Type'),
       'field' => 'type',
       'type' => 'property',
       'specifier' => 'type'
@@ -119,13 +119,13 @@ function redhen_engagements_page(RedhenContact $contact) {
     'Created' => array(
       'field' => 'created',
       'type' => 'property',
-      'data' => 'Created',
+      'data' => t('Created'),
       'sort' => 'desc',
       'specifier' => 'created'
     ),
-    'description' => array('data' => 'Description'),
-    'source' => array('data' => 'Source'),
-    'author' => array('data' => 'Author'),
+    'description' => array('data' => t('Description')),
+    'source' => array('data' => t('Source')),
+    'author' => array('data' => t('Author')),
   );
 
   $properties = isset($_GET['properties']) ? $_GET['properties'] : array();

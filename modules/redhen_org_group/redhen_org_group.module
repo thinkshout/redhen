@@ -30,7 +30,7 @@ function redhen_org_group_form_redhen_org_type_form_alter(&$form, &$form_state) 
   $redhen_org_type = $form['#redhen_org_type'];
   $form['data']['group'] = array(
     '#type' => 'checkbox',
-    '#title' => 'Groupify',
+    '#title' => t('Groupify'),
     '#default_value' => isset($redhen_org_type->group) ? $redhen_org_type->group : NULL
   );
   $form['data']['group_settings'] = array(

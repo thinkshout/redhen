@@ -162,8 +162,8 @@ function redhen_relation_connections_page($entity) {
         }
         $related_entity_info = entity_get_info($related_entity->entityType());
         $operations = array(
-          l('edit', $relation_uri['path'] . '/edit', array('query' => drupal_get_destination())),
-          l('delete', $relation_uri['path'] . '/delete', array('query' => drupal_get_destination())),
+          l(t('edit'), $relation_uri['path'] . '/edit', array('query' => drupal_get_destination())),
+          l(t('delete'), $relation_uri['path'] . '/delete', array('query' => drupal_get_destination())),
         );
 
         $data = array(
@@ -181,7 +181,7 @@ function redhen_relation_connections_page($entity) {
         if ($entity->entityType() == 'redhen_org' && $related_entity->entityType() == 'redhen_contact') {
           if ($entity->primary_contact_id !== $related_entity->contact_id) {
             $entity_uri = entity_uri('redhen_org', $entity);
-            $data[] = l('set as primary', $entity_uri['path'] . '/primary/' . $related_entity->contact_id, array('query' => drupal_get_destination()));
+            $data[] = l(t('set as primary'), $entity_uri['path'] . '/primary/' . $related_entity->contact_id, array('query' => drupal_get_destination()));
           }
           else {
             $data[] = t('Primary');

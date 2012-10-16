@@ -42,7 +42,7 @@ class RedhenEngagement extends Entity {
    * Override label() to add note label.
    */
   public function label() {
-    return 'Enagement ' . $this->engagement_id;
+    return t('Engagement !id', array('!id' => $this->engagement_id));
   }
 
   /*

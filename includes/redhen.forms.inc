@@ -225,7 +225,7 @@ function redhen_filter_form_fields(&$form, $entity_type, $bundle) {
 
           // override for select lists
           if ($field['widget']['type'] == 'options_select') {
-            $options = array('' => t('-- Any --')) + $field_info['settings']['allowed_values'];
+            $options = array('' => '-- ' . t('Any') . ' --') + $field_info['settings']['allowed_values'];
             $form['filter_fieldset']['filters']['fields'][$key][$column]['#type'] = 'select';
             $form['filter_fieldset']['filters']['fields'][$key][$column]['#options'] = $options;
           }
