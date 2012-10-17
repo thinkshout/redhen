@@ -91,7 +91,7 @@ class RedhenContact extends Entity {
    *
    * @return string
    */
-  protected function defaultEmail() {
+  public function defaultEmail() {
     if (!empty($this->{REDHEN_CONTACT_EMAIL_FIELD})) {
       foreach ($this->{REDHEN_CONTACT_EMAIL_FIELD}[LANGUAGE_NONE] as $email) {
         if ($email['default']) {

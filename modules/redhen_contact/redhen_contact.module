@@ -329,10 +329,11 @@ function redhen_contact_save(RedhenContact $contact, $link_user = FALSE) {
   if (variable_get('redhen_contact_mirror_email', FALSE)) {
     $wrapper = entity_metadata_wrapper('redhen_contact', $contact);
     $user = $wrapper->user->value();
+    $email = $contact->defaultEmail();
 
     // IF we have a linked user and primary email, but they don't match, set the user email
-    if ($user && $contact->email && $contact->email !== $user->mail) {
-      user_save($user, array('mail' => $contact->email));
+    if ($user && ($email !== $user->mail)) {
+      user_save($user, array('mail' => $email));
     }
   }
 
