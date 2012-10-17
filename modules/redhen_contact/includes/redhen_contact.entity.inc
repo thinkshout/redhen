@@ -65,21 +65,6 @@ class RedhenContact extends Entity {
       );
     }
 
-    // @todo: We need to check if this exists first - otherwise it might spew errors
-    $engagement_score = $wrapper->engagement_score->value();
-    if ($engagement_score) {
-      $content['redhen_engagement'] = array(
-        '#theme' => 'redhen_property_field',
-        '#label' => t('Engagement Score'),
-        '#items' => array(
-          array(
-            '#markup' => $engagement_score
-          ),
-        ),
-        '#classes' => 'field field-label-inline clearfix',
-      );
-    }
-
     return entity_get_controller($this->entityType)
       ->buildContent($this, $view_mode, $langcode, $content);
   }
