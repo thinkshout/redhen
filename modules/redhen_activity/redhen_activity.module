@@ -159,7 +159,7 @@ function redhen_activity_menu() {
   $items['redhen/activity'] = array(
     'title' => 'RedHen Activity',
     'page callback' => 'redhen_activity_activity_page',
-    'access arguments' => array('access redhen messages'),
+    'access arguments' => array('access redhen activity'),
     'description' => 'View RedHen CRM activity.',
   );
 
@@ -183,15 +183,15 @@ function redhen_activity_menu() {
  */
 function redhen_activity_permission() {
   return array(
-    'access redhen messages' =>  array(
-      'title' => t('Access RedHen messages'),
+    'access redhen activity' =>  array(
+      'title' => t('Access RedHen activity stream'),
       'description' => t('View the global RedHen activity stream and on a per entity type basis.'),
     ),
   );
 }
 
 /**
- * Determine access to RedHen messages.
+ * Determine access to RedHen activity.
  *
  * @param $op
  *   The operation being performed. One of 'view', 'update', 'create' or
@@ -203,7 +203,7 @@ function redhen_activity_permission() {
  */
 function redhen_activity_access($op, $parent_entity, $account = NULL) {
   if (entity_access($op, $parent_entity->entityType(), $parent_entity, $account)) {
-    if ($op == 'view' && user_access('access redhen messages', $account)) {
+    if ($op == 'view' && user_access('access redhen activity', $account)) {
       return TRUE;
     }
   }
