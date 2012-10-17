@@ -411,40 +411,38 @@ function redhen_activity_message_save($entity, $type, $op) {
 
       break;
     case 'relation':
-      if (in_array($entity->relation_type, array('redhen_affiliation', 'redhen_connection'))) {
-        $relation_type = relation_type_load($entity->relation_type);
-        $endpoints = field_get_items('relation', $entity, 'endpoints');
+      $endpoints = field_get_items('relation', $entity, 'endpoints');
+      $endpoint_entities = array();
+      foreach ($endpoints as $endpoint) {
+        $endpoint_entities[] = entity_load_single($endpoint['entity_type'], $endpoint['entity_id']);
+      }
+      $relation_type = relation_type_load($entity->relation_type);
 
-        $endpoint_entities = array(
-          entity_load_single($endpoints[0]['entity_type'], $endpoints[0]['entity_id']),
-          entity_load_single($endpoints[1]['entity_type'], $endpoints[1]['entity_id'])
-        );
-        // save a message for each entity in the relationship
-        foreach ($endpoint_entities as $endpoint_entity) {
-          if ($endpoint_entity) {
-            $label1 = $endpoint_entities[0] ? $endpoint_entities[0]->label() :
-              t('Entity !type with an ID of !id', array(
-                '!type' => $endpoints[0]['entity_type'],
-                '!id' => $endpoints[0]['entity_id']
-              ));
-            $label2 = $endpoint_entities[1] ? $endpoint_entities[1]->label() :
-              t('Entity !type with an ID of !id', array(
-                '!type' => $endpoints[1]['entity_type'],
-                '!id' => $endpoints[1]['entity_id']
-              ));
-            $message = message_create('redhen_relation', array(
-              'arguments' => array(
-                '%name1' => $label1,
-                '%name2' => $label2,
-                '!op' => $op,
-                '%type' => $relation_type->label
-              )
-            ), $user);
-            $wrapper = entity_metadata_wrapper('message', $message);
-            $ref_field_name = "message_{$endpoint_entity->entityType()}";
-            $wrapper->$ref_field_name->set($endpoint_entity);
-            $wrapper->save();
-          }
+      // save a message for each entity in the relationship
+      foreach ($endpoint_entities as $endpoint_entity) {
+        if (in_array($endpoint_entity->entityType(), array('redhen_contact', 'redhen_org'))) {
+          $label1 = $endpoint_entities[0] ? $endpoint_entities[0]->label() :
+            t('Entity !type with an ID of !id', array(
+              '!type' => $endpoints[0]['entity_type'],
+              '!id' => $endpoints[0]['entity_id']
+            ));
+          $label2 = $endpoint_entities[1] ? $endpoint_entities[1]->label() :
+            t('Entity !type with an ID of !id', array(
+              '!type' => $endpoints[1]['entity_type'],
+              '!id' => $endpoints[1]['entity_id']
+            ));
+          $message = message_create('redhen_relation', array(
+            'arguments' => array(
+              '%name1' => $label1,
+              '%name2' => $label2,
+              '!op' => $op,
+              '%type' => $relation_type->label
+            )
+          ), $user);
+          $wrapper = entity_metadata_wrapper('message', $message);
+          $ref_field_name = "message_{$endpoint_entity->entityType()}";
+          $wrapper->$ref_field_name->set($endpoint_entity);
+          $wrapper->save();
         }
       }
       break;
