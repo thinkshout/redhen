@@ -740,6 +740,6 @@ function redhen_fields_email_action($entity, $context) {
  * Implements hook_field_info_alter().
  * Defines default property types for core field types.
  */
-function redhen_fields_field_info_alter(&$field_info) {
-  $field_info['redhen_email']['property_type'] = 'text';
-}
+//function redhen_fields_field_info_alter(&$field_info) {
+//  $field_info['redhen_email']['property_type'] = 'text';
+//}
