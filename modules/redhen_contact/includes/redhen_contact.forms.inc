@@ -293,7 +293,7 @@ function redhen_contact_contact_user_form($form, &$form_state, RedhenContact $co
           // Use the core user registration form, with some adjustments
           $form = user_register_form($form, $form_state);
           // default value for email field
-          $form['account']['mail']['#default_value'] = $contact->email;
+          $form['account']['mail']['#default_value'] = $contact->email();
           $form['account']['name']['#default_value'] = $contact->label();
           $form['#submit'][] = 'redhen_contact_contact_user_form_submit';
       }

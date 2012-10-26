@@ -329,7 +329,7 @@ function redhen_contact_save(RedhenContact $contact, $link_user = FALSE) {
   if (variable_get('redhen_contact_mirror_email', FALSE)) {
     $wrapper = entity_metadata_wrapper('redhen_contact', $contact);
     $user = $wrapper->user->value();
-    $email = $contact->defaultEmail();
+    $email = $wrapper->email->value();
 
     // IF we have a linked user and primary email, but they don't match, set the user email
     if ($user && ($email !== $user->mail)) {
@@ -580,12 +580,13 @@ function theme_redhen_contact_list($variables) {
       );
 
       $redhen_contact_type = redhen_contact_type_load($contact->type);
+      $email = $contact->email();
       $rows[] = array(
         'data' => array(
           $redhen_contact_type->label,
           l($contact->first_name, $uri['path']),
           l($contact->last_name, $uri['path']),
-          l($contact->email, 'mailto:' . $contact->email),
+          l($email, 'mailto:' . $email),
           redhen_format_date($contact->updated, 'short'),
           implode(' | ', $actions)
         )

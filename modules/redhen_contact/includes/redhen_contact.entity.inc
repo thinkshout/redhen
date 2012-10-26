@@ -22,14 +22,6 @@ class RedhenContact extends Entity {
 
   public function __construct(array $values = array()) {
     parent::__construct($values, 'redhen_contact');
-
-    // ensure all field values are loaded
-    // @todo: Figure out why we need this here.
-    if ($this->contact_id) {
-      field_attach_load('redhen_contact', array($this->contact_id => $this));
-    }
-
-    $this->email = $this->defaultEmail();
   }
 
   /**
@@ -87,19 +79,13 @@ class RedhenContact extends Entity {
   }
 
   /**
-   * Return default email from email field.
+   * Return all emails and their properties in an array..
    *
-   * @return string
+   * @return array
    */
-  public function defaultEmail() {
-    if (!empty($this->{REDHEN_CONTACT_EMAIL_FIELD})) {
-      foreach ($this->{REDHEN_CONTACT_EMAIL_FIELD}[LANGUAGE_NONE] as $email) {
-        if ($email['default']) {
-          return $email['value'];
-        }
-      }
-    }
-    return '';
+  public function email() {
+    $wrapper = entity_metadata_wrapper($this->entityType(), $this);
+    return $wrapper->email->value();
   }
 
   /**
@@ -192,6 +178,15 @@ class RedhenContactMetadataController extends EntityDefaultMetadataController {
     $info = parent::entityPropertyInfo();
     $properties = &$info[$this->type]['properties'];
 
+    $properties['email'] = array(
+      'label' => t("Default email"),
+      'description' => t("The default email for this contact."),
+      'type' => 'text',
+      'getter callback' => 'redhen_contact_property_email_get',
+      'computed' => TRUE,
+      'entity views field' => TRUE,
+      'filter' => TRUE,
+    );
     $properties['created'] = array(
       'label' => t("Created"),
       'description' => t("The date the contact was created."),
@@ -208,13 +203,13 @@ class RedhenContactMetadataController extends EntityDefaultMetadataController {
     );
 
     $properties['first_name'] = array_merge($properties['first_name'], array(
-      'label' => t('First Name'),
+      'label' => t('First name'),
       'filter' => TRUE,
       'field_type' => 'textfield',
       'setter callback' => 'entity_property_verbatim_set',
     ));
     $properties['last_name'] = array_merge($properties['last_name'], array(
-      'label' => t('Last Name'),
+      'label' => t('Last name'),
       'filter' => TRUE,
       'field_type' => 'textfield',
       'setter callback' => 'entity_property_verbatim_set',
@@ -335,4 +330,25 @@ function redhen_contact_property_user_get(RedhenContact $contact, array $options
   if (is_numeric($contact->uid)) {
     return entity_load_single('user', $contact->uid);
   }
+}
+
+/**
+ * Entity metadata property getter for default email.
+ *
+ * @param RedhenContact $contact
+ * @param array $options
+ * @param $property_name
+ * @param $entity_type
+ *
+ * @return string
+ */
+function redhen_contact_property_email_get(RedhenContact $contact, array $options, $property_name, $entity_type) {
+  if (!empty($contact->{REDHEN_CONTACT_EMAIL_FIELD})) {
+    foreach ($contact->{REDHEN_CONTACT_EMAIL_FIELD}[LANGUAGE_NONE] as $email) {
+      if ($email['default']) {
+        return $email['value'];
+      }
+    }
+  }
+  return '';
 }

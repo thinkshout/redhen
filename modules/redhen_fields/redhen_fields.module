@@ -706,11 +706,11 @@ function redhen_fields_email_action($entity, $context) {
     case 'redhen_org':
       // If we have a primary contact, send email to them
       if (isset($entity->primary_contact)) {
-        $recipient = $entity->primary_contact->email;
+        $recipient = $entity->primary_contact->email();
       }
       break;
     case 'redhen_contact':
-      $recipient = $entity->email;
+      $recipient = $entity->email();
       break;
   }
 
@@ -734,4 +734,12 @@ function redhen_fields_email_action($entity, $context) {
       watchdog('error', 'Unable to send email to %recipient', array('%recipient' => $recipient));
     }
   }
+}
+
+/**
+ * Implements hook_field_info_alter().
+ * Defines default property types for core field types.
+ */
+function redhen_fields_field_info_alter(&$field_info) {
+  $field_info['redhen_email']['property_type'] = 'text';
 }
