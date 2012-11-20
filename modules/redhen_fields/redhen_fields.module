@@ -56,27 +56,27 @@ function redhen_fields_email_data_property_info($name = NULL) {
     'setter callback' => 'entity_property_verbatim_set',
   );
   $properties['default'] = array(
-    'type' => 'int',
+    'type' => 'integer',
     'label' => t('Default'),
     'description' => 'Is this value the default email',
     'setter callback' => 'entity_property_verbatim_set',
   );
   $properties['hold'] = array(
-    'type' => 'int',
+    'type' => 'integer',
     'label' => t('Hold'),
     'description' => 'Hold on this email address',
     'setter callback' => 'entity_property_verbatim_set',
   );
   $properties['bulk'] = array(
-    'type' => 'int',
+    'type' => 'integer',
     'label' => t('Bulk'),
     'description' => 'Bulk mailing address',
     'setter callback' => 'entity_property_verbatim_set',
   );
   $properties['label_id'] = array(
-    'type' => 'term',
+    'type' => 'integer',
     'label' => t('Label'),
-    'description' => 'Label taxonomy term',
+    'description' => 'Label ID for this address',
     'setter callback' => 'entity_property_verbatim_set',
   );
 
