@@ -64,7 +64,9 @@ function redhen_fields_install() {
       'locked' => TRUE,
       'cardinality' => FIELD_CARDINALITY_UNLIMITED,
       'settings' => array(
-        'labels' => array('home', 'work')
+        'labels' => array(
+          1 => 'home',
+          2 => 'work')
       )
     );
     field_create_field($email_field);
