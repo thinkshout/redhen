@@ -19,7 +19,81 @@ function redhen_fields_field_info() {
       'default_widget' => 'redhen_email_widget',
       'default_formatter' => 'redhen_email_formatter',
       'default_token_formatter' => 'redhen_email_primary',
+      // Integrate with the Entity Metadata module.
+      'property_type' => 'redhen_email',
+      'property_callbacks' => array('redhen_fields_email_property_info_callback'),
     ),
+  );
+}
+
+/**
+ * Property callback for redhen_email field
+ */
+function redhen_fields_email_property_info_callback(&$info, $entity_type, $field, $instance, $field_type) {
+  $name = $field['field_name'];
+  $property = &$info[$entity_type]['bundles'][$instance['bundle']]['properties'][$name];
+
+  $property['type'] = ($field['cardinality'] != 1) ? 'list<redhen_email>' : 'redhen_email';
+  $property['getter callback'] = 'entity_metadata_field_verbatim_get';
+  $property['setter callback'] = 'entity_metadata_field_verbatim_set';
+  $property['auto creation'] = 'redhen_fields_email_default_values';
+  $property['property info'] = redhen_fields_email_data_property_info();
+
+  unset($property['query callback']);
+}
+
+/**
+ * Defines info for the properties of the redhen_email field structure
+ */
+function redhen_fields_email_data_property_info($name = NULL) {
+
+  $properties = array();
+
+  $properties['value'] = array(
+    'type' => 'text',
+    'label' => t('Email'),
+    'description' => 'Email address',
+    'setter callback' => 'entity_property_verbatim_set',
+  );
+  $properties['default'] = array(
+    'type' => 'int',
+    'label' => t('Default'),
+    'description' => 'Is this value the default email',
+    'setter callback' => 'entity_property_verbatim_set',
+  );
+  $properties['hold'] = array(
+    'type' => 'int',
+    'label' => t('Hold'),
+    'description' => 'Hold on this email address',
+    'setter callback' => 'entity_property_verbatim_set',
+  );
+  $properties['bulk'] = array(
+    'type' => 'int',
+    'label' => t('Bulk'),
+    'description' => 'Bulk mailing address',
+    'setter callback' => 'entity_property_verbatim_set',
+  );
+  $properties['label_id'] = array(
+    'type' => 'term',
+    'label' => t('Label'),
+    'description' => 'Label taxonomy term',
+    'setter callback' => 'entity_property_verbatim_set',
+  );
+
+  return $properties;
+}
+
+/**
+ * Default values for new redhen fields
+ */
+function redhen_fields_email_default_values() {
+  return array(
+    'value' => '',
+    'default' => 1,
+    'hold' => NULL,
+    'bulk' => NULL,
+    'label_id' => NULL,
+
   );
 }
 
