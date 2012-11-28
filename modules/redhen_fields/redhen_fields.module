@@ -56,27 +56,27 @@ function redhen_fields_email_data_property_info($name = NULL) {
     'setter callback' => 'entity_property_verbatim_set',
   );
   $properties['default'] = array(
-    'type' => 'int',
+    'type' => 'integer',
     'label' => t('Default'),
     'description' => 'Is this value the default email',
     'setter callback' => 'entity_property_verbatim_set',
   );
   $properties['hold'] = array(
-    'type' => 'int',
+    'type' => 'integer',
     'label' => t('Hold'),
     'description' => 'Hold on this email address',
     'setter callback' => 'entity_property_verbatim_set',
   );
   $properties['bulk'] = array(
-    'type' => 'int',
+    'type' => 'integer',
     'label' => t('Bulk'),
     'description' => 'Bulk mailing address',
     'setter callback' => 'entity_property_verbatim_set',
   );
   $properties['label_id'] = array(
-    'type' => 'term',
+    'type' => 'integer',
     'label' => t('Label'),
-    'description' => 'Label taxonomy term',
+    'description' => 'Label ID for this address',
     'setter callback' => 'entity_property_verbatim_set',
   );
 
@@ -110,7 +110,7 @@ function redhen_fields_field_settings_form($field, $instance, $has_data) {
       '#rows' => 10,
       '#title' => t('Labels'),
       '#default_value' => redhen_fields_allowed_labels_string($settings['labels']),
-      '#required' => TRUE,
+      '#required' => FALSE,
       '#description' => t('The possible labels for values in this field. Enter one value per line, in the format key|label. Key must be an integer.'),
       '#element_validate' => array('redhen_fields_allowed_labels_setting_validate'),
       '#field_has_data' => $has_data,
@@ -159,8 +159,8 @@ function redhen_fields_allowed_labels_setting_validate($element, &$form_state) {
   else {
     // Check that keys are valid for the field type.
     foreach ($values as $key => $value) {
-      if (!preg_match('/^-?\d+$/', $key)) {
-        form_error($element, t('Allowed labels list: keys must be integers.'));
+      if (!preg_match('/^-?\d+$/', $key) || $key === 0) {
+        form_error($element, t('Allowed labels list: keys must be positive integers greater than zero.'));
         break;
       }
     }
@@ -371,7 +371,8 @@ function redhen_fields_email_in_use($field, $entity_type, $entity, $value) {
 function redhen_fields_field_load($entity_type, $entities, $field, $instances, $langcode, &$items) {
   foreach ($entities as $id => $entity) {
     foreach ($items[$id] as $delta => $item) {
-      $items[$id][$delta]['label'] = $field['settings']['labels'][$item['label_id']];
+      (isset($field['settings']['labels'][$item['label_id']])) ?
+        $items[$id][$delta]['label'] = $field['settings']['labels'][$item['label_id']] : '';
     }
   }
 }
@@ -496,11 +497,13 @@ function redhen_fields_field_widget_form(&$form, &$form_state, $field, $instance
         ),
         '#weight' => 1,
       );
+      $label_options[0] = '- None -';
+      $label_options = $label_options + $field['settings']['labels'];
       $element['options']['label_id'] = array(
         '#title' => t('Label'),
         '#type' => 'select',
         '#multiple' => FALSE,
-        '#options' => $field['settings']['labels'],
+        '#options' => $label_options,
         '#default_value' => isset($items[$delta]['label_id']) ? $items[$delta]['label_id'] : NULL,
         '#weight' => 1
       );
