@@ -72,7 +72,7 @@ class RedhenContact extends Entity {
   }
 
   /**
-   * Specifify URI
+   * Specify URI
    */
   protected function defaultUri() {
     return array('path' => 'redhen/contact/' . $this->identifier());
