@@ -1,0 +1,36 @@
+## Terms of Use
+
+RedHen CRM is an open source software contact relationship management system. It
+is built on the open source framework Drupal.
+
+## Trademarks
+
+RedHen (TM) and the RedHen logos (link below), are trademarks and service marks
+of ThinkShout, Inc, and you may not call your products or services "RedHen CRM"
+or "RedHen."
+!https://www.dropbox.com/s/hmevwuwgawrwwb8/RedHen_logo.png
+
+You can, of course (and you'd make our day if you did), say that your product is
+based on RedHen, an extension of RedHen, inspired by RedHen and so on, but you
+can't call your product or service RedHen CRM or RedHen.
+
+## License
+
+RedHen is built on the open source Drupal framework, this code is licensed and
+made available under the GNU General Public License (GPL) version 2.
+
+RedHen's features and themes are open source and also available under GNU
+General Public License (GPL) version 2.
+
+Our documentation is licensed separately, under the Creative Commons
+Attribution-Share Alike 3.0 United States License.
+
+## Website
+
+RedHen's website, www.redhencrm.com, and its content is copyrighted and belongs
+solely to ThinkShout, Inc. Copyright ThinkShout, Inc 2012.
+
+## More Information
+
+Interested in using RedHen?  Drop us a line, we’re more than happy to help you
+get started!
