@@ -31,7 +31,7 @@ class RedhenContact extends Entity {
 
     $wrapper = entity_metadata_wrapper('redhen_contact', $this);
     $user = $wrapper->user->value();
-    
+
     $content['redhen_state'] = array(
       '#theme' => 'redhen_property_field',
       '#label' => t('State'),
@@ -281,29 +281,59 @@ class RedhenContactViewsController extends EntityDefaultViewsController {
       ),
     );
 
-    // Add user relationship to contacts
-    $data['redhen_contact']['table']['join'] = array(
-      'users' => array(
-        'left_table' => 'redhen_contact_user',
-        'left_field' => 'contact_id',
-        'field' => 'contact_id',
-
+    $data['redhen_contact_user']['uid'] = array(
+      'group' => t('User'),
+      'title' => t('Contact User UID'),
+      'help' => t('The user id associated with this contact via redhen_contact_user'),
+      'relationship' => array(
+        'base' => 'users',
+        'base field' => 'uid',
+        'handler' => 'views_handler_relationship',
+        'label' => t('User'),
+        'title' => t('Contact User'),
+        'help' => t('The user associated with this contact via redhen_contact_user'),
+        'extra' => array(
+          // Only join where the linkage is active
+          array('field' => 'status', 'value' => '1', 'operator' => '='),
+        ),
       ),
-      'redhen_contact_user' => array(
-        'left_field' => 'contact_id',
-        'field' => 'contact_id',
+      'field' => array(
+        'handler' => 'views_handler_field_numeric',
+        'click sortable' => TRUE,
+      ),
+      'filter' => array(
+        'handler' => 'views_handler_filter_numeric',
+      ),
+      'sort' => array(
+        'handler' => 'views_handler_sort',
       ),
     );
 
-    $data['users']['table']['join'] = array(
-      'redhen_contact' => array(
-        'left_table' => 'redhen_contact_user',
-        'left_field' => 'uid',
-        'field' => 'uid',
+    $data['redhen_contact_user']['contact_id'] = array(
+      'group' => t('Contact'),
+      'title' => t('User Contact ID'),
+      'help' => t('The contact id associated with this user via redhen_contact_user'),
+      'relationship' => array(
+        'base' => 'redhen_contact',
+        'base field' => 'contact_id',
+        'handler' => 'views_handler_relationship',
+        'label' => t('Contact'),
+        'title' => t('User Contact'),
+        'help' => t('The contact associated with this user via redhen_contact_user'),
+        'extra' => array(
+          // Only join where the linkage is active
+          array('field' => 'status', 'value' => '1', 'operator' => '='),
+        ),
       ),
-      'redhen_contact_user' => array(
-        'left_field' => 'uid',
-        'field' => 'uid',
+      'field' => array(
+        'handler' => 'views_handler_field_numeric',
+        'click sortable' => TRUE,
+      ),
+      'filter' => array(
+        'handler' => 'views_handler_filter_numeric',
+      ),
+      'sort' => array(
+        'handler' => 'views_handler_sort',
       ),
     );
 
