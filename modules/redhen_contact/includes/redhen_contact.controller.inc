@@ -28,27 +28,18 @@ class RedhenContactEntityController extends EntityAPIController {
       if (isset($contact->is_new) && $contact->is_new) {
         $contact->created = REQUEST_TIME;
       }
-      // handle revision id
+      // Set revision flags. By default, save a new revision and set it as
+      // default.
       else {
-        if (isset($contact->revision_id)) {
-          // Save the old revision ID in case we need it in alters.
-          $contact->old_revision_id = $contact->revision_id;
-          // Unset the revision_id, it'll get updated when we insert into the
-          // {redhen_contact_revision} table.
-          unset($contact->revision_id);
+        if (!isset($contact->is_new_revision)) {
+          $contact->is_new_revision = TRUE;
+        }
+        if (!isset($contact->default_revision)) {
+          $contact->default_revision = TRUE;
         }
       }
 
       parent::save($contact, $transaction);
-
-      // create revision
-      drupal_write_record('redhen_contact_revision', $contact);
-
-      // Since we always save a new revision, update the vid
-      db_update('redhen_contact')
-        ->fields(array('revision_id' => $contact->revision_id))
-        ->condition('contact_id', $contact->contact_id)
-        ->execute();
 
       // set the contact user
       if ($contact->uid) {
@@ -95,10 +86,6 @@ class RedhenContactEntityController extends EntityAPIController {
       try {
         parent::delete($contact_ids, $transaction);
 
-        db_delete('redhen_contact_revision')
-          ->condition('contact_id', $contact_ids, 'IN')
-          ->execute();
-
         // delete user connections
         db_delete('redhen_contact_user')
           ->condition('contact_id', $contact_ids, 'IN')
@@ -135,7 +122,7 @@ class RedhenContactEntityController extends EntityAPIController {
 
     // if uid is a condition, ensure the join is against the right table
     if (isset($conditions['uid'])) {
-      $query_conditions = &$query->conditions();
+      $query_conditions = & $query->conditions();
       foreach ($query_conditions as $key => $condition) {
         if (isset($condition['field']) && $condition['field'] == 'base.uid') {
           $query_conditions[$key]['field'] = 'rcu.uid';
@@ -250,7 +237,7 @@ class RedhenContactEntityController extends EntityAPIController {
   public function deleteUser($contact, $delete = FALSE, DatabaseTransaction $transaction = NULL) {
     try {
       $wrapper = entity_metadata_wrapper('redhen_contact', $contact);
-      $user = $wrapper->user->value();      
+      $user = $wrapper->user->value();
       if ($delete) {
         db_delete('redhen_contact_user')
           ->condition('contact_id', $contact->contact_id)
