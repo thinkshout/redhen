@@ -561,7 +561,7 @@ function template_preprocess_redhen_fields_email_formatter_row(&$variables) {
   $item = $variables['item'];
 
   $image = theme('image', array(
-    'path' => '/misc/watchdog-ok.png',
+    'path' => 'misc/watchdog-ok.png',
     'alt' => t('Enabled')
   ));
 
