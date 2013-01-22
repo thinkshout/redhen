@@ -141,7 +141,7 @@ function redhen_engagement_rules_action_find_by_mail($email) {
  */
 function redhen_enagement_rules_action_score_contact($score_ids, $contact, $description = '', $entity_type, $entity_id) {
   foreach ($score_ids as $id) {
-    $score = entity_load_single('redhen_engaement', $id);
+    $score = entity_load_single('redhen_engagement_score', $id);
     $engagement = redhen_engagement_create($score->name, $contact->contact_id, $description, $entity_type, $entity_id);
     redhen_engagement_save($engagement);
   }
