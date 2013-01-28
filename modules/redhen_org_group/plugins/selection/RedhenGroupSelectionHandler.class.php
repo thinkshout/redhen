@@ -29,7 +29,7 @@ class RedhenGroupSelectionHandler implements EntityReference_SelectionHandler {
   public function getReferencableEntities($match = NULL, $match_operator = 'CONTAINS', $limit = 0) {
     $entities = array();
     foreach ($this->getContactGroups() as $org_id => $org) {
-      $entities[$org_id] = $this->getLabel($org);
+      $entities[$org->type][$org_id] = $this->getLabel($org);
     }
 
     return $entities;
