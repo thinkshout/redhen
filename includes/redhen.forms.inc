@@ -179,17 +179,21 @@ function redhen_filter_form_reset($form, &$form_state) {
 function redhen_filter_form_fields(&$form, $entity_type, $bundle) {
   $fields = field_info_instances($entity_type, $bundle);
   $form['filter_fieldset']['filters']['fields'] = array(
-    '#type' => 'fieldset',
-    '#title' => t('Filter by %bundle specific fields',
-      array('%bundle' => $bundle)),
-    '#collapsible' => FALSE,
     '#id' => 'redhen_filter_fields_container',
-    '#access' => !empty($fields)
   );
-
+  // If there are multiple bundle types, show which one is current.
+  if (isset($form['filter_fieldset']['filters']['bundle'])) {
+    $form['filter_fieldset']['filters']['fields']['#type'] = 'fieldset';
+    $form['filter_fieldset']['filters']['fields']['#title'] = t('Filter by %bundle specific fields',
+      array('%bundle' => $bundle)
+    );
+  }
+  else {
+    $form['filter_fieldset']['filters']['fields']['#type'] = 'container';
+  }
+  $filters_count = 0;
   if (!empty($fields)) {
     // loop through each field adding a filter
-    $filters_count = 0;
     foreach ($fields as $key => $field) {
       $field_info = field_info_field($field['field_name']);
       // for now, we're only allowing fields that have tid or value single cols
@@ -232,13 +236,14 @@ function redhen_filter_form_fields(&$form, $entity_type, $bundle) {
         }
       }
     }
-
-    if (!$filters_count) {
-      $form['filter_fieldset']['filters']['fields']['message'] = array(
-        '#markup' => t('There are no additional fields for %bundle.', array(
-          '%bundle' => $bundle
-        ))
-      );
-    }
+  }
+  // Show a message if there is more than one bundle and this one has no
+  // applicable fields.
+  if (!$filters_count && isset($form['filter_fieldset']['filters']['bundle'])) {
+    $form['filter_fieldset']['filters']['fields']['message'] = array(
+      '#markup' => t('There are no additional fields for %bundle.', array(
+        '%bundle' => $bundle
+      ))
+    );
   }
 }
