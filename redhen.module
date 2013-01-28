@@ -30,7 +30,17 @@ function redhen_menu() {
     'file path' => drupal_get_path('module', 'system'),
   );
   $items['admin/config/redhen'] = array(
-    'title' => 'RedHen CRM Settings',
+    'title' => 'RedHen CRM',
+    'description' => 'Settings for RedHen modules.',
+    'position' => 'right',
+    'weight' => -10,
+    'page callback' => 'system_admin_menu_block_page',
+    'access arguments' => array('administer site configuration'),
+    'file' => 'system.admin.inc',
+    'file path' => drupal_get_path('module', 'system'),
+  );
+  $items['admin/config/redhen/crm'] = array(
+    'title' => 'RedHen CRM settings',
     'description' => 'Configure RedHen CRM.',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('redhen_settings'),
