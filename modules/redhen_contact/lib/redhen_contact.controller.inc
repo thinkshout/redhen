@@ -154,16 +154,16 @@ class RedhenContactEntityController extends EntityAPIController {
     if ($user_result->rowCount() > 0) {
       $rows = $user_result->fetchAllAssoc('uid');
       foreach ($rows as $row) {
-        // this user is already actively linked to this contact
+        // This user is already actively linked to this contact.
         if ($row->contact_id == $contact->contact_id && $row->status == 1) {
           return TRUE;
         }
-        // this user is actively linked to a different contact
+        // This user is actively linked to a different contact.
         else {
           if ($row->contact_id != $contact->contact_id && $row->status == 1) {
             return FALSE;
           }
-          // this user has been unlinked from this contact
+          // This user has been unlinked from this contact.
           else {
             if ($row->contact_id == $contact->contact_id && $row->status == NULL) {
               return FALSE;
@@ -173,7 +173,7 @@ class RedhenContactEntityController extends EntityAPIController {
       }
     }
 
-    // now grab any record for this contact
+    // Now grab any record for this contact.
     $contact_result = db_select('redhen_contact_user', 'cu')
       ->fields('cu')
       ->condition('contact_id', $contact->contact_id, '=')
@@ -181,7 +181,7 @@ class RedhenContactEntityController extends EntityAPIController {
       ->execute();
 
     try {
-      // contact does not have a user link, insert
+      // Contact does not have a user link, insert.
       if ($contact_result->rowCount() == 0) {
         db_insert('redhen_contact_user')
           ->fields(array(
@@ -189,24 +189,24 @@ class RedhenContactEntityController extends EntityAPIController {
           'uid' => $contact->uid,
           'status' => 1,
           'created' => REQUEST_TIME,
-          'updated' => REQUEST_TIME
+          'updated' => REQUEST_TIME,
         ))
           ->execute();
         module_invoke_all('redhen_contact_user_update', 'insert', $contact);
       }
-      // update existing link with different user
+      // Update existing link with different user.
       else {
-        // update with new user
+        // Update with new user.
         db_update('redhen_contact_user')
           ->fields(array(
           'uid' => $contact->uid,
-          'updated' => REQUEST_TIME
+          'updated' => REQUEST_TIME,
         ))
           ->condition('contact_id', $contact->contact_id)
           ->condition('status', 1)
           ->execute();
 
-        // Clone the contact to populate with the old user info
+        // Clone the contact to populate with the old user info.
         $old_contact = clone $contact;
         $old_user = $contact_result->fetchAssoc();
         $old_contact->uid = $old_user->uid;
@@ -215,7 +215,8 @@ class RedhenContactEntityController extends EntityAPIController {
       }
 
       return TRUE;
-    } catch (Exception $e) {
+    }
+    catch (Exception $e) {
       if (isset($transaction)) {
         $transaction->rollback();
       }
@@ -259,7 +260,8 @@ class RedhenContactEntityController extends EntityAPIController {
       unset($contact->uid);
 
       return TRUE;
-    } catch (Exception $e) {
+    }
+    catch (Exception $e) {
       if (isset($transaction)) {
         $transaction->rollback();
       }
