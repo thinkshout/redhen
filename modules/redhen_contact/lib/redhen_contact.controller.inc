@@ -24,7 +24,7 @@ class RedhenContactEntityController extends EntityAPIController {
     try {
       $contact->updated = REQUEST_TIME;
 
-      // new contact, set created prop
+      // New contact, set created prop.
       if (isset($contact->is_new) && $contact->is_new) {
         $contact->created = REQUEST_TIME;
       }
@@ -41,13 +41,14 @@ class RedhenContactEntityController extends EntityAPIController {
 
       parent::save($contact, $transaction);
 
-      // set the contact user
+      // Set the contact user.
       if ($contact->uid) {
         $this->setUser($contact, $transaction);
       }
 
       return $contact;
-    } catch (Exception $e) {
+    }
+    catch (Exception $e) {
       $transaction->rollback();
       watchdog_exception($this->entityType, $e);
       throw $e;
@@ -86,12 +87,13 @@ class RedhenContactEntityController extends EntityAPIController {
       try {
         parent::delete($contact_ids, $transaction);
 
-        // delete user connections
+        // Delete user connections.
         db_delete('redhen_contact_user')
           ->condition('contact_id', $contact_ids, 'IN')
           ->execute();
 
-      } catch (Exception $e) {
+      }
+      catch (Exception $e) {
         if (isset($transaction)) {
           $transaction->rollback();
         }
@@ -120,7 +122,7 @@ class RedhenContactEntityController extends EntityAPIController {
       array(':status' => 1)
     );
 
-    // if uid is a condition, ensure the join is against the right table
+    // If uid is a condition, ensure the join is against the right table.
     if (isset($conditions['uid'])) {
       $query_conditions = & $query->conditions();
       foreach ($query_conditions as $key => $condition) {
