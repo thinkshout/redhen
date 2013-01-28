@@ -109,20 +109,40 @@ class RedhenEngagementMetadataController extends EntityDefaultMetadataController
       'description' => t("The date the note was created."),
       'type' => 'date',
       'schema field' => 'created',
+      // RedHen specific attributes
       'filter' => TRUE,
       'field_type' => 'textfield'
     );
+
+    // Entities
+
+    $properties['entity'] = array(
+      'label' => t("Host entity"),
+      'type' => 'entity',
+      'schema field' => 'entity',
+      'description' => t("The host entity."),
+      'getter callback' => 'redhen_engagement_property_host_get',
+      'setter callback' => 'entity_property_verbatim_set',
+    );
+
     $properties['author'] = array(
       'label' => t("Author"),
       'type' => 'user',
       'description' => t("The author of the note."),
       'schema field' => 'author_uid'
     );
+
     $properties['engagement_score_id'] = array(
-      'filter' => TRUE,
+      'label' => t('Engagement score'),
+      'type' => 'redhen_engagement_score',
+      'schema field' => 'engagement_score_id',
+      'description' => t('The engagement score of a note.'),
+      'options list' => 'redhen_engagement_score_options',
+      'setter callback' => 'entity_property_verbatim_set',
+      // RedHen specific attributes
       'field_type' => 'select',
-      'options list' => 'redhen_engagement_score_options'
-    ) + $properties['type'];
+      'filter' => TRUE,
+    );
 
 
     return $info;
@@ -145,4 +165,14 @@ class RedhenEngagementScoreUIController extends EntityDefaultUIController {
     return parent::overviewTableRow($conditions, $id, $entity, $additional_cols);
   }
 
+}
+
+/**
+ * Callback to get $engagement->entity.
+ *
+ * @see redhen_engagement_entity_property_info().
+ */
+function redhen_engagement_property_host_get(RedhenNote $note, array $options, $property_name, $entity_type) {
+  $entity = entity_load_single($note->entity_type, $note->entity_id);
+  return ($entity) ? entity_metadata_wrapper($note->entity_type, $entity): NULL;
 }

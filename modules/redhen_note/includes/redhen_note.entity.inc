@@ -68,7 +68,7 @@ class RedhenNote extends Entity {
     $wrapper = entity_metadata_wrapper('redhen_note', $this);
     $entity = $wrapper->entity->value();
     // Don't sanitize here as this function should produce unsanitized output.
-    return t('Note !id on !label', array('!id' => $this->note_id, '!label' => $entity->label()));
+    return t('Note !id on !label', array('!id' => $this->note_id, '!label' => entity_label($wrapper->entity_type->value(), $wrapper->entity)));
   }
 
   /**
@@ -161,6 +161,7 @@ class RedhenNoteMetadataController extends EntityDefaultMetadataController {
  * @see redhen_note_entity_property_info().
  */
 function redhen_note_property_host_get(RedhenNote $note, array $options, $property_name, $entity_type) {
-  return entity_load_single($note->entity_type, $note->entity_id);
+  $entity = entity_load_single($note->entity_type, $note->entity_id);
+  return ($entity) ? entity_metadata_wrapper($note->entity_type, $entity): NULL;
 }
 

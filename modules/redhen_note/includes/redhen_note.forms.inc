@@ -103,10 +103,9 @@ function redhen_note_delete_form_submit($form, &$form_state) {
   $note = $form_state['redhen_note'];
 
   $wrapper = entity_metadata_wrapper('redhen_note', $note);
-  $entity = $wrapper->entity->value();
 
-  $title = $note->label();
-  $entity_url = entity_uri($note->entity_type, $entity);
+  $title = entity_label('redhen_note', $note);
+  $entity_url = entity_uri($note->entity_type, $wrapper->entity->value());
 
   // No status returned from delete(), assume it worked
   redhen_note_delete_multiple(array($note->note_id));
