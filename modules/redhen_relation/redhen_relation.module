@@ -364,9 +364,9 @@ function redhen_relation_autocomplete($relation_type = '', $entity_type_to_relat
  */
 function redhen_relation_entity_update($entity, $entity_type) {
   if ($entity_type == 'redhen_contact' || $entity_type == 'redhen_org') {
-    // If the entity is archived, we want to archive their relations
+    // If the entity is archived, we want to archive their relations.
     if ($entity->redhen_state != REDHEN_STATE_ACTIVE) {
-      // Get all the relations associated with this entitity
+      // Get all the relations associated with this entitity.
       $query = relation_query($entity_type, $entity->internalIdentifier());
 
       // this hideous hack is to avoid triggering the node access system which we
@@ -394,7 +394,7 @@ function redhen_relation_entity_update($entity, $entity_type) {
  * Implements hook_entity_info_alter().
  */
 function redhen_relation_entity_info_alter(&$entity_info) {
-  // Add teaser view mode to relations
+  // Add teaser view mode to relations.
   $entity_info['relation']['view modes']['teaser'] = array(
     'label' => t('Teaser'),
     'custom settings' => TRUE,
@@ -412,8 +412,9 @@ function redhen_relation_views_api() {
 }
 
 /**
- * Wrapper around relation_get_available_types() to return only relation types
- * between RedHen entities.
+ * Return only relation types between RedHen entities.
+ *
+ * Wrapper around relation_get_available_types().
  *
  * @param $entity_type
  *   redhen_contact or redhen_org
