@@ -137,23 +137,32 @@ function redhen_engagements_page(RedhenContact $contact) {
   if ($result) {
     $engagements = entity_load('redhen_engagement', array_keys($result['redhen_engagement']));
     foreach ($engagements as $engagement) {
-      $author = user_load($engagement->author_uid);
-      $author_uri = entity_uri('user', $author);
+      $engagement_wrapper = entity_metadata_wrapper('redhen_engagement', $engagement);
+      $author = $engagement_wrapper->author;
+      $author_link = '';
+      if ($author->getIdentifier()) {
+        $author_uri = entity_uri('user', $author->value());
+        $author_link = l($author->name->value(), $author_uri['path']);
+      }
+      else {
+        $author_link = check_plain($author->name->value());
+      }
+
       $source = t('N/A');
       if ($engagement->entity_id) {
-        $source_entity = entity_load_single($engagement->entity_type, $engagement->entity_id);
+        $source_entity = $engagement_wrapper->entity->value();
         $source_uri = entity_uri($engagement->entity_type, $source_entity);
         $source = l(entity_label($engagement->entity_type, $source_entity), $source_uri['path']);
       }
       $rows[] = array(
         'data' => array(
-          $engagement->engagement_score->score,
-          $engagement->engagement_score->label,
+          $engagement_wrapper->engagement_score->score->value(),
+          entity_label('redhen_engagement_score', $engagement_wrapper->engagement_score->value()),
           redhen_format_date($engagement->created, 'short'),
           $engagement->description,
           $source,
-          l($author->name, $author_uri['path']),
-        )
+          $author_link,
+        ),
       );
     }
   }
@@ -163,7 +172,7 @@ function redhen_engagements_page(RedhenContact $contact) {
       'data' => array(
         array(
           'data' => t('Sorry, there are no engagements that match your criteria.'),
-          'colspan' => 6
+          'colspan' => 6,
         )
       )
     );
@@ -227,12 +236,12 @@ function redhen_engagement_create($engagement_score_name, $contact_id,
     $author_uid = $user->uid;
   }
   return new RedhenEngagement(array(
-    'engagement_score_id' => $engagement_score->internalIdentifier(),
+    'engagement_score' => $engagement_score->identifier(),
     'contact_id' => $contact_id,
     'description' => $description,
     'entity_type' => $entity_type,
     'entity_id' => $entity_id,
-    'author_uid' => $author_uid
+    'author_uid' => $author_uid,
   ));
 }
 
@@ -258,7 +267,7 @@ function redhen_engagement_contact_score(RedhenContact $contact) {
   $score = 0;
   $query = db_select('redhen_engagement', 'e')
     ->condition('contact_id', $contact->contact_id, '=');
-  $query->join('redhen_engagement_score', 's', 'e.engagement_score_id = s.engagement_score_id');
+  $query->join('redhen_engagement_score', 's', 'e.engagement_score = s.name');
   $query->addExpression('SUM(score)', 'score');
 
   $result = $query->execute();
@@ -299,14 +308,14 @@ function redhen_engagement_form_redhen_note_form_alter(&$form, &$form_state) {
   $scores = redhen_engagement_get_scores();
   $options = array('' => t('-- Select --'));
   foreach ($scores as $score) {
-    $options[$score->engagement_score_id] = $score->label;
+    $options[$score->name] = $score->label;
   }
   $form['engagement_score'] = array(
     '#type' => 'select',
     '#title' => t('Engagement Score'),
     '#description' => t('The selected engagement score, if any, will be applied to the contact when creating this note.'),
     '#weight' => 99,
-    '#options' => $options
+    '#options' => $options,
   );
 
   $form['#submit'][] = 'redhen_engagement_redhen_note_form_submit';
@@ -387,7 +396,7 @@ function redhen_engagement_score_options() {
   $scores = redhen_engagement_get_scores();
   $options = array();
   foreach ($scores as $score) {
-    $options[$score->engagement_score_id] = $score->label();
+    $options[$score->name] = $score->label();
   }
   return $options;
 }
