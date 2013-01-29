@@ -407,12 +407,15 @@ function redhen_activity_message_save($entity, $type, $op) {
       $parent_entity = $wrapper->entity->value();
       if ($parent_entity) {
         $items = field_get_items('redhen_note', $entity, 'redhen_note_type');
-        $note_type = taxonomy_term_load($items[0]['tid']);
+        $note_name = NULL;
+        if (isset($items[0])) {
+            $note_name = taxonomy_term_load($items[0]['tid'])->name;
+        }
         $message = message_create('redhen_note', array(
           'arguments' => array(
             '%name' => $parent_entity->label(),
             '!op' => $op,
-            '%type' => $note_type->name
+            '%type' => $note_name,
           )
         ), $user);
         $wrapper = entity_metadata_wrapper('message', $message);
