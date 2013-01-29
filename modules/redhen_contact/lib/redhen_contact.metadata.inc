@@ -46,6 +46,12 @@ class RedhenContactMetadataController extends EntityDefaultMetadataController {
       'field_type' => 'textfield',
       'setter callback' => 'entity_property_verbatim_set',
     ));
+    $properties['middle_name'] = array_merge($properties['middle_name'], array(
+      'label' => t('Middle Name'),
+      'filter' => TRUE,
+      'field_type' => 'textfield',
+      'setter callback' => 'entity_property_verbatim_set',
+    ));
     $properties['last_name'] = array_merge($properties['last_name'], array(
       'label' => t('Last name'),
       'filter' => TRUE,

@@ -26,6 +26,13 @@ function redhen_contact_contact_form($form, &$form_state, $contact) {
     '#required' => TRUE,
     '#weight' => -6,
   );
+  $form['name']['middle_name'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Middle name'),
+    '#default_value' => $contact->middle_name,
+    '#maxlength' => 255,
+    '#weight' => -6,
+  );
   $form['name']['last_name'] = array(
     '#type' => 'textfield',
     '#title' => t('Last name'),
@@ -88,6 +95,7 @@ function redhen_contact_contact_form_submit($form, &$form_state) {
 
   // Save default parameters back into the $contact object.
   $contact->first_name = $form_state['values']['first_name'];
+  $contact->middle_name = $form_state['values']['middle_name'];
   $contact->last_name = $form_state['values']['last_name'];
 
   // Notify field widgets.

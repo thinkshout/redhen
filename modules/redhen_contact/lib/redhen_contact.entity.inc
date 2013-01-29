@@ -11,6 +11,7 @@ class RedhenContact extends Entity {
 
   public
     $first_name = '',
+    $middle_name = '',
     $last_name = '',
     $contact_id = NULL,
     $uid = NULL,

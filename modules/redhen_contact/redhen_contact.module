@@ -815,7 +815,7 @@ function redhen_contact_user_view($account, $view_mode, $langcode) {
  * Callback to get $contact->full_name
  */
 function redhen_contact_property_full_name_get(RedhenContact $contact, array $options, $property_name, $entity_type) {
-  $name = $contact->first_name . ' ' . $contact->last_name;
+  $name = $contact->first_name . ' ' . $contact->middle_name . ' ' . $contact->last_name;
   $context = array(
     'contact' => clone $contact,
   );

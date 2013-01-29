@@ -77,11 +77,14 @@ function redhen_note_notes_page($entity, $entity_type) {
           'type' => 'text_trimmed',
           'settings' => array('trim_length' => 100)
       ));
-
+      $note_type = NULL;
+      if ($note_type_object = $wrapper->redhen_note_type->value()) {
+        $note_type = $note_type_object->name;
+      }
       $rows[] = array(
         'data' => array(
           render($teaser),
-          $wrapper->redhen_note_type->value()->name,
+          $note_type,
           (isset($author->name)) ? $author->name : '',
           redhen_format_date($note->updated),
           redhen_format_date($note->created),
