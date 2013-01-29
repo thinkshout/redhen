@@ -462,14 +462,15 @@ function redhen_activity_message_save($entity, $type, $op) {
       }
       break;
     case 'redhen_engagement':
-      $score = redhen_engagement_get_scores($entity->engagement_score_id);
-      $contact = redhen_contact_load($entity->contact_id);
+      $wrapper = entity_metadata_wrapper('redhen_engagement', $entity);
+      $score = $wrapper->engagement_score->value();
+      $contact = $wrapper->contact->value();
       $message = message_create('redhen_engagement', array(
         'arguments' => array(
           '%name' => $contact->label(),
           '!op' => $op,
           '%type' => $score->label(),
-          '%score' => $score->score
+          '%score' => $score->score,
         )
       ), $user);
       $wrapper = entity_metadata_wrapper('message', $message);
