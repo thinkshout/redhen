@@ -39,6 +39,13 @@ function redhen_contact_schema() {
         'not null' => TRUE,
         'default' => '',
       ),
+      'middle_name' => array(
+        'description' => 'The middle name of this redhen_contact, always treated as non-markup plain text.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ),
       'last_name' => array(
         'description' => 'The last name of this redhen_contact, always treated as non-markup plain text.',
         'type' => 'varchar',
@@ -128,6 +135,13 @@ function redhen_contact_schema() {
       ),
       'first_name' => array(
         'description' => 'The first name of this version.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'middle_name' => array(
+        'description' => 'The middle name of this version.',
         'type' => 'varchar',
         'length' => 255,
         'not null' => TRUE,
@@ -299,4 +313,22 @@ function redhen_contact_schema() {
   );
 
   return $schema;
+}
+
+/**
+ * Adding middle name field.
+ */
+function redhen_contact_update_7001() {
+  $schema = redhen_contact_schema();
+  $field_name = 'middle_name';
+
+  // Add middle_name to the main table.
+  $table_name = 'redhen_contact';
+  $spec = $schema[$table_name]['fields'][$field_name];
+  db_add_field($table_name, $field_name, $spec);
+
+  // Add middle_name to the revision table.
+  $table_name = 'redhen_contact_revision';
+  $spec = $schema[$table_name]['fields'][$field_name];
+  db_add_field($table_name, $field_name, $spec);
 }
