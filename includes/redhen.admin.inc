@@ -32,6 +32,7 @@ function redhen_landing_page() {
       'permission' => 'access redhen memberships'
     ),
     'activity' => array(
+      'module' => 'redhen_activity',
       'path' => 'redhen/activity',
       'title' => 'Activity',
       'description' => t('RedHen activity stream.'),
