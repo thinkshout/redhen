@@ -720,6 +720,37 @@ function redhen_contact_load_by_user($account, $state = REDHEN_STATE_ACTIVE) {
 }
 
 /**
+ * Load all contact entities for an email address.
+ *
+ * @param $mail
+ *   Required: an email address.
+ * @param $state
+ *   RedHen state. Defaults to active.
+ *
+ * @return array|bool
+ *   An array of RedHen Contact entities or FALSE if no match found.
+ */
+function redhen_contact_load_by_mail($mail, $state = REDHEN_STATE_ACTIVE) {
+  $contacts = &drupal_static(__FUNCTION__ . $mail, FALSE);
+
+  if (!$contacts) {
+    $query = new EntityFieldQuery;
+    $query
+      ->entityCondition('entity_type', 'redhen_contact')
+     ->fieldCondition('redhen_contact_email', 'value', $mail, '=');
+    if (!is_null($state)) {
+      $query->propertyCondition('redhen_state', $state);
+    }
+    $result = $query->execute();
+    if (!empty($result)) {
+     $contacts = redhen_contact_load_multiple(array_keys($result['redhen_contact']));
+    }
+  }
+
+  return $contacts;
+}
+
+/**
  * Implements hook_username_alter().
  */
 function redhen_contact_username_alter(&$name, $account) {
