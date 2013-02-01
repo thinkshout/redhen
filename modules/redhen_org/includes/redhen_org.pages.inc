@@ -35,8 +35,9 @@ function redhen_org_page() {
       'sort' => 'desc',
       'specifier' => 'updated'
     ),
-    'Actions',
   );
+
+  $header['operations'] = array('data' => t('Operations'));
 
   // need to ensure the query doesn't execute when posing the form
   $result = FALSE;
@@ -50,6 +51,78 @@ function redhen_org_page() {
   $orgs = array();
   if ($result) {
     $orgs = redhen_org_load_multiple(array_keys($result['redhen_org']));
+
+    if (!empty($orgs)) {
+      $rows = array();
+      $destination = drupal_get_destination();
+      foreach ($orgs as $org) {
+        $uri = entity_uri('redhen_org', $org);
+        $redhen_org_type = redhen_org_type_load($org->type);
+
+        $data = array(
+          'type' => check_plain($redhen_org_type->label),
+          'label' => array(
+            'data' => array(
+              '#type' => 'link',
+              '#title' => $org->label,
+              '#href' => $uri['path'],
+            ),
+          ),
+          'updated' => redhen_format_date($org->updated, 'short'),
+        );
+
+        $row_classes = array();
+        // Set a class for the row depending on if the org is active or archived
+        $row_classes[] = $org->redhen_state == REDHEN_STATE_ACTIVE ? 'active' : 'archived';
+
+        $rows[$org->org_id] = array(
+          'data' => $data,
+          'class' => $row_classes,
+        );
+      
+        // Build a list of all the accessible operations for the current org.
+        $ops = array();
+        if (redhen_org_access('update', $org)) {
+          $ops['edit'] = array(
+            'title' => t('edit'),
+            'href' => $uri['path'] . '/view/edit',
+            'query' => $destination,
+          );
+        }
+        if (redhen_org_access('delete', $org)) {
+          $ops['delete'] = array(
+            'title' => t('delete'),
+            'href' => $uri['path'] . '/view/delete',
+            'query' => $destination,
+          );
+        }
+        if (count($ops) > 1) {
+          // Render an unordered list of operations links.
+          $rows[$org->org_id]['data']['operations'] = array(
+            'data' => array(
+              '#theme' => 'links__node_operations',
+              '#links' => $ops,
+              '#attributes' => array('class' => array('links', 'inline')),
+            ),
+          );
+        }
+        elseif (!empty($ops)) {
+          // Render the first and only operation as a link.
+          $link = reset($ops);
+          $rows[$org->org_id]['data']['operations'] = array(
+            'data' => array(
+              '#type' => 'link',
+              '#title' => $link['title'],
+              '#href' => $link['href'],
+              '#options' => array('query' => $link['query']),
+            ),
+          );
+        }
+        else {
+          unset($header['operations']);
+        }
+      }
+    }
   }
 
   return array(
@@ -57,7 +130,8 @@ function redhen_org_page() {
     'orgs' => array(
       '#theme' => 'redhen_org_list',
       '#orgs' => $orgs,
-      '#header' => $header
+      '#header' => $header,
+      '#rows' => $rows,
     )
   );
 

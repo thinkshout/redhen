@@ -255,7 +255,7 @@ function redhen_org_theme() {
       'file' => 'includes/redhen_org.forms.inc',
     ),
     'redhen_org_list' => array(
-      'variables' => array('orgs' => NULL, 'header' => NULL),
+      'variables' => array('orgs' => NULL, 'header' => NULL, 'rows' => NULL),
     )
   );
 }
@@ -522,51 +522,18 @@ function theme_redhen_org_add_list($variables) {
  * @return string
  */
 function theme_redhen_org_list($variables) {
-  $orgs = $variables['orgs'];
   $header = $variables['header'];
-  if (!empty($orgs)) {
-    $rows = array();
-    foreach ($orgs as $org) {
-      $uri = entity_uri('redhen_org', $org);
-      $actions = array(
-        l(t('edit'), $uri['path'] . '/view/edit', array('query' => drupal_get_destination())),
-        l(t('delete'), $uri['path'] . '/view/delete', array('query' => drupal_get_destination())),
-      );
+  $rows = $variables['rows'];
 
-      $redhen_org_type = redhen_org_type_load($org->type);
-
-      $data = array(
-        $redhen_org_type->label,
-        l($org->label, $uri['path']),
-        redhen_format_date($org->updated, 'short'),
-        implode(' | ', $actions)
-      );
-
-      $row_classes = array();
-      // Set a class for the row depending on if the org is active or archived
-      $row_classes[] = $org->redhen_state == REDHEN_STATE_ACTIVE ? 'active' : 'archived';
-
-      $rows[] = array(
-        'data' => $data,
-        'class' => $row_classes,
-      );
-    }
-    $render['table'] = array(
-      '#theme' => 'table',
-      '#header' => $header,
-      '#rows' => $rows
-    );
-    $render['pager'] = array(
-      '#theme' => 'pager'
-    );
-  }
-  else {
-    // no results, set a message
-    $render['no-result'] = array(
-      '#type' => 'markup',
-      '#markup' => t('Sorry, there are no organizations that match your criteria.'),
-    );
-  }
+  $render['table'] = array(
+    '#theme' => 'table',
+    '#header' => $header,
+    '#rows' => $rows,
+    '#empty' => t('No organizations available.'),
+  );
+  $render['pager'] = array(
+    '#theme' => 'pager',
+  );
 
   return render($render);
 }
