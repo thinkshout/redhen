@@ -147,6 +147,23 @@ function redhen_relation_access($op, $entity) {
 function redhen_relation_connections_page($entity) {
   $related = redhen_relation_relations($entity);
   if (!empty($related)) {
+
+    $header = array(
+      'connection' => t('Connection'),
+      'type' => t('Type'),
+      'name' => t('Name'),
+      'status' => t('Status'),
+      'created' => t('Created'),
+      'author' => t('Author'),
+    );
+
+    if ($entity->entityType() == 'redhen_org') {
+      $header['primary'] = t('Primary contact');
+    }
+
+    $header['operations'] = array('data' => t('Operations'));
+
+    $destination = drupal_get_destination();
     foreach ($related as $relation_id => $related_entities) {
       $relation = relation_load($relation_id);
       $relation_uri = entity_uri('relation', $relation);
@@ -162,19 +179,26 @@ function redhen_relation_connections_page($entity) {
           $active = ($items[0]['value']) ? t('Active', array(), array('context' => 'redhen_relation')) : t('Inactive', array(), array('context' => 'redhen_relation'));
         }
         $related_entity_info = entity_get_info($related_entity->entityType());
-        $operations = array(
-          l(t('edit'), $relation_uri['path'] . '/edit', array('query' => drupal_get_destination())),
-          l(t('delete'), $relation_uri['path'] . '/delete', array('query' => drupal_get_destination())),
-        );
 
         $data = array(
-          l(relation_get_type_label($relation), $relation_uri['path']),
-          $related_entity_info['label'],
-          l($object_label, $object_uri['path']),
-          $active,
-          date('m/d/Y', $relation->created),
-          $author->name,
-          implode(' | ', $operations),
+          'connection' => array(
+            'data' => array(
+              '#type' => 'link',
+              '#title' => relation_get_type_label($relation),
+              '#href' => $relation_uri['path'],
+            ),
+          ),
+          'type' => $related_entity_info['label'],
+          'name' => array(
+            'data' => array(
+              '#type' => 'link',
+              '#title' => $object_label,
+              '#href' => $object_uri['path'],
+            ),
+          ),
+          'active' => $active,
+          'created' => date('m/d/Y', $relation->created),
+          'author' => $author->name,
         );
         $row_classes = array();
 
@@ -182,10 +206,19 @@ function redhen_relation_connections_page($entity) {
         if ($entity->entityType() == 'redhen_org' && $related_entity->entityType() == 'redhen_contact') {
           if ($entity->primary_contact_id !== $related_entity->contact_id) {
             $entity_uri = entity_uri('redhen_org', $entity);
-            $data[] = l(t('set as primary'), $entity_uri['path'] . '/primary/' . $related_entity->contact_id, array('query' => drupal_get_destination()));
+            $data['primary'] = array(
+              'data' => array(
+                '#type' => 'link',
+                '#title' => t('set as primary'),
+                '#href' => $entity_uri['path'] . '/primary/' . $related_entity->contact_id,
+                '#options' => array(
+                  'query' => array($destination),
+                ),
+              ),
+            );
           }
           else {
-            $data[] = t('Primary');
+            $data['primary'] = t('Primary');
             $row_classes[] = 'primary_contact';
           }
         }
@@ -193,17 +226,56 @@ function redhen_relation_connections_page($entity) {
           $data[] = t('NA', array(), array('context' => 'redhen_relation'));
         }
 
-        $rows[] = array('data' => $data, 'class' => $row_classes);
+        // Build a list of all the accessible operations for the current relation.
+        $ops = array();
+
+        $ops['view'] = array(
+          'title' => t('view'),
+          'href' => $relation_uri['path'],
+        );
+
+        if (redhen_relation_access('update', $entity)) {
+          $ops['edit'] = array(
+            'title' => t('edit'),
+            'href' => $relation_uri['path'] . '/edit',
+            'query' => $destination,
+          );
+        }
+        if (redhen_relation_access('delete', $entity)) {
+          $ops['delete'] = array(
+            'title' => t('delete'),
+            'href' => $relation_uri['path'] . '/delete',
+            'query' => $destination,
+          );
+        }
+        if (count($ops) > 1) {
+          // Render an unordered list of operations links.
+          $data['operations'] = array(
+            'data' => array(
+              '#theme' => 'links__node_operations',
+              '#links' => $ops,
+              '#attributes' => array('class' => array('links', 'inline')),
+            ),
+          );
+        }
+        elseif (!empty($ops)) {
+          // Render the first and only operation as a link.
+          $link = reset($ops);
+          $data['operations'] = array(
+            'data' => array(
+              '#type' => 'link',
+              '#title' => $link['title'],
+              '#href' => $link['href'],
+              '#options' => array('query' => $link['query']),
+            ),
+          );
+        }
+        else {
+          unset($header['operations']);
+        }
+
+        $rows[$relation_id] = array('data' => $data, 'class' => $row_classes);
       }
-    }
-
-    $header = array(
-      t('Connection'), t('Type'), t('Name'), t('Status'),
-      t('Created'), t('Author'), t('Actions'),
-    );
-
-    if ($entity->entityType() == 'redhen_org') {
-      $header[] = t('Primary contact');
     }
 
     return array(
