@@ -62,7 +62,6 @@ function redhen_contact_page() {
     $destination = drupal_get_destination();
     foreach ($contacts as $contact) {
       $uri = entity_uri('redhen_contact', $contact);
-
       $redhen_contact_type = redhen_contact_type_load($contact->type);
       $email = $contact->email();
       $rows[$contact->contact_id] = array(

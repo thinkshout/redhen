@@ -580,7 +580,6 @@ function theme_redhen_contact_add_list($variables) {
  * @return string
  */
 function theme_redhen_contact_list($variables) {
-  $contacts = $variables['contacts'];
   $header = $variables['header'];
   $rows = $variables['rows'];
 
