@@ -104,19 +104,19 @@ function redhen_engagements_page(RedhenContact $contact) {
   module_load_include('inc', 'redhen', 'includes/redhen.forms');
 
   $header = array(
-    'Score' => array(
+    'score' => array(
       'data' => t('Score'),
       'field' => 'score',
       'type' => 'property',
       'specifier' => 'score'
     ),
-    'Type' => array(
+    'type' => array(
       'data' => t('Type'),
       'field' => 'type',
       'type' => 'property',
       'specifier' => 'type'
     ),
-    'Created' => array(
+    'created' => array(
       'field' => 'created',
       'type' => 'property',
       'data' => t('Created'),
@@ -148,34 +148,29 @@ function redhen_engagements_page(RedhenContact $contact) {
         $author_link = check_plain($author->name->value());
       }
 
-      $source = t('N/A');
+      $source_link = t('N/A');
       if ($engagement->entity_id) {
         $source_entity = $engagement_wrapper->entity->value();
         $source_uri = entity_uri($engagement->entity_type, $source_entity);
-        $source = l(entity_label($engagement->entity_type, $source_entity), $source_uri['path']);
+        $source_link = array(
+          'data' => array(
+            '#type' => 'link',
+            '#title' => check_plain($engagement_wrapper->entity->label()),
+            '#href' => $source_uri['path'],
+          ),
+        );
       }
       $rows[] = array(
         'data' => array(
-          $engagement_wrapper->engagement_score->score->value(),
-          entity_label('redhen_engagement_score', $engagement_wrapper->engagement_score->value()),
-          redhen_format_date($engagement->created, 'short'),
-          $engagement->description,
-          $source,
-          $author_link,
+          'score' => $engagement_wrapper->engagement_score->score->value(),
+          'type' => entity_label('redhen_engagement_score', $engagement_wrapper->engagement_score->value()),
+          'created' => redhen_format_date($engagement->created, 'short'),
+          'description' => $engagement->description,
+          'source' => $source_link,
+          'author' => $author_link,
         ),
       );
     }
-  }
-  else {
-    // no results, set a message
-    $rows[] = array(
-      'data' => array(
-        array(
-          'data' => t('Sorry, there are no engagements that match your criteria.'),
-          'colspan' => 6,
-        )
-      )
-    );
   }
 
   $render = array(
@@ -183,7 +178,8 @@ function redhen_engagements_page(RedhenContact $contact) {
     'table' => array(
       '#theme' => 'table',
       '#header' => $header,
-      '#rows' => $rows
+      '#rows' => $rows,
+      '#empty' => t('Sorry, there are no engagements that match your criteria.'),
     ),
     'pager' => array(
       '#theme' => 'pager'
