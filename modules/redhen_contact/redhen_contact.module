@@ -247,7 +247,7 @@ function redhen_contact_theme() {
       'variables' => array('content' => NULL),
     ),
     'redhen_contact_list' => array(
-      'variables' => array('contacts' => NULL, 'header' => NULL),
+      'variables' => array('contacts' => NULL, 'header' => NULL, 'rows' => NULL),
     )
   );
 }
@@ -582,45 +582,17 @@ function theme_redhen_contact_add_list($variables) {
 function theme_redhen_contact_list($variables) {
   $contacts = $variables['contacts'];
   $header = $variables['header'];
-  if (!empty($contacts)) {
-    $rows = array();
-    foreach ($contacts as $contact) {
-      $uri = entity_uri('redhen_contact', $contact);
-      $actions = array(
-        l(t('edit'), $uri['path'] . '/view/edit', array('query' => drupal_get_destination())),
-        l(t('delete'), $uri['path'] . '/view/delete', array('query' => drupal_get_destination())),
-      );
+  $rows = $variables['rows'];
 
-      $redhen_contact_type = redhen_contact_type_load($contact->type);
-      $email = $contact->email();
-      $rows[] = array(
-        'data' => array(
-          $redhen_contact_type->label,
-          l($contact->first_name, $uri['path']),
-          l($contact->last_name, $uri['path']),
-          l($email, 'mailto:' . $email),
-          redhen_format_date($contact->updated, 'short'),
-          implode(' | ', $actions)
-        )
-      );
-    }
-
-    $render['table'] = array(
-      '#theme' => 'table',
-      '#header' => $header,
-      '#rows' => $rows
-    );
-    $render['pager'] = array(
-      '#theme' => 'pager',
-    );
-  }
-  else {
-    // no results, set a message
-    $render['no-result'] = array(
-      '#type' => 'markup',
-      '#markup' => t('Sorry, there are no contacts that match your criteria.'),
-    );
-  }
+  $render['table'] = array(
+    '#theme' => 'table',
+    '#header' => $header,
+    '#rows' => $rows,
+    '#empty' => t('No contacts available.'),
+  );
+  $render['pager'] = array(
+    '#theme' => 'pager',
+  );
 
   return render($render);
 }

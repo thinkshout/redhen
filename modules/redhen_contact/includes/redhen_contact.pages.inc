@@ -39,8 +39,9 @@ function redhen_contact_page() {
       'sort' => 'desc',
       'specifier' => 'updated'
     ),
-    'Actions',
   );
+
+  $header['operations'] = array('data' => t('Operations'));
 
   // need to ensure the query doesn't execute when posing the form
   $result = FALSE;
@@ -56,12 +57,90 @@ function redhen_contact_page() {
     $contacts = redhen_contact_load_multiple(array_keys($result['redhen_contact']));
   }
 
+  if (!empty($contacts)) {
+    $rows = array();
+    $destination = drupal_get_destination();
+    foreach ($contacts as $contact) {
+      $uri = entity_uri('redhen_contact', $contact);
+
+      $redhen_contact_type = redhen_contact_type_load($contact->type);
+      $email = $contact->email();
+      $rows[$contact->contact_id] = array(
+        'type' => check_plain($redhen_contact_type->label),
+        'first_name' => array(
+          'data' => array(
+            '#type' => 'link',
+            '#title' => $contact->first_name,
+            '#href' => $uri['path'],
+          ),
+         ),
+        'last_name' => array(
+          'data' => array(
+            '#type' => 'link',
+            '#title' => $contact->last_name,
+            '#href' => $uri['path'],
+          ),
+        ),
+        'email' => array(
+          'data' => array(
+            '#type' => 'link',
+            '#title' => $email,
+            '#href' => 'mailto:' . $email,
+          ),
+        ),
+        'updated' => redhen_format_date($contact->updated, 'short'),
+      );
+      // Build a list of all the accessible operations for the current contact.
+      $ops = array();
+      if (redhen_contact_access('update', $contact)) {
+        $ops['edit'] = array(
+          'title' => t('edit'),
+          'href' => $uri['path'] . '/view/edit',
+          'query' => $destination,
+        );
+      }
+      if (redhen_contact_access('delete', $contact)) {
+        $ops['delete'] = array(
+          'title' => t('delete'),
+          'href' => $uri['path'] . '/view/delete',
+          'query' => $destination,
+        );
+      }
+      if (count($ops) > 1) {
+        // Render an unordered list of operations links.
+        $rows[$contact->contact_id]['operations'] = array(
+          'data' => array(
+            '#theme' => 'links__node_operations',
+            '#links' => $ops,
+            '#attributes' => array('class' => array('links', 'inline')),
+          ),
+        );
+      }
+      elseif (!empty($ops)) {
+        // Render the first and only operation as a link.
+        $link = reset($ops);
+        $rows[$contact->contact_id]['operations'] = array(
+          'data' => array(
+            '#type' => 'link',
+            '#title' => $link['title'],
+            '#href' => $link['href'],
+            '#options' => array('query' => $link['query']),
+          ),
+        );
+      }
+      else {
+        unset($header['operations']);
+      }
+    }
+  }
+
   return array(
     'form' => drupal_get_form('redhen_filter_form', 'redhen_contact'),
     'contacts' => array(
       '#theme' => 'redhen_contact_list',
       '#contacts' => $contacts,
-      '#header' => $header
+      '#header' => $header,
+      '#rows' => $rows,
     )
   );
 }
