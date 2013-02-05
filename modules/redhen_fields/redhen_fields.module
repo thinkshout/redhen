@@ -483,6 +483,7 @@ function redhen_fields_field_widget_form(&$form, &$form_state, $field, $instance
   switch ($instance['widget']['type']) {
     case 'redhen_email_widget':
       $element['value'] = array(
+        '#title' => t('Email address'),
         '#type' => 'textfield',
         '#default_value' => isset($items[$delta]['value']) ? $items[$delta]['value'] : NULL,
         '#size' => 35,

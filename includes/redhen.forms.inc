@@ -8,7 +8,7 @@
 /**
  * Returns the form to filter redhen entity lists.
  */
-function redhen_filter_form($form, $form_state, $entity_type) {
+function redhen_filter_form($form, &$form_state, $entity_type) {
   // add jquery libs and
   drupal_add_library('system', 'ui.datepicker');
   drupal_add_js(drupal_get_path('module', 'redhen') . '/misc/redhen.forms.js');
@@ -87,7 +87,7 @@ function redhen_filter_form($form, $form_state, $entity_type) {
     if (count($entity_info['bundles']) == 1) {
       $bundle = array_keys($entity_info['bundles']);
       $bundle = $bundle[0];
-      redhen_filter_form_fields($form, $entity_type, $bundle);
+      redhen_filter_form_fields($form, $form_state, $entity_type, $bundle);
     }
     else {
       $form['filter_fieldset']['filters']['bundle'] = array(
@@ -131,7 +131,7 @@ function redhen_filter_form($form, $form_state, $entity_type) {
     $bundle = !empty($form_state['values']['filters']['bundle']) ?
       $form_state['values']['filters']['bundle'] : $_GET['bundle'];
 
-    redhen_filter_form_fields($form, $entity_type, $bundle);
+    redhen_filter_form_fields($form, $form_state, $entity_type, $bundle);
   }
 
   return $form;
@@ -173,10 +173,11 @@ function redhen_filter_form_reset($form, &$form_state) {
  * Populate a form array with field filters for given bundle.
  *
  * @param $form
+ * @param $form_state
  * @param $entity_type
  * @param $bundle
  */
-function redhen_filter_form_fields(&$form, $entity_type, $bundle) {
+function redhen_filter_form_fields(&$form, &$form_state, $entity_type, $bundle) {
   $fields = field_info_instances($entity_type, $bundle);
   $form['filter_fieldset']['filters']['fields'] = array(
     '#id' => 'redhen_filter_fields_container',
@@ -193,47 +194,71 @@ function redhen_filter_form_fields(&$form, $entity_type, $bundle) {
   }
   $filters_count = 0;
   if (!empty($fields)) {
-    // loop through each field adding a filter
-    foreach ($fields as $key => $field) {
-      $field_info = field_info_field($field['field_name']);
-      // for now, we're only allowing fields that have tid or value single cols
-      // @todo: expand to allow more field types
-      $columns = array_keys($field_info['columns']);
-      $column = reset($columns);
-      if (in_array($column, array('value', 'tid'))) {
-        $filters_count++;
-        // Basic handling for from/to searching of single value date fields
-        if ($field_info['type'] == 'date') {
-          $form['filter_fieldset']['filters']['fields'][$key][$column][] = array(
-            '#type' => 'textfield',
-            '#title' => $field['label'] . ' from',
-            '#attributes' => array('class' => array("redhen-field-type-date")),
-            '#default_value' => isset($_GET['fields'][$key][$column][0]) ?
-              $_GET['fields'][$key][$column][0] : NULL
-          );
-          $form['filter_fieldset']['filters']['fields'][$key][$column][] = array(
-            '#type' => 'textfield',
-            '#title' => $field['label'] . ' to',
-            '#attributes' => array('class' => array("redhen-field-type-date")),
-            '#default_value' => isset($_GET['fields'][$key][$column][1]) ?
-              $_GET['fields'][$key][$column][1] : NULL
-          );
-        }
-        else {
-          $form['filter_fieldset']['filters']['fields'][$key][$column] = array(
-            '#type' => 'textfield',
-            '#title' => $field['label'],
-            '#default_value' => isset($_GET['fields'][$key][$column]) ?
-              $_GET['fields'][$key][$column] : NULL,
-          );
+    if (!isset($form_state['field'])) {
+      $form_state['field'] = array();
+    }
 
-          // override for select lists
-          if ($field['widget']['type'] == 'options_select') {
-            $options = array('' => '-- ' . t('Any') . ' --') + $field_info['settings']['allowed_values'];
-            $form['filter_fieldset']['filters']['fields'][$key][$column]['#type'] = 'select';
-            $form['filter_fieldset']['filters']['fields'][$key][$column]['#options'] = $options;
-          }
+    // Loop through each field adding a filter.
+    $filters_count = 0;
+    foreach ($fields as $field => $instance) {
+      $field_info = field_info_field($instance['field_name']);
+
+      $filters_count++;
+
+      // Insert the widget.
+      // field_default_form() assumes the $form has a #parents property.
+      $element = array(
+        '#parents' => array(),
+      );
+      // Because of the redirect in redhen_filter_form_submit(), $form_state
+      // has no values. Instead, read directly from $_GET.
+      $items = isset($_GET['fields'][$field]) ? $_GET['fields'][$field] : array();
+      $instance['required'] = FALSE;
+      $instance['description'] = '';
+      $field_info['cardinality'] = 1;
+
+      // Set up specific field types.
+      switch ($field_info['type']) {
+        // Set up date fields.
+        case 'date':
+        case 'datestamp':
+        case 'datetime':
+          // Ensure we have a 'to' date.
+          $field_info['settings']['todate'] = 'required';
+          // In case date repeat is present, disable it.
+          $field_info['settings']['repeat'] = FALSE;
+          break;
+      }
+
+      // The last argument to field_default_form() fetches a single delta.
+      $additions = field_default_form($entity_type, NULL, $field_info, $instance, LANGUAGE_NONE, $items[LANGUAGE_NONE], $element, $form_state, 0);
+
+      foreach ($additions as $field_name => $addition) {
+        // Remove label and other options from RedHen email fields.
+        // TODO: Explore having these available as filters.
+        if ($field_info['type'] == 'redhen_email') {
+          unset($addition[LANGUAGE_NONE][0]['options']);
+          unset($addition[LANGUAGE_NONE][0]['#attached']);
         }
+        // TODO: Handle country ajax post back. It currently corrupts the form.
+        if ($field_info['type'] == 'addressfield') {
+          // This hack sets up the form with the default country.
+          $addition[LANGUAGE_NONE][0]['country']['#access'] = FALSE;
+        }
+
+        // Append an explanation on the handling of boolean values.
+        if ($field_info['type'] == 'list_boolean') {
+          $addition[LANGUAGE_NONE]['#type'] = 'radios';
+          $addition[LANGUAGE_NONE]['#options'] = array(
+            0 => t('False'),
+            1 => t('True'),
+            'skip' => t('Skip'),
+          );
+          $addition[LANGUAGE_NONE]['#description'] = $addition[LANGUAGE_NONE]['#description'] .
+            t('This boolean checkbox has been converted to radio buttons to allow filtering for false as well as skipping non-required fields. .');
+        }
+
+        $form['filter_fieldset']['filters']['fields'][$field_name] = $addition;
       }
     }
   }
@@ -242,8 +267,7 @@ function redhen_filter_form_fields(&$form, $entity_type, $bundle) {
   if (!$filters_count && isset($form['filter_fieldset']['filters']['bundle'])) {
     $form['filter_fieldset']['filters']['fields']['message'] = array(
       '#markup' => t('There are no additional fields for %bundle.', array(
-        '%bundle' => $bundle
-      ))
-    );
+        '%bundle' => $bundle,
+    )));
   }
 }
