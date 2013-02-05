@@ -61,6 +61,7 @@ function redhen_contact_type_form($form, &$form_state, $redhen_contact_type, $op
 function redhen_contact_type_form_submit(&$form, &$form_state) {
   $redhen_contact_type = entity_ui_form_submit_build_entity($form, $form_state);
   $redhen_contact_type->save();
+  menu_rebuild();
   $form_state['redirect'] = 'admin/structure/redhen/contact_types';
 }
 

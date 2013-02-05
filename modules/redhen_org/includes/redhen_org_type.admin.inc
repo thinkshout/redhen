@@ -70,6 +70,7 @@ function redhen_org_type_form_submit(&$form, &$form_state) {
   $redhen_org_type = entity_ui_form_submit_build_entity($form, $form_state);
   $redhen_org_type->save();
   drupal_set_message(t('Organization type has been saved.'));
+  menu_rebuild();
   $form_state['redirect'] = 'admin/structure/redhen/org_types';
 }
 
