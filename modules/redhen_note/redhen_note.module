@@ -330,3 +330,12 @@ function redhen_note_views_api() {
   );
 }
 
+/**
+ * Callback to get $note->entity.
+ *
+ * @see redhen_note_entity_property_info().
+ */
+function redhen_note_property_host_get(RedhenNote $note, array $options, $property_name, $entity_type) {
+  $entity = entity_load_single($note->entity_type, $note->entity_id);
+  return ($entity) ? entity_metadata_wrapper($note->entity_type, $entity): NULL;
+}

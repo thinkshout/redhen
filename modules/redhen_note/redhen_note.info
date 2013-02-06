@@ -7,7 +7,6 @@ dependencies[] = redhen
 dependencies[] = taxonomy
 dependencies[] = text
 
-files[] = includes/redhen_note.forms.inc
-
 ; Classes
-files[] = includes/redhen_note.entity.inc
+files[] = lib/redhen_note.entity.inc
+files[] = lib/redhen_note.metadata.inc
