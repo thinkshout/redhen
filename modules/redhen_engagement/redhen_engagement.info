@@ -5,4 +5,7 @@ core = 7.x
 
 dependencies[] = redhen_contact
 
-files[] = includes/redhen_engagement.entity.inc
+files[] = lib/redhen_engagement.entity.inc
+files[] = lib/redhen_engagement.metadata.inc
+files[] = lib/redhen_engagement_score.entity.inc
+files[] = lib/redhen_engagement_score.ui_controller.inc

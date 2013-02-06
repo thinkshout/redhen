@@ -39,7 +39,7 @@ function redhen_engagement_entity_info() {
     'uri callback' => 'entity_class_uri',
     'token type' => 'redhen_engagement',
     'module' => 'redhen_engagement',
-    'label callback' => 'entity_class_label'
+    'label callback' => 'entity_class_label',
   );
 
   $info['redhen_engagement_score'] = array(
@@ -68,7 +68,7 @@ function redhen_engagement_entity_info() {
     'token type' => 'redhen_engagement_score',
     'module' => 'redhen_engagement',
     'access callback' => 'redhen_engagement_access',
-    'exportable' => TRUE
+    'exportable' => TRUE,
   );
 
   return $info;
@@ -87,7 +87,7 @@ function redhen_engagement_menu() {
     'access callback' => 'redhen_contact_access',
     'access arguments' => array('view', 2),
     'type' => MENU_LOCAL_TASK,
-    'weight' => -1
+    'weight' => -1,
   );
 
   return $items;
@@ -108,20 +108,20 @@ function redhen_engagements_page(RedhenContact $contact) {
       'data' => t('Score'),
       'field' => 'score',
       'type' => 'property',
-      'specifier' => 'score'
+      'specifier' => 'score',
     ),
     'type' => array(
       'data' => t('Type'),
       'field' => 'type',
       'type' => 'property',
-      'specifier' => 'type'
+      'specifier' => 'type',
     ),
     'created' => array(
       'field' => 'created',
       'type' => 'property',
       'data' => t('Created'),
       'sort' => 'desc',
-      'specifier' => 'created'
+      'specifier' => 'created',
     ),
     'description' => array('data' => t('Description')),
     'source' => array('data' => t('Source')),
@@ -182,7 +182,7 @@ function redhen_engagements_page(RedhenContact $contact) {
       '#empty' => t('Sorry, there are no engagements that match your criteria.'),
     ),
     'pager' => array(
-      '#theme' => 'pager'
+      '#theme' => 'pager',
     )
   );
 
@@ -288,7 +288,8 @@ function redhen_engagement_permission() {
 
 /**
  * Implements hook_form_FORMP_ID_alter().
- *   Inject engagement score elements into a note form.
+ *
+ * Inject engagement score elements into a note form.
  *
  * @param $form
  * @param $form_state
@@ -319,7 +320,8 @@ function redhen_engagement_form_redhen_note_form_alter(&$form, &$form_state) {
 
 /**
  * Submit handler for redhen_engagement_form_redhen_note_form_alter().
- *   Save the engagement score.
+ *
+ * Save the engagement score.
  *
  * @param $form
  * @param $form_state
@@ -350,7 +352,7 @@ function redhen_engagement_redhen_note_form_submit($form, $form_state) {
  * Implements hook_entity_property_info_alter().
  */
 function redhen_engagement_entity_property_info_alter(&$info) {
-  // Add engagement_score computed property to contacts
+  // Add engagement_score computed property to contacts.
   $properties = &$info['redhen_contact']['properties'];
   $properties['engagement_score'] = array(
     'label' => t('Engagement Score'),
@@ -371,7 +373,8 @@ function redhen_engagement_property_contact_enagement_score_get(RedhenContact $c
 
 /**
  * Implements hook_field_extra_fields_alter().
- *   Add engagement score to display settings.
+ *
+ * Add engagement score to display settings.
  *
  * @param $info
  */
@@ -415,7 +418,7 @@ function redhen_engagement_redhen_contact_delete(RedhenContact $contact) {
  * @param $langcode
  */
 function redhen_engagement_redhen_contact_view(RedhenContact $entity, $view_mode, $langcode) {
-  // add engagement scores to a contact entity
+  // Add engagement scores to a contact entity.
   $wrapper = entity_metadata_wrapper('redhen_contact', $entity);;
   $engagement_score = $wrapper->engagement_score->value();
   if ($engagement_score) {
@@ -430,4 +433,14 @@ function redhen_engagement_redhen_contact_view(RedhenContact $entity, $view_mode
       '#classes' => 'field field-label-inline clearfix',
     );
   }
+}
+
+/**
+ * Callback to get $engagement->entity.
+ *
+ * @see RedHen_engagement_entity_property_info().
+ */
+function redhen_engagement_property_source_get($engagement, array $options, $property_name, $entity_type) {
+  $entity = entity_load_single($engagement->entity_type, $engagement->entity_id);
+  return ($entity) ? entity_metadata_wrapper($engagement->entity_type, $entity): NULL;
 }
