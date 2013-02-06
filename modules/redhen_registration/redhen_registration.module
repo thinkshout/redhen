@@ -131,7 +131,7 @@ function theme_redhen_registration_list($variables) {
       $entity_uri = entity_uri($registration->entity_type, $entity);
       $rows[] = array(
         'data' => array(
-          $reg_type->label,
+          check_plain($reg_type->label),
           l(entity_label($registration->entity_type, $entity), $entity_uri['path']),
           $author ? $author->name : '',
           l($registration->mail, 'mailto:' . $registration->mail),

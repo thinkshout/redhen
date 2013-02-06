@@ -400,7 +400,7 @@ function redhen_org_view(RedhenOrg $org, $view_mode = 'full', $langcode = NULL, 
  * @return void
  */
 function redhen_org_org_title(RedhenOrg $org) {
-  return $org->label();
+  return check_plain($org->label());
 }
 
 /**

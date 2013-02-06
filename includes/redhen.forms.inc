@@ -49,13 +49,13 @@ function redhen_filter_form($form, &$form_state, $entity_type) {
         if ($prop['type'] == 'date') {
           $form['filter_fieldset']['filters']['properties'][$key]['from'] = array(
             '#type' => $field_type,
-            '#title' => $prop['label'] . ' from',
+            '#title' => t('@label from', array('@label' => $prop['label'])),
             '#attributes' => array('class' => array("redhen-field-type-{$prop['type']}")),
             '#default_value' => $default_value['from']
           );
           $form['filter_fieldset']['filters']['properties'][$key]['to'] = array(
             '#type' => $field_type,
-            '#title' => $prop['label'] . ' to',
+            '#title' => t('@label to', array('@label' => $prop['label'])),
             '#attributes' => array('class' => array("redhen-field-type-{$prop['type']}")),
             '#default_value' => $default_value['to']
           );
@@ -63,7 +63,7 @@ function redhen_filter_form($form, &$form_state, $entity_type) {
         else {
           $form['filter_fieldset']['filters']['properties'][$key] = array(
             '#type' => $field_type,
-            '#title' => $prop['label'],
+            '#title' => check_plain($prop['label']),
             '#attributes' => array('class' => array("redhen-field-type-{$prop['type']}")),
             '#default_value' => $default_value
           );

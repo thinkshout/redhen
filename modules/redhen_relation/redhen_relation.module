@@ -423,7 +423,7 @@ function redhen_relation_autocomplete($relation_type = '', $entity_type_to_relat
   foreach ($available_entities as $available_entity) {
     $entity_id = entity_id($available_entity->entityType(), $available_entity);
     $entity_label = entity_label($available_entity->entityType(), $available_entity);
-    $options[$entity_label . ' (' . $entity_id . ')'] = $entity_label;
+    $options[check_plain($entity_label) . ' (' . $entity_id . ')'] = check_plain($entity_label);
   }
   print drupal_json_encode($options);
   exit();
