@@ -11,25 +11,25 @@ module_load_include('inc', 'redhen', 'includes/redhen.forms');
  * Page callback for contact overview page.
  */
 function redhen_contact_page() {
-  // setup the header for both the query and table
+  // Setup the header for both the query and table.
   $header = array(
     'type' => array(
       'field' => 'type',
       'type' => 'property',
       'data' => 'Type',
-      'specifier' => 'type'
+      'specifier' => 'type',
     ),
     'first_name' => array(
       'field' => 'first_name',
       'type' => 'property',
       'data' => 'First Name',
-      'specifier' => 'first_name'
+      'specifier' => 'first_name',
     ),
     'last_name' => array(
       'field' => 'last_name',
       'type' => 'property',
       'data' => 'Last Name',
-      'specifier' => 'last_name'
+      'specifier' => 'last_name',
     ),
     'email' => array('data' => t('Email')),
     'updated' => array(
@@ -37,13 +37,13 @@ function redhen_contact_page() {
       'type' => 'property',
       'data' => 'Updated',
       'sort' => 'desc',
-      'specifier' => 'updated'
+      'specifier' => 'updated',
     ),
   );
 
   $header['operations'] = array('data' => t('Operations'));
 
-  // need to ensure the query doesn't execute when posing the form
+  // Need to ensure the query doesn't execute when posing the form.
   $result = FALSE;
   if (!isset($_POST['form_id'])) {
     $bundle = isset($_GET['bundle']) ? $_GET['bundle'] : '';
@@ -57,8 +57,8 @@ function redhen_contact_page() {
     $contacts = redhen_contact_load_multiple(array_keys($result['redhen_contact']));
   }
 
+  $rows = array();
   if (!empty($contacts)) {
-    $rows = array();
     $destination = drupal_get_destination();
     foreach ($contacts as $contact) {
       $uri = entity_uri('redhen_contact', $contact);
@@ -145,6 +145,8 @@ function redhen_contact_page() {
 }
 
 /**
+ * Page callback for adding a contact type.
+ *
  * Return a list of available contacts to add or the add contact page if there's
  * only a single contact type.
  */
