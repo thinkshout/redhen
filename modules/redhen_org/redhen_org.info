@@ -6,6 +6,8 @@ core = 7.x
 dependencies[] = redhen
 
 ; Classes
-files[] = includes/redhen_org.entity.inc
-files[] = includes/redhen_org.controller.inc
-files[] = includes/redhen_org_type.entity.inc
+files[] = lib/redhen_org.controller.inc
+files[] = lib/redhen_org.entity.inc
+files[] = lib/redhen_org.metadata.inc
+files[] = lib/redhen_org_type.entity.inc
+files[] = lib/redhen_org_type.ui_controller.inc

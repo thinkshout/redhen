@@ -25,7 +25,7 @@ class RedhenOrg extends Entity {
 
     parent::__construct($values, 'redhen_org');
 
-    // New organization. is_new might not be set so check for id
+    // New organization. is_new might not be set so check for id.
     if (!$this->org_id) {
       $this->author_uid = $user->uid;
       $this->redhen_state = REDHEN_STATE_ACTIVE;
@@ -47,7 +47,7 @@ class RedhenOrg extends Entity {
       '#label' => t('State'),
       '#items' => array(
         array(
-          '#markup' => ($this->redhen_state == REDHEN_STATE_ACTIVE) ? t('Active') : t('Inactive')
+          '#markup' => ($this->redhen_state == REDHEN_STATE_ACTIVE) ? t('Active') : t('Inactive'),
         ),
       ),
       '#classes' => 'field field-label-inline clearfix',
@@ -111,75 +111,10 @@ class RedhenOrg extends Entity {
   }
 
   /**
-   * Specifify URI
+   * Specify URI.
    */
   protected function defaultUri() {
     return array('path' => 'redhen/org/' . $this->identifier());
   }
 
 }
-
-/**
- * Controls metadata for Redhen organizations
- *
- * Redhen utilizes custom property attributes to determine if a property
- * should be available as a filter on the listing page. These attributes are
- *   filter: TRUE to add as a filter.
- *   filter_operator: EFQ supported operators. Defaults to = or IN depending on value submitted
- *   field_type: textfield, select, etc.
- *   options list: callback that returns the options for this field.
- */
-class RedhenOrgMetadataController extends EntityDefaultMetadataController {
-
-  public function entityPropertyInfo() {
-    $info = parent::entityPropertyInfo();
-    $properties = &$info[$this->type]['properties'];
-
-    $properties['label'] = array(
-      'label' => t('Organization Name'),
-      'filter' => TRUE,
-      'field_type' => 'textfield',
-      'setter callback' => 'entity_property_verbatim_set',
-    ) + $properties['label'];
-
-    $properties['created'] = array(
-      'label' => t("Created"),
-      'description' => t("The date the organization was created."),
-      'type' => 'date',
-      'schema field' => 'created',
-      'setter callback' => 'entity_property_verbatim_set',
-    );
-    $properties['updated'] = array(
-      'label' => t("Updated"),
-      'description' => t("The date the organization was updated."),
-      'type' => 'date',
-      'schema field' => 'updated',
-      'setter callback' => 'entity_property_verbatim_set',
-    );
-    $properties['redhen_state'] = array_merge($properties['redhen_state'], array(
-      'label' => t('State'),
-      'filter' => TRUE,
-      'field_type' => 'select',
-      'options list' => 'redhen_state_options',
-      'setter callback' => 'entity_property_verbatim_set',
-    ));
-
-    // Entities
-    $properties['primary_contact'] = array(
-      'label' => t("Primary contact"),
-      'type' => 'redhen_contact',
-      'description' => t("The primary contact for the organization."),
-      'schema field' => 'primary_contact_id'
-    );
-    $properties['author'] = array(
-      'label' => t("Author"),
-      'type' => 'user',
-      'description' => t("The author of the organization record."),
-      'schema field' => 'author_uid'
-    );
-
-    return $info;
-  }
-
-}
-
