@@ -212,7 +212,7 @@ function redhen_filter_form_fields(&$form, &$form_state, $entity_type, $bundle) 
       );
       // Because of the redirect in redhen_filter_form_submit(), $form_state
       // has no values. Instead, read directly from $_GET.
-      $items = isset($_GET['fields'][$field]) ? $_GET['fields'][$field] : array();
+      $items = isset($_GET['fields'][$field]) ? $_GET['fields'][$field] : array(LANGUAGE_NONE => array());
       $instance['required'] = FALSE;
       $instance['description'] = '';
       $field_info['cardinality'] = 1;

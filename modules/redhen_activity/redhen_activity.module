@@ -539,14 +539,16 @@ function redhen_activity_activity_page($entity = NULL, $entity_type = NULL) {
   );
 
 
-  // need to ensure the query doesn't execute when posing the form
+  // Need to ensure the query doesn't execute when posing the form.
   $result = FALSE;
   if (!isset($_POST['form_id'])) {
     $fields = array();
     if ($entity && $entity_type) {
       $fields = array(
         "message_{$entity_type}" => array(
-          'target_id' => $entity->identifier()
+          LANGUAGE_NONE => array(array(
+            'target_id' => $entity->identifier()
+          ))
         )
       );
     }
