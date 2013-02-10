@@ -90,8 +90,8 @@ function redhen_fields_email_default_values() {
   return array(
     'value' => '',
     'default' => 1,
-    'hold' => NULL,
-    'bulk' => NULL,
+    'hold' => 0,
+    'bulk' => 0,
     'label_id' => NULL,
 
   );
@@ -511,13 +511,13 @@ function redhen_fields_field_widget_form(&$form, &$form_state, $field, $instance
       $element['options']['hold'] = array(
         '#title' => t('Hold'),
         '#type' => 'checkbox',
-        '#default_value' => isset($items[$delta]['hold']) ? $items[$delta]['hold'] : FALSE,
+        '#default_value' => isset($items[$delta]['hold']) ? $items[$delta]['hold'] : 0,
         '#weight' => 2
       );
       $element['options']['bulk'] = array(
         '#title' => t('Bulk'),
         '#type' => 'checkbox',
-        '#default_value' => isset($items[$delta]['bulk']) ? $items[$delta]['bulk'] : FALSE,
+        '#default_value' => isset($items[$delta]['bulk']) ? $items[$delta]['bulk'] : 0,
         '#weight' => 2
       );
       $element['options']['default'] = array(
