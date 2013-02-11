@@ -247,10 +247,18 @@ function redhen_filter_query($entity_type, $header, $bundle = '', $properties = 
  * @return array
  */
 function redhen_entity_types() {
-  return array(
-    'redhen_org' => 'org',
-    'redhen_contact' => 'contact'
+  $types = array(
+      'redhen_org' => 'org',
+      'redhen_contact' => 'contact'
   );
+  $active = array();
+  foreach ($types as $key => $type) {
+    if (module_exists($key)) {
+      $active[$key] = $type;
+    }
+  }
+
+  return $active;
 }
 
 /**
