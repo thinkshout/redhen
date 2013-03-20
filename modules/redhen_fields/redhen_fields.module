@@ -566,10 +566,10 @@ function template_preprocess_redhen_fields_email_formatter_row(&$variables) {
     'alt' => t('Enabled')
   ));
 
-  $variables['default'] = ($item['default']) ? $image : '&nbsp;';
-  $variables['hold'] = ($item['hold']) ? $image : '&nbsp;';
-  $variables['bulk'] = ($item['bulk']) ? $image : '&nbsp;';
-  $variables['label'] = $item['label_id'] ? $item['label'] : '&nbsp;';
+  $variables['default'] = (isset($item['default']) && $item['default']) ? $image : '&nbsp;';
+  $variables['hold'] = (isset($item['hold']) && $item['hold']) ? $image : '&nbsp;';
+  $variables['bulk'] = (isset($item['bulk']) && $item['bulk']) ? $image : '&nbsp;';
+  $variables['label'] = (isset($item['label_id']) && isset($item['label']) && $item['label_id']) ? $item['label'] : '&nbsp;';
 }
 
 
