@@ -17,7 +17,7 @@ function redhen_contact_contact_form($form, &$form_state, $contact) {
   $form_state['build_info']['files']['form'] = drupal_get_path('module', 'redhen_contact') . '/includes/redhen_contact.forms.inc';
 
   // Add the default field elements.
-  $form['name'] = array();
+  $form['name'] = array('#type' => 'container');
   $form['name']['first_name'] = array(
     '#type' => 'textfield',
     '#title' => t('First name'),

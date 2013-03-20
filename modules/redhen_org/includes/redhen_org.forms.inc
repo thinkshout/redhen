@@ -19,7 +19,8 @@ function redhen_org_add($type) {
  */
 function redhen_org_org_form($form, &$form_state, $org) {
   // Add the default field elements.
-  $form['label'] = array(
+  $form['name'] = array('#type' => 'container');
+  $form['name']['label'] = array(
     '#type' => 'textfield',
     '#title' => t('Name'),
     '#default_value' => $org->label,
