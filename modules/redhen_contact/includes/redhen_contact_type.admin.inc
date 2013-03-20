@@ -42,7 +42,7 @@ function redhen_contact_type_form($form, &$form_state, $redhen_contact_type, $op
     '#weight' => 40,
   );
 
-  if (!$redhen_contact_type->locked && $op != 'add') {
+  if (!$redhen_contact_type->locked && $op == 'edit') {
     $form['actions']['delete'] = array(
       '#type' => 'submit',
       '#value' => t('Delete contact type'),
