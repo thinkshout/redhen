@@ -512,6 +512,21 @@ function redhen_contact_get_types($name = NULL) {
 }
 
 /**
+ * Return an associative array of contact types to be used as an options list.
+ *
+ * @return array
+ *   Keyed by name with a label value.
+ */
+function redhen_contact_type_options_list() {
+  $options = array();
+  foreach (redhen_contact_get_types() as $type) {
+    $options[$type->name] = $type->label();
+  }
+
+  return $options;
+}
+
+/**
  * Access callback for the entity API.
  */
 function redhen_contact_type_access($op, $type = NULL, $account = NULL) {

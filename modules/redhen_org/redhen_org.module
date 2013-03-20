@@ -394,7 +394,7 @@ function redhen_org_view(RedhenOrg $org, $view_mode = 'full', $langcode = NULL, 
 /**
  * Title callback for hook_menu().
  *
- * @param  $org
+ * @param string $org
  *   A loaded org object.
  *
  * @return void
@@ -444,12 +444,27 @@ function redhen_org_field_extra_fields() {
 /**
  * Gets an array of all org types, keyed by the name.
  *
- * @param $name
+ * @param string $name
  *   If set, the type with the given name is returned.
  */
 function redhen_org_get_types($name = NULL) {
   $types = entity_load_multiple_by_name('redhen_org_type', isset($name) ? array($name) : FALSE);
   return isset($name) ? reset($types) : $types;
+}
+
+/**
+ * Return org types suitable for use in an options list.
+ *
+ * @return array
+ *   Associative array keyed by name with a label value.
+ */
+function redhen_org_type_options_list() {
+  $options = array();
+  foreach (redhen_org_get_types() as $type) {
+    $options[$type->name] = $type->label();
+  }
+
+  return $options;
 }
 
 /**
