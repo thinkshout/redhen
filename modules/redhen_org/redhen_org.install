@@ -361,6 +361,5 @@ function redhen_org_update_7000() {
  */
 function redhen_org_update_7001() {
   db_drop_field('redhen_org', 'name');
-//  drupal_get_schema('redhen_org', TRUE);
   entity_info_cache_clear();
 }
