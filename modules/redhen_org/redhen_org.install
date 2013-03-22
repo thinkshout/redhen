@@ -31,13 +31,6 @@ function redhen_org_schema() {
         'not null' => TRUE,
         'default' => '',
       ),
-      'name' => array(
-        'description' => 'The machine-readable name of this redhen_org.',
-        'type' => 'varchar',
-        'length' => 32,
-        'not null' => TRUE,
-        'default' => '', //@TODO remove when machine names are implemented
-      ),
       'label' => array(
         'description' => 'The label of this redhen_org, always treated as non-markup plain text.',
         'type' => 'varchar',
@@ -84,7 +77,6 @@ function redhen_org_schema() {
     ),
     'unique keys' => array(
       'org_id' => array('org_id'),
-      //'name' => array('name'), @TODO uncomment when machine names implemented
     ),
     'foreign keys' => array(
       'redhen_org_revision' => array(
@@ -362,4 +354,13 @@ function redhen_org_update_7000() {
       ))
       ->execute();
   }
+}
+
+/**
+ * Delete name field from redhen_org.
+ */
+function redhen_org_update_7001() {
+  db_drop_field('redhen_org', 'name');
+//  drupal_get_schema('redhen_org', TRUE);
+  entity_info_cache_clear();
 }
