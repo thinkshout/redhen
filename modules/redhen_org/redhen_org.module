@@ -78,11 +78,11 @@ function redhen_org_entity_info() {
 /**
  * Implements hook_entity_info_alter().
  *
- * We are adding the info about the organization types via a hook to avoid a recursion
- * issue as loading the model types requires the entity info as well.
+ * We are adding the info about the organization types via a hook to avoid a
+ * recursion issue as loading the model types requires the entity info as well.
  */
 function redhen_org_entity_info_alter(&$entity_info) {
-  // @todo: we're testing to ensure the schema exists; needed because running gui
+  // We're testing to ensure the schema exists; needed because running gui
   // install profile was hitting this BEFORE the schema was installed.
   if (drupal_get_schema('redhen_org')) {
     foreach (redhen_org_get_types() as $type => $info) {
@@ -162,7 +162,7 @@ function redhen_org_menu() {
     'access callback' => 'redhen_org_access',
     'access arguments' => array('delete', 2),
     'type' => MENU_LOCAL_TASK,
-    'weight' => 10
+    'weight' => 10,
   );
   $items['redhen/org/%redhen_org/view/edit'] = array(
     'title' => 'Edit',
@@ -180,7 +180,7 @@ function redhen_org_menu() {
     'access callback' => 'redhen_org_access',
     'access arguments' => array('archive', 2),
     'type' => MENU_LOCAL_TASK,
-    'weight' => 9
+    'weight' => 9,
   );
 
   $items['redhen/org/%redhen_org/primary/%redhen_contact'] = array(
@@ -189,15 +189,15 @@ function redhen_org_menu() {
     'page arguments' => array('redhen_org_set_primary_form', 2, 4),
     'access callback' => 'redhen_org_access',
     'access arguments' => array('edit', 2),
-    'type' => MENU_CALLBACK
+    'type' => MENU_CALLBACK,
   );
 
-  // path with autocomplete function for cities
   $items['redhen/org/autocomplete'] = array(
     'title' => 'Autocomplete for RedHen Organizations',
     'page callback' => '_redhen_org_autocomplete',
     'access callback' => 'redhen_org_access',
-    'access arguments' => array('edit'), //or whatever permission makes sense
+    // TODO: Or whatever permission makes sense.
+    'access arguments' => array('edit'),
     'type' => MENU_CALLBACK,
     'file' => 'includes/redhen_org.pages.inc',
   );
@@ -279,15 +279,15 @@ function redhen_org_load($org_id) {
  *
  * @see entity_load()
  *
- * @param $org_ids
+ * @param array $org_ids
  *   An array of org IDs.
- * @param $conditions
+ * @param array $conditions
  *   An array of conditions on the {redhen_org} table in the form
  *     'field' => $value.
- * @param $reset
+ * @param bool $reset
  *   Whether to reset the internal org loading cache.
  *
- * @return
+ * @return array
  *   An array of org objects indexed by org_id.
  */
 function redhen_org_load_multiple($org_ids = array(), $conditions = array(), $reset = FALSE) {
@@ -301,10 +301,10 @@ function redhen_org_load_multiple($org_ids = array(), $conditions = array(), $re
 /**
  * Deletes multiple orgs by ID.
  *
- * @param $org_ids
+ * @param array $org_ids
  *   An array of org IDs to delete.
  *
- * @return
+ * @return bool
  *   TRUE on success, FALSE otherwise.
  */
 function redhen_org_delete_multiple($org_ids) {
@@ -316,20 +316,20 @@ function redhen_org_delete_multiple($org_ids) {
 /**
  * Checks org access for various operations.
  *
- * @param $op
+ * @param string $op
  *   The operation being performed. One of 'view', 'update', 'create' or
  *   'delete'.
- * @param $org
+ * @param RedhenOrg $org
  *   Optionally a org to check access for or for the create operation the
  *   org type. If nothing is given access permissions for all orgs are returned.
- * @param $account
+ * @param stdClass $account
  *   The user to check for. Leave it to NULL to check for the current user.
  */
 function redhen_org_access($op, $org = NULL, $account = NULL) {
   global $user;
   $account = isset($account) ? $account : $user;
 
-  // If it's already archived, no one can archive it again
+  // If it's already archived, no one can archive it again.
   if (($op == 'archive') && ($org->redhen_state == REDHEN_STATE_ARCHIVED)) {
     return FALSE;
   }
@@ -382,12 +382,7 @@ function redhen_org_permission() {
 }
 
 /**
- * Display an organization
- *
- * @param RedhenOrg $org
- * @param string $view_mode
- * @param null $langcode
- * @param null $page
+ * Display an organization.
  */
 function redhen_org_view(RedhenOrg $org, $view_mode = 'full', $langcode = NULL, $page = NULL) {
   return entity_view('redhen_org', array($org), $view_mode, $langcode, $page);
@@ -399,7 +394,8 @@ function redhen_org_view(RedhenOrg $org, $view_mode = 'full', $langcode = NULL, 
  * @param string $org
  *   A loaded org object.
  *
- * @return void
+ * @return string
+ *   Org title.
  */
 function redhen_org_org_title(RedhenOrg $org) {
   return check_plain($org->label());
@@ -479,10 +475,10 @@ function redhen_org_type_access($op, $type = NULL, $account = NULL) {
 /**
  * Menu argument loader; Load an organization type by string.
  *
- * @param $type
+ * @param string $type
  *   The machine-readable name of an organization type to load.
  *
- * @return
+ * @return array
  *   An organization type array or FALSE if $type does not exist.
  */
 function redhen_org_type_load($type) {
@@ -506,7 +502,7 @@ function redhen_org_type_delete(RedhenOrgType $type) {
 /**
  * Returns HTML for a list of available org types for org creation.
  *
- * @param $variables
+ * @param array $variables
  *   An associative array containing:
  *   - content: An array of content types.
  *
@@ -534,9 +530,11 @@ function theme_redhen_org_add_list($variables) {
 /**
  * Theme function for organization list.
  *
- * @param $variables
+ * @param array $variables
+ *   Contains header and row arrays.
  *
  * @return string
+ *   Rendered markup.
  */
 function theme_redhen_org_list($variables) {
   $header = $variables['header'];
