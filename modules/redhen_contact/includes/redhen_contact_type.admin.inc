@@ -48,7 +48,7 @@ function redhen_contact_type_form($form, &$form_state, $redhen_contact_type, $op
       '#value' => t('Delete contact type'),
       '#weight' => 45,
       '#limit_validation_errors' => array(),
-      '#submit' => array('redhen_contact_type_form_submit_delete')
+      '#submit' => array('redhen_contact_type_form_submit_delete'),
     );
   }
 
