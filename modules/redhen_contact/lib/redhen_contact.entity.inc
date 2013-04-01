@@ -32,9 +32,10 @@ class RedhenContact extends Entity {
 
     $wrapper = entity_metadata_wrapper('redhen_contact', $this);
     $user = $wrapper->user->value();
+    $name = $wrapper->full_name->value();
 
     $content['redhen_state'] = array(
-      '#theme' => 'redhen_property_field',
+      '#theme' => 'redhen_pr  operty_field',
       '#label' => t('State'),
       '#items' => array(
         array(
@@ -43,6 +44,19 @@ class RedhenContact extends Entity {
       ),
       '#classes' => 'field field-label-inline clearfix',
     );
+
+    if (!empty($name)) {
+      $content['name'] = array(
+        '#theme' => 'redhen_property_field',
+        '#label' => t('Name'),
+        '#items' => array(
+          array(
+            '#markup' => $wrapper->full_name->value(),
+          ),
+        ),
+        '#classes' => 'field field-label-inline clearfix',
+      );
+    }
 
     if ($user) {
       $user_uri = entity_uri('user', $user);
