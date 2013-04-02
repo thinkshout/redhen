@@ -71,8 +71,14 @@ function redhen_settings() {
     '#type' => 'item',
     '#markup' => t('RedHen CRM settings.'),
   );
+  $form['redhen_admin_path'] = array(
+    '#title' => t('Tread RedHen paths as administrative'),
+    '#type' => 'checkbox',
+    '#description' => t('This is used by other modules to, for example, use the admin theme on RedHen paths.'),
+    '#default_value' => variable_get('redhen_admin_path', FALSE),
+  );
 
-  // allow other modules to inject their own settings.
+  // Allow other modules to inject their own settings.
   $form += module_invoke_all('redhen_settings');
   return system_settings_form($form);
 }

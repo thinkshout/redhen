@@ -78,6 +78,20 @@ function redhen_admin_menu_output_build(&$content) {
 }
 
 /**
+ * Implements hook_admin_paths().
+ */
+function redhen_admin_paths() {
+  // Set RedHen admin paths based on configuration.
+  if (variable_get('redhen_admin_path', FALSE)) {
+    $paths = array(
+      'redhen' => TRUE,
+      'redhen/*' => TRUE,
+    );
+    return $paths;
+  }
+}
+
+/**
  * Implements hook_permission().
  */
 function redhen_permission() {
