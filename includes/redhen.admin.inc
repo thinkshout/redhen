@@ -15,41 +15,41 @@ function redhen_landing_page() {
       'path' => 'redhen/contact',
       'title' => 'Contacts',
       'description' => t('View, manage, and search contacts.'),
-      'permission' => 'access redhen contacts'
+      'permission' => 'access redhen contacts',
     ),
     'org' => array(
       'module' => 'redhen_org',
       'path' => 'redhen/org',
       'title' => 'Organizations',
       'description' => t('View, manage, and search organizations.'),
-      'permission' => 'access redhen orgs'
+      'permission' => 'access redhen orgs',
     ),
     'membership' => array(
       'module' => 'redhen_membership',
       'path' => 'redhen/memberships',
       'title' => 'Memberships',
       'description' => t('View, manage, and search memberships.'),
-      'permission' => 'access redhen memberships'
+      'permission' => 'access redhen memberships',
     ),
     'activity' => array(
       'module' => 'redhen_activity',
       'path' => 'redhen/activity',
       'title' => 'Activity',
       'description' => t('RedHen activity stream.'),
-      'permission' => 'access redhen activity'
+      'permission' => 'access redhen activity',
     ),
     'structure' => array(
       'path' => 'admin/structure/redhen',
       'title' => 'Structure',
       'description' => t('Define bundles and manage fields for RedHen entities.'),
-      'permission' => 'administer redhen'
+      'permission' => 'administer redhen',
     ),
     'settings' => array(
       'path' => 'admin/config/redhen',
       'title' => 'Settings',
       'description' => t('RedHen configuration and settings.'),
-      'permission' => 'administer redhen'
-    )
+      'permission' => 'administer redhen',
+    ),
   );
 
   foreach ($items as $key => $item) {
@@ -65,6 +65,7 @@ function redhen_landing_page() {
  * Settings form for Redhen CRM.
  *
  * @return array
+ *   System settings form array.
  */
 function redhen_settings() {
   $form['intro'] = array(
