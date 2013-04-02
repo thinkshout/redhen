@@ -41,7 +41,6 @@ class RedhenContactType extends Entity {
           'entity_type' => 'redhen_contact',
           'bundle' => $this->name,
           'label' => t('Email'),
-
         );
         field_create_instance($email_field);
       }
