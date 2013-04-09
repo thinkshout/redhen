@@ -23,6 +23,7 @@ function redhen_org_schema() {
         'type' => 'int',
         'unsigned' => TRUE,
         'not null' => TRUE,
+        'default' => 0,
       ),
       'type' => array(
         'description' => 'The {redhen_org_type}.type of this redhen_org.',
