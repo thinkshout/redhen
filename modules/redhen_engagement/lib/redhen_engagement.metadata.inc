@@ -12,6 +12,12 @@
  */
 class RedhenEngagementMetadataController extends EntityDefaultMetadataController {
 
+  /**
+   * Override parent to define entity propery metadat for engagements.
+   *
+   * @return array
+   *   Associative array of entity properties.
+   */
   public function entityPropertyInfo() {
     $info = parent::entityPropertyInfo();
     $properties = &$info[$this->type]['properties'];
@@ -40,14 +46,14 @@ class RedhenEngagementMetadataController extends EntityDefaultMetadataController
       'description' => t("The redhen_contact this engagement applies to."),
       'schema field' => 'contact_id',
       'setter callback' => 'entity_property_verbatim_set',
-      'required' => TRUE
+      'required' => TRUE,
     );
     $properties['author'] = array(
       'label' => t("Author"),
       'type' => 'user',
       'description' => t("The author of the note."),
       'schema field' => 'author_uid',
-      'required' => TRUE
+      'required' => TRUE,
     );
     $properties['engagement_score'] = array(
       'label' => t('Engagement score'),
@@ -59,7 +65,7 @@ class RedhenEngagementMetadataController extends EntityDefaultMetadataController
       // RedHen specific attributes.
       'field_type' => 'select',
       'filter' => TRUE,
-      'required' => TRUE
+      'required' => TRUE,
     );
 
     return $info;
