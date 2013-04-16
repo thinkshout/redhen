@@ -356,18 +356,10 @@ function redhen_engagement_entity_property_info_alter(&$info) {
     'label' => t('Engagement Score'),
     'description' => t('The engagement score for this contact.'),
     'type' => 'integer',
-    'computed' => TRUE,
-    'entity views field' => TRUE,
-    'getter callback' => 'redhen_engagement_property_contact_enagement_score_get',
+    'schema field' => 'engagement_score',
   );
 }
 
-/**
- * Callback to get $contact->engagement_score.
- */
-function redhen_engagement_property_contact_enagement_score_get(RedhenContact $contact, array $options, $property_name, $entity_type) {
-  return redhen_engagement_contact_score($contact);
-}
 
 /**
  * Implements hook_field_extra_fields_alter().
@@ -411,16 +403,12 @@ function redhen_engagement_redhen_contact_delete(RedhenContact $contact) {
  */
 function redhen_engagement_redhen_contact_view(RedhenContact $entity, $view_mode, $langcode) {
   // Add engagement scores to a contact entity.
-  $wrapper = entity_metadata_wrapper('redhen_contact', $entity);;
-  $engagement_score = $wrapper->engagement_score->value();
-  if ($engagement_score) {
-    $entity->content['redhen_engagement'] = array(
-      '#theme' => 'redhen_property_field',
-      '#label' => t('Engagement Score'),
-      '#items' => array(array('#markup' => $engagement_score)),
-      '#classes' => 'field field-label-inline clearfix',
-    );
-  }
+  $entity->content['redhen_engagement'] = array(
+    '#theme' => 'redhen_property_field',
+    '#label' => t('Engagement Score'),
+    '#items' => array(array('#markup' => $entity->engagement_score)),
+    '#classes' => 'field field-label-inline clearfix',
+  );
 }
 
 /**
@@ -431,4 +419,17 @@ function redhen_engagement_redhen_contact_view(RedhenContact $entity, $view_mode
 function redhen_engagement_property_source_get($engagement, array $options, $property_name, $entity_type) {
   $entity = entity_load_single($engagement->entity_type, $engagement->entity_id);
   return ($entity) ? entity_metadata_wrapper($engagement->entity_type, $entity) : NULL;
+}
+
+/**
+ * Implements hook_schema_alter().
+ */
+function redhen_engagement_schema_alter(&$schema) {
+  // Add field to existing schema.
+  $schema['redhen_contact']['fields']['engagement_score'] = array(
+    'description' => 'The total engagement score for a contact.',
+    'type' => 'int',
+    'not null' => TRUE,
+    'default' => 0,
+  );
 }

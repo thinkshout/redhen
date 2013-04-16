@@ -49,4 +49,21 @@ class RedhenEngagement extends Entity {
     return array('path' => 'redhen/engagement/' . $this->engagement_id);
   }
 
+  public function save() {
+    $transaction = db_transaction();
+    $ret = entity_get_controller($this->entityType)->save($this, $transaction);
+    if ($ret) {
+      try {
+        $contact = redhen_contact_load($this->contact_id);
+        $contact->engagement_score = redhen_engagement_contact_score($contact);
+        $contact->save();
+      }
+      catch (Exception $e) {
+        $transaction->rollback();
+        watchdog_exception($this->entityType, $e);
+        throw $e;
+      }
+    }
+  }
+
 }
