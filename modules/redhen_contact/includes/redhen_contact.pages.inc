@@ -72,7 +72,7 @@ function redhen_contact_page() {
             '#title' => $contact->first_name,
             '#href' => $uri['path'],
           ),
-         ),
+        ),
         'last_name' => array(
           'data' => array(
             '#type' => 'link',
