@@ -364,3 +364,16 @@ function redhen_org_update_7001() {
   db_drop_field('redhen_org', 'name');
   entity_info_cache_clear();
 }
+
+/**
+ * Add default value to the {redhen_org}.revision_id field.
+ */
+function redhen_org_update_7002() {
+  db_change_field('redhen_org', 'revision_id', 'revision_id', array(
+    'description' => 'The current {redhen_org_revision}.revision_id version identifier.',
+    'type' => 'int',
+    'unsigned' => TRUE,
+    'not null' => TRUE,
+    'default' => 0,
+  ));
+}
