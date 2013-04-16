@@ -49,6 +49,11 @@ class RedhenEngagement extends Entity {
     return array('path' => 'redhen/engagement/' . $this->engagement_id);
   }
 
+  /**
+   * Override parent to update a contacts engagement score.
+   *
+   * @throws Exception
+   */
   public function save() {
     $transaction = db_transaction();
     $ret = entity_get_controller($this->entityType)->save($this, $transaction);
