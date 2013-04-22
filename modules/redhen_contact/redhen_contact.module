@@ -2,7 +2,7 @@
 
 /**
  * @file
- *
+ * Module file for RedHen contacts.
  */
 
 /**
@@ -79,7 +79,7 @@ function redhen_contact_entity_info() {
  * recursion issue as loading the model types requires the entity info as well.
  */
 function redhen_contact_entity_info_alter(&$entity_info) {
-  // @todo: we're testing to ensure the schema exists; needed because running gui
+  // @todo: Testing to ensure the schema exists; needed because running gui
   // install profile was hitting this BEFORE the schema was installed.
   if (drupal_get_schema('redhen_contact')) {
     foreach (redhen_contact_get_types() as $type => $info) {
@@ -277,7 +277,7 @@ function redhen_contact_load($contact_id) {
  * @param bool $reset
  *   Whether to reset the internal contact loading cache.
  *
- * @return
+ * @return array
  *   An array of contact objects indexed by contact_id.
  */
 function redhen_contact_load_multiple($contact_ids = array(), $conditions = array(), $reset = FALSE) {
@@ -294,7 +294,7 @@ function redhen_contact_load_multiple($contact_ids = array(), $conditions = arra
  * @param array $contact_ids
  *   An array of contact IDs to delete.
  *
- * @return
+ * @return array
  *   TRUE on success, FALSE otherwise.
  */
 function redhen_contact_delete_multiple($contact_ids) {
@@ -332,7 +332,7 @@ function redhen_contact_save(RedhenContact $contact, $link_user = FALSE) {
     $email = $wrapper->email->value();
 
     // If we have a linked user and primary email, but they don't match, set the
-    // user email
+    // user email.
     if ($user && ($email !== $user->mail)) {
       user_save($user, array('mail' => $email));
     }
@@ -348,8 +348,8 @@ function redhen_contact_save(RedhenContact $contact, $link_user = FALSE) {
  *   The operation being performed. One of 'view', 'update', 'create' or
  *   'delete'.
  * @param RedhenContact $contact
- *   Optionally a contact to check access for or for the create operation the
- *   contact type. If nothing is given access permissions for all contacts are returned.
+ *   Contact to check access for, or for the create operation, the contact type.
+ *   If nothing is given access permissions for all contacts are returned.
  * @param object $account
  *   The user to check for. Leave it to NULL to check for the current user.
  */
@@ -366,11 +366,11 @@ function redhen_contact_access($op, $contact = NULL, $account = NULL) {
     return FALSE;
   }
 
-  if(($op == 'edit') && user_access('edit own redhen contact', $account) && $self_check) {
+  if (($op == 'edit') && user_access('edit own redhen contact', $account) && $self_check) {
     return TRUE;
   }
 
-  if(($op == 'view') && user_access('view own redhen contact', $account) && $self_check) {
+  if (($op == 'view') && user_access('view own redhen contact', $account) && $self_check) {
     return TRUE;
   }
 
@@ -445,7 +445,7 @@ function redhen_contact_view(RedhenContact $contact, $view_mode = 'full') {
 /**
  * Title callback for hook_menu().
  *
- * @param RedhenContact $contact.
+ * @param RedhenContact $contact
  *   A loaded contact object.
  *
  * @return string
@@ -592,11 +592,6 @@ function theme_redhen_contact_add_list($variables) {
 
 /**
  * Theme function for contact list.
- *
- * @param array $variables
- *
- * @return string
- *   Markup for a list of contacts.
  */
 function theme_redhen_contact_list($variables) {
   $header = $variables['header'];
@@ -617,9 +612,6 @@ function theme_redhen_contact_list($variables) {
 
 /**
  * Implements hook_redhen_settings().
- *
- * @return array
- *   FAPI elements containing RedHen settings.
  */
 function redhen_contact_redhen_settings() {
   return array(
