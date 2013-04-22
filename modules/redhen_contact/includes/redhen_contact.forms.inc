@@ -81,6 +81,25 @@ function redhen_contact_contact_form_validate($form, &$form_state) {
 
   // Notify field widgets to validate their data.
   field_attach_form_validate('redhen_contact', $contact, $form, $form_state);
+
+  // If mirroring a connected and contact email's, ensure the email is not used
+  // by anther Drupal user.
+  if (variable_get('redhen_contact_mirror_email', FALSE) && $contact->uid) {
+    foreach ($form_state['values'][REDHEN_CONTACT_EMAIL_FIELD][LANGUAGE_NONE] as $email) {
+      if (!empty($email['value']) && $email['options']['default']) {
+        $user = user_load_by_mail($email['value']);
+        if ($user && ($user->uid != $contact->uid)) {
+          form_set_error(
+            REDHEN_CONTACT_EMAIL_FIELD,
+            t('This contacts email is configured to mirror the associated Drupal user and email address %email is already in use by another Drupal user.',
+              array('%email' => $email['value'])
+            )
+          );
+          break;
+        }
+      }
+    }
+  }
 }
 
 /**
