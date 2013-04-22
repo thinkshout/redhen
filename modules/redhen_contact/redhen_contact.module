@@ -320,7 +320,7 @@ function redhen_contact_save(RedhenContact $contact, $link_user = FALSE) {
     $emails = $contact->allEmail();
     foreach ($emails as $email) {
       if ($user = user_load_by_mail($email['value'])) {
-        $wrapper->user->value($user);
+        $wrapper->user->set($user);
         break;
       }
     }
