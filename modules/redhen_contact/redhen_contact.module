@@ -854,6 +854,24 @@ function redhen_contact_property_user_get(RedhenContact $contact, array $options
 }
 
 /**
+ * Callback to set $contact->user.
+ */
+
+/**
+ * Callback to set $contact->user.
+ *
+ * @param RedhenContact $contact
+ *   Contact entity.
+ * @param string $name
+ *   Property name.
+ * @param int $value
+ *   Property value. User uid in this case.
+ */
+function redhen_contact_property_user_set(RedhenContact $contact, $name, $value, $langcode, $type, $info) {
+  $contact->uid = $value;
+}
+
+/**
  * Entity metadata property getter for default email.
  *
  * @return string
