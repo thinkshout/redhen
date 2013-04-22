@@ -849,7 +849,7 @@ function redhen_contact_property_full_name_get(RedhenContact $contact, array $op
  */
 function redhen_contact_property_user_get(RedhenContact $contact, array $options, $property_name, $entity_type) {
   if (is_numeric($contact->uid)) {
-    return entity_load_single('user', $contact->uid);
+    return user_load($contact->uid);
   }
 }
 
