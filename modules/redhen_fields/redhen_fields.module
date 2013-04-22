@@ -299,7 +299,9 @@ function redhen_fields_field_validate($entity_type, $entity, $field, $instance, 
             );
           }
 
-          $default = (bool) $item['options']['default'];
+          if (!$default) {
+            $default = (bool) $item['options']['default'];
+          }
         }
       }
 
