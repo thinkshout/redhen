@@ -61,6 +61,7 @@ class RedhenContact extends Entity {
           ),
         ),
         '#classes' => 'field field-label-inline clearfix',
+        '#attributes' => '',
       );
     }
 
@@ -75,6 +76,7 @@ class RedhenContact extends Entity {
           ),
         ),
         '#classes' => 'field field-label-inline clearfix',
+        '#attributes' => '',
       );
     }
 
