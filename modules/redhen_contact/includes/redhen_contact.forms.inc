@@ -91,7 +91,7 @@ function redhen_contact_contact_form_validate($form, &$form_state) {
         if ($user && ($user->uid != $contact->uid)) {
           form_set_error(
             REDHEN_CONTACT_EMAIL_FIELD,
-            t('This contacts email is configured to mirror the associated Drupal user and email address %email is already in use by another Drupal user.',
+            t('This contact\'s primary email is configured to mirror the associated Drupal user and email address %email is already in use by another Drupal user.',
               array('%email' => $email['value'])
             )
           );
