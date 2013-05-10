@@ -46,7 +46,7 @@ function redhen_org_entity_info() {
       'token type' => 'redhen_org',
       'module' => 'redhen_org',
       'label callback' => 'entity_class_label',
-      'access callback' => 'redhen_org_access'
+      'access callback' => 'redhen_org_access',
     ),
     'redhen_org_type' => array(
       'label' => t('Organization type'),
@@ -170,7 +170,7 @@ function redhen_org_menu() {
     'page arguments' => array('redhen_org_org_form', 2),
     'access callback' => 'redhen_org_access',
     'access arguments' => array('edit', 2),
-    'type' => MENU_LOCAL_TASK
+    'type' => MENU_LOCAL_TASK,
   );
 
   $items['redhen/org/%redhen_org/view/archive'] = array(
@@ -258,7 +258,7 @@ function redhen_org_theme() {
     ),
     'redhen_org_list' => array(
       'variables' => array('orgs' => NULL, 'header' => NULL, 'rows' => NULL),
-    )
+    ),
   );
 }
 
@@ -398,7 +398,7 @@ function redhen_org_view(RedhenOrg $org, $view_mode = 'full', $langcode = NULL, 
  *   Org title.
  */
 function redhen_org_org_title(RedhenOrg $org) {
-  return check_plain($org->label());
+  return $org->label();
 }
 
 /**
