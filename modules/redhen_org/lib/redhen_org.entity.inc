@@ -9,6 +9,7 @@
  */
 class RedhenOrg extends Entity {
 
+  // @codingStandardsIgnoreStart
   public
     $label = '',
     $org_id = NULL,
@@ -18,7 +19,11 @@ class RedhenOrg extends Entity {
     $type = '',
     $created = '',
     $updated = '';
+  // @codingStandardsIgnoreEnd
 
+  /**
+   * Override parent constructor.
+   */
   public function __construct(array $values = array()) {
     global $user;
 
@@ -68,7 +73,7 @@ class RedhenOrg extends Entity {
    * Permanently saves the entity.
    *
    * @return bool
-   *  Returns FALSE if entity was not saved.
+   *   Returns FALSE if entity was not saved.
    */
   public function save() {
     $this->updated = REQUEST_TIME;
@@ -76,25 +81,25 @@ class RedhenOrg extends Entity {
   }
 
   /**
-   * Set the primary contact for an organization
+   * Set the primary contact for an organization.
    *
    * @param RedhenContact $contact
-   *  The RedhenContact to use as the primary contact
+   *   The RedhenContact to use as the primary contact
    *
    * @return bool
-   *  Return FALSE if we are unable to set the primary contact
+   *   Return FALSE if we are unable to set the primary contact
    */
   public function setPrimaryContact(RedhenContact $contact) {
-    //@TODO check that $contact has a relationship with $this
+    // @TODO Check that $contact has a relationship with $this.
     $this->primary_contact_id = $contact->contact_id;
     return $this->save();
   }
 
   /**
-   * Set the redhen_state for an organization
+   * Set the redhen_state for an organization.
    *
-   * @param $state
-   *  The REDHEN_STATE_* value to use
+   * @param string $state
+   *   The REDHEN_STATE_* value to use.
    */
   public function setState($state) {
     $this->redhen_state = $state;
