@@ -435,7 +435,7 @@ function redhen_fields_field_formatter_view($entity_type, $entity, $field, $inst
       foreach ($items as $delta => $item) {
         $output = theme('redhen_fields_email_formatter_row', array(
           'item' => $item,
-          'delta' => $delta
+          'delta' => $delta,
         ));
         $element[$delta] = array('#markup' => $output);
       }
@@ -575,7 +575,7 @@ function template_preprocess_redhen_fields_email_formatter_row(&$variables) {
 
   $image = theme('image', array(
     'path' => 'misc/watchdog-ok.png',
-    'alt' => t('Enabled')
+    'alt' => t('Enabled'),
   ));
 
   $variables['default'] = (isset($item['default']) && $item['default']) ? $image : '&nbsp;';
@@ -824,5 +824,47 @@ function redhen_fields_email_action($entity, $context) {
     else {
       watchdog('error', 'Unable to send email to %recipient', array('%recipient' => $recipient));
     }
+  }
+}
+
+/**
+ * Create the redhen_email field.
+ */
+function redhen_fields_create_email_field() {
+  // Clear the field cache so the redhen_email type is found.
+  field_cache_clear();
+
+  // If the field doesn't already exist, create required email field to be used
+  // with contacts.
+  $prior_field = field_read_field(REDHEN_CONTACT_EMAIL_FIELD, array('include_inactive' => TRUE));
+  if (empty($prior_field)) {
+    $email_field = array(
+      'field_name' => REDHEN_CONTACT_EMAIL_FIELD,
+      'type' => 'redhen_email',
+      'locked' => TRUE,
+      'cardinality' => FIELD_CARDINALITY_UNLIMITED,
+      'settings' => array(
+        'labels' => array(
+          1 => 'home',
+          2 => 'work'),
+      ),
+    );
+    field_create_field($email_field);
+  }
+}
+
+/**
+ * Create an instance of the redhen_email field for a redhen_contact bundle.
+ */
+function redhen_fields_create_email_instance($bundle_name) {
+  $instance = field_info_instance('redhen_contact', REDHEN_CONTACT_EMAIL_FIELD, $bundle_name);
+  if (!$instance) {
+    $email_field = array(
+      'field_name' => REDHEN_CONTACT_EMAIL_FIELD,
+      'entity_type' => 'redhen_contact',
+      'bundle' => $bundle_name,
+      'label' => t('Email'),
+    );
+    field_create_instance($email_field);
   }
 }
