@@ -69,5 +69,5 @@ function redhen_contact_type_form_submit(&$form, &$form_state) {
  * Form API submit callback for the delete button.
  */
 function redhen_contact_type_form_submit_delete(&$form, &$form_state) {
-  $form_state['redirect'] = 'admin/structure/redhen/contact_types/manage/' . $form_state['redhen_contact_type']->type . '/delete';
+  $form_state['redirect'] = 'admin/structure/redhen/contact_types/manage/' . $form_state['redhen_contact_type']->name . '/delete';
 }
