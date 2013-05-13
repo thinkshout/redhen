@@ -887,3 +887,17 @@ function redhen_contact_property_email_get(RedhenContact $contact, array $option
   }
   return '';
 }
+
+/**
+ * Entity metadata property setter for default email.
+ */
+function redhen_contact_property_email_set(RedhenContact $contact, $name, $value) {
+  if (!empty($contact->{REDHEN_CONTACT_EMAIL_FIELD})) {
+    foreach ($contact->{REDHEN_CONTACT_EMAIL_FIELD}[LANGUAGE_NONE] as $key => $email) {
+      if ($email['default']) {
+        $contact->{REDHEN_CONTACT_EMAIL_FIELD}[LANGUAGE_NONE][$key]['value'] = $value;
+        break;
+      }
+    }
+  }
+}

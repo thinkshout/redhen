@@ -36,6 +36,7 @@ class RedhenContactMetadataController extends EntityDefaultMetadataController {
       'description' => t("The default email for this contact."),
       'type' => 'text',
       'getter callback' => 'redhen_contact_property_email_get',
+      'setter callback' => 'redhen_contact_property_email_set',
       'computed' => TRUE,
       'entity views field' => TRUE,
       'filter' => TRUE,
