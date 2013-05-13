@@ -88,10 +88,8 @@ class RedhenContact extends Entity {
    * Specifies the default label, which is picked up by label() by default.
    */
   protected function defaultLabel() {
-    $type = redhen_contact_get_types($this->type);
     $wrapper = entity_metadata_wrapper('redhen_contact', $this);
-    $name = $wrapper->full_name->value();
-    return $name . ' (' . $type->label . ')';
+    return $wrapper->full_name->value();
   }
 
   /**
