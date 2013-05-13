@@ -11,21 +11,25 @@ class RedhenContactViewsController extends EntityDefaultViewsController {
   public function views_data() {
     $data = parent::views_data();
 
-    // Base table definition for redhen_contact_user so we can use it for joins
+    // Base table definition for redhen_contact_user so we can use it for joins.
     $data['redhen_contact_user']['table']['group'] = t('User');
 
     $data['redhen_contact_user']['table']['join'] = array(
       'redhen_contact' => array(
         'left_field' => 'contact_id',
         'field' => 'contact_id',
-        // Only join where the linkage is active
-        'extra' => array(array('field' => 'status', 'value' => '1', 'operator' => '=')),
+        // Only join where the linkage is active.
+        'extra' => array(
+          array('field' => 'status', 'value' => '1', 'operator' => '='),
+        ),
       ),
       'users' => array(
         'left_field' => 'uid',
         'field' => 'uid',
-        // Only join where the linkage is active
-        'extra' => array(array('field' => 'status', 'value' => '1', 'operator' => '=')),
+        // Only join where the linkage is active.
+        'extra' => array(
+          array('field' => 'status', 'value' => '1', 'operator' => '='),
+        ),
       ),
     );
 
@@ -40,10 +44,6 @@ class RedhenContactViewsController extends EntityDefaultViewsController {
         'label' => t('User'),
         'title' => t('Contact User'),
         'help' => t('The user associated with this contact via redhen_contact_user'),
-        'extra' => array(
-          // Only join where the linkage is active
-          array('field' => 'status', 'value' => '1', 'operator' => '='),
-        ),
       ),
       'field' => array(
         'handler' => 'views_handler_field_numeric',
@@ -68,10 +68,6 @@ class RedhenContactViewsController extends EntityDefaultViewsController {
         'label' => t('Contact'),
         'title' => t('User Contact'),
         'help' => t('The contact associated with this user via redhen_contact_user'),
-        'extra' => array(
-          // Only join where the linkage is active
-          array('field' => 'status', 'value' => '1', 'operator' => '='),
-        ),
       ),
       'field' => array(
         'handler' => 'views_handler_field_numeric',
