@@ -13,10 +13,10 @@ class RedhenContactEntityController extends EntityAPIController {
   /**
    * Saves a contact.
    *
-   * @param $contact
+   * @param RedhenContact $contact
    *   The full contact object to save.
    *
-   * @return
+   * @return RedhenContact
    *   The saved contact object.
    */
   public function save($contact, DatabaseTransaction $transaction = NULL) {
@@ -58,10 +58,10 @@ class RedhenContactEntityController extends EntityAPIController {
   /**
    * Deletes multiple contacts by ID.
    *
-   * @param $contact_ids
+   * @param array $contact_ids
    *   An array of contact IDs to delete.
    *
-   * @return
+   * @return bool
    *   TRUE on success, FALSE otherwise.
    */
   public function delete($contact_ids, DatabaseTransaction $transaction = NULL) {
@@ -107,12 +107,6 @@ class RedhenContactEntityController extends EntityAPIController {
 
   /**
    * Override buildQuery to add a join for the active Drupal user.
-   *
-   * @param $ids
-   * @param array $conditions
-   * @param bool $revision_id
-   *
-   * @return SelectQuery
    */
   protected function buildQuery($ids, $conditions = array(), $revision_id = FALSE) {
     $query = parent::buildQuery($ids, $conditions, $revision_id);
@@ -140,7 +134,8 @@ class RedhenContactEntityController extends EntityAPIController {
   /**
    * Set the active user for a contact.
    *
-   * @param $contact
+   * @param RedhenContact $contact
+   *   Contact object to associate.
    *
    * @return bool
    *   TRUE if contact is successfully linked to user.
@@ -228,11 +223,12 @@ class RedhenContactEntityController extends EntityAPIController {
   /**
    * Delete or unlink the active user for a contact.
    *
-   * @param $contact
+   * @param RedhenContact $contact
+   *   RedHen contact object.
    * @param bool $delete
    *   If true, the connection is deleted and can be recreated. False sets the
    *   connection to inactive which will prevent it from being reconnected on
-   *   subsequent attemps.
+   *   subsequent attempts.
    *
    * @return bool
    *   TRUE if user is successfully deleted or unlinked from contact.
