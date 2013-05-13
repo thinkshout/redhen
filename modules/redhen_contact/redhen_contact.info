@@ -11,6 +11,7 @@ files[] = lib/redhen_contact.controller.inc
 files[] = lib/redhen_contact.entity.inc
 files[] = lib/redhen_contact.metadata.inc
 files[] = lib/redhen_contact.views.inc
+files[] = lib/redhen_contact_type.controller.inc
 files[] = lib/redhen_contact_type.entity.inc
 files[] = lib/redhen_contact_type.ui_controller.inc
 

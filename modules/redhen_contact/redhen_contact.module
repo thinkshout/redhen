@@ -48,7 +48,7 @@ function redhen_contact_entity_info() {
     'redhen_contact_type' => array(
       'label' => t('Contact type'),
       'entity class' => 'RedhenContactType',
-      'controller class' => 'EntityAPIControllerExportable',
+      'controller class' => 'RedhenContactTypeController',
       'base table' => 'redhen_contact_type',
       'fieldable' => FALSE,
       'bundle of' => 'redhen_contact',
