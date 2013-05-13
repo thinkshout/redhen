@@ -204,4 +204,36 @@ class RedhenContact extends Entity {
     return entity_get_controller($this->entityType)->save($this);
   }
 
+  /**
+   * Override parent::save() to manage user association.
+   */
+  public function save() {
+    $wrapper = entity_metadata_wrapper('redhen_contact', $this);
+    $user = $wrapper->user->value();
+
+    if (variable_get('redhen_contact_connect_users', FALSE) && !$user) {
+      $emails = $this->allEmail();
+      foreach ($emails as $email) {
+        if ($user = user_load_by_mail($email['value'])) {
+          $wrapper->user->set($user);
+          break;
+        }
+      }
+    }
+
+    $ret = parent::save();
+
+    if ($ret && variable_get('redhen_contact_mirror_email', FALSE)) {
+      $email = $wrapper->email->value();
+
+      // If we have a linked user and primary email, but they don't match, set
+      // the user email.
+      if ($user && ($email !== $user->mail)) {
+        user_save($user, array('mail' => $email));
+      }
+    }
+
+    return $ret;
+  }
+
 }
