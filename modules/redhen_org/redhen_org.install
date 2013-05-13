@@ -377,3 +377,10 @@ function redhen_org_update_7002() {
     'default' => 0,
   ));
 }
+
+/**
+ * Rebuild the registry to pick up the new class.
+ */
+function redhen_org_update_7003() {
+  registry_rebuild();
+}

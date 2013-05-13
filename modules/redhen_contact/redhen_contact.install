@@ -332,3 +332,10 @@ function redhen_contact_update_7001() {
   $spec = $schema[$table_name]['fields'][$field_name];
   db_add_field($table_name, $field_name, $spec);
 }
+
+/**
+ * Rebuild the registry to pick up the new class.
+ */
+function redhen_contact_update_7002() {
+  registry_rebuild();
+}
