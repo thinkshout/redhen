@@ -51,7 +51,7 @@ function redhen_org_entity_info() {
     'redhen_org_type' => array(
       'label' => t('Organization type'),
       'entity class' => 'RedhenOrgType',
-      'controller class' => 'EntityAPIControllerExportable',
+      'controller class' => 'RedhenOrgTypeController',
       'base table' => 'redhen_org_type',
       'fieldable' => FALSE,
       'bundle of' => 'redhen_org',
