@@ -813,10 +813,7 @@ function redhen_contact_user_view($account, $view_mode, $langcode) {
  */
 function redhen_contact_property_full_name_get(RedhenContact $contact, array $options, $property_name, $entity_type) {
   $name = $contact->first_name . ' ' . $contact->middle_name . ' ' . $contact->last_name;
-  $context = array(
-    'contact' => clone $contact,
-  );
-  drupal_alter('redhen_contact_name', $name, $context);
+  drupal_alter('redhen_contact_name', $name, $contact);
   return $name;
 }
 
