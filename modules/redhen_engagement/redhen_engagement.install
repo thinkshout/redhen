@@ -203,14 +203,16 @@ function redhen_engagement_update_7100(&$sandbox) {
  * Set the engagement_score value for existing contacts.
  */
 function redhen_engagement_update_7101(&$sandbox) {
-  $field = array(
-    'description' => 'The total engagement score for a contact.',
-    'type' => 'int',
-    'not null' => TRUE,
-    'default' => 0,
-  );
-  db_add_field('redhen_contact', 'engagement_score', $field);
+  if (!db_field_exists('redhen_contact', 'engagement_score')) {
+    $field = array(
+      'description' => 'The total engagement score for a contact.',
+      'type' => 'int',
+      'not null' => TRUE,
+      'default' => 0,
+    );
+    db_add_field('redhen_contact', 'engagement_score', $field);
+  }
 
-  $sql = 'UPDATE redhen_contact rc SET engagement_score = (SELECT SUM(score) FROM redhen_engagement re JOIN redhen_engagement_score res on re.engagement_score = res.name WHERE re.contact_id = rc.contact_id)';
+  $sql = 'UPDATE redhen_contact rc SET engagement_score = COALESCE((SELECT SUM(score) FROM redhen_engagement re JOIN redhen_engagement_score res on re.engagement_score = res.name WHERE re.contact_id = rc.contact_id), 0)';
   db_query($sql);
 }
