@@ -86,7 +86,7 @@ function redhen_contact_contact_form_validate($form, &$form_state) {
   // by anther Drupal user.
   if (variable_get('redhen_contact_mirror_email', FALSE) && $contact->uid) {
     foreach ($form_state['values'][REDHEN_CONTACT_EMAIL_FIELD][LANGUAGE_NONE] as $email) {
-      if (!empty($email['value']) && $email['options']['default']) {
+      if (is_array($email) && !empty($email['value']) && $email['options']['default']) {
         $user = user_load_by_mail($email['value']);
         if ($user && ($user->uid != $contact->uid)) {
           form_set_error(
@@ -167,7 +167,7 @@ function redhen_contact_contact_delete_form_submit($form, &$form_state) {
 
   $wrapper = entity_metadata_wrapper('redhen_contact', $contact);
   $full_name = $wrapper->full_name->value();
-  
+
   if (redhen_contact_delete_multiple(array($contact->contact_id))) {
     drupal_set_message(t('%title has been deleted.', array('%title' => $full_name)));
     watchdog('redhen_contact', 'Deleted contact %title.', array('%title' => $full_name), WATCHDOG_NOTICE);
@@ -217,7 +217,7 @@ function redhen_contact_contact_archive_form_submit($form, &$form_state) {
 
   $wrapper = entity_metadata_wrapper('redhen_contact', $contact);
   $full_name = $wrapper->full_name->value();
-  
+
   if ($contact->setState(REDHEN_STATE_ARCHIVED)) {
     drupal_set_message(t('%label has been archived.', array('%label' => $full_name)));
   }
@@ -242,7 +242,7 @@ function redhen_contact_contact_user_form($form, &$form_state, RedhenContact $co
 
   $wrapper = entity_metadata_wrapper('redhen_contact', $contact);
   $user = $wrapper->user->value();
-  
+
   if ($user) {
     $user_uri = entity_uri('user', $user);
     $form['existing_user'] = array(
