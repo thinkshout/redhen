@@ -116,6 +116,14 @@ function redhen_relation_permission() {
       'title' => t('Manage RedHen Contact Connections'),
       'description' => t('Add and edit connections for a contact.'),
     ),
+    'delete redhen org connections' => array(
+      'title' => t('Manage RedHen Org Connections'),
+      'description' => t('Delete edit connections for an organization.'),
+    ),
+    'delete redhen contact connections' => array(
+      'title' => t('Manage RedHen Contact Connections'),
+      'description' => t('Delete connections for a contact.'),
+    ),
   );
 }
 
@@ -129,7 +137,7 @@ function redhen_relation_permission() {
  */
 function redhen_relation_access($op, $entity) {
   $entity_type = $entity->entityType();
-  $type = $entity_type == 'redhen_contact' ? 'contact' : 'org';
+  $type = ($entity_type == 'redhen_contact') ? 'contact' : 'org';
   if (entity_access($op, $entity_type, $entity) && user_access("$op redhen $type connections")) {
     return TRUE;
   }
@@ -234,7 +242,7 @@ function redhen_relation_connections_page($entity) {
           'href' => $relation_uri['path'],
         );
 
-        if (redhen_relation_access('update', $entity)) {
+        if (redhen_relation_access('edit', $entity)) {
           $ops['edit'] = array(
             'title' => t('edit'),
             'href' => $relation_uri['path'] . '/edit',
