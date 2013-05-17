@@ -85,6 +85,7 @@ function redhen_contact_schema() {
       'redhen_contact_type' => array(array('type', 4)),
       'redhen_contact_author' => array('author_uid'),
       'redhen_contact_redhen_state' => array('redhen_state'),
+      'redhen_contact_revision' => array('revision_id'),
     ),
     'unique keys' => array(
       'contact_id' => array('contact_id'),
@@ -98,10 +99,6 @@ function redhen_contact_schema() {
       'redhen_contact_author' => array(
         'table' => 'users',
         'columns' => array('author_uid' => 'uid'),
-      ),
-      'redhen_contact_user' => array(
-        'table' => 'users',
-        'columns' => array('uid' => 'uid'),
       ),
       'redhen_contact_type' => array(
         'table' => 'redhen_contact_type',
@@ -188,10 +185,6 @@ function redhen_contact_schema() {
       'redhen_contact_revision_author' => array(
         'table' => 'users',
         'columns' => array('author_uid' => 'uid'),
-      ),
-      'redhen_contact_revision_user' => array(
-        'table' => 'users',
-        'columns' => array('uid' => 'uid'),
       ),
     ),
   );
@@ -295,6 +288,8 @@ function redhen_contact_schema() {
     ),
     'indexes' => array(
       'redhen_contact_status' => array('contact_id', 'status'),
+      'redhen_contact_user_contact' => array('contact_id'),
+      'redhen_contact_user_user' => array('uid'),
     ),
     'foreign keys' => array(
       'redhen_contact_user_contact' => array(
@@ -307,7 +302,7 @@ function redhen_contact_schema() {
       ),
     ),
     'unique keys' => array(
-      'redhen_contact_user_status' => array('uid', 'status')
+      'redhen_contact_user_status' => array('uid', 'status'),
     ),
     'primary key' => array('contact_id', 'uid'),
   );
@@ -338,4 +333,13 @@ function redhen_contact_update_7001() {
  */
 function redhen_contact_update_7002() {
   registry_rebuild();
+}
+
+/**
+ * Create indexes for foreign keys.
+ */
+function redhen_contact_update_7003() {
+  db_add_index('redhen_contact', 'redhen_contact_revision', array('revision_id'));
+  db_add_index('redhen_contact_user', 'redhen_contact_user_contact', array('contact_id'));
+  db_add_index('redhen_contact_user', 'redhen_contact_user_user', array('uid'));
 }

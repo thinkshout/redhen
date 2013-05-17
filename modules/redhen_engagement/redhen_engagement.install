@@ -75,6 +75,9 @@ function redhen_engagement_schema() {
     ),
     'indexes' => array(
       'engagement_type' => array('type'),
+      'engagement_redhen_contact' => array('contact_id'),
+      'engagement_author' => array('author_uid'),
+      'engagement_engagement_score' => array('engagement_score'),
     ),
     'foreign keys' => array(
       'engagement_redhen_contact' => array(
@@ -215,4 +218,14 @@ function redhen_engagement_update_7101(&$sandbox) {
 
   $sql = 'UPDATE redhen_contact rc SET engagement_score = COALESCE((SELECT SUM(score) FROM redhen_engagement re JOIN redhen_engagement_score res on re.engagement_score = res.name WHERE re.contact_id = rc.contact_id), 0)';
   db_query($sql);
+}
+
+
+/**
+ * Create indexes for foreign keys.
+ */
+function redhen_engagement_update_7102(&$sandbox) {
+  db_add_index('redhen_engagement', 'engagement_redhen_contact', array('contact_id'));
+  db_add_index('redhen_engagement', 'engagement_author', array('author_uid'));
+  db_add_index('redhen_engagement', 'engagement_engagement_score', array('engagement_score'));
 }

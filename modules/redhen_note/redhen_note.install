@@ -61,6 +61,7 @@ function redhen_note_schema() {
       'redhen_note_updated' => array('updated'),
       'redhen_note_created' => array('created'),
       'redhen_note_type' => array(array('type', 4)),
+      'redhen_note_author' => array('author_uid'),
     ),
     'unique keys' => array(
       'note_id' => array('note_id'),
@@ -79,11 +80,11 @@ function redhen_note_schema() {
 }
 
 
-/*
+/**
  * Implements hook_install()
  */
 function redhen_note_install() {
-  //Redhen Note Body field config
+  // Redhen Note Body field config.
   $redhen_note_body = array(
     'field_name' => 'redhen_note_body',
     'type' => 'text_long',
@@ -92,22 +93,23 @@ function redhen_note_install() {
   );
   field_create_field($redhen_note_body);
 
-  //Create body field instance for notes
+  $t = get_t();
+  // Create body field instance for notes.
   $redhen_note_body_instance = array(
     'field_name' => 'redhen_note_body',
     'entity_type' => 'redhen_note',
     'bundle' => 'redhen_note',
-    'label' => t('Message'),
+    'label' => $t('Message'),
     'widget' => array(
       'type' => 'text_textarea',
     ),
     'settings' => array(
       'text_processing' => 1,
-    )
+    ),
   );
   field_create_instance($redhen_note_body_instance);
 
-  //Redhen Note Type Taxonomy field
+  // Redhen Note Type Taxonomy field.
   taxonomy_vocabulary_save((object) array(
     'name' => 'Note type',
     'machine_name' => 'note_type',
@@ -132,7 +134,7 @@ function redhen_note_install() {
   $redhen_note_type_field_instance = array(
     'field_name' => 'redhen_note_type',
     'entity_type' => 'redhen_note',
-    'label' => t('Note Type'),
+    'label' => $t('Note Type'),
     'bundle' => 'redhen_note',
     'required' => FALSE,
     'widget' => array(
@@ -147,8 +149,15 @@ function redhen_note_install() {
  * Implements hook_uninstall().
  */
 function redhen_note_uninstall() {
-  // delete note fields and taxonomy.
+  // Delete note fields and taxonomy.
   field_delete_instance('redhen_note_body', TRUE);
   field_delete_instance('redhen_note_type', TRUE);
   taxonomy_vocabulary_delete(taxonomy_vocabulary_machine_name_load('note_type')->vid);
+}
+
+/**
+ * Add indexes for foreign keys.
+ */
+function redhen_note_update_7100(&$sandbox) {
+  db_add_index('redhen_note', 'redhen_note_author', array('author_uid'));
 }

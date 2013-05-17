@@ -75,6 +75,9 @@ function redhen_org_schema() {
       'redhen_org_created' => array('created'),
       'redhen_org_type' => array(array('type', 4)),
       'redhen_org_redhen_state' => array('redhen_state'),
+      'redhen_org_revision' => array('revision_id'),
+      'redhen_org_author' => array('author_uid'),
+      'redhen_org_primary_contact_id' => array('primary_contact_id'),
     ),
     'unique keys' => array(
       'org_id' => array('org_id'),
@@ -157,6 +160,9 @@ function redhen_org_schema() {
     'indexes' => array(
       'redhen_org_updated_revision' => array('updated'),
       'redhen_org_redhen_state_revision' => array('redhen_state'),
+      'revision_redhen_org' => array('org_id'),
+      'redhen_org_revision_author' => array('author_uid'),
+      'redhen_org_revision_primary_contact_id' => array('primary_contact_id'),
     ),
     'foreign keys' => array(
       'revision_redhen_org' => array(
@@ -383,4 +389,16 @@ function redhen_org_update_7002() {
  */
 function redhen_org_update_7003() {
   registry_rebuild();
+}
+
+/**
+ * Add indexes for foreign keys.
+ */
+function redhen_org_update_7004() {
+  db_add_index('redhen_org', 'redhen_org_revision', array('revision_id'));
+  db_add_index('redhen_org', 'redhen_org_author', array('author_uid'));
+  db_add_index('redhen_org', 'redhen_org_primary_contact_id', array('primary_contact_id'));
+  db_add_index('redhen_org_revision', 'revision_redhen_org', array('org_id'));
+  db_add_index('redhen_org_revision', 'redhen_org_revision_author', array('author_uid'));
+  db_add_index('redhen_org_revision', 'redhen_org_revision_primary_contact_id', array('primary_contact_id'));
 }
