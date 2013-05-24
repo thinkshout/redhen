@@ -14,19 +14,17 @@ function redhen_dedupe_menu() {
   return $items;
 }
 
+/**
+ * Page callback for listing duplicate contacts.
+ *
+ * @return array
+ *   Render array for a table of duplicates.
+ */
 function redhen_dedupe_list_page() {
-  $query = db_select('redhen_contact', 'rc');
-  $query->addField('rc', 'first_name');
-  $query->addField('rc', 'last_name');
-  $query->groupBy('first_name');
-  $query->groupBy('last_name');
-  $query->addExpression('COUNT(*)', 'count');
-  $query->addExpression('GROUP_CONCAT(contact_id SEPARATOR \'/\')', 'ids');
-  $query->havingCondition('count', '1', '>');
-
-  $results = $query->execute()->fetchAll();
-  if (!empty($results)) {
-    foreach ($results as $result) {
+  $duplicates = redhen_dedupe_get_duplicates();
+  if (!empty($duplicates)) {
+    $rows = array();
+    foreach ($duplicates as $result) {
       $rows[] = array(
         $result->first_name,
         $result->last_name,
@@ -45,4 +43,23 @@ function redhen_dedupe_list_page() {
       'rows' => $rows,
     ));
   }
+}
+
+/**
+ * Get duplicate contacts.
+ *
+ * @return array
+ *   Array of objects containing first, last, and ids.
+ */
+function redhen_dedupe_get_duplicates() {
+  $query = db_select('redhen_contact', 'rc');
+  $query->addField('rc', 'first_name');
+  $query->addField('rc', 'last_name');
+  $query->groupBy('first_name');
+  $query->groupBy('last_name');
+  $query->addExpression('COUNT(*)', 'count');
+  $query->addExpression('GROUP_CONCAT(contact_id SEPARATOR \'/\')', 'ids');
+  $query->havingCondition('count', '1', '>');
+
+  return $query->execute()->fetchAll();
 }
