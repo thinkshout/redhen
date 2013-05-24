@@ -30,6 +30,7 @@ function redhen_dedupe_menu() {
 function redhen_dedupe_list_page() {
   $results = redhen_dedupe_get_duplicates();
   if (!empty($results)) {
+    $rows = array();
     foreach ($results as $result) {
       $rows[] = array(
         $result->first_name,
@@ -48,6 +49,9 @@ function redhen_dedupe_list_page() {
       ),
       'rows' => $rows,
     ));
+  }
+  else {
+    return t('There are no duplicate contacts, congratulations!');
   }
 }
 
