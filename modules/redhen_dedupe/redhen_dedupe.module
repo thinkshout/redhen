@@ -10,7 +10,14 @@ function redhen_dedupe_menu() {
     'access arguments' => array('access content'),
     'type' => MENU_NORMAL_ITEM,
   );
-
+  $items['redhen/dedupe/merge/%'] = array(
+    'title' => 'Select a primary contact',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('redhen_dedupe_merge_form', 3),
+    'access arguments' => array('access content'),
+    'file' => 'includes/redhen_dedupe.form.inc',
+    'type' => MENU_NORMAL_ITEM,
+  );
   return $items;
 }
 
@@ -21,10 +28,9 @@ function redhen_dedupe_menu() {
  *   Render array for a table of duplicates.
  */
 function redhen_dedupe_list_page() {
-  $duplicates = redhen_dedupe_get_duplicates();
-  if (!empty($duplicates)) {
-    $rows = array();
-    foreach ($duplicates as $result) {
+  $results = redhen_dedupe_get_duplicates();
+  if (!empty($results)) {
+    foreach ($results as $result) {
       $rows[] = array(
         $result->first_name,
         $result->last_name,
