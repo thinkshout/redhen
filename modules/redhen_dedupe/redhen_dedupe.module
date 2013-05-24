@@ -1,0 +1,24 @@
+<?php
+
+/**
+ * Implements hook_menu().
+ */
+function redhen_dedupe_menu() {
+  $items['redhen/dedupe'] = array(
+    'title' => 'Find duplicate contacts',
+    'page callback' => 'redhen_dedupe_list_page',
+    'access arguments' => array('access content'),
+    'type' => MENU_NORMAL_ITEM,
+  );
+
+  return $items;
+}
+
+function redhen_dedupe_list_page() {
+  db_query()
+  $query = new EntityFieldQuery();
+  $results = $query
+    ->entityCondition('entity_type', 'redhen_contact')
+    ->
+    ->execute();
+}
