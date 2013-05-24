@@ -10,7 +10,13 @@ function redhen_dedupe_menu() {
     'access arguments' => array('access content'),
     'type' => MENU_NORMAL_ITEM,
   );
-
+  $items['redhen/dedupe/merge/%'] = array(
+    'title' => 'Select a primary contact',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('redhen_dedupe_merge_form', 3),
+    'access arguments' => array('access content'),
+    'type' => MENU_NORMAL_ITEM,
+  );
   return $items;
 }
 
