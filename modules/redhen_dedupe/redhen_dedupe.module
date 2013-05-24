@@ -28,10 +28,10 @@ function redhen_dedupe_menu() {
  *   Render array for a table of duplicates.
  */
 function redhen_dedupe_list_page() {
-  $duplicates = redhen_dedupe_get_duplicates();
-  if (!empty($duplicates)) {
+  $results = redhen_dedupe_get_duplicates();
+  if (!empty($results)) {
     $rows = array();
-    foreach ($duplicates as $result) {
+    foreach ($results as $result) {
       $rows[] = array(
         $result->first_name,
         $result->last_name,
@@ -49,6 +49,9 @@ function redhen_dedupe_list_page() {
       ),
       'rows' => $rows,
     ));
+  }
+  else {
+    return t('There are no duplicate contacts, congratulations!');
   }
 }
 
