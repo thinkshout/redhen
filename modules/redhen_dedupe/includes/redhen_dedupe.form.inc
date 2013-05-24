@@ -5,16 +5,11 @@
  * Forms for creating, editing, and deleting contacts.
  */
 
-function redhen_dedupe_merge_form($form, &$form_state) {
+function redhen_dedupe_merge_form($form, &$form_state, $entity_ids) {
   // parse contact ids
   // load contact entities
-  $entities = array();
-  foreach ($form_state['build_info']['args'] as $id) {
-    $matches = entity_load('redhen_contact', array($id));
-    foreach ($matches as $match_id => $match) {
-      $entities[$match_id] = $match;
-    }
-  }
+  $entity_ids = explode(',', $entity_ids);
+  $entities = entity_load_multiple_by_name('redhen_contact', $entity_ids);
   $options = array();
   foreach ($entities as $ent_id => $entity) {
     $options[$ent_id] = $entity->first_name;
@@ -26,4 +21,6 @@ function redhen_dedupe_merge_form($form, &$form_state) {
     '#options' => $options,
     '#description' => t('Choose a contact to merge the other contacts into.'),
   );
+
+  return $form;
 }

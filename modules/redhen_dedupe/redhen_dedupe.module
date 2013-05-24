@@ -13,7 +13,7 @@ function redhen_dedupe_menu() {
   $items['redhen/dedupe/merge/%'] = array(
     'title' => 'Select a primary contact',
     'page callback' => 'drupal_get_form',
-    'page arguments' => array('redhen_dedupe_merge_form'),
+    'page arguments' => array('redhen_dedupe_merge_form', 3),
     'access arguments' => array('access content'),
     'file' => 'includes/redhen_dedupe.form.inc',
     'type' => MENU_NORMAL_ITEM,
@@ -28,7 +28,7 @@ function redhen_dedupe_list_page() {
   $query->groupBy('first_name');
   $query->groupBy('last_name');
   $query->addExpression('COUNT(*)', 'count');
-  $query->addExpression('GROUP_CONCAT(contact_id SEPARATOR \'/\')', 'ids');
+  $query->addExpression('GROUP_CONCAT(contact_id)', 'ids');
   $query->havingCondition('count', '1', '>');
 
   $results = $query->execute()->fetchAll();
