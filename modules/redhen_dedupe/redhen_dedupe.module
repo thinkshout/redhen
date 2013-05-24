@@ -15,10 +15,34 @@ function redhen_dedupe_menu() {
 }
 
 function redhen_dedupe_list_page() {
-  db_query()
-  $query = new EntityFieldQuery();
-  $results = $query
-    ->entityCondition('entity_type', 'redhen_contact')
-    ->
-    ->execute();
+  $query = db_select('redhen_contact', 'rc');
+  $query->addField('rc', 'first_name');
+  $query->addField('rc', 'last_name');
+  $query->groupBy('first_name');
+  $query->groupBy('last_name');
+  $query->addExpression('COUNT(*)', 'count');
+  $query->addExpression('GROUP_CONCAT(contact_id SEPARATOR \'/\')', 'ids');
+  $query->havingCondition('count', '1', '>');
+
+  $results = $query->execute()->fetchAll();
+  if (!empty($results)) {
+    foreach ($results as $result) {
+      $rows[] = array(
+        $result->first_name,
+        $result->last_name,
+        $result->count,
+        l(t('merge'), 'redhen/dedupe/merge/' . $result->ids),
+      );
+    }
+
+    return theme('table', array(
+      'header' => array(
+        t('First name'),
+        t('Las name'),
+        t('Count'),
+        '',
+      ),
+      'rows' => $rows,
+    ));
+  }
 }
