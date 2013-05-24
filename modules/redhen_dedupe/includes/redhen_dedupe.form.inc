@@ -15,13 +15,27 @@ function redhen_dedupe_merge_form($form, &$form_state, $entity_ids) {
     $wrapper = entity_metadata_wrapper('redhen_contact', $entity);
     $updated =  format_date($wrapper->updated->value(), 'short');
     $options[$ent_id] = $wrapper->full_name->value() . ' (' . $updated . ')';
+    $form[$ent_id] = array(
+      '#markup' => drupal_render(entity_view('redhen_contact', array($entity))),
+      '#states' => array(
+        'visible' => array(
+          ':input[name="master"]' => array('value' => $ent_id),
+        ),
+      ),
+      '#weight' => 99,
+    );
   }
-  $form['Master'] = array(
+  $form['master'] = array(
     '#type' => 'radios',
     '#title' => t('Master Contact'),
     '#default_value' => 0,
     '#options' => $options,
     '#description' => t('Choose a contact to merge the other contacts into.'),
+  );
+
+  $form['submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Merge'),
   );
 
   return $form;
