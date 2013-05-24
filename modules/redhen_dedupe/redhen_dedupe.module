@@ -64,7 +64,7 @@ function redhen_dedupe_get_duplicates() {
   $query->groupBy('first_name');
   $query->groupBy('last_name');
   $query->addExpression('COUNT(*)', 'count');
-  $query->addExpression('GROUP_CONCAT(contact_id SEPARATOR \'/\')', 'ids');
+  $query->addExpression('GROUP_CONCAT(contact_id SEPARATOR \',\')', 'ids');
   $query->havingCondition('count', '1', '>');
 
   return $query->execute()->fetchAll();
