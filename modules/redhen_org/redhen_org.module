@@ -314,6 +314,35 @@ function redhen_org_delete_multiple($org_ids) {
 }
 
 /**
+ * Create a new org object.
+ *
+ * @param array $values
+ *   Associative array of values. At least include array('type' => $type)
+ *
+ * @return RedhenOrg
+ *   New org entity.
+ */
+function redhen_org_create(array $values = array()) {
+  return entity_get_controller('redhen_org')->create($values);
+}
+
+/**
+ * Saves a org.
+ *
+ * @param RedhenOrg $org
+ *   The full org object to save.
+ *
+ * @return RedhenOrg
+ *   The saved org object.
+ */
+function redhen_org_save(RedhenContact $org) {
+  $org->save();
+  return $org;
+}
+
+
+
+/**
  * Checks org access for various operations.
  *
  * @param string $op
