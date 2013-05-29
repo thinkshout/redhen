@@ -335,7 +335,7 @@ function redhen_org_create(array $values = array()) {
  * @return RedhenOrg
  *   The saved org object.
  */
-function redhen_org_save(RedhenContact $org) {
+function redhen_org_save(RedhenOrg $org) {
   $org->save();
   return $org;
 }
