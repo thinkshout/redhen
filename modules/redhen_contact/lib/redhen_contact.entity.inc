@@ -41,7 +41,7 @@ class RedhenContact extends Entity {
     $name = $wrapper->full_name->value();
 
     $content['redhen_state'] = array(
-      '#theme' => 'redhen_pr  operty_field',
+      '#theme' => 'redhen_property_field',
       '#label' => t('State'),
       '#items' => array(
         array(
