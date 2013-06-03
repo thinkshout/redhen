@@ -340,8 +340,6 @@ function redhen_org_save(RedhenOrg $org) {
   return $org;
 }
 
-
-
 /**
  * Checks org access for various operations.
  *
