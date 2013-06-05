@@ -25,6 +25,12 @@ function redhen_org_schema() {
         'not null' => TRUE,
         'default' => 0,
       ),
+      'name' => array(
+        'description' => 'The machine-readable name of this org.',
+        'type' => 'varchar',
+        'length' => 32,
+        'not null' => TRUE,
+      ),
       'type' => array(
         'description' => 'The {redhen_org_type}.type of this redhen_org.',
         'type' => 'varchar',
@@ -81,6 +87,7 @@ function redhen_org_schema() {
     ),
     'unique keys' => array(
       'org_id' => array('org_id'),
+      'name' => array('name'),
     ),
     'foreign keys' => array(
       'redhen_org_revision' => array(
@@ -401,4 +408,22 @@ function redhen_org_update_7004() {
   db_add_index('redhen_org_revision', 'revision_redhen_org', array('org_id'));
   db_add_index('redhen_org_revision', 'redhen_org_revision_author', array('author_uid'));
   db_add_index('redhen_org_revision', 'redhen_org_revision_primary_contact_id', array('primary_contact_id'));
+}
+
+/**
+ * Add machine name field and index to {redhen_org}.
+ */
+function redhen_org_update_7005() {
+  $field = array(
+    'description' => 'The machine-readable name of this org.',
+    'type' => 'varchar',
+    'length' => 32,
+    'not null' => TRUE,
+  );
+  db_add_field('redhen_org', 'name', $field);
+  db_add_index('redhen_org', 'name', array('name'));
+
+  db_update('redhen_org')
+    ->expression('name', 'SUBSTRING(LOWER(TRIM(REPLACE(label, " ", "_"))), 1, 32)')
+    ->execute();
 }

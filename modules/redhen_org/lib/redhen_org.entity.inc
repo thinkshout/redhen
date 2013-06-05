@@ -18,7 +18,8 @@ class RedhenOrg extends Entity {
     $redhen_state = REDHEN_STATE_ACTIVE,
     $type = '',
     $created = '',
-    $updated = '';
+    $updated = '',
+    $name;
   // @codingStandardsIgnoreEnd
 
   /**
