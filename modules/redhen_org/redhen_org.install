@@ -424,6 +424,6 @@ function redhen_org_update_7005() {
   db_add_index('redhen_org', 'name', array('name'));
 
   db_update('redhen_org')
-    ->expression('name', 'SUBSTRING(LOWER(TRIM(REPLACE(label, " ", "_"))), 1, 32)')
+    ->expression('name', 'LOWER(TRIM(SUBSTRING(REPLACE(label, " ", "_"), 1, 32)))')
     ->execute();
 }
