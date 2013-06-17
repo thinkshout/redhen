@@ -413,7 +413,8 @@ function redhen_org_update_7004() {
 /**
  * Add machine name field and index to {redhen_org}.
  */
-function redhen_org_update_7005() {
+function redhen_org_update_7005(&$sandbox) {
+  // Add new field and index.
   $field = array(
     'description' => 'The machine-readable name of this org.',
     'type' => 'varchar',
@@ -423,7 +424,42 @@ function redhen_org_update_7005() {
   db_add_field('redhen_org', 'name', $field);
   db_add_index('redhen_org', 'name', array('name'));
 
-  db_update('redhen_org')
-    ->expression('name', 'LOWER(TRIM(SUBSTRING(REPLACE(label, " ", "_"), 1, 32)))')
+  // Set default machine names.
+  if (!isset($sandbox['progress'])) {
+    $sandbox['progress'] = 0;
+    $sandbox['current_org_id'] = 0;
+    // We'll -1 to disregard the uid 0...
+    $sandbox['max'] = db_query('SELECT COUNT(DISTINCT org_id) FROM {redhen_org}')->fetchField() - 1;
+  }
+
+  $orgs = db_select('redhen_org', 'org')
+    ->fields('org', array('org_id', 'label'))
+    ->condition('org_id', $sandbox['current_org_id'], '>')
+    ->range(0, 50)
+    ->orderBy('org_id', 'ASC')
     ->execute();
+
+  foreach ($orgs as $org) {
+    $name = preg_replace('/[^a-z0-9]+/', '_', strtolower(substr($org->label, 0, 32)));
+
+    // Handle duplicate names by appending incremented integer.
+    $count = db_select('redhen_org')->condition('name', $name)->countQuery()->execute()->fetchField();
+    $increment = 1;
+    $mod_name = $name;
+    while ($count > 0) {
+      $mod_name = $name . $increment;
+      $count = db_select('redhen_org')->condition('name', $mod_name)->countQuery()->execute()->fetchField();
+      $increment++;
+    }
+    db_update('redhen_org')->fields(array('name' => $mod_name))->condition('org_id', $org->org_id)->execute();
+
+    $sandbox['progress']++;
+    $sandbox['current_org_id'] = $org->org_id;
+  }
+
+  $sandbox['#finished'] = empty($sandbox['max']) ? 1 : ($sandbox['progress'] / $sandbox['max']);
+
+  return t('RedHen organizations have been updated with a default machine name.');
+
+  throw new DrupalUpdateException('RedHen organizations update 7005 failed to add a machine name to {redhen_org}.');
 }
