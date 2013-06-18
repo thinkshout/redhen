@@ -89,7 +89,7 @@ function redhen_relation_connection_form($form, &$form_state, $entity) {
     '#title' => $plural_label,
     '#type' => 'textfield',
     '#required' => TRUE,
-    '#autocomplete_path' => 'redhen/relation/autocomplete/' . $relation->relation_type . '/' . $entity_type_to_relate . '/' . $entity->entityType() . '/' . $entity->identifier(),
+    '#autocomplete_path' => 'redhen/relation/autocomplete/' . $relation->relation_type . '/' . $entity_type_to_relate . '/' . $entity->entityType() . '/' . $entity->internalIdentifier(),
   );
 
   // attach any fields
