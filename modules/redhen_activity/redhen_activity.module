@@ -546,10 +546,10 @@ function redhen_activity_activity_page($entity = NULL, $entity_type = NULL) {
     if ($entity && $entity_type) {
       $fields = array(
         "message_{$entity_type}" => array(
-          LANGUAGE_NONE => array(array(
-            'target_id' => $entity->identifier()
-          ))
-        )
+          LANGUAGE_NONE => array(
+            array('target_id' => $entity->internalIdentifier()),
+          ),
+        ),
       );
     }
 
