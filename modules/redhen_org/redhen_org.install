@@ -435,6 +435,7 @@ function redhen_org_update_7005(&$sandbox) {
       'description' => 'The machine-readable name of this org.',
       'type' => 'varchar',
       'length' => 32,
+      'default' => '',
       'not null' => TRUE,
     ),
     'status' => array(
