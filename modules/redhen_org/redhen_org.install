@@ -432,6 +432,7 @@ function redhen_org_update_7005(&$sandbox) {
     $sandbox['max'] = db_query('SELECT COUNT(DISTINCT org_id) FROM {redhen_org}')->fetchField() - 1;
   }
 
+  // Grab the next 50 orgs to process.
   $orgs = db_select('redhen_org', 'org')
     ->fields('org', array('org_id', 'label'))
     ->condition('org_id', $sandbox['current_org_id'], '>')
@@ -440,6 +441,7 @@ function redhen_org_update_7005(&$sandbox) {
     ->execute();
 
   foreach ($orgs as $org) {
+    // Generate a machine name from the label.
     $name = preg_replace('/[^a-z0-9]+/', '_', strtolower(substr($org->label, 0, 32)));
 
     // Handle duplicate names by appending incremented integer.
