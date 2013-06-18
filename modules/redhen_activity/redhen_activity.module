@@ -396,10 +396,9 @@ function redhen_activity_message_save($entity, $type, $op) {
           '!op' => $op
         )
       ), $user);
-      $wrapper = entity_metadata_wrapper('message', $message);
       $ref_field_name = "message_{$type}";
-      $wrapper->$ref_field_name->set($entity);
-      $wrapper->save();
+      $message->{$ref_field_name}[LANGUAGE_NONE][0] = array('target_id' => $entity->internalIdentifier());
+      $message->save();
 
       break;
     case 'redhen_note':
@@ -418,10 +417,9 @@ function redhen_activity_message_save($entity, $type, $op) {
             '%type' => $note_name,
           )
         ), $user);
-        $wrapper = entity_metadata_wrapper('message', $message);
         $ref_field_name = "message_{$entity->entity_type}";
-        $wrapper->$ref_field_name->set($parent_entity);
-        $wrapper->save();
+        $message->{$ref_field_name}[LANGUAGE_NONE][0] = array('target_id' => $parent_entity->internalIdentifier());
+        $message->save();
       }
 
       break;
@@ -456,10 +454,9 @@ function redhen_activity_message_save($entity, $type, $op) {
                 '%type' => $relation_type->label
               )
             ), $user);
-            $wrapper = entity_metadata_wrapper('message', $message);
             $ref_field_name = "message_{$endpoint_entity->entityType()}";
-            $wrapper->$ref_field_name->set($endpoint_entity);
-            $wrapper->save();
+            $message->{$ref_field_name}[LANGUAGE_NONE][0] = array('target_id' => $endpoint_entity->internalIdentifier());
+            $message->save();
           }
         }
       }
@@ -492,10 +489,9 @@ function redhen_activity_message_save($entity, $type, $op) {
           '%entity_name' => $parent_entity->label()
         )
       ), $user);
-      $wrapper = entity_metadata_wrapper('message', $message);
       $ref_field_name = "message_{$parent_entity->entityType()}";
-      $wrapper->$ref_field_name->set($parent_entity);
-      $wrapper->save();
+      $message->{$ref_field_name}[LANGUAGE_NONE][0] = array('target_id' => $parent_entity->internalIdentifier());
+      $message->save();
 
       break;
 
@@ -525,7 +521,7 @@ function redhen_activity_activity_page($entity = NULL, $entity_type = NULL) {
       'field' => 'Type',
       'type' => 'property',
       'data' => t('Type'),
-      'specifier' => 'type'
+      'specifier' => 'type',
     ),
     'author' => array(
       'data' => t('Author'),
@@ -535,7 +531,7 @@ function redhen_activity_activity_page($entity = NULL, $entity_type = NULL) {
     ),
     'message' => array(
       'data' => t('Message'),
-    )
+    ),
   );
 
 
