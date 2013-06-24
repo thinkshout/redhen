@@ -430,39 +430,41 @@ function redhen_org_update_7004() {
  * Add machine name field and index to {redhen_org}.
  */
 function redhen_org_update_7005(&$sandbox) {
-  $fields = array(
-    'name' => array(
-      'description' => 'The machine-readable name of this org.',
-      'type' => 'varchar',
-      'length' => 32,
-      'default' => '',
-      'not null' => TRUE,
-    ),
-    'status' => array(
-      'type' => 'int',
-      'not null' => TRUE,
-      'default' => 0x01,
-      'size' => 'tiny',
-      'description' => 'The exportable status of the entity.',
-    ),
-    'module' => array(
-      'description' => 'The name of the providing module if the entity has been defined in code.',
-      'type' => 'varchar',
-      'length' => 255,
-      'not null' => FALSE,
-    ),
-  );
-
-  // Add new fields.
-  foreach ($fields as $name => $field) {
-    db_add_field('redhen_org', $name, $field);
-  }
-
-  // Add unique index for name.
-  db_add_index('redhen_org', 'name', array('name'));
-
-  // Set default machine names.
+  // First time here.
   if (!isset($sandbox['progress'])) {
+    // Add new fields and index.
+    $fields = array(
+      'name' => array(
+        'description' => 'The machine-readable name of this org.',
+        'type' => 'varchar',
+        'length' => 32,
+        'default' => '',
+        'not null' => TRUE,
+      ),
+      'status' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0x01,
+        'size' => 'tiny',
+        'description' => 'The exportable status of the entity.',
+      ),
+      'module' => array(
+        'description' => 'The name of the providing module if the entity has been defined in code.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => FALSE,
+      ),
+    );
+
+    // Add new fields.
+    foreach ($fields as $name => $field) {
+      db_add_field('redhen_org', $name, $field);
+    }
+
+    // Add unique index for name.
+    db_add_index('redhen_org', 'name', array('name'));
+
+    // Initialize sandbox variables for batch processing.
     $sandbox['progress'] = 0;
     $sandbox['current_org_id'] = 0;
     // We'll -1 to disregard the uid 0...
@@ -479,7 +481,7 @@ function redhen_org_update_7005(&$sandbox) {
 
   foreach ($orgs as $org) {
     // Generate a machine name from the label.
-    $name = preg_replace('/[^a-z0-9]+/', '_', strtolower(substr($org->label, 0, 32)));
+    $name = preg_replace('/[^a-z0-9]+/', '_', strtolower(substr($org->label, 0, 31)));
 
     // Handle duplicate names by appending incremented integer.
     $count = db_select('redhen_org')->condition('name', $name)->countQuery()->execute()->fetchField();
