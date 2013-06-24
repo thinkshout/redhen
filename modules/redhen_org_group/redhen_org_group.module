@@ -135,12 +135,9 @@ function redhen_org_group_ctools_plugin_directory($module, $plugin) {
 
 /**
  * Implements hook_redhen_org_type_delete().
- *
- * @param RedhenOrgType $redhen_org_type
- *   RedHen org type object.
  */
 function redhen_org_group_redhen_org_type_delete(RedhenOrgType $redhen_org_type) {
-  // delete redhen group field if not used by another org type
+  // Delete redhen group field if not used by another org type.
   if (isset($redhen_org_type->group_settings['content_types'])) {
     $org_types = redhen_org_get_types();
     foreach ($redhen_org_type->group_settings['content_types'] as $type) {
