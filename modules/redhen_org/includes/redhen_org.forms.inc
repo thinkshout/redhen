@@ -19,8 +19,7 @@ function redhen_org_add($type) {
  */
 function redhen_org_org_form($form, &$form_state, $org) {
   // Add the default field elements.
-  $form['name'] = array('#type' => 'container');
-  $form['name']['label'] = array(
+  $form['label'] = array(
     '#type' => 'textfield',
     '#title' => t('Name'),
     '#default_value' => $org->label,
@@ -28,6 +27,19 @@ function redhen_org_org_form($form, &$form_state, $org) {
     '#required' => TRUE,
     '#weight' => -6,
   );
+  // Machine-readable type name.
+  $form['name'] = array(
+    '#type' => 'machine_name',
+    '#default_value' => isset($org->name) ? $org->name : '',
+    '#maxlength' => 32,
+//    '#disabled' => $org->locked && $op != 'clone',
+    '#machine_name' => array(
+      'exists' => 'redhen_org_load',
+      'source' => array('label'),
+    ),
+    '#description' => t('A unique machine-readable name for this redhen organization. It must only contain lowercase letters, numbers, and underscores.'),
+  );
+
 
   // Add the field related form elements.
   $form_state['redhen_org'] = $org;
@@ -69,6 +81,7 @@ function redhen_org_org_form_submit($form, &$form_state) {
 
   // Save default parameters back into the $org object.
   $org->label = $form_state['values']['label'];
+  $org->name = $form_state['values']['name'];
 
   // Notify field widgets.
   field_attach_submit('redhen_org', $org, $form, $form_state);
@@ -77,7 +90,7 @@ function redhen_org_org_form_submit($form, &$form_state) {
   $org->save();
 
   drupal_set_message(t('Organization %label saved.', array('%label' => $org->label)));
-  $form_state['redirect'] = 'redhen/org/' . $org->org_id;
+  $form_state['redirect'] = 'redhen/org/' . $org->identifier();
 }
 
 /**

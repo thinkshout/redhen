@@ -22,11 +22,13 @@ function redhen_org_entity_info() {
       'base table' => 'redhen_org',
       'revision table' => 'redhen_org_revision',
       'fieldable' => TRUE,
+      'exportable' => TRUE,
       'entity keys' => array(
         'id' => 'org_id',
         'revision' => 'revision_id',
         'bundle' => 'type',
         'label' => 'label',
+        'name' => 'name',
       ),
       'bundle keys' => array(
         'bundle' => 'name',
@@ -295,7 +297,7 @@ function redhen_org_load_multiple($org_ids = array(), $conditions = array(), $re
     return array();
   }
 
-  return entity_load('redhen_org', $org_ids, $conditions, $reset);
+  return entity_load_multiple_by_name('redhen_org', $org_ids, $conditions, $reset);
 }
 
 /**

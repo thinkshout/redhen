@@ -25,6 +25,12 @@ function redhen_org_schema() {
         'not null' => TRUE,
         'default' => 0,
       ),
+      'name' => array(
+        'description' => 'The machine-readable name of this org.',
+        'type' => 'varchar',
+        'length' => 32,
+        'not null' => TRUE,
+      ),
       'type' => array(
         'description' => 'The {redhen_org_type}.type of this redhen_org.',
         'type' => 'varchar',
@@ -69,6 +75,22 @@ function redhen_org_schema() {
         'not null' => TRUE,
         'default' => 0,
       ),
+      'status' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+        // Set the default to ENTITY_CUSTOM without using the constant as it is
+        // not safe to use it at this point.
+        'default' => 0x01,
+        'size' => 'tiny',
+        'description' => 'The exportable status of the entity.',
+      ),
+      'module' => array(
+        'description' => 'The name of the providing module if the entity has been defined in code.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => FALSE,
+      ),
+
     ),
     'indexes' => array(
       'redhen_org_updated' => array('updated'),
@@ -81,6 +103,7 @@ function redhen_org_schema() {
     ),
     'unique keys' => array(
       'org_id' => array('org_id'),
+      'name' => array('name'),
     ),
     'foreign keys' => array(
       'redhen_org_revision' => array(
@@ -401,4 +424,83 @@ function redhen_org_update_7004() {
   db_add_index('redhen_org_revision', 'revision_redhen_org', array('org_id'));
   db_add_index('redhen_org_revision', 'redhen_org_revision_author', array('author_uid'));
   db_add_index('redhen_org_revision', 'redhen_org_revision_primary_contact_id', array('primary_contact_id'));
+}
+
+/**
+ * Add machine name field and index to {redhen_org}.
+ */
+function redhen_org_update_7005(&$sandbox) {
+  // First time here.
+  if (!isset($sandbox['progress'])) {
+    // Add new fields and index.
+    $fields = array(
+      'name' => array(
+        'description' => 'The machine-readable name of this org.',
+        'type' => 'varchar',
+        'length' => 32,
+        'default' => '',
+        'not null' => TRUE,
+      ),
+      'status' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0x01,
+        'size' => 'tiny',
+        'description' => 'The exportable status of the entity.',
+      ),
+      'module' => array(
+        'description' => 'The name of the providing module if the entity has been defined in code.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => FALSE,
+      ),
+    );
+
+    // Add new fields.
+    foreach ($fields as $name => $field) {
+      db_add_field('redhen_org', $name, $field);
+    }
+
+    // Add unique index for name.
+    db_add_index('redhen_org', 'name', array('name'));
+
+    // Initialize sandbox variables for batch processing.
+    $sandbox['progress'] = 0;
+    $sandbox['current_org_id'] = 0;
+    // We'll -1 to disregard the uid 0...
+    $sandbox['max'] = db_query('SELECT COUNT(DISTINCT org_id) FROM {redhen_org}')->fetchField() - 1;
+  }
+
+  // Grab the next 50 orgs to process.
+  $orgs = db_select('redhen_org', 'org')
+    ->fields('org', array('org_id', 'label'))
+    ->condition('org_id', $sandbox['current_org_id'], '>')
+    ->range(0, 50)
+    ->orderBy('org_id', 'ASC')
+    ->execute();
+
+  foreach ($orgs as $org) {
+    // Generate a machine name from the label.
+    $name = preg_replace('/[^a-z0-9]+/', '_', strtolower(substr($org->label, 0, 31)));
+
+    // Handle duplicate names by appending incremented integer.
+    $count = db_select('redhen_org')->condition('name', $name)->countQuery()->execute()->fetchField();
+    $increment = 1;
+    $mod_name = $name;
+    while ($count > 0) {
+      $mod_name = $name . $increment;
+      $count = db_select('redhen_org')->condition('name', $mod_name)->countQuery()->execute()->fetchField();
+      $increment++;
+    }
+    db_update('redhen_org')->fields(array('name' => $mod_name))->condition('org_id', $org->org_id)->execute();
+
+    $sandbox['progress']++;
+    $sandbox['current_org_id'] = $org->org_id;
+  }
+
+  $sandbox['#finished'] = empty($sandbox['max']) ? 1 : ($sandbox['progress'] / $sandbox['max']);
+
+  return t('RedHen organizations have been updated with a default machine name.');
+
+  throw new DrupalUpdateException('RedHen organizations update 7005 failed to add a machine name to {redhen_org}.');
 }
