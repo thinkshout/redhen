@@ -9,6 +9,7 @@
  */
 class RedhenContact extends Entity {
 
+  // @codingStandardsIgnoreStart
   public
     $first_name = '',
     $middle_name = '',
@@ -20,6 +21,7 @@ class RedhenContact extends Entity {
     $type = '',
     $created = '',
     $updated = '';
+  // @codingStandardsIgnoreEnd
 
   /**
    * Override parent constructor with entity type.
@@ -228,7 +230,7 @@ class RedhenContact extends Entity {
 
       // If we have a linked user and primary email, but they don't match, set
       // the user email.
-      if ($user && ($email !== $user->mail)) {
+      if ($user && !empty($email) && ($email !== $user->mail)) {
         user_save($user, array('mail' => $email));
       }
     }

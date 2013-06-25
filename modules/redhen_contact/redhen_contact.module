@@ -591,19 +591,42 @@ function theme_redhen_contact_list($variables) {
  */
 function redhen_contact_redhen_settings() {
   return array(
-    'redhen_contact_connect_users' => array(
-      '#type' => 'checkbox',
-      '#title' => t('Connect users to Redhen contacts'),
-      '#description' => t('If checked, Redhen will attempt to connect Drupal users to Redhen contacts by matching email addresses when a contact is updated.'),
-      '#default_value' => variable_get('redhen_contact_connect_users', FALSE),
-    ),
-    'redhen_contact_mirror_email' => array(
-      '#type' => 'checkbox',
-      '#title' => t('Mirror RedHen Contact email to Drupal user'),
-      '#description' => t('If checked, RedHen will mirror the primary email of a RedHen Contact with the email of the linked user account. The email field on the Drupal user form will also be disabled.'),
-      '#default_value' => variable_get('redhen_contact_mirror_email', FALSE),
+    'redhen_contact_email' => array(
+      '#type' => 'fieldset',
+      '#title' => t('Email settings'),
+      '#weight' => 0,
+      'settings' => array(
+        'redhen_contact_require_email' => array(
+          '#type' => 'checkbox',
+          '#title' => t('Require contacts to have a valid email address'),
+          '#description' => t('Controls the contact form validation. Must be true to enable Drupal user connections keyed on email and contact email mirroring.'),
+          '#default_value' => redhen_contact_email_required(),
+        ),
+        'redhen_contact_connect_users' => array(
+          '#type' => 'checkbox',
+          '#title' => t('Connect users to Redhen contacts'),
+          '#description' => t('If checked, Redhen will attempt to connect Drupal users to Redhen contacts by matching email addresses when a contact is updated.'),
+          '#default_value' => variable_get('redhen_contact_connect_users', FALSE),
+        ),
+        'redhen_contact_mirror_email' => array(
+          '#type' => 'checkbox',
+          '#title' => t('Mirror RedHen Contact email to Drupal user'),
+          '#description' => t('If checked, RedHen will mirror the primary email of a RedHen Contact with the email of the linked user account. The email field on the Drupal user form will also be disabled.'),
+          '#default_value' => variable_get('redhen_contact_mirror_email', FALSE),
+        ),
+      ),
     ),
   );
+}
+
+/**
+ * Setting which determines if contact are required to have an email address.
+ *
+ * @return bool
+ *   True if required, else false.
+ */
+function redhen_contact_email_required() {
+  return variable_get('redhen_contact_require_email', TRUE);
 }
 
 /**

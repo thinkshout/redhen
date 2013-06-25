@@ -305,29 +305,30 @@ function redhen_fields_field_validate($entity_type, $entity, $field, $instance, 
         }
       }
 
-      // At least one email is required.
-      if (empty($emails)) {
+      // Email is required and one has not been provided.
+      if (redhen_contact_email_required() && empty($emails)) {
         $errors[$field['field_name']][$langcode][0][] = array(
           'error' => 'redhen_fields_invalid_email',
           'message' => t('At least one email is required.'),
           'delta' => 0,
         );
       }
-      else {
-        // Check for duplicates for same contact record.
-        if (count(array_unique($emails)) < count($emails)) {
-          $errors[$field['field_name']][$langcode][0][] = array(
-            'error' => 'redhen_fields_invalid_email',
-            'message' => t('%name: Is already in use by this contact.', array('%name' => t($instance['label']))),
-            'delta' => 0,
-          );
-        }
 
+      if (!empty($emails)) {
         // Ensure at least one email is marked as primary.
         if (!$default) {
           $errors[$field['field_name']][$langcode][0][] = array(
             'error' => 'redhen_fields_invalid_email',
             'message' => t('One email must be marked as primary.'),
+            'delta' => 0,
+          );
+        }
+
+        // Check for duplicates for same contact record.
+        if (count(array_unique($emails)) < count($emails)) {
+          $errors[$field['field_name']][$langcode][0][] = array(
+            'error' => 'redhen_fields_invalid_email',
+            'message' => t('A contact cannot have a duplicate %name.', array('%name' => t($instance['label']))),
             'delta' => 0,
           );
         }
