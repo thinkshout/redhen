@@ -616,6 +616,12 @@ function redhen_contact_redhen_settings() {
         ),
       ),
     ),
+    REDHEN_CONTACT_ALTER_USERNAME => array(
+      '#type' => 'checkbox',
+      '#title' => t('Display username as contact label'),
+      '#description' => t("If checked, RedHen will alter the display of the Drupal username to match a linked contact's label."),
+      '#default_value' => variable_get(REDHEN_CONTACT_ALTER_USERNAME, FALSE),
+    ),
   );
 }
 
@@ -739,10 +745,12 @@ function redhen_contact_load_by_mail($mail, $state = REDHEN_STATE_ACTIVE) {
  * Implements hook_username_alter().
  */
 function redhen_contact_username_alter(&$name, $account) {
-  $contact = redhen_contact_load_by_user($account);
-  // Display the contact label if the user is linked to a contact.
-  if ($contact) {
-    $name = t('@name', array('@name' => $contact->label()));
+  if (variable_get(REDHEN_CONTACT_ALTER_USERNAME, FALSE)) {
+    $contact = redhen_contact_load_by_user($account);
+    // Display the contact label if the user is linked to a contact.
+    if ($contact) {
+      $name = $contact->label();
+    }
   }
 }
 
