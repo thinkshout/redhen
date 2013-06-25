@@ -6,6 +6,14 @@
  */
 
 /**
+ * Define variable names for RedHen contact settings.
+ */
+define('REDHEN_CONTACT_ALTER_USERNAME', 'redhen_contact_alter_username');
+define('REDHEN_CONTACT_CONNECT_USERS', 'redhen_contact_connect_users');
+define('REDHEN_CONTACT_MIRROR_EMAIL', 'redhen_contact_mirror_email');
+define('REDHEN_CONTACT_REQUIRE_EMAIL', 'redhen_contact_require_email');
+
+/**
  * Implements hook_entity_info().
  */
 function redhen_contact_entity_info() {
@@ -596,23 +604,23 @@ function redhen_contact_redhen_settings() {
       '#title' => t('Email settings'),
       '#weight' => 0,
       'settings' => array(
-        'redhen_contact_require_email' => array(
+        REDHEN_CONTACT_REQUIRE_EMAIL => array(
           '#type' => 'checkbox',
           '#title' => t('Require contacts to have a valid email address'),
           '#description' => t('Controls the contact form validation. Must be true to enable Drupal user connections keyed on email and contact email mirroring.'),
           '#default_value' => redhen_contact_email_required(),
         ),
-        'redhen_contact_connect_users' => array(
+        REDHEN_CONTACT_CONNECT_USERS => array(
           '#type' => 'checkbox',
           '#title' => t('Connect users to Redhen contacts'),
           '#description' => t('If checked, Redhen will attempt to connect Drupal users to Redhen contacts by matching email addresses when a contact is updated.'),
-          '#default_value' => variable_get('redhen_contact_connect_users', FALSE),
+          '#default_value' => variable_get(REDHEN_CONTACT_CONNECT_USERS, FALSE),
         ),
-        'redhen_contact_mirror_email' => array(
+        REDHEN_CONTACT_MIRROR_EMAIL => array(
           '#type' => 'checkbox',
           '#title' => t('Mirror RedHen Contact email to Drupal user'),
           '#description' => t('If checked, RedHen will mirror the primary email of a RedHen Contact with the email of the linked user account. The email field on the Drupal user form will also be disabled.'),
-          '#default_value' => variable_get('redhen_contact_mirror_email', FALSE),
+          '#default_value' => variable_get(REDHEN_CONTACT_MIRROR_EMAIL, FALSE),
         ),
       ),
     ),
@@ -632,7 +640,7 @@ function redhen_contact_redhen_settings() {
  *   True if required, else false.
  */
 function redhen_contact_email_required() {
-  return variable_get('redhen_contact_require_email', TRUE);
+  return variable_get(REDHEN_CONTACT_REQUIRE_EMAIL, TRUE);
 }
 
 /**
