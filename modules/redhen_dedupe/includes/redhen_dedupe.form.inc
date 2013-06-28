@@ -62,12 +62,22 @@ function redhen_dedupe_merge_form($form, &$form_state, $entity_ids) {
     '#title' => t('Preview'),
   );
 
+  // Initialize our field option selectors:
+  foreach ($field_table as $name => $data) {
+    $form[$name] = array(
+      '#type' => 'radios',
+      '#title' => $data[0],
+      '#options' => array(),
+    );
+  }
   // We build an array of views so we can pull out rendered values into our
   // selection table:
-  $views = entity_view('redhen_contact', $entities);
-  foreach ($views['redhen_contact'] as $ent_id => $entity_view) {
+  foreach ($entities as $ent_id => $entity) {
+    $views_array = redhen_contact_view($entity);
+    $entity_view = $views_array['redhen_contact'][$ent_id];
     foreach ($field_table as $name => &$row) {
       $row[] = render($entity_view[$name]);
+      $form[$name]['#options'][$ent_id] = render($entity_view[$name]);
     }
     $form['contact_previews'][$ent_id] = array(
       '#type' => 'container',
@@ -116,4 +126,26 @@ function redhen_dedupe_merge_form_submit($form, &$form_state) {
 
 function redhen_dedupe_merge_details_form($form, &$form_state) {
   
+}
+
+/**
+ * Returns the rendered tabledrag form for the entity overview listing.
+ *
+ * @ingroup themeable
+ */
+function theme_redhen_dedupe_fieldselect_form($variables) {
+  $form = $variables['form'];
+  $rows = array();
+  foreach (element_children($form) as $key) {
+    $row = $form[$key]['#row'];
+    $rows[$key] = array('data' => $row);
+  }
+  $render = array(
+    '#theme' => 'table',
+    '#header' => $form['#header'],
+    '#rows' => $rows,
+    '#empty' => t('No Fields.'),
+    '#attributes' => array('id' => 'entity-ui-overview-form'),
+  );
+  return drupal_render($render);
 }
