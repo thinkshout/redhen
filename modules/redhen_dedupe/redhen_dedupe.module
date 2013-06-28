@@ -92,8 +92,8 @@ function redhen_dedupe_get_duplicates() {
  * @param array $values
  *   Values to update the master contact with.
  * @param array $related_entities
- *   Specially structured array of related entities to update.
- * 
+ *   Array of entity types to update to the master contact.
+ *
  * @return boolean
  */
 function redhen_dedupe_merge($master, $contacts, $values, $related_entities) {
@@ -104,17 +104,39 @@ function redhen_dedupe_merge($master, $contacts, $values, $related_entities) {
   try {
     // Iterate through all contacts and update or delete related entities.
     foreach ($contacts as $contact) {
+      $contact_id = $contact->internalIdentifier();
       // Don't act on the master contact.
-      if ($contact->internalIdentifier() == $master_id) {
+      if ($contact_id == $master_id) {
         continue;
       }
 
-      // @TODO Update related entities:
-      // notes
-      // engagement
-      // membership
-      // relation
-      // entity reference?
+      // Update related entities:
+      foreach ($related_entities as $entity_type) {
+        switch ($entity_type) {
+          case 'redhen_note':
+          case 'redhen_engagement':
+          case 'redhen_membership':
+            $query = new EntityFieldQuery();
+            $query->entityCondition('entity_type', $entity_type);
+            $query->propertyCondition('entity_type', 'redhen_contact');
+            $query->propertyCondition('entity_id', $contact_id);
+            $result = $query->execute();
+            $rel_entities = entity_load($entity_type, array_keys($result[$entity_type]));
+            foreach ($rel_entities as $rel_entity) {
+              $rel_entity->entity_id = $master_id;
+              entity_save($entity_type, $rel_entity);
+            }
+            break;
+
+          case 'relation':
+
+            break;
+
+          // @TODO entity_reference
+        }
+
+      }
+
 
       // @TODO Delete or archive the contact based on submitted value.
     }
