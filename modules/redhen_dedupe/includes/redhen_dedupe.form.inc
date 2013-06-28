@@ -40,7 +40,7 @@ function redhen_dedupe_merge_form($form, &$form_state, $entity_ids) {
     '#options' => $options,
     '#description' => t('Choose a contact to merge the other contacts into.'),
   );
-  $form['entities'] = array('#type' => 'hidden', '#value' => $entity_ids);
+  $form['entities'] = array('#type' => 'hidden', '#value' => $entities);
   $form['contact_previews'] = array(
     '#type' => 'fieldset',
     '#title' => t('Preview'),
@@ -77,9 +77,16 @@ function redhen_dedupe_merge_form($form, &$form_state, $entity_ids) {
   return $form;
 }
 
-
+/**
+ * Submit handler for dedupe merge form.
+ */
 function redhen_dedupe_merge_form_submit($form, &$form_state) {
-  // redhen/dedupe/merge/' . $result->ids),
+  $master_id = $form_state['values']['master'];
+  $master = redhen_contact_load($master_id);
+  $merge_status = redhen_dedupe_merge($master, $form_state['values']['entities'], $form_state['values']['values'], $form_state['values']['related_entities']);
+  if ($merge_status) {
+    drupal_set_message('Contacts merged.');
+  }
 }
 
 

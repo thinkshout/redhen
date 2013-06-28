@@ -81,3 +81,55 @@ function redhen_dedupe_get_duplicates() {
 
   return $query->execute()->fetchAll();
 }
+
+/**
+ * Merge values from contacts into master contact and handle related entities.
+ *
+ * @param $master
+ *   The master RedHen Contact.
+ * @param array $contacts
+ *   The contacts being merged into the master.
+ * @param array $values
+ *   Values to update the master contact with.
+ * @param array $related_entities
+ *   Specially structured array of related entities to update.
+ * 
+ * @return boolean
+ */
+function redhen_dedupe_merge($master, $contacts, $values, $related_entities) {
+  $master_wrapper = entity_metadata_wrapper('redhen_contact', $master);
+  $master_id = $master_wrapper->internalIdentifier();
+
+  $transaction = db_transaction();
+  try {
+    // Iterate through all contacts and update or delete related entities.
+    foreach ($contacts as $contact) {
+      // Don't act on the master contact.
+      if ($contact->internalIdentifier() == $master_id) {
+        continue;
+      }
+
+      // @TODO Update related entities:
+      // notes
+      // engagement
+      // membership
+      // relation
+      // entity reference?
+
+      // @TODO Delete or archive the contact based on submitted value.
+    }
+
+    // Set the new values on the master contact
+    foreach ($values as $id => $value) {
+      $master_wrapper->{$id}->set($value);
+    }
+
+    $master_wrapper->save();
+
+    return TRUE;
+  }
+  catch (Exception $e) {
+    $transaction->rollback();
+    watchdog_exception('redhen_dedupe', $e);
+  }
+}
