@@ -9,47 +9,65 @@
  * Form to select dedupe options.
  */
 function redhen_dedupe_merge_form($form, &$form_state, $entity_ids) {
-  // parse contact ids
-  // load contact entities
+  // Load the entities we want to merge:
   $entity_ids = explode(',', $entity_ids);
-  $entities = entity_load('redhen_contact', $entity_ids);
+  $entities = redhen_contact_load_multiple($entity_ids);
+
+  // Create entity metadata wrappers for all entities. We'll need these.
   $wrappers = array();
   foreach ($entities as $ent_id => $entity) {
     $wrappers[$ent_id] = entity_metadata_wrapper('redhen_contact', $entity);
   }
-  $table_rows = array();
+
+  // Initialize our table of fields for the table of value selectors:
+  $field_table = array();
   $fields = field_info_instances('redhen_contact');
+
+  // Initialize our table header:
   $table_header = array('Field Name');
-  $options = array();
+  $master_options = array();
+
+  // We tally every bundle used by any of the entities so we know what fields
+  // to look at later:
   $bundles_used = array();
+
+  // Loop through the entities to build out our table headers and master
+  // entity options:
   foreach ($wrappers as $ent_id => $wrapper) {
     $updated = format_date($wrapper->updated->value(), 'short');
-    $options[$ent_id] = $wrapper->full_name->value() . ' (Updated: ' . $updated . ')';
-    $table_header[] = $wrapper->full_name->value() . ' (Updated: ' . $updated . ')';
-    $bundles_used[] = $wrapper->getBundle();
+    $table_header[] = $master_options[$ent_id] = t('@name (Updated: !date)', array('!date' => $updated, '@name' => $wrapper->label()));
+    $bundles_used[$wrapper->getBundle()] = $wrapper->getBundle();
   }
+
+  // Use the list of bundles to build a list of fields to merge:
   foreach ($bundles_used as $bundle) {
     foreach ($fields[$bundle] as $fieldname => $field) {
-      $table_rows[$fieldname] = array($field['label']);
+      $field_table[$fieldname] = array($field['label']);
     }
   }
+
+  // Pass along the entity ID options to the form handler:
+  $form['entities'] = array('#type' => 'hidden', '#value' => $entity_ids);
+
+  // Form field to select a merge master entity.
   $form['master'] = array(
     '#type' => 'radios',
     '#title' => t('Master Contact'),
     '#default_value' => 0,
-    '#options' => $options,
+    '#options' => $master_options,
     '#description' => t('Choose a contact to merge the other contacts into.'),
   );
-  $form['entities'] = array('#type' => 'hidden', '#value' => $entity_ids);
   $form['contact_previews'] = array(
     '#type' => 'fieldset',
     '#title' => t('Preview'),
   );
+
+  // We build an array of views so we can pull out rendered values into our
+  // selection table:
   $views = entity_view('redhen_contact', $entities);
   foreach ($views['redhen_contact'] as $ent_id => $entity_view) {
-    foreach ($table_rows as $name => &$row) {
-      $value = render($entity_view[$name]);
-      $row[] = $value;
+    foreach ($field_table as $name => &$row) {
+      $row[] = render($entity_view[$name]);
     }
     $form['contact_previews'][$ent_id] = array(
       '#type' => 'container',
@@ -66,7 +84,20 @@ function redhen_dedupe_merge_form($form, &$form_state, $entity_ids) {
   $form['field_selectors'] = array(
     '#theme' => 'table',
     '#header' => $table_header,
-    '#rows' => $table_rows,
+    '#rows' => $field_table,
+  );
+
+  $form['dead_contact_fate'] = array(
+    '#type' => 'radios',
+    '#title' => t('What do you want to do with the old records?'),
+    '#default_value' => 1,
+    '#options' => array(0 => t('Delete'), 1 => t('Archive')),
+  );
+  $form['related_entity_action'] = array(
+    '#type' => 'radios',
+    '#title' => t('What do you want to do with notes and other items attached to the old records?'),
+    '#default_value' => 1,
+    '#options' => array(0 => t('Delete'), 1 => t('Move to new Master')),
   );
 
   $form['submit'] = array(
