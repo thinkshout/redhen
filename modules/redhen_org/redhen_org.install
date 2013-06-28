@@ -480,19 +480,8 @@ function redhen_org_update_7005(&$sandbox) {
     ->execute();
 
   foreach ($orgs as $org) {
-    // Generate a machine name from the label.
-    $name = preg_replace('/[^a-z0-9]+/', '_', strtolower(substr($org->label, 0, 31)));
-
-    // Handle duplicate names by appending incremented integer.
-    $count = db_select('redhen_org')->condition('name', $name)->countQuery()->execute()->fetchField();
-    $increment = 1;
-    $mod_name = $name;
-    while ($count > 0) {
-      $mod_name = $name . $increment;
-      $count = db_select('redhen_org')->condition('name', $mod_name)->countQuery()->execute()->fetchField();
-      $increment++;
-    }
-    db_update('redhen_org')->fields(array('name' => $mod_name))->condition('org_id', $org->org_id)->execute();
+    $machine_name = redhen_org_machine_name($org->label);
+    db_update('redhen_org')->fields(array('name' => $machine_name))->condition('org_id', $org->org_id)->execute();
 
     $sandbox['progress']++;
     $sandbox['current_org_id'] = $org->org_id;
