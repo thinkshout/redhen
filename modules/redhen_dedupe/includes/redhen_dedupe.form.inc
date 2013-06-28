@@ -47,7 +47,7 @@ function redhen_dedupe_merge_form($form, &$form_state, $entity_ids) {
   }
 
   // Pass along the entity ID options to the form handler:
-  $form['entities'] = array('#type' => 'hidden', '#value' => $entity_ids);
+  $form_state['entities'] = $entities;
 
   // Form field to select a merge master entity.
   $form['master'] = array(
@@ -78,7 +78,7 @@ function redhen_dedupe_merge_form($form, &$form_state, $entity_ids) {
     $entity_view = $views_array['redhen_contact'][$ent_id];
     foreach ($field_table as $name => &$row) {
       $row[] = render($entity_view[$name]);
-      $form[$name]['#options'][$ent_id] = render($entity_view[$name]);
+      $form[$name]['#options'][serialize($entity->{$name})] = render($entity_view[$name]);
     }
     $form['contact_previews'][$ent_id] = array(
       '#type' => 'container',
@@ -125,7 +125,7 @@ function redhen_dedupe_merge_form($form, &$form_state, $entity_ids) {
 function redhen_dedupe_merge_form_submit($form, &$form_state) {
   $master_id = $form_state['values']['master'];
   $master = redhen_contact_load($master_id);
-  $merge_status = redhen_dedupe_merge($master, $form_state['values']['entities'], $form_state['values']['values'], $form_state['values']['related_entities']);
+  $merge_status = redhen_dedupe_merge($master, $form_state['entities'], $form_state['values']['values'], $form_state['values']['related_entities']);
   if ($merge_status) {
     drupal_set_message('Contacts merged.');
   }
