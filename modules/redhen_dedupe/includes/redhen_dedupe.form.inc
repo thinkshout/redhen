@@ -104,11 +104,11 @@ function redhen_dedupe_merge_form($form, &$form_state, $entity_ids) {
     '#default_value' => 1,
     '#options' => array(0 => t('Delete'), 1 => t('Archive')),
   );
+  // @todo: break down by type
   $form['related_entity_action'] = array(
-    '#type' => 'radios',
-    '#title' => t('What do you want to do with notes and other items attached to the old records?'),
+    '#type' => 'checkbox',
+    '#title' => t('Move items attached to old records to Master record.'),
     '#default_value' => 1,
-    '#options' => array(0 => t('Delete'), 1 => t('Move to new Master')),
   );
 
   $form['submit'] = array(
@@ -137,7 +137,7 @@ function redhen_dedupe_merge_details_form($form, &$form_state) {
 }
 
 /**
- * Returns the rendered tabledrag form for the entity overview listing.
+ * Returns the rendered table form for the field option selections.
  *
  * @ingroup themeable
  */
