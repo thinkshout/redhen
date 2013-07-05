@@ -125,7 +125,7 @@ function redhen_dedupe_merge_form($form, &$form_state, $entity_ids) {
 function redhen_dedupe_merge_form_submit($form, &$form_state) {
   $master_id = $form_state['values']['master'];
   $master = redhen_contact_load($master_id);
-  $merge_status = redhen_dedupe_merge($master, $form_state['entities'], $form_state['values']['values'], $form_state['values']['related_entities']);
+  $merge_status = redhen_dedupe_merge($master, $form_state['entities'], $form_state['values']['values'], $form_state['values']['related_entities'], $form_state['values']['dead_contact_fate']);
   if ($merge_status) {
     drupal_set_message('Contacts merged.');
   }
