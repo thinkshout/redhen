@@ -194,10 +194,27 @@ function redhen_dedupe_merge($master, $contacts, $values, $related_entities, $ar
             break;
 
           case 'relation':
+            // Look for relations with one end point including the dupe contact.
+            $query = relation_query('redhen_contact', $contact_id);
+            $results = $query->execute();
 
+            if ($results) {
+              $relations = relation_load_multiple(array_keys($results));
+              foreach ($relations as $relation) {
+                $rel_wrapper = entity_metadata_wrapper('relation', $relation);
+                foreach ($rel_wrapper->endpoints as &$endpoint) {
+                  // Iterate through endpoints and replace the endpoint that matches with the master contact.
+                  if ($endpoint->entity_type->value() == 'redhen_contact' && $endpoint->entity_id->value() == $contact_id) {
+                    $endpoint->set($master_wrapper);
+                  }
+                }
+                $rel_wrapper->save();
+              }
+            }
             break;
 
           // @TODO entity_reference
+          // case 'entity_reference'
         }
 
       }
