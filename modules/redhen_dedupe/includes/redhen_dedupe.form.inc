@@ -104,12 +104,28 @@ function redhen_dedupe_merge_form($form, &$form_state, $entity_ids) {
     '#default_value' => 1,
     '#options' => array(0 => t('Delete'), 1 => t('Archive')),
   );
-  // @todo: break down by type
-  $form['related_entity_action'] = array(
-    '#type' => 'checkbox',
-    '#title' => t('Move items attached to old records to Master record.'),
-    '#default_value' => 1,
-  );
+
+  $related_types = array();
+  if (module_exists('redhen_note')) {
+    $related_types['redhen_note'] = t('Notes');
+  }
+  if (module_exists('redhen_engagement')) {
+    $related_types['redhen_engagement'] = t('Engagement Scores');
+  }
+  if (module_exists('redhen_membership')) {
+    $related_types['redhen_membership'] = t('Memberships');
+  }
+  if (module_exists('redhen_relation')) {
+    $related_types['relation'] = t('Relationships/Affiliations');
+  }
+  if (count($related_types) > 0) {
+    $form['related_entities'] = array(
+      '#type' => 'checkboxes',
+      '#title' => t('Move items attached to old records to Master record:'),
+      '#options' => $related_types,
+      '#default_value' => array_keys($related_types),
+    );
+  }
 
   $form['submit'] = array(
     '#type' => 'submit',
