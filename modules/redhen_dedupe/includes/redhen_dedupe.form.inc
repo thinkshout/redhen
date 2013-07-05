@@ -131,11 +131,6 @@ function redhen_dedupe_merge_form_submit($form, &$form_state) {
   }
 }
 
-
-function redhen_dedupe_merge_details_form($form, &$form_state) {
-  
-}
-
 /**
  * Returns the rendered table form for the field option selections.
  *
