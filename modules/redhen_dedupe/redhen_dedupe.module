@@ -7,14 +7,14 @@ function redhen_dedupe_menu() {
   $items['redhen/dedupe'] = array(
     'title' => 'Find duplicate contacts',
     'page callback' => 'redhen_dedupe_list_page',
-    'access arguments' => array('access content'),
+    'access arguments' => array('administer redhen contacts'),
     'type' => MENU_NORMAL_ITEM,
   );
   $items['redhen/dedupe/merge/%'] = array(
     'title' => 'Select a primary contact',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('redhen_dedupe_merge_form', 3),
-    'access arguments' => array('access content'),
+    'access arguments' => array('administer redhen contacts'),
     'file' => 'includes/redhen_dedupe.form.inc',
     'type' => MENU_NORMAL_ITEM,
   );
@@ -22,7 +22,7 @@ function redhen_dedupe_menu() {
     'title' => 'Select a primary contact',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('redhen_dedupe_merge_details_form', 3, 4),
-    'access arguments' => array('access content'),
+    'access arguments' => array('administer redhen contacts'),
     'file' => 'includes/redhen_dedupe.form.inc',
     'type' => MENU_NORMAL_ITEM,
   );
