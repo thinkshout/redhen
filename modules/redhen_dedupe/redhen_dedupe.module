@@ -243,3 +243,15 @@ function redhen_dedupe_merge($master, $contacts, $values, $related_entities, $ar
     watchdog_exception('redhen_dedupe', $e);
   }
 }
+
+/**
+ * Implements hook_theme().
+ */
+function redhen_dedupe_theme($existing, $type, $theme, $path) {
+  return array(
+    'redhen_dedupe_form_table' => array(
+      'render element' => 'elements',
+      'file' => 'includes/redhen_dedupe.form.inc',
+    ),
+  );
+}
