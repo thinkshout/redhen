@@ -36,31 +36,92 @@ function redhen_dedupe_menu() {
  *   Render array for a table of duplicates.
  */
 function redhen_dedupe_list_page() {
-  $results = redhen_dedupe_get_duplicates();
+  $results = FALSE;
+  $contacts = array();
+  $properties = array('first_name', 'last_name');
+  if (!isset($_POST['form_id'])) {
+    if (isset($_GET['properties'])) {
+      $properties = $_GET['properties'];
+    }
+    if (!empty($properties)) {
+      $results = redhen_dedupe_get_duplicates($properties);
+    }
+  }
+
   if (!empty($results)) {
+    $message = t('The following sets of duplicate contacts have been found. Select the corresponding merge action to merge contact records.');
+    $info = entity_get_property_info('redhen_contact');
+
     $rows = array();
-    foreach ($results as $result) {
-      $rows[] = array(
-        $result->first_name,
-        $result->last_name,
-        $result->count,
-        l(t('merge'), 'redhen/dedupe/merge/' . $result->ids),
-      );
+
+    // Build our header array from the selected properties.
+    $header = array(t('Count'), '');
+    foreach ($properties as $property) {
+      array_unshift($header, $info['properties']{$property}['label']);
     }
 
-    return theme('table', array(
-      'header' => array(
-        t('First name'),
-        t('Las name'),
-        t('Count'),
-        '',
-      ),
-      'rows' => $rows,
-    ));
+    // Display each result basing our row on the selected properties.
+    foreach ($results as $result) {
+      $col = array();
+      foreach ($properties as $property) {
+        $col[] = $result->{$property};
+      }
+      $col[] = $result->count;
+      $col[] = l(t('merge'), 'redhen/dedupe/merge/' . $result->ids);
+
+      $rows[] = $col;
+    }
+
+    $contacts = array(
+      '#theme' => 'table',
+      '#header' => $header,
+      '#rows' => $rows,
+    );
   }
   else {
-    return t('There are no duplicate contacts, congratulations!');
+    $message = t('There are no duplicate contacts based on the selected properties. Expand your search or relax, you have no duplicates!');
   }
+
+  return array(
+    'form' => drupal_get_form('redhen_dedupe_filter_form', $properties),
+    'message' => array('#markup' => $message),
+    'contacts' => $contacts,
+  );
+}
+
+/**
+ * Dedupe filter form.
+ */
+function redhen_dedupe_filter_form($form, &$form_state, $properties) {
+  $info = entity_get_property_info('redhen_contact');
+  foreach ($info['properties'] as $name => $property) {
+    if (isset($property['schema field']) && !in_array($name, array('contact_id', 'revision_id'))) {
+      $options[$name] = $property['label'];
+    }
+  }
+
+  $form['properties'] = array(
+    '#title' => t('Contact properties'),
+    '#type' => 'checkboxes',
+    '#options' => $options,
+    '#default_value' => $properties,
+    '#required' => TRUE,
+    '#description' => t('Selected properties will be used to query duplicates. E.g., selecting first and last name will look for contacts with the same first and last names.'),
+  );
+  $form['submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Submit'),
+  );
+
+  return $form;
+}
+
+/**
+ * Submit handler for redhen_contact_filter_form().
+ */
+function redhen_dedupe_filter_form_submit($form, &$form_state) {
+  $query = array('properties' => array_filter($form_state['values']['properties']));
+  $form_state['redirect'] = array($_GET['q'], array('query' => $query));
 }
 
 /**
@@ -69,15 +130,17 @@ function redhen_dedupe_list_page() {
  * @return array
  *   Array of objects containing first, last, and ids.
  */
-function redhen_dedupe_get_duplicates() {
+function redhen_dedupe_get_duplicates($properties) {
   $query = db_select('redhen_contact', 'rc');
-  $query->addField('rc', 'first_name');
-  $query->addField('rc', 'last_name');
-  $query->groupBy('first_name');
-  $query->groupBy('last_name');
+  $query->addTag('redhen_dedupe');
   $query->addExpression('COUNT(*)', 'count');
   $query->addExpression('GROUP_CONCAT(contact_id SEPARATOR \',\')', 'ids');
   $query->havingCondition('count', '1', '>');
+
+  foreach ($properties as $property) {
+    $query->addField('rc', $property);
+    $query->groupBy($property);
+  }
 
   return $query->execute()->fetchAll();
 }
