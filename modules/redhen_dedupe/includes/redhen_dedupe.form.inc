@@ -38,6 +38,13 @@ function redhen_dedupe_merge_form($form, &$form_state, $entity_ids) {
 
   // Pass along the entity ID options to the form handler:
   $form_state['entities'] = $entities;
+  
+  // Because of duplicate values and the complicated data selections, we put
+  // all the actual data into a separate data array, and use the form fields
+  // to index into it. This allows us to generate some more complex form
+  // field values here, like merging fields.
+  $values = array();
+  $v_index = 0;
 
   // Form field to select a merge master entity.
   $form['master'] = array(
@@ -58,30 +65,47 @@ function redhen_dedupe_merge_form($form, &$form_state, $entity_ids) {
     '#tree' => TRUE,
     '#header' => $table_header,
   );
-
+  $info = entity_get_property_info('redhen_contact');
   $properties = entity_get_all_property_info('redhen_contact');
   foreach ($properties as $name => $property) {
-    if (!redhen_dedupe_property_mergeable($name, $property)) {
-      continue;
-    }
-
-    $form['contacts'][$name] = array(
-      '#type' => 'container',
-    );
-    $row = &$form['contacts'][$name];
-    $row[] = array('#markup' => $property['label']);
-
-    foreach ($entities as $ent_id => $entity) {
-      $views_array = redhen_contact_view($entity);
-      $entity_view = $views_array['redhen_contact'][$ent_id];
-      $row[]['value'] = array(
-        '#type' => 'radio',
-        '#title' => render($entity_view[$name]),
-        '#value' => $ent_id,
-        '#attributes' => array(
-          'name' => $name,
-        ),
+    if (redhen_dedupe_property_mergeable($name, $property)) {
+      $form['contacts'][$name] = array(
+        '#type' => 'radios',
+        '#title' => $property['label'],
+        '#options' => array(),
       );
+      $row = &$form['contacts'][$name]['#options'];
+      $valid_property = isset($properties[$name]);
+      $is_field = isset($properties[$name]['field']) && $properties[$name]['field'];
+      $in_bundle = isset($info['bundles'][$entity->type]['properties'][$name]);
+      if ($is_field && !$in_bundle) {
+        $valid_property = FALSE;
+      }
+      foreach ($entities as $ent_id => $entity) {
+        if ($valid_property) {
+          if (isset($properties[$name]['getter callback'])) {
+            $wrapper = entity_metadata_wrapper('redhen_contact', $entity);
+            $values[$v_index] = $wrapper->{$name}->value();
+          }
+          else {
+            $values[$v_index] = $entity->{$name};
+          }
+          $views_array = redhen_contact_view($entity);
+          $entity_view = $views_array['redhen_contact'][$ent_id];
+          if (isset($entity_view[$name])) {
+            $display = render($entity_view[$name]);
+          }
+          else {
+            $display = $values[$v_index];
+          }
+        }
+        else {
+          $values[$v_index] = NULL;
+          $display = NULL;
+        }
+        $row[$v_index] = $display;
+        $v_index++;
+      }
     }
   }
 
@@ -114,6 +138,11 @@ function redhen_dedupe_merge_form($form, &$form_state, $entity_ids) {
     );
   }
 
+  $form['#field_data'] = array(
+    '#type' => 'hidden',
+    '#value' => $values,
+  );
+
   $form['submit'] = array(
     '#type' => 'submit',
     '#value' => t('Merge'),
@@ -142,26 +171,23 @@ function theme_redhen_dedupe_form_table($variables) {
   $elements = $variables['elements'];
 
   // Build the rows array.
-  $columns = isset($elements['#columns']) ? $elements['#columns'] : (isset($elements['#header']) ? array_keys($elements['#header']) : array());
   $rows = array();
-  foreach (element_children($elements) as $child_key) {
-    $child = & $elements[$child_key];
-    $data = array();
-    $row_columns = empty($columns) ? element_children($child) : $columns;
-    foreach ($row_columns as $column) {
-      if (isset($child[$column])) {
-        $cell = array('data' => drupal_render($child[$column]));
-        if (isset($child[$column]['#attributes'])) {
-          foreach ($child[$column]['#attributes'] as $key => $value) {
-            $cell[$key] = ($key == 'id') ? (is_array($value) ? array($value[0] . '-cell') : $value . '-cell') : $value;
-          }
+  foreach (element_children($elements) as $item_key) {
+    $item = &$elements[$item_key];
+    $data = array($item['#title']);
+    foreach (element_children($item) as $element) {
+      $cell = array('data' => drupal_render($item[$element]));
+      if (isset($item[$element]['#attributes'])) {
+        foreach ($item[$element]['#attributes'] as $key => $value) {
+          $cell[$key] = ($key == 'id') ? (is_array($value) ? array($value[0] . '-cell') : $value . '-cell') : $value;
         }
-        $data[] = $cell;
       }
+      $data[] = $cell;
+
     }
     $row = array('data' => $data);
-    if (isset($child['#attributes'])) {
-      foreach ($child['#attributes'] as $key => $value) {
+    if (isset($item_key['#attributes'])) {
+      foreach ($item_key['#attributes'] as $key => $value) {
         $row[$key] = $value;
       }
     }
@@ -191,13 +217,23 @@ function theme_redhen_dedupe_form_table($variables) {
  *   True is mergeable.
  */
 function redhen_dedupe_property_mergeable($name, $property) {
+
+  // Don't merge computed fields:
   if (isset($property['computed']) && $property['computed']) {
     return FALSE;
   }
 
-  $info = entity_get_info('redhen_contact');
-  if (in_array($name, $info['entity keys'])) {
+  // Don't merge fields that can't be edited:
+  if (!isset($property['setter callback'])) {
     return FALSE;
+  }
+
+  // Don't merge any base table fields except the name fields:
+  $info = entity_get_info('redhen_contact');
+  if (in_array($name, $info['schema_fields_sql']['base table'])) {
+    if (!strstr($name, '_name')) {
+      return FALSE;
+    }
   }
 
   return TRUE;
