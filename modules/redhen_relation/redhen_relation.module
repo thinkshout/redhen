@@ -175,6 +175,16 @@ function redhen_relation_connections_page($entity) {
     foreach ($related as $relation_id => $related_entities) {
       $relation = relation_load($relation_id);
       $relation_uri = entity_uri('relation', $relation);
+
+      $reversed = FALSE;
+      $endpoints = field_get_items('relation', $relation, 'endpoints');
+      foreach ($endpoints as $endpoint) {
+        if ($endpoint['entity_type'] == $entity->entityType() && $endpoint['r_index']) {
+          $reversed = TRUE;
+          break;
+        }
+      }
+
       foreach ($related_entities as $related_entity) {
         $object_label = entity_label($related_entity->entityType(), $related_entity);
         $object_uri = entity_uri($related_entity->entityType(), $related_entity);
@@ -192,7 +202,7 @@ function redhen_relation_connections_page($entity) {
           'connection' => array(
             'data' => array(
               '#type' => 'link',
-              '#title' => relation_get_type_label($relation),
+              '#title' => relation_get_type_label($relation, $reversed),
               '#href' => $relation_uri['path'],
             ),
           ),
