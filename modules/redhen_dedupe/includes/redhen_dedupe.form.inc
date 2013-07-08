@@ -116,7 +116,7 @@ function redhen_dedupe_merge_details_form($form, &$form_state, $master_id, $enti
         // can unset it later if it is not used by these redhen_contact bundles.
         'in_use' => FALSE,
       );
-      $row = &$form['values'][$name]['#options'];
+      $options = &$form['values'][$name]['#options'];
       $is_field = isset($properties[$name]['field']) && $properties[$name]['field'];
       // Loop through each contact to build a row element/radio button option:
       foreach ($entities as $ent_id => $entity) {
@@ -129,9 +129,10 @@ function redhen_dedupe_merge_details_form($form, &$form_state, $master_id, $enti
         if (!$in_bundle && $is_field) {
           $valid_property = FALSE;
         }
+
         if (!$valid_property) {
           $values[$v_index] = NULL;
-          $display = NULL;
+          $display = t('Field not applicable');
         }
         else {
           $form['values'][$name]['in_use'] = TRUE;
@@ -157,11 +158,13 @@ function redhen_dedupe_merge_details_form($form, &$form_state, $master_id, $enti
             $display = $values[$v_index];
           }
         }
-        $row[$v_index] = $display;
+
+        $options[$v_index] = $display;
         $v_index++;
       }
     }
   }
+
   // Stash all the actual data in the form for later processing:
   $form_state['field_data'] = $values;
 
