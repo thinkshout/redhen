@@ -98,14 +98,16 @@ function redhen_dedupe_merge_details_form($form, &$form_state, $master_id, $enti
   $info = entity_get_property_info('redhen_contact');
   $properties = entity_get_all_property_info('redhen_contact');
   foreach ($properties as $name => $property) {
+    // @todo: If there are no entities that use this property, we need to unset the form element.
     if (redhen_dedupe_property_mergeable($name, $property)) {
+      $valid_property = TRUE;
       $form['contacts'][$name] = array(
         '#type' => 'radios',
         '#title' => $property['label'],
         '#options' => array(),
+        'in_use' => FALSE,
       );
       $row = &$form['contacts'][$name]['#options'];
-      $valid_property = isset($properties[$name]);
       $is_field = isset($properties[$name]['field']) && $properties[$name]['field'];
       foreach ($entities as $ent_id => $entity) {
         $in_bundle = isset($info['bundles'][$entity->type]['properties'][$name]);
@@ -113,6 +115,10 @@ function redhen_dedupe_merge_details_form($form, &$form_state, $master_id, $enti
           $valid_property = FALSE;
         }
         if ($valid_property) {
+          $form['contacts'][$name]['in_use'] = TRUE;
+          if ($ent_id == $master_id) {
+            $form['contacts'][$name]['#default_value'] = $v_index;
+          }
           if (isset($properties[$name]['getter callback'])) {
             $wrapper = entity_metadata_wrapper('redhen_contact', $entity);
             $values[$v_index] = $wrapper->{$name}->value();
@@ -134,11 +140,16 @@ function redhen_dedupe_merge_details_form($form, &$form_state, $master_id, $enti
           $display = NULL;
         }
         $row[$v_index] = $display;
-        if ($ent_id == $master_id) {
-          $form['contacts'][$name]['#default_value'] = $v_index;
-        }
         $v_index++;
       }
+    }
+  }
+  foreach (element_children($form['contacts']) as $index => $row) {
+    if ($form['contacts'][$row]['in_use']) {
+      unset($form['contacts'][$row]['in_use']);
+    }
+    else {
+      unset($form['contacts'][$row]);
     }
   }
 
