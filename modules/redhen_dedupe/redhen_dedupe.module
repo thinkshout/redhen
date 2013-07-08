@@ -148,7 +148,7 @@ function redhen_dedupe_get_duplicates($properties) {
 /**
  * Merge values from contacts into master contact and handle related entities.
  *
- * @param $master
+ * @param RedhenContact $master
  *   The master RedHen Contact.
  * @param array $contacts
  *   The contacts being merged into the master.
@@ -156,12 +156,13 @@ function redhen_dedupe_get_duplicates($properties) {
  *   Values to update the master contact with.
  * @param array $related_entities
  *   Array of entity types to update to the master contact.
- * @oaram bool $archive
+ * @param bool $archive
  *   If TRUE, archive dead contacts instead of deleting them.
  *
  * @return boolean
+ *   Result of the merge attempt.
  */
-function redhen_dedupe_merge($master, $contacts, $values, $related_entities, $archive = TRUE ) {
+function redhen_dedupe_merge(RedhenContact $master, $contacts, $values, $related_entities, $archive = TRUE) {
   $master_wrapper = entity_metadata_wrapper('redhen_contact', $master);
   $master_id = $master_wrapper->getIdentifier();
 
@@ -229,7 +230,7 @@ function redhen_dedupe_merge($master, $contacts, $values, $related_entities, $ar
       }
     }
 
-    // Set the new values on the master contact
+    // Set the new values on the master contact.
     foreach ($values as $id => $value) {
       $master_wrapper->{$id}->set($value);
     }
