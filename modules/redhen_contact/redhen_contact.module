@@ -851,7 +851,7 @@ function redhen_contact_user_view($account, $view_mode, $langcode) {
  * Callback to get $contact->full_name.
  */
 function redhen_contact_property_full_name_get(RedhenContact $contact, array $options, $property_name, $entity_type) {
-  $name = $contact->first_name . ' ' . $contact->middle_name . ' ' . $contact->last_name;
+  $name = $contact->first_name . (empty($contact->middle_name) ? '' : ' ') . $contact->middle_name . ' ' . $contact->last_name;
   drupal_alter('redhen_contact_name', $name, $contact);
   return $name;
 }
