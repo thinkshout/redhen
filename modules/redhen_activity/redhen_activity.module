@@ -509,6 +509,7 @@ function redhen_activity_message_save($entity, $type, $op) {
  * @return array
  */
 function redhen_activity_activity_page($entity = NULL, $entity_type = NULL) {
+  global $language;
   $header = array(
     'timestamp' => array(
       'field' => 'timestamp',
@@ -583,7 +584,7 @@ function redhen_activity_activity_page($entity = NULL, $entity_type = NULL) {
               ),
             ),
             'source' => $source,
-            'message' => $message->getText(),
+            'message' => $message->getText($language->language),
           ),
         );
       }
