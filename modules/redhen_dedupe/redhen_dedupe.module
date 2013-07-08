@@ -163,7 +163,7 @@ function redhen_dedupe_get_duplicates($properties) {
  */
 function redhen_dedupe_merge($master, $contacts, $values, $related_entities, $archive = TRUE ) {
   $master_wrapper = entity_metadata_wrapper('redhen_contact', $master);
-  $master_id = $master_wrapper->internalIdentifier();
+  $master_id = $master_wrapper->getIdentifier();
 
   $transaction = db_transaction();
   try {
