@@ -78,8 +78,13 @@ function redhen_dedupe_merge_details_form($form, &$form_state, $master_id, $enti
   foreach ($contacts as $ent_id => $contact) {
     $wrapper = entity_metadata_wrapper('redhen_contact', $contact);
     $updated = format_date($wrapper->updated->value(), 'short');
+    $header_data = array(
+      '!date' => $updated,
+      '@name' => $wrapper->label(),
+      '@bundle' => $wrapper->getBundle(),
+    );
     $table_header[$ent_id] = array(
-      'data' => t('@name (@bundle)<br/>Last Updated: !date', array('!date' => $updated, '@name' => $wrapper->label(), '@bundle' => $wrapper->getBundle())),
+      'data' => t('@name (@bundle)<br/>Last Updated: !date', $header_data),
       'class' => ($ent_id == $master_id) ? 'redhen-dedupe-master-col' : 'redhen-dedupe-col',
     );
   }
@@ -199,7 +204,7 @@ function redhen_dedupe_merge_details_form_submit($form, &$form_state) {
     drupal_set_message(t('Contacts have successfully been merged into %master and @fate.',
       array(
         '%master' => $master->label(),
-        '@fate' => ($form_state['values']['dead_contact_fate']) ? t('Archived') : t('Deleted')
+        '@fate' => ($form_state['values']['dead_contact_fate']) ? t('Archived') : t('Deleted'),
       )
     ));
     $uri = $master->uri();
