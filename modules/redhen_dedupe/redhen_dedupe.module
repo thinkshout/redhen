@@ -184,7 +184,6 @@ function redhen_dedupe_merge(RedhenContact $master, $contacts, $values, $related
             $query->propertyCondition('entity_type', 'redhen_contact');
             $query->propertyCondition('entity_id', $contact_id);
             $result = $query->execute();
-              $rel_entity->entity_id = $master_id;
             if (!empty($result)) {
               $rel_entities = entity_load($entity_type, array_keys($result[$entity_type]));
               foreach ($rel_entities as $rel_entity) {
@@ -202,14 +201,14 @@ function redhen_dedupe_merge(RedhenContact $master, $contacts, $values, $related
             if ($results) {
               $relations = relation_load_multiple(array_keys($results));
               foreach ($relations as $relation) {
-                $rel_wrapper = entity_metadata_wrapper('relation', $relation);
-                foreach ($rel_wrapper->endpoints as &$endpoint) {
+                $endoints = field_get_items('relation', $relation, 'endpoints');
+                foreach ($endoints as $key => $endpoint) {
                   // Iterate through endpoints and replace the endpoint that matches with the master contact.
-                  if ($endpoint->entity_type->value() == 'redhen_contact' && $endpoint->entity_id->value() == $contact_id) {
-                    $endpoint->set($master_wrapper);
+                  if ($endpoint['entity_type'] == 'redhen_contact' && $endpoint['entity_id'] == $contact_id) {
+                    $relation->endpoints[LANGUAGE_NONE][$key]['entity_id'] = $master_id;
                   }
                 }
-                $rel_wrapper->save();
+                relation_update($relation);
               }
             }
             break;
