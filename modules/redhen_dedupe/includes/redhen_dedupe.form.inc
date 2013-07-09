@@ -160,8 +160,7 @@ function redhen_dedupe_merge_details_form($form, &$form_state, $master_id, $enti
           }
         }
 
-        $options[$v_index] = $display;
-        $v_index++;
+        $options[$ent_id] = redhen_dedupe_option_label($contact, $name, $property);
       }
     }
   }
@@ -308,4 +307,34 @@ function redhen_dedupe_property_mergeable($name, $property) {
   }
 
   return TRUE;
+}
+
+/**
+ * Return an option label for the merge form.
+ *
+ * @param RedhenContact $contact
+ *   Contact entity.
+ * @param string $property_name
+ *   Contact property name we need a label for.
+ * @param array $property
+ *   Full property array.
+ *
+ * @return string
+ *   Label to use for an option field or other purpose.
+ */
+function redhen_dedupe_option_label(RedhenContact $contact, $property_name, $property) {
+  if (isset($property['field'])) {
+    $field_array = field_view_field('redhen_contact', $contact, $property_name, array('label' => 'hidden'));
+    return render($field_array);
+  }
+
+  $built_contact = $contact->buildContent();
+  if (isset($built_contact[$property_name])) {
+    $display = render($built_contact[$property_name]);
+  }
+  else {
+    $display = isset($contact->{$property_name}) ? $contact->{$property_name} : 'No value';
+  }
+
+  return $display;
 }
