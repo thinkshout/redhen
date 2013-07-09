@@ -96,8 +96,10 @@ function redhen_dedupe_list_page() {
  */
 function redhen_dedupe_filter_form($form, &$form_state, $properties, $active) {
   $info = entity_get_property_info('redhen_contact');
+  $excluded_props = array('contact_id', 'revision_id', 'redhen_state');
+  $options = array();
   foreach ($info['properties'] as $name => $property) {
-    if (isset($property['schema field']) && !in_array($name, array('contact_id', 'revision_id', 'redhen_state'))) {
+    if (isset($property['schema field']) && !in_array($name, $excluded_props)) {
       $options[$name] = $property['label'];
     }
   }
@@ -114,9 +116,9 @@ function redhen_dedupe_filter_form($form, &$form_state, $properties, $active) {
     '#title' => t('Active'),
     '#type' => 'checkbox',
     '#description' => t('Limit query to active contacts.'),
-    '#default_value' => $active
+    '#default_value' => $active,
   );
-  
+
   $form['submit'] = array(
     '#type' => 'submit',
     '#value' => t('Submit'),
@@ -172,7 +174,7 @@ function redhen_dedupe_get_duplicates($properties, $active = TRUE) {
  * @param bool $archive
  *   If TRUE, archive dead contacts instead of deleting them.
  *
- * @return boolean
+ * @return bool
  *   Result of the merge attempt.
  */
 function redhen_dedupe_merge(RedhenContact $master, $contacts, $values, $related_entities, $archive = TRUE) {
@@ -216,7 +218,8 @@ function redhen_dedupe_merge(RedhenContact $master, $contacts, $values, $related
               foreach ($relations as $relation) {
                 $endoints = field_get_items('relation', $relation, 'endpoints');
                 foreach ($endoints as $key => $endpoint) {
-                  // Iterate through endpoints and replace the endpoint that matches with the master contact.
+                  // Iterate through endpoints and replace the endpoint that
+                  // matches with the master contact.
                   if ($endpoint['entity_type'] == 'redhen_contact' && $endpoint['entity_id'] == $contact_id) {
                     $relation->endpoints[LANGUAGE_NONE][$key]['entity_id'] = $master_id;
                   }
@@ -257,6 +260,7 @@ function redhen_dedupe_merge(RedhenContact $master, $contacts, $values, $related
   catch (Exception $e) {
     $transaction->rollback();
     watchdog_exception('redhen_dedupe', $e);
+    return FALSE;
   }
 }
 
