@@ -221,8 +221,7 @@ function redhen_dedupe_merge(RedhenContact $master, $contacts, $values, $related
 
       // Archive or delete the duplicate contact.
       if ($archive) {
-        $contact->state = REDHEN_STATE_ARCHIVED;
-        $contact->save();
+        $contact->setState(REDHEN_STATE_ARCHIVED);
       }
       else {
         $contacts_to_delete[] = $contact_id;
