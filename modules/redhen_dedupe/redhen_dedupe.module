@@ -39,12 +39,14 @@ function redhen_dedupe_list_page() {
   $results = FALSE;
   $contacts = array();
   $properties = array('first_name', 'last_name');
+  $active = TRUE;
   if (!isset($_POST['form_id'])) {
     if (isset($_GET['properties'])) {
       $properties = $_GET['properties'];
     }
     if (!empty($properties)) {
-      $results = redhen_dedupe_get_duplicates($properties);
+      $active = isset($_GET['active']) ? $_GET['active'] : TRUE;
+      $results = redhen_dedupe_get_duplicates($properties, $active);
     }
   }
 
@@ -83,7 +85,7 @@ function redhen_dedupe_list_page() {
   }
 
   return array(
-    'form' => drupal_get_form('redhen_dedupe_filter_form', $properties),
+    'form' => drupal_get_form('redhen_dedupe_filter_form', $properties, $active),
     'message' => array('#markup' => $message),
     'contacts' => $contacts,
   );
@@ -92,10 +94,10 @@ function redhen_dedupe_list_page() {
 /**
  * Dedupe filter form.
  */
-function redhen_dedupe_filter_form($form, &$form_state, $properties) {
+function redhen_dedupe_filter_form($form, &$form_state, $properties, $active) {
   $info = entity_get_property_info('redhen_contact');
   foreach ($info['properties'] as $name => $property) {
-    if (isset($property['schema field']) && !in_array($name, array('contact_id', 'revision_id'))) {
+    if (isset($property['schema field']) && !in_array($name, array('contact_id', 'revision_id', 'redhen_state'))) {
       $options[$name] = $property['label'];
     }
   }
@@ -108,6 +110,13 @@ function redhen_dedupe_filter_form($form, &$form_state, $properties) {
     '#required' => TRUE,
     '#description' => t('Selected properties will be used to query duplicates. E.g., selecting first and last name will look for contacts with the same first and last names.'),
   );
+  $form['active'] = array(
+    '#title' => t('Active'),
+    '#type' => 'checkbox',
+    '#description' => t('Limit query to active contacts.'),
+    '#default_value' => $active
+  );
+  
   $form['submit'] = array(
     '#type' => 'submit',
     '#value' => t('Submit'),
@@ -120,7 +129,7 @@ function redhen_dedupe_filter_form($form, &$form_state, $properties) {
  * Submit handler for redhen_contact_filter_form().
  */
 function redhen_dedupe_filter_form_submit($form, &$form_state) {
-  $query = array('properties' => array_filter($form_state['values']['properties']));
+  $query = array('properties' => array_filter($form_state['values']['properties']), 'active' => $form_state['values']['active']);
   $form_state['redirect'] = array($_GET['q'], array('query' => $query));
 }
 
@@ -130,12 +139,16 @@ function redhen_dedupe_filter_form_submit($form, &$form_state) {
  * @return array
  *   Array of objects containing first, last, and ids.
  */
-function redhen_dedupe_get_duplicates($properties) {
+function redhen_dedupe_get_duplicates($properties, $active = TRUE) {
   $query = db_select('redhen_contact', 'rc');
   $query->addTag('redhen_dedupe');
   $query->addExpression('COUNT(*)', 'count');
   $query->addExpression('GROUP_CONCAT(contact_id SEPARATOR \',\')', 'ids');
   $query->havingCondition('count', '1', '>');
+
+  if ($active) {
+    $query->condition('redhen_state', '1');
+  }
 
   foreach ($properties as $property) {
     $query->addField('rc', $property);
