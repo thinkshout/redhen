@@ -78,7 +78,8 @@ function redhen_dedupe_merge_details_form($form, &$form_state, $master_id, $enti
     $wrapper = entity_metadata_wrapper('redhen_contact', $contact);
     $updated = format_date($wrapper->updated->value(), 'short');
     $table_header[$ent_id] = array(
-      'data' => t('@name (Updated: !date)', array('!date' => $updated, '@name' => $wrapper->label())),
+      'data' => t('@name (@bundle)<br/>Last Updated: !date', array('!date' => $updated, '@name' => $wrapper->label(), '@bundle' => $wrapper->getBundle())),
+      'class' => ($ent_id == $master_id) ? 'redhen-dedupe-master-col' : 'redhen-dedupe-col',
     );
   }
 
