@@ -184,10 +184,13 @@ function redhen_dedupe_merge(RedhenContact $master, $contacts, $values, $related
             $query->propertyCondition('entity_type', 'redhen_contact');
             $query->propertyCondition('entity_id', $contact_id);
             $result = $query->execute();
-            $rel_entities = entity_load($entity_type, array_keys($result[$entity_type]));
-            foreach ($rel_entities as $rel_entity) {
               $rel_entity->entity_id = $master_id;
-              entity_save($entity_type, $rel_entity);
+            if (!empty($result)) {
+              $rel_entities = entity_load($entity_type, array_keys($result[$entity_type]));
+              foreach ($rel_entities as $rel_entity) {
+                $rel_entity->entity_id = $master_id;
+                entity_save($entity_type, $rel_entity);
+              }
             }
             break;
 
