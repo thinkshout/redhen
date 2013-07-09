@@ -68,14 +68,14 @@ function redhen_dedupe_merge_form_submit($form, &$form_state) {
 function redhen_dedupe_merge_details_form($form, &$form_state, $master_id, $entity_ids) {
   // Load the entities we want to merge:
   $entity_ids = explode(',', $entity_ids);
-  $entities = redhen_contact_load_multiple($entity_ids);
+  $contacts = redhen_contact_load_multiple($entity_ids);
 
   // Initialize our table header:
   $table_header = array(t('Field Name'));
   // Loop through the entities to build out our table headers and master
   // entity options:
-  foreach ($entities as $ent_id => $entity) {
-    $wrapper = entity_metadata_wrapper('redhen_contact', $entity);
+  foreach ($contacts as $ent_id => $contact) {
+    $wrapper = entity_metadata_wrapper('redhen_contact', $contact);
     $updated = format_date($wrapper->updated->value(), 'short');
     $table_header[$ent_id] = array(
       'data' => t('@name (Updated: !date)', array('!date' => $updated, '@name' => $wrapper->label())),
@@ -84,7 +84,7 @@ function redhen_dedupe_merge_details_form($form, &$form_state, $master_id, $enti
 
   // Pass along the entity ID options & master ID to the form handler:
   $form_state['master'] = $master_id;
-  $form_state['entities'] = $entities;
+  $form_state['contacts'] = $contacts;
 
   // Because of duplicate values and the complicated data selections, we put
   // all the actual data into a separate data array, and use the form fields
@@ -119,13 +119,13 @@ function redhen_dedupe_merge_details_form($form, &$form_state, $master_id, $enti
       $options = &$form['values'][$name]['#options'];
       $is_field = isset($properties[$name]['field']) && $properties[$name]['field'];
       // Loop through each contact to build a row element/radio button option:
-      foreach ($entities as $ent_id => $entity) {
+      foreach ($contacts as $ent_id => $contact) {
         // We do some work to figure out what kind of field we are dealing with,
         // and set our values and displays appropriately. The important factors
         // are if it's a field or not, and whether it has a setter/getter
         // callback that we should be using.
         $valid_property = TRUE;
-        $in_bundle = isset($info['bundles'][$entity->type]['properties'][$name]);
+        $in_bundle = isset($info['bundles'][$contact->type]['properties'][$name]);
         if (!$in_bundle && $is_field) {
           $valid_property = FALSE;
         }
@@ -221,12 +221,13 @@ function redhen_dedupe_merge_details_form($form, &$form_state, $master_id, $enti
  */
 function redhen_dedupe_merge_details_form_submit($form, &$form_state) {
   $master_id = $form_state['master'];
+  $contacts = $form_state['contacts'];
   $master = redhen_contact_load($master_id);
   // Pull the actual data out of the #value array constructed for the form:
   foreach ($form_state['values']['values'] as $name => $val) {
     $form_state['values']['values'][$name] = $form_state['field_data'][$val];
   }
-  $merge_status = redhen_dedupe_merge($master, $form_state['entities'], $form_state['values']['values'], $form_state['values']['related_entities'], $form_state['values']['dead_contact_fate']);
+  $merge_status = redhen_dedupe_merge($master, $contacts, $values, $form_state['values']['related_entities'], $form_state['values']['dead_contact_fate']);
   if ($merge_status) {
     drupal_set_message('Contacts merged.');
   }
