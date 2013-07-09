@@ -169,12 +169,9 @@ function redhen_dedupe_merge(RedhenContact $master, $contacts, $values, $related
   $transaction = db_transaction();
   try {
     // Iterate through all contacts and update or delete related entities.
+    $contacts_to_delete = array();
     foreach ($contacts as $contact) {
       $contact_id = $contact->internalIdentifier();
-      // Don't act on the master contact.
-      if ($contact_id == $master_id) {
-        continue;
-      }
 
       // Update related entities:
       foreach ($related_entities as $entity_type) {
