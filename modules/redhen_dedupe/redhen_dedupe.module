@@ -226,8 +226,12 @@ function redhen_dedupe_merge(RedhenContact $master, $contacts, $values, $related
         $contact->save();
       }
       else {
-        entity_delete('redhen_contact', $contact_id);
+        $contacts_to_delete[] = $contact_id;
       }
+    }
+
+    if (!empty($contacts_to_delete)) {
+      redhen_contact_delete_multiple($contacts_to_delete);
     }
 
     // Set the new values on the master contact.
