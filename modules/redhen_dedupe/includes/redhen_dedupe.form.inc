@@ -5,6 +5,8 @@
  * Forms for creating, editing, and deleting contacts.
  */
 
+define('REDHEN_DEDUPE_NOT_APPLICABLE', 'redhen_dedupe_not_applicable');
+
 /**
  * Form to select the master contact.
  */
@@ -126,7 +128,7 @@ function redhen_dedupe_merge_details_form($form, &$form_state, $master_id, $enti
         // callback that we should be using.
         $in_bundle = isset($info['bundles'][$contact->type]['properties'][$name]);
         if (!$in_bundle && $is_field) {
-          $options[$ent_id] = t('Property not valid for this bundle');
+          $options[$ent_id] = REDHEN_DEDUPE_NOT_APPLICABLE;
           continue;
         }
 
@@ -143,6 +145,10 @@ function redhen_dedupe_merge_details_form($form, &$form_state, $master_id, $enti
   // Exclude properties that are all the same from the merge form.
   foreach (element_children($form['values']) as $name) {
     $left = array_unique($form['values'][$name]['#options']);
+    // Filter out any remaining items that are not applicable.
+    $left = array_filter($left, function($item) {
+      return ($item !== REDHEN_DEDUPE_NOT_APPLICABLE);
+    });
     if (empty($left) || count($left) === 1) {
       unset($form['values'][$name]);
       continue;
@@ -199,7 +205,7 @@ function redhen_dedupe_merge_details_form_submit($form, &$form_state) {
     $values[$name] = $wrapper->{$name}->value();
   }
   unset($contacts[$master_id]);
-  $merge_status = redhen_dedupe_merge($master, $contacts, $values, $form_state['values']['related_entities'], $form_state['values']['dead_contact_fate']);
+  $merge_status = redhen_dedupe_merge($master, $contacts, $values, array_filter($form_state['values']['related_entities']), $form_state['values']['dead_contact_fate']);
   if ($merge_status) {
     drupal_set_message(t('Contacts have successfully been merged into %master and @fate.',
       array(
@@ -224,7 +230,14 @@ function theme_redhen_dedupe_form_table($variables) {
     $item = &$elements[$item_key];
     $data = array($item['#title']);
     foreach (element_children($item) as $element) {
-      $cell = array('data' => drupal_render($item[$element]));
+      if (isset($item['#options']) && $item['#options'][$element] === REDHEN_DEDUPE_NOT_APPLICABLE) {
+        $cell_data = t('Field not applicable to this bundle');
+      }
+      else {
+        $cell_data = drupal_render($item[$element]);
+      }
+
+      $cell = array('data' => $cell_data);
       if (isset($item[$element]['#attributes'])) {
         foreach ($item[$element]['#attributes'] as $key => $value) {
           $cell[$key] = ($key == 'id') ? (is_array($value) ? array($value[0] . '-cell') : $value . '-cell') : $value;
@@ -303,16 +316,17 @@ function redhen_dedupe_property_mergeable($name, $property) {
 function redhen_dedupe_option_label(RedhenContact $contact, $property_name, $property) {
   if (isset($property['field'])) {
     $field_array = field_view_field('redhen_contact', $contact, $property_name, array('label' => 'hidden'));
-    return render($field_array);
-  }
-
-  $built_contact = $contact->buildContent();
-  if (isset($built_contact[$property_name])) {
-    $display = render($built_contact[$property_name]);
+    $display = render($field_array);
   }
   else {
-    $display = isset($contact->{$property_name}) ? $contact->{$property_name} : 'No value';
+    $built_contact = $contact->buildContent();
+    if (isset($built_contact[$property_name])) {
+      $display = render($built_contact[$property_name]);
+    }
+    else {
+      $display = isset($contact->{$property_name}) ? $contact->{$property_name} : 'No value';
+    }
   }
 
-  return $display;
+  return !empty($display) ? $display : t('No value');
 }
