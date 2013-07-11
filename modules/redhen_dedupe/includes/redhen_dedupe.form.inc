@@ -155,13 +155,6 @@ function redhen_dedupe_merge_details_form($form, &$form_state, $master_id, $enti
     }
   }
 
-  $form['dead_contact_fate'] = array(
-    '#type' => 'radios',
-    '#title' => t('What do you want to do with the old records?'),
-    '#default_value' => 1,
-    '#options' => array(0 => t('Delete'), 1 => t('Archive')),
-  );
-
   $related_types = array();
   if (module_exists('redhen_note')) {
     $related_types['redhen_note'] = t('Notes');
@@ -205,16 +198,16 @@ function redhen_dedupe_merge_details_form_submit($form, &$form_state) {
     $values[$name] = $wrapper->{$name}->value();
   }
   unset($contacts[$master_id]);
-  $merge_status = redhen_dedupe_merge($master, $contacts, $values, array_filter($form_state['values']['related_entities']), $form_state['values']['dead_contact_fate']);
+  $merge_status = redhen_dedupe_merge($master, $contacts, $values, array_filter($form_state['values']['related_entities']));
   if ($merge_status) {
-    drupal_set_message(t('Contacts have successfully been merged into %master and @fate.',
-      array(
-        '%master' => $master->label(),
-        '@fate' => ($form_state['values']['dead_contact_fate']) ? t('Archived') : t('Deleted'),
-      )
+    drupal_set_message(t('Contacts have successfully been merged into %master and deleted.',
+      array('%master' => $master->label())
     ));
     $uri = $master->uri();
     $form_state['redirect'] = $uri['path'];
+  }
+  else {
+    drupal_set_message(t('There has been merging these contacts. Check the error log for more details.'), 'error');
   }
 }
 
@@ -324,7 +317,7 @@ function redhen_dedupe_option_label(RedhenContact $contact, $property_name, $pro
       $display = render($built_contact[$property_name]);
     }
     else {
-      $display = isset($contact->{$property_name}) ? $contact->{$property_name} : 'No value';
+      $display = isset($contact->{$property_name}) ? $contact->{$property_name} : '';
     }
   }
 
