@@ -156,6 +156,7 @@ function redhen_dedupe_get_duplicates($properties, $active = TRUE) {
     $query->addField('rc', $property);
     $query->groupBy($property);
   }
+  $query->orderBy('count', 'DESC');
 
   return $query->execute()->fetchAll();
 }
