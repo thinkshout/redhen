@@ -1,5 +1,5 @@
 name = RedHen Engagement
-description = Provides Redhen contact engagement scoring.
+description = Provides RedHen contact engagement scoring.
 package = RedHen
 core = 7.x
 

@@ -1,5 +1,5 @@
 name = RedHen Relation
-description = Manage Redhen relationships.
+description = Manage RedHen relationships.
 package = RedHen
 core = 7.x
 

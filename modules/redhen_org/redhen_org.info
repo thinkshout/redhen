@@ -1,4 +1,4 @@
-name = Redhen Organizations
+name = RedHen Organizations
 description = Defines the base organization entity and features.
 package = RedHen
 core = 7.x
