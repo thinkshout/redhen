@@ -13,65 +13,46 @@ define('REDHEN_DEDUPE_NOT_APPLICABLE', 'redhen_dedupe_not_applicable');
 function redhen_dedupe_merge_form($form, &$form_state, $entity_ids) {
   // Load the entities we want to merge:
   $entity_ids = explode(',', $entity_ids);
-  $entities = redhen_contact_load_multiple($entity_ids);
+  $contacts = redhen_contact_load_multiple($entity_ids);
 
   $master_options = array();
 
   // Loop through the entities to build out our master entity options:
-  foreach ($entities as $ent_id => $entity) {
+  foreach ($contacts as $ent_id => $entity) {
     $wrapper = entity_metadata_wrapper('redhen_contact', $entity);
     $updated = format_date($wrapper->updated->value(), 'short');
     $master_options[$ent_id] = t('@name (Updated: !date)', array('!date' => $updated, '@name' => $wrapper->label()));
-    $render = $entity->view();
-    $form['contact_previews'][$ent_id] = array(
-      '#type' => 'item',
-      '#markup' => render($render),
-      '#states' => array(
-        'visible' => array(
-          ':input[name="master"]' => array('value' => $ent_id),
-        ),
-      ),
-      '#weight' => 99,
-    );
   }
 
   // Form field to select a merge master entity.
   $form['master'] = array(
     '#type' => 'radios',
     '#title' => t('Master Contact'),
-    '#default_value' => 0,
+    '#default_value' => key($master_options),
     '#required' => TRUE,
     '#options' => $master_options,
     '#description' => t('Choose a contact to merge the other contacts into.'),
     '#weight' => 0,
+    '#ajax' => array(
+      'callback' => 'redhen_dedupe_merge_form_callback',
+      'wrapper' => 'redhen_dedupe_merge_data',
+    ),
   );
 
-  $form['submit'] = array(
-    '#type' => 'submit',
-    '#value' => t('Next'),
+  $form['merge_data'] = array(
+    '#type' => 'container',
+    '#attributes' => array('id' => 'redhen_dedupe_merge_data'),
   );
 
-  return $form;
-}
+  $master_id = isset($form_state['values']['master']) ? (int)$form_state['values']['master'] : key($master_options);
+  $merge_data = &$form['merge_data'];
 
-/**
- * Submit handler for redhen_dedupe_merge_master form.
- */
-function redhen_dedupe_merge_form_submit($form, &$form_state) {
-  // We hand off the the merge details from with 2 arguments: our master list ID
-  // and our full list of IDs (which includes the master).
-  $master = $form_state['values']['master'];
-  $all = implode(',', array_keys($form['master']['#options']));
-  $form_state['redirect'] = 'redhen/dedupe/merge_details/' . $master . '/' . $all;
-}
-
-/**
- * Form to select dedupe options.
- */
-function redhen_dedupe_merge_details_form($form, &$form_state, $master_id, $entity_ids) {
-  // Load the entities we want to merge:
-  $entity_ids = explode(',', $entity_ids);
-  $contacts = redhen_contact_load_multiple($entity_ids);
+  $preview = $contacts[$master_id]->view();
+  $merge_data['contact_preview'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Master contact details'),
+    'preview' => array('#markup' => render($preview)),
+  );
 
   // Initialize our table header:
   $table_header = array(t('Field Name'));
@@ -84,19 +65,19 @@ function redhen_dedupe_merge_details_form($form, &$form_state, $master_id, $enti
       '!date' => $updated,
       '@name' => $wrapper->label(),
       '@bundle' => $wrapper->getBundle(),
+      '@master' => ($ent_id == $master_id) ? t('Master') . ': ' : ''
     );
     $table_header[$ent_id] = array(
-      'data' => t('@name (@bundle)<br/>Last Updated: !date', $header_data),
+      'data' => t('@master@name (@bundle)<br/>Last Updated: !date', $header_data),
       'class' => ($ent_id == $master_id) ? 'redhen-dedupe-master-col' : 'redhen-dedupe-col',
     );
   }
 
   // Pass along the entity ID options & master ID to the form handler:
-  $form_state['master'] = $master_id;
   $form_state['contacts'] = $contacts;
 
   // Now we build our merge selector form fields:
-  $form['values'] = array(
+  $merge_data['values'] = array(
     '#theme' => 'redhen_dedupe_form_table',
     '#tree' => TRUE,
     '#header' => $table_header,
@@ -113,12 +94,16 @@ function redhen_dedupe_merge_details_form($form, &$form_state, $master_id, $enti
 
     // Call a helper function to determine if this is a field we want to merge:
     if (redhen_dedupe_property_mergeable($name, $property)) {
-      $form['values'][$name] = array(
+      // Need this due to a FAPI bug (https://drupal.org/node/1634364).
+      if (isset($form_state['input']['values'][$name])) {
+        unset($form_state['input']['values'][$name]);
+      }
+      $merge_data['values'][$name] = array(
         '#type' => 'radios',
         '#title' => $property['label'],
         '#options' => array(),
       );
-      $options = &$form['values'][$name]['#options'];
+      $options = &$merge_data['values'][$name]['#options'];
       $is_field = isset($properties[$name]['field']) && $properties[$name]['field'];
       // Loop through each contact to build a row element/radio button option:
       foreach ($contacts as $ent_id => $contact) {
@@ -133,8 +118,8 @@ function redhen_dedupe_merge_details_form($form, &$form_state, $master_id, $enti
         }
 
         // Set the default to match the Master record:
-        if ($ent_id == $master_id) {
-          $form['values'][$name]['#default_value'] = $ent_id;
+        if ($ent_id === $master_id) {
+          $merge_data['values'][$name]['#default_value'] = $ent_id;
         }
 
         $options[$ent_id] = redhen_dedupe_option_label($contact, $name, $property);
@@ -143,14 +128,14 @@ function redhen_dedupe_merge_details_form($form, &$form_state, $master_id, $enti
   }
 
   // Exclude properties that are all the same from the merge form.
-  foreach (element_children($form['values']) as $name) {
-    $left = array_unique($form['values'][$name]['#options']);
+  foreach (element_children($merge_data['values']) as $name) {
+    $left = array_unique($merge_data['values'][$name]['#options']);
     // Filter out any remaining items that are not applicable.
     $left = array_filter($left, function($item) {
       return ($item !== REDHEN_DEDUPE_NOT_APPLICABLE);
     });
     if (empty($left) || count($left) === 1) {
-      unset($form['values'][$name]);
+      unset($merge_data['values'][$name]);
       continue;
     }
   }
@@ -186,10 +171,17 @@ function redhen_dedupe_merge_details_form($form, &$form_state, $master_id, $enti
 }
 
 /**
+ * Ajax callback for redhen_dedupe_merge_form().
+ */
+function redhen_dedupe_merge_form_callback($form, $form_state) {
+  return $form['merge_data'];
+}
+
+/**
  * Submit handler for dedupe merge form.
  */
-function redhen_dedupe_merge_details_form_submit($form, &$form_state) {
-  $master_id = $form_state['master'];
+function redhen_dedupe_merge_form_submit($form, &$form_state) {
+  $master_id = $form_state['values']['master'];
   $contacts = $form_state['contacts'];
   $master = $contacts[$master_id];
   // Pull the actual data out of the #value array constructed for the form:
