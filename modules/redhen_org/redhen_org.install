@@ -475,7 +475,7 @@ function redhen_org_update_7005(&$sandbox) {
 
   // Grab the next 50 orgs to process.
   $orgs = db_select('redhen_org', 'org')
-    ->fields('org', array('org_id', 'label'))
+    ->fields('org', array('org_id', 'label', 'name'))
     ->condition('org_id', $sandbox['current_org_id'], '>')
     ->range(0, 50)
     ->orderBy('org_id', 'ASC')
