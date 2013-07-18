@@ -470,7 +470,6 @@ function redhen_org_update_7005(&$sandbox) {
     // Initialize sandbox variables for batch processing.
     $sandbox['progress'] = 0;
     $sandbox['current_org_id'] = 0;
-    // We'll -1 to disregard the uid 0...
     $sandbox['max'] = db_query('SELECT COUNT(DISTINCT org_id) FROM {redhen_org}')->fetchField();
   }
 
@@ -495,20 +494,4 @@ function redhen_org_update_7005(&$sandbox) {
   return t('RedHen organizations have been updated with a default machine name.');
 
   throw new DrupalUpdateException('RedHen organizations update 7005 failed to add a machine name to {redhen_org}.');
-}
-
-/**
- * Find the one stranded RedHen org that did not get a machine-readable name b/c of the broken 7005 database update.
- */
-function redhen_org_update_7006() {
-  $orgs = db_select('redhen_org', 'org')
-    ->fields('org', array('name', 'org_id', 'label'))
-    ->condition('name', $value = NULL, $operator = '=')
-    ->orderBy('org_id', 'ASC')
-    ->execute();
-
-  foreach ($orgs as $org) {
-    $machine_name = redhen_org_machine_name($org->label);
-    db_update('redhen_org')->fields(array('name' => $machine_name))->condition('org_id', $org->org_id)->execute();
-  }
 }
