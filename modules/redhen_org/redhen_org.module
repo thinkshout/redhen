@@ -576,7 +576,7 @@ function theme_redhen_org_add_list($variables) {
     $output .= '</dl>';
   }
   else {
-    $output = '<p>' . t('You have not created any organization types yet. Go to the <a href="@link">organization type creation page</a> to add a new content type.',
+    $output = '<p>' . t('You have not created any organization types yet. Go to the <a href="@link">organization type creation page</a> to add a new RedHen organization type.',
       array('@link' => url('admin/structure/redhen/org_types'))) . '</p>';
   }
   return $output;
