@@ -481,9 +481,12 @@ function redhen_org_update_7005(&$sandbox) {
     ->orderBy('org_id', 'ASC')
     ->execute();
 
+  // Update any RedHen orgs that have been created without machine-readable names.
   foreach ($orgs as $org) {
-    $machine_name = redhen_org_machine_name($org->label);
-    db_update('redhen_org')->fields(array('name' => $machine_name))->condition('org_id', $org->org_id)->execute();
+    if (empty($org->name)) {
+      $machine_name = redhen_org_machine_name($org->label);
+      db_update('redhen_org')->fields(array('name' => $machine_name))->condition('org_id', $org->org_id)->execute(); 
+    }
 
     $sandbox['progress']++;
     $sandbox['current_org_id'] = $org->org_id;
