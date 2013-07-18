@@ -506,7 +506,7 @@ function redhen_org_update_7005(&$sandbox) {
 function redhen_org_update_7006() {
   $orgs = db_select('redhen_org', 'org')
     ->fields('org', array('name', 'org_id', 'label'))
-    ->condition('name', $value = NULL, $operator = '=')
+    ->condition('name', NULL, '=')
     ->orderBy('org_id', 'ASC')
     ->execute();
 
