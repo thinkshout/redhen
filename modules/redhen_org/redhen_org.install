@@ -456,13 +456,16 @@ function redhen_org_update_7005(&$sandbox) {
       ),
     );
 
-    // Add new fields.
-    foreach ($fields as $name => $field) {
-      db_add_field('redhen_org', $name, $field);
+    // Add new fields. Note, the check to see if this field exists has been added b/c of https://drupal.org/node/2041379.
+    // There was a database update issue that was causing this DB update to fail after creating these additional columns,
+    // but before marking the update as complete. This check should allow the 7005 to run successful after already failing.
+    if (!db_field_exists('redhen_org', 'name')) {
+      foreach ($fields as $name => $field) {
+        db_add_field('redhen_org', $name, $field);
+      }
+      // Add unique index for name.
+      db_add_index('redhen_org', 'name', array('name')); 
     }
-
-    // Add unique index for name.
-    db_add_index('redhen_org', 'name', array('name'));
 
     // Initialize sandbox variables for batch processing.
     $sandbox['progress'] = 0;
