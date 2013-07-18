@@ -501,17 +501,21 @@ function redhen_org_update_7005(&$sandbox) {
 
 
 /**
- * Fix any redhen_org objects stranded by a bug in 7.x-1.4's update 7005.
+ * Fix any redhen_org objects stranded by a bug in 1.4's update 7005.
  */
 function redhen_org_update_7006() {
   $orgs = db_select('redhen_org', 'org')
     ->fields('org', array('name', 'org_id', 'label'))
-    ->condition('name', NULL, '=')
+    ->condition('name', '', '=')
     ->orderBy('org_id', 'ASC')
     ->execute();
-
+  $count = 0;
   foreach ($orgs as $org) {
+    $count++;
     $machine_name = redhen_org_machine_name($org->label);
     db_update('redhen_org')->fields(array('name' => $machine_name))->condition('org_id', $org->org_id)->execute();
+  }
+  if ($count) {
+    return t('@count additional RedHen organization(s) updated with machine name(s).', array('@count' => $count));
   }
 }
