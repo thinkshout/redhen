@@ -456,15 +456,17 @@ function redhen_org_update_7005(&$sandbox) {
       ),
     );
 
-    // Add new fields. Note, the check to see if this field exists has been added b/c of https://drupal.org/node/2041379.
-    // There was a database update issue that was causing this DB update to fail after creating these additional columns,
-    // but before marking the update as complete. This check should allow the 7005 to run successful after already failing.
+    // Add new fields. Note, the check to see if this field exists has been
+    // added b/c of https://drupal.org/node/2041379. There was a database update
+    // issue that was causing this DB update to fail after creating these
+    // additional columns, but before marking the update as complete. This check
+    // should allow the 7005 to run successful after already failing.
     if (!db_field_exists('redhen_org', 'name')) {
       foreach ($fields as $name => $field) {
         db_add_field('redhen_org', $name, $field);
       }
       // Add unique index for name.
-      db_add_index('redhen_org', 'name', array('name')); 
+      db_add_index('redhen_org', 'name', array('name'));
     }
 
     // Initialize sandbox variables for batch processing.
@@ -481,11 +483,11 @@ function redhen_org_update_7005(&$sandbox) {
     ->orderBy('org_id', 'ASC')
     ->execute();
 
-  // Update any RedHen orgs that have been created without machine-readable names.
+  // Update any RedHen orgs created without machine-readable names.
   foreach ($orgs as $org) {
     if (empty($org->name)) {
       $machine_name = redhen_org_machine_name($org->label);
-      db_update('redhen_org')->fields(array('name' => $machine_name))->condition('org_id', $org->org_id)->execute(); 
+      db_update('redhen_org')->fields(array('name' => $machine_name))->condition('org_id', $org->org_id)->execute();
     }
 
     $sandbox['progress']++;
@@ -495,13 +497,11 @@ function redhen_org_update_7005(&$sandbox) {
   $sandbox['#finished'] = empty($sandbox['max']) ? 1 : ($sandbox['progress'] / $sandbox['max']);
 
   return t('RedHen organizations have been updated with a default machine name.');
-
-  throw new DrupalUpdateException('RedHen organizations update 7005 failed to add a machine name to {redhen_org}.');
 }
 
 
 /**
- * Find the one stranded RedHen org that did not get a machine-readable name b/c of the broken 7005 database update.
+ * Fix any redhen_org objects stranded by a bug in 7.x-1.4's update 7005.
  */
 function redhen_org_update_7006() {
   $orgs = db_select('redhen_org', 'org')
