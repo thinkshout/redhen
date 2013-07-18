@@ -468,7 +468,7 @@ function redhen_org_update_7005(&$sandbox) {
     $sandbox['progress'] = 0;
     $sandbox['current_org_id'] = 0;
     // We'll -1 to disregard the uid 0...
-    $sandbox['max'] = db_query('SELECT COUNT(DISTINCT org_id) FROM {redhen_org}')->fetchField() - 1;
+    $sandbox['max'] = db_query('SELECT COUNT(DISTINCT org_id) FROM {redhen_org}')->fetchField();
   }
 
   // Grab the next 50 orgs to process.
