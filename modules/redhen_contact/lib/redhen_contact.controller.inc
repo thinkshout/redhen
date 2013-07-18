@@ -82,6 +82,10 @@ class RedhenContactEntityController extends EntityAPIController {
       if (empty($contacts)) {
         return FALSE;
       }
+      // Otherwise, update the list of contact IDs to those which are deletable.
+      else {
+        $contact_ids = array_keys($contacts);
+      }
 
       $transaction = db_transaction();
       try {
