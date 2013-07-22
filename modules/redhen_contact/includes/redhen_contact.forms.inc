@@ -86,7 +86,7 @@ function redhen_contact_contact_form_validate($form, &$form_state) {
   // by anther Drupal user.
   if (variable_get('redhen_contact_mirror_email', FALSE) && $contact->uid) {
     foreach ($form_state['values'][REDHEN_CONTACT_EMAIL_FIELD][LANGUAGE_NONE] as $email) {
-      if (is_array($email) && !empty($email['value']) && $email['options']['default']) {
+      if (is_array($email) && !empty($email['value']) && $email['default']) {
         $user = user_load_by_mail($email['value']);
         if ($user && ($user->uid != $contact->uid)) {
           form_set_error(
