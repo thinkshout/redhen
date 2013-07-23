@@ -43,7 +43,7 @@ class RedhenEngagement extends Entity {
   }
 
   /**
-   * Specifify URI.
+   * Return the URI for an engagement.
    */
   protected function defaultUri() {
     return array('path' => 'redhen/engagement/' . $this->engagement_id);
