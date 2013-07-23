@@ -262,6 +262,11 @@ function redhen_contact_theme() {
 
 /**
  * Loads a contact by ID.
+ *
+ * @int $contact_id
+ *
+ * @return bool|RedhenContact
+ *   Fully loaded contact object or FALSE if it does not exist.
  */
 function redhen_contact_load($contact_id) {
   if (empty($contact_id)) {

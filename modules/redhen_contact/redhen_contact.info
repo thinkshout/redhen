@@ -16,4 +16,4 @@ files[] = lib/redhen_contact_type.entity.inc
 files[] = lib/redhen_contact_type.ui_controller.inc
 
 ; Tests
-;files[] = tests/redhen_contact.test
+files[] = tests/redhen_contact.test
