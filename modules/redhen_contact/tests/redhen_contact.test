@@ -1,0 +1,80 @@
+<?php
+
+class RedhenContactTestCase extends DrupalWebTestCase {
+
+  /**
+   * Define the tests.
+   */
+  public static function getInfo() {
+    return array(
+      'name' => 'RedHen Contact CRUD',
+      'description' => 'Tests basic CRUD functionality.',
+      'group' => 'RedHen',
+    );
+  }
+
+  /**
+   * Override setup to enable modules and peform setup tasks.
+   */
+  public function setUp() {
+    // Use a profile that contains required modules:
+    $prof = drupal_get_profile();
+    $this->profile = $prof;
+
+    parent::setUp('entity', 'redhen_contact', 'redhen');
+    $this->contactType()->save();
+  }
+
+  /**
+   * Contact type used in tests.
+   */
+  protected function contactType() {
+    return new RedhenContactType(array(
+      'name' => 'test_type',
+      'label' => 'Test Type',
+    ));
+  }
+
+  /**
+   * Test basic contact CRUD operations.
+   */
+  public function testCRUD() {
+    $user1 = $this->drupalCreateUser();
+
+    $properties = array(
+      'type' => $this->contactType()->name,
+      'first_name' => 'first',
+      'last_name' => 'last',
+      'author_uid' => $user1->uid,
+    );
+
+    // Create test entities for the user1 and unrelated to a user.
+    $contact = redhen_contact_create($properties);
+    $contact->save();
+    $contact_id = $contact->identifier();
+
+    // Reload the entire contact object.
+    $contact = redhen_contact_load($contact_id);
+
+    foreach ($properties as $key => $value) {
+      $this->assertEqual($contact->$key, $value, "Property $key saved correctly.");
+    }
+
+    $contact->setEmail('email@example.com', TRUE);
+    $contact->save();
+    $this->assertEqual($contact->email(), 'email@example.com', 'Contact updated with primary email.');
+
+    $contact->uid = $user1->uid;
+    $contact->save();
+    $contact->setUser();
+    $this->assertEqual($user1->uid, $contact->uid, 'The contact user has been set.');
+
+    $contact->deleteUser(FALSE);
+    $this->assertNull($contact->uid, 'The contact user has been deleted.');
+
+    $contact->delete();
+    $contact = redhen_contact_load($contact_id);
+    $this->assertFalse($contact, 'Contact has been deleted.');
+  }
+
+}
