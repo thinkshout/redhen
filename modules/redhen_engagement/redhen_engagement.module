@@ -228,13 +228,12 @@ function redhen_engagement_get_scores($name = NULL) {
 function redhen_engagement_create($engagement_score_name, $contact_id,
                                   $description, $entity_type = NULL,
                                   $entity_id = NULL, $author_uid = NULL) {
-  $engagement_score = redhen_engagement_get_scores($engagement_score_name);
   if (!$author_uid) {
     global $user;
     $author_uid = $user->uid;
   }
   return new RedhenEngagement(array(
-    'engagement_score' => $engagement_score->identifier(),
+    'engagement_score' => $engagement_score_name,
     'contact_id' => $contact_id,
     'description' => $description,
     'entity_type' => $entity_type,
