@@ -257,7 +257,7 @@ class RedhenContactEntityController extends EntityAPIController {
 
       module_invoke_all('redhen_contact_user_update', 'delete', $contact);
 
-      unset($contact->uid);
+      $contact->uid = NULL;
 
       return TRUE;
     }
