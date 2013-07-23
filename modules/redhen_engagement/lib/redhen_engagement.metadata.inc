@@ -35,7 +35,6 @@ class RedhenEngagementMetadataController extends EntityDefaultMetadataController
     $properties['entity'] = array(
       'label' => t("Source entity"),
       'type' => 'entity',
-      'schema field' => 'entity',
       'description' => t("The host entity."),
       'getter callback' => 'redhen_engagement_property_source_get',
       'setter callback' => 'entity_property_verbatim_set',
