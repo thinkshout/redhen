@@ -17,10 +17,6 @@ class RedhenContactTestCase extends DrupalWebTestCase {
    * Override setup to enable modules and peform setup tasks.
    */
   public function setUp() {
-    // Use a profile that contains required modules:
-    $prof = drupal_get_profile();
-    $this->profile = $prof;
-
     parent::setUp('entity', 'redhen_contact', 'redhen');
     $this->contactType()->save();
   }
@@ -67,6 +63,7 @@ class RedhenContactTestCase extends DrupalWebTestCase {
     $contact->uid = $user1->uid;
     $contact->save();
     $contact->setUser();
+    $contact = redhen_contact_load($contact_id);
     $this->assertEqual($user1->uid, $contact->uid, 'The contact user has been set.');
 
     $contact->deleteUser(FALSE);
