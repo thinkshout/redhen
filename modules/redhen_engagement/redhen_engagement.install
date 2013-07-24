@@ -216,7 +216,7 @@ function redhen_engagement_update_7101(&$sandbox) {
     db_add_field('redhen_contact', 'engagement_score', $field);
   }
 
-  $sql = 'UPDATE redhen_contact rc SET engagement_score = COALESCE((SELECT SUM(score) FROM redhen_engagement re JOIN redhen_engagement_score res on re.engagement_score = res.name WHERE re.contact_id = rc.contact_id), 0)';
+  $sql = 'UPDATE {redhen_contact} rc SET engagement_score = COALESCE((SELECT SUM(score) FROM {redhen_engagement} re JOIN {redhen_engagement_score} res on re.engagement_score = res.name WHERE re.contact_id = rc.contact_id), 0)';
   db_query($sql);
 }
 
