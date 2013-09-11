@@ -300,7 +300,7 @@ function redhen_org_group_node_access_records($node) {
           if (isset($org_type->group) && $org_type->group && $org_type->redhen_state = REDHEN_STATE_ACTIVE && $org_type->group_settings['private']) {
             $grants[] = array(
               'realm' => REDHEN_ORG_GROUP_ACCESS_REALM . ':' . $org->type,
-              'gid' => entity_id('redhen_org', $org),
+              'gid' => $org_id['target_id'],
               'grant_view' => $node->status,
               'grant_update' => 0,
               'grant_delete' => 0,
