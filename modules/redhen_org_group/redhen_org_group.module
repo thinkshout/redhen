@@ -23,6 +23,20 @@ function redhen_org_group_menu() {
 }
 
 /**
+ * Implements hook_permission().
+ */
+function redhen_org_group_permission() {
+  $return = array();
+
+  $return['access all redhen org groups'] = array(
+    'title' => t('Access all RedHen Organization Groups'),
+    'description' => t('Access RedHen Organization groups regardless of if user is a member of that group.')
+  );
+
+  return $return;
+}
+
+/**
  * Implements hook_form_FORM_ID_alter().
  */
 function redhen_org_group_form_redhen_org_type_form_alter(&$form, &$form_state) {
@@ -201,14 +215,18 @@ function redhen_org_group_contact_groups($account, $private = FALSE, $bundle = N
   }
 
   if ($account->uid > 0) {
-    // If not anonymous, get all orgs a user authored.
+    // If not anonymous, get all groups.
     $query = new EntityFieldQuery();
-    $result = $query
-      ->entityCondition('entity_type', 'redhen_org')
+    $query->entityCondition('entity_type', 'redhen_org')
       ->entityCondition('bundle', $group_types, 'IN')
-      ->propertyCondition('redhen_state', REDHEN_STATE_ACTIVE)
-      ->propertyCondition('author_uid', $account->uid)
-      ->execute();
+      ->propertyCondition('redhen_state', REDHEN_STATE_ACTIVE);
+
+    if (!user_access('access all redhen org groups', $account)) {
+      // If user doesn't have permission to all groups, just get authored groups.
+      $query->propertyCondition('author_uid', $account->uid);
+    }
+
+    $result = $query->execute();
     if ($result) {
       $orgs = redhen_org_load_multiple(array_keys($result['redhen_org']));
       foreach ($orgs as $org) {
