@@ -313,6 +313,8 @@ function redhen_relation_connections_page($entity) {
  * @param object $entity
  * @param string $relation_type
  *   Filter on a given relation type if provided.
+ * @param bool $active
+ *   Optionally limit relations to those that are active.
  *
  * @return array
  *   Keyed by the relation id which contains an array of entities.
@@ -321,8 +323,8 @@ function redhen_relation_connections_page($entity) {
  *     3 => array($entity3, $entity4)
  *   )
  */
-function redhen_relation_relations($entity, $relation_type = NULL) {
-  $related_entities = &drupal_static(__FUNCTION__ . $entity->entityType() . $entity->internalIdentifier() . $relation_type, array());
+function redhen_relation_relations($entity, $relation_type = NULL, $active = FALSE) {
+  $related_entities = &drupal_static(__FUNCTION__ . $entity->entityType() . $entity->internalIdentifier() . $relation_type . $active, array());
 
   if ($related_entities) {
     return $related_entities;
@@ -331,6 +333,11 @@ function redhen_relation_relations($entity, $relation_type = NULL) {
   $query = relation_query($entity->entityType(), $entity->internalIdentifier());
   if ($relation_type) {
     $query->propertyCondition('relation_type', $relation_type);
+  }
+
+  // Optionally limit to only active relations.
+  if ($active) {
+    $query->fieldCondition(REDHEN_RELATION_STATUS_FIELD, 'value', TRUE);
   }
 
   // this hideous hack is to avoid triggering the node access system which we

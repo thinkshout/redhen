@@ -182,14 +182,18 @@ function redhen_org_group_redhen_org_type_delete(RedhenOrgType $redhen_org_type)
  *
  * @param object $account
  *   User object
+ * @param bool $private
+ *   Optionally limit to private groups.
  * @param string $bundle
  *   Optionally limit to groups that accept posts of a given bundle.
+ * @param bool $active
+ *   Optionally limit to groups user has active relation with.
  *
  * @return array
  *   An array of redhen_orgs keyed by organization id.
  */
-function redhen_org_group_contact_groups($account, $private = FALSE, $bundle = NULL) {
-  $account_groups = drupal_static(__FUNCTION__ . $account->uid . $private . $bundle, array());
+function redhen_org_group_contact_groups($account, $private = FALSE, $bundle = NULL, $active = TRUE) {
+  $account_groups = drupal_static(__FUNCTION__ . $account->uid . $private . $bundle . $active, array());
 
   if (!empty($account_groups)) {
     return $account_groups;
@@ -204,7 +208,7 @@ function redhen_org_group_contact_groups($account, $private = FALSE, $bundle = N
   }
 
   if ($contact = redhen_contact_user_contact($account)) {
-    $relations = redhen_relation_relations($contact, REDHEN_RELATION_AFFILIATION);
+    $relations = redhen_relation_relations($contact, REDHEN_RELATION_AFFILIATION, $active);
     foreach ($relations as $relation_id => $orgs) {
       foreach ($orgs as $org) {
         if (in_array($org->type, $group_types)) {
