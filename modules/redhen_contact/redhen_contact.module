@@ -12,6 +12,7 @@ define('REDHEN_CONTACT_ALTER_USERNAME', 'redhen_contact_alter_username');
 define('REDHEN_CONTACT_CONNECT_USERS', 'redhen_contact_connect_users');
 define('REDHEN_CONTACT_MIRROR_EMAIL', 'redhen_contact_mirror_email');
 define('REDHEN_CONTACT_REQUIRE_EMAIL', 'redhen_contact_require_email');
+define('REDHEN_CONTACT_REG', 'redhen_contact_reg');
 define('REDHEN_CONTACT_REG_TYPE', 'redhen_contact_reg_type');
 
 /**
@@ -634,13 +635,31 @@ function redhen_contact_redhen_settings() {
       '#description' => t("If checked, RedHen will alter the display of the Drupal username to match a linked contact's label."),
       '#default_value' => variable_get(REDHEN_CONTACT_ALTER_USERNAME, FALSE),
     ),
-    REDHEN_CONTACT_REG_TYPE => array(
-      '#type' => 'select',
-      '#options' => $contact_type_options,
-      '#title' => t('Default User registration contact form.'),
-      '#description' => t('Select a Contact type.'),
-      '#default_value' => variable_get(REDHEN_CONTACT_REG_TYPE, FALSE),
-    )
+    'redhen_user_registration_form' => array(
+      '#type' => 'fieldset',
+      '#title' => t('User Registration form settings'),
+      '#weight' => 0,
+      'settings' => array(
+        REDHEN_CONTACT_REG => array(
+          '#type' => 'checkbox',
+          '#options' => array(1,1),
+          '#title' => t('Enable Contact form on User Registration form.'),
+          '#default_value' => variable_get(REDHEN_CONTACT_REG, FALSE),
+        ),
+        REDHEN_CONTACT_REG_TYPE => array(
+          '#type' => 'select',
+          '#options' => $contact_type_options,
+          '#title' => t('Default User registration contact form.'),
+          '#description' => t('Select a Contact type.'),
+          '#default_value' => variable_get(REDHEN_CONTACT_REG_TYPE, FALSE),
+          '#states' => array(
+            'invisible' => array(
+             ':input[name="redhen_contact_reg"]' => array('checked' => FALSE),
+            ),
+          ),
+        ),
+      ),
+    ),
   );
 }
 
@@ -844,29 +863,32 @@ function redhen_contact_form_user_profile_form_alter(&$form, &$form_state) {
  * Implements hook_form_FORM_ID_alter().
  */
 function redhen_contact_form_user_register_form_alter(&$form, &$form_state) {
-  // Get menu item to check for Contact type parameter.
-  $menu_item = menu_get_item();
-  if (isset($menu_item['original_map'][2])) {
-    $contact_type = $menu_item['original_map'][2];
-  }
-  else {
-    // If not parameter, use the default Contact type.
-    $contact_type = variable_get(REDHEN_CONTACT_REG_TYPE, FALSE);
-  }
+  // Check if enabled.
+  if (variable_get(REDHEN_CONTACT_REG, FALSE) == TRUE) {
+    // Get menu item to check for Contact type parameter.
+    $menu_item = menu_get_item();
+    if (isset($menu_item['original_map'][2])) {
+      $contact_type = $menu_item['original_map'][2];
+    }
+    else {
+      // If not parameter, use the default Contact type.
+      $contact_type = variable_get(REDHEN_CONTACT_REG_TYPE, FALSE);
+    }
 
-  // If a Contact type was found.
-  if ($contact_type) {
-    $contact_object = entity_create('redhen_contact', array('type' => $contact_type));
-    module_load_include('inc', 'redhen_contact', 'includes/redhen_contact.forms');
+    // If a Contact type was found.
+    if ($contact_type) {
+      $contact_object = entity_create('redhen_contact', array('type' => $contact_type));
+      module_load_include('inc', 'redhen_contact', 'includes/redhen_contact.forms');
 
-    //Get contact type form.
-    $form['redhen_contact'] = redhen_contact_contact_form(array(), $form_state, $contact_object);
-    // Unset the contact forms action, we will use the registration form.
-    unset($form['redhen_contact']['actions']);
-    // Hide the Contact email field, we will use the registrations form's field.
-    $form['redhen_contact']['redhen_contact_email']['#access'] = FALSE;
-    // Add a submit handler for creating the contact.
-    $form['#submit'][] = 'redhen_contact_user_registration_submit';
+      //Get contact type form.
+      $form['redhen_contact'] = redhen_contact_contact_form(array(), $form_state, $contact_object);
+      // Unset the contact forms action, we will use the registration form.
+      unset($form['redhen_contact']['actions']);
+      // Hide the Contact email field, we will use the registrations form's field.
+      $form['redhen_contact']['redhen_contact_email']['#access'] = FALSE;
+      // Add a submit handler for creating the contact.
+      $form['#submit'][] = 'redhen_contact_user_registration_submit';
+    }
   }
 }
 
