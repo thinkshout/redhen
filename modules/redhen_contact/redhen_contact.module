@@ -600,9 +600,6 @@ function theme_redhen_contact_list($variables) {
  * Implements hook_redhen_settings().
  */
 function redhen_contact_redhen_settings() {
-  $contact_type_options = redhen_contact_type_options_list();
-  $no_type = array('' => 'None');
-  $contact_type_options = array_merge($no_type, $contact_type_options);
   return array(
     'redhen_contact_email' => array(
       '#type' => 'fieldset',
@@ -637,20 +634,19 @@ function redhen_contact_redhen_settings() {
     ),
     'redhen_user_registration_form' => array(
       '#type' => 'fieldset',
-      '#title' => t('User Registration form settings'),
-      '#weight' => 0,
+      '#title' => t('User registration'),
       'settings' => array(
         REDHEN_CONTACT_REG => array(
           '#type' => 'checkbox',
           '#options' => array(1,1),
-          '#title' => t('Enable Contact form on User Registration form.'),
+          '#title' => t('Create a contact during user registration'),
           '#default_value' => variable_get(REDHEN_CONTACT_REG, FALSE),
         ),
         REDHEN_CONTACT_REG_TYPE => array(
           '#type' => 'select',
-          '#options' => $contact_type_options,
-          '#title' => t('Default User registration contact form.'),
-          '#description' => t('Select a Contact type.'),
+          '#options' => redhen_contact_type_options_list(),
+          '#title' => t('Default contact type'),
+          '#description' => t('Select the default contact type to create during registration. This can be overriden by appending the contact type machine name in the registration url.'),
           '#default_value' => variable_get(REDHEN_CONTACT_REG_TYPE, FALSE),
           '#states' => array(
             'invisible' => array(
@@ -877,14 +873,14 @@ function redhen_contact_form_user_register_form_alter(&$form, &$form_state) {
 
     // If a Contact type was found.
     if ($contact_type) {
-      $contact_object = entity_create('redhen_contact', array('type' => $contact_type));
+      $contact_object = redhen_contact_create(array('type' => $contact_type));
       module_load_include('inc', 'redhen_contact', 'includes/redhen_contact.forms');
 
-      //Get contact type form.
+      // Get contact type form.
       $form['redhen_contact'] = redhen_contact_contact_form(array(), $form_state, $contact_object);
       // Unset the contact forms action, we will use the registration form.
       unset($form['redhen_contact']['actions']);
-      // Hide the Contact email field, we will use the registrations form's field.
+      // Hide the Contact email field, we will use the user mail field.
       $form['redhen_contact']['redhen_contact_email']['#access'] = FALSE;
       // Add a submit handler for creating the contact.
       $form['#submit'][] = 'redhen_contact_user_registration_submit';
@@ -894,6 +890,7 @@ function redhen_contact_form_user_register_form_alter(&$form, &$form_state) {
 
 /**
  * Registration form RedHen contact submit handler.
+ *
  * Creates a Contact on user registration.
  *
  * @param array $form
