@@ -877,11 +877,16 @@ function redhen_contact_form_user_register_form_alter(&$form, &$form_state) {
       module_load_include('inc', 'redhen_contact', 'includes/redhen_contact.forms');
 
       // Get contact type form.
-      $form['redhen_contact'] = redhen_contact_contact_form(array(), $form_state, $contact_object);
+      $form['redhen_contact'] = array(
+        '#type' => 'fieldset',
+        '#title' => t('%type Contact information', array('%type' => ucfirst($contact_type))),
+        'form' => redhen_contact_contact_form(array(), $form_state, $contact_object),
+      );
+
       // Unset the contact forms action, we will use the registration form.
-      unset($form['redhen_contact']['actions']);
+      unset($form['redhen_contact']['form']['actions']);
       // Hide the Contact email field, we will use the user mail field.
-      $form['redhen_contact']['redhen_contact_email']['#access'] = FALSE;
+      $form['redhen_contact']['form']['redhen_contact_email']['#access'] = FALSE;
       // Add a submit handler for creating the contact.
       $form['#submit'][] = 'redhen_contact_user_registration_submit';
     }
