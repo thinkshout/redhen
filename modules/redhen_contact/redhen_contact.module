@@ -659,8 +659,8 @@ function redhen_contact_redhen_settings() {
         REDHEN_CONTACT_REG_UPDATE => array(
           '#type' => 'checkbox',
           '#options' => array(1,1),
-          '#title' => t('Update contact if email is
-            already associated with a contact?'),
+          '#title' => t('Update and link existing contacts'),
+          '#description' => t('If a contact is found with the same email as the new Drupal user, it will be updated and linked to the new account.'),
           '#default_value' => variable_get(REDHEN_CONTACT_REG_UPDATE, FALSE),
         ),
       ),
