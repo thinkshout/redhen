@@ -937,7 +937,8 @@ function redhen_contact_user_registration_submit($form, &$form_state) {
     redhen_contact_save($contact);
   }
   else {
-
+    // TODO: What if the existing contact is of a different type than path?
+    // TODO: What aren't we updating the contact names and fields in this case?
     $contact = current($existing_contact);
     // Else if the setting is set to update and no user associated, update contact.
     if (variable_get(REDHEN_CONTACT_REG_UPDATE, FALSE) == TRUE &&
@@ -947,6 +948,7 @@ function redhen_contact_user_registration_submit($form, &$form_state) {
     }
     else {
       // Remove unneeded user, clear messages.
+      // TODO: This should be handled in a validator.
       user_delete($uid);
       drupal_get_messages();
       drupal_set_message(t('Contact with that email already exists.'));
