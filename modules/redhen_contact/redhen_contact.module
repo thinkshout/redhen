@@ -913,7 +913,7 @@ function redhen_contact_form_user_register_form_alter(&$form, &$form_state) {
  *   Form state array.
  */
 function redhen_contact_user_registration_submit($form, &$form_state) {
-  $contact = &$form_state['redhen_contact'];
+  $contact = $form_state['redhen_contact'];
   $uid = $form_state['user']->uid;
   // Does a contact already exist with that email address?
   $existing_contact = redhen_contact_load_by_mail($form_state['values']['mail']);
