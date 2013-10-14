@@ -898,7 +898,29 @@ function redhen_contact_form_user_register_form_alter(&$form, &$form_state) {
       $form['redhen_contact']['form']['redhen_contact_email']['#access'] = FALSE;
       // Add a submit handler for creating the contact.
       $form['#submit'][] = 'redhen_contact_user_registration_submit';
+      $form['#validate'][] = 'redhen_contact_user_registration_validate';
     }
+  }
+}
+
+/**
+ * Registration form RedHen contact validation handler.
+ *
+ * @param array $form
+ *   Form array.
+ * @param array $form_state
+ *   Form state array.
+ */
+function redhen_contact_user_registration_validate($form, &$form_state) {
+  $existing_contact = redhen_contact_load_by_mail($form_state['values']['mail']);
+  $contact = $existing_contact ? current($existing_contact) : array();
+  if ($existing_contact && variable_get(REDHEN_CONTACT_REG_UPDATE, FALSE) == FALSE) {
+    form_set_error('', t('Contact already exists with that email address.'));
+  }
+  if ($existing_contact && !is_null($contact->uid)
+    && variable_get(REDHEN_CONTACT_REG_UPDATE, FALSE) == TRUE) {
+    form_set_error('mail', t('A contact with that email address is already
+      linked to a user.'));
   }
 }
 
@@ -937,24 +959,18 @@ function redhen_contact_user_registration_submit($form, &$form_state) {
     redhen_contact_save($contact);
   }
   else {
-    // TODO: What if the existing contact is of a different type than path?
-    // TODO: What aren't we updating the contact names and fields in this case?
+    // Update the contact with the new user. Does not update fields.
     $contact = current($existing_contact);
-    // Else if the setting is set to update and no user associated, update contact.
-    if (variable_get(REDHEN_CONTACT_REG_UPDATE, FALSE) == TRUE &&
-      is_null($contact->uid)) {
-      $contact->uid = $uid;
-      redhen_contact_save($contact);
-    }
-    else {
-      // Remove unneeded user, clear messages.
-      // TODO: This should be handled in a validator.
-      user_delete($uid);
-      drupal_get_messages();
-      drupal_set_message(t('Contact with that email already exists.'));
-    }
+    $contact->uid = $uid;
+    redhen_contact_save($contact);
+    drupal_set_message(t('User has been linked to the %firstname %lastname contact.',
+        array(
+          '%firstname' => $contact->first_name,
+          '%lastname' => $contact->last_name,
+        )
+      )
+    );
   }
-
 }
 
 /**
