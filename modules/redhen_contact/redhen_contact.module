@@ -15,6 +15,7 @@ define('REDHEN_CONTACT_REQUIRE_EMAIL', 'redhen_contact_require_email');
 define('REDHEN_CONTACT_REG', 'redhen_contact_reg');
 define('REDHEN_CONTACT_REG_TYPE', 'redhen_contact_reg_type');
 define('REDHEN_CONTACT_REG_UPDATE', 'redhen_contact_reg_update');
+define('REDHEN_CONTACT_REG_UPDATE_FIELDS', 'redhen_contact_reg_update_fields');
 
 
 /**
@@ -663,6 +664,18 @@ function redhen_contact_redhen_settings() {
           '#description' => t('If a contact is found with the same email as the new Drupal user, it will be updated and linked to the new account.'),
           '#default_value' => variable_get(REDHEN_CONTACT_REG_UPDATE, FALSE),
         ),
+        REDHEN_CONTACT_REG_UPDATE_FIELDS => array(
+          '#type' => 'checkbox',
+          '#options' => array(1,1),
+          '#title' => t('Update contact fields'),
+          '#description' => t('Should the contact fields be updated?'),
+          '#default_value' => variable_get(REDHEN_CONTACT_REG_UPDATE_FIELDS, FALSE),
+          '#states' => array(
+            'invisible' => array(
+             ':input[name="redhen_contact_reg_update"]' => array('checked' => FALSE),
+            ),
+          ),
+        ),
       ),
     ),
   );
@@ -912,8 +925,14 @@ function redhen_contact_form_user_register_form_alter(&$form, &$form_state) {
  *   Form state array.
  */
 function redhen_contact_user_registration_validate($form, &$form_state) {
+  $contact_type = $form['redhen_contact']['form']['#entity']->type;
   $existing_contact = redhen_contact_load_by_mail($form_state['values']['mail']);
   $contact = $existing_contact ? current($existing_contact) : array();
+  if ($existing_contact && $contact->type !== $contact_type
+    && variable_get(REDHEN_CONTACT_REG_UPDATE, FALSE) == TRUE) {
+    form_set_error('', t('A Contact of type @type is is already associated with
+      that email address.', array('@type' => $contact->type)));
+  }
   if ($existing_contact && variable_get(REDHEN_CONTACT_REG_UPDATE, FALSE) == FALSE) {
     form_set_error('', t('Contact already exists with that email address.'));
   }
@@ -939,38 +958,44 @@ function redhen_contact_user_registration_submit($form, &$form_state) {
   $uid = $form_state['user']->uid;
   // Does a contact already exist with that email address?
   $existing_contact = redhen_contact_load_by_mail($form_state['values']['mail']);
-  // If not exists, create new contact.
-  if (!$existing_contact) {
-    $contact->author_uid = $uid;
 
+  $contact = $existing_contact ? current($existing_contact) : $contact;
+  // Set user.
+  $contact->uid = $uid;
+
+  $message = t('User has been linked to the %firstname %lastname contact.
+    Fields were not updated.',
+    array(
+      '%firstname' => $contact->first_name,
+      '%lastname' => $contact->last_name,
+    )
+  );
+
+  // If set to update fields, do so.
+  if (variable_get(REDHEN_CONTACT_REG_UPDATE_FIELDS, FALSE) == TRUE) {
     // Save default parameters back into the $contact object.
     $contact->first_name = $form_state['values']['first_name'];
     $contact->middle_name = $form_state['values']['middle_name'];
     $contact->last_name = $form_state['values']['last_name'];
+    $contact->author_uid = $uid;
 
     // Notify field widgets.
     field_attach_submit('redhen_contact', $contact, $form, $form_state);
 
-    // Set user.
-    $contact->uid = $uid;
-
-    // Add email address to contact.
+    // Set email address.
     redhen_contact_property_email_set($contact, NULL, $form_state['values']['mail']);
-    redhen_contact_save($contact);
-  }
-  else {
-    // Update the contact with the new user. Does not update fields.
-    $contact = current($existing_contact);
-    $contact->uid = $uid;
-    redhen_contact_save($contact);
-    drupal_set_message(t('User has been linked to the %firstname %lastname contact.',
-        array(
-          '%firstname' => $contact->first_name,
-          '%lastname' => $contact->last_name,
-        )
+    $message = t('User has been linked to the %firstname %lastname contact.
+      Contact was updated with the information provided.',
+      array(
+        '%firstname' => $contact->first_name,
+        '%lastname' => $contact->last_name,
       )
     );
   }
+
+  redhen_contact_save($contact);
+
+  drupal_set_message($message);
 }
 
 /**
