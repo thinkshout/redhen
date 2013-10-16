@@ -920,7 +920,7 @@ function redhen_contact_form_user_register_form_alter(&$form, &$form_state) {
  * Registration form RedHen contact validation handler.
  */
 function redhen_contact_user_registration_validate($form, &$form_state) {
-  $contact_type = $form['redhen_contact']['form']['#entity']->type;
+  $contact_type = $form_state['redhen_contact']->bundle();
   $existing_contact = redhen_contact_load_by_mail($form_state['values']['mail']);
   $contact = $existing_contact ? current($existing_contact) : array();
   if ($existing_contact && $contact->type !== $contact_type
