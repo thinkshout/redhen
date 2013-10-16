@@ -958,11 +958,9 @@ function redhen_contact_user_registration_submit($form, &$form_state) {
   // Set user.
   $contact->uid = $uid;
 
-  $message = t('User has been linked to the %firstname %lastname contact.
-    Fields were not updated.',
+  $message = t('User has been linked to the contact %name.',
     array(
-      '%firstname' => $contact->first_name,
-      '%lastname' => $contact->last_name,
+      '%name' => $contact->label(),
     )
   );
 
@@ -979,13 +977,7 @@ function redhen_contact_user_registration_submit($form, &$form_state) {
 
     // Set email address.
     redhen_contact_property_email_set($contact, NULL, $form_state['values']['mail']);
-    $message = t('User has been linked to the %firstname %lastname contact.
-      Contact was updated with the information provided.',
-      array(
-        '%firstname' => $contact->first_name,
-        '%lastname' => $contact->last_name,
-      )
-    );
+    $message .= t(' The contact was updated with the information provided.');
   }
 
   redhen_contact_save($contact);
