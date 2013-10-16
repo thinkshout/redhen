@@ -923,18 +923,26 @@ function redhen_contact_user_registration_validate($form, &$form_state) {
   $contact_type = $form_state['redhen_contact']->bundle();
   $existing_contact = redhen_contact_load_by_mail($form_state['values']['mail']);
   $contact = $existing_contact ? current($existing_contact) : array();
-  if ($existing_contact && $contact->type !== $contact_type
-    && variable_get(REDHEN_CONTACT_REG_UPDATE, FALSE) == TRUE) {
-    form_set_error('', t('A Contact of type @type is is already associated with
-      that email address.', array('@type' => $contact->type)));
+  $update_existing = variable_get(REDHEN_CONTACT_REG_UPDATE, FALSE);
+
+  // We have an existing contact, but it's of a different type.
+  if ($existing_contact && $contact->bundle() !== $contact_type) {
+    form_set_error('', t('A Contact of type %type is already associated with the email address %email.',
+      array(
+        '%type' => $contact->bundle(),
+        '%email' => $form_state['values']['mail'],
+      )
+    ));
   }
-  if ($existing_contact && variable_get(REDHEN_CONTACT_REG_UPDATE, FALSE) == FALSE) {
-    form_set_error('', t('Contact already exists with that email address.'));
+
+  // We don't want to update contacts, but found an existing match.
+  if ($existing_contact && !$update_existing) {
+    form_set_error('', t('A contact already exists with that email address.'));
   }
-  if ($existing_contact && !is_null($contact->uid)
-    && variable_get(REDHEN_CONTACT_REG_UPDATE, FALSE) == TRUE) {
-    form_set_error('mail', t('A contact with that email address is already
-      linked to a user.'));
+
+  // Existing contact is already linked to a user.
+  if ($existing_contact && !is_null($contact->uid) && $update_existing) {
+    form_set_error('mail', t('A contact with that email address is already linked to a Drupal user.'));
   }
 }
 
