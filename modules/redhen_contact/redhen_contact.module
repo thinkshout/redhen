@@ -918,11 +918,6 @@ function redhen_contact_form_user_register_form_alter(&$form, &$form_state) {
 
 /**
  * Registration form RedHen contact validation handler.
- *
- * @param array $form
- *   Form array.
- * @param array $form_state
- *   Form state array.
  */
 function redhen_contact_user_registration_validate($form, &$form_state) {
   $contact_type = $form['redhen_contact']['form']['#entity']->type;
