@@ -32,7 +32,7 @@ class RedhenOrgEntityController extends EntityAPIControllerExportable {
       if (!isset($org->is_new_revision)) {
         $org->is_new_revision = TRUE;
       }
-      if (!isset($contact->default_revision)) {
+      if (!isset($org->default_revision)) {
         $org->default_revision = TRUE;
       }
     }
