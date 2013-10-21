@@ -36,6 +36,9 @@ class RedhenOrgEntityController extends EntityAPIControllerExportable {
         $org->default_revision = TRUE;
       }
     }
+    if (!isset($org->name) && isset($org->label)) {
+      $org->name = redhen_org_machine_name($org->label);
+    }
     parent::save($org);
 
     return $org;
