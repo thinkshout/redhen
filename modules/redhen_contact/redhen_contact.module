@@ -990,6 +990,9 @@ function redhen_contact_user_registration_submit($form, &$form_state) {
 
   redhen_contact_save($contact);
 
+  // Update form_state contact for later processing.
+  $form_state['redhen_contact'] = $contact;
+
   drupal_set_message($message);
 }
 
