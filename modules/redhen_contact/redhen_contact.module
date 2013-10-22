@@ -448,10 +448,33 @@ function redhen_contact_contact_title(RedhenContact $contact) {
  * Implements hook_user_delete().
  */
 function redhen_contact_user_delete($account) {
-  // Delete any contact user links.
-  db_delete('redhen_contact_user')
-    ->condition('uid', $account->uid)
-    ->execute();
+  // Delete any associated contacts.
+  if ($contact = redhen_contact_load_by_user($account)) {
+    $return = $contact->delete();
+  }
+}
+
+/**
+ * Implements hook_user_cancel().
+ */
+function redhen_contact_user_cancel($edit, $account, $method) {
+  switch ($method) {
+    case 'user_cancel_block_unpublish':
+      // Archive the contact, but keep the association.
+      if ($contact = redhen_contact_load_by_user($account)) {
+        $contact->setState(REDHEN_STATE_ARCHIVED);
+        $contact->save();
+      }
+      break;
+
+    case 'user_cancel_reassign':
+      // Unlink the entities, but do not archive the contact.
+      if ($contact = redhen_contact_load_by_user($account)) {
+        $contact->deleteUser(TRUE);
+        $contact->save();
+      }
+      break;
+  }
 }
 
 /**
