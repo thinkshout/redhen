@@ -17,6 +17,7 @@ function redhen_org_entity_info() {
       'label' => t('Organization'),
       'plural label' => t('Organizations'),
       'controller class' => 'RedhenOrgEntityController',
+      'rules controller class' => 'EntityDefaultRulesController',
       'metadata controller class' => 'RedhenOrgMetadataController',
       'entity class' => 'RedhenOrg',
       'base table' => 'redhen_org',
