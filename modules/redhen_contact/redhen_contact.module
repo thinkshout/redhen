@@ -28,6 +28,7 @@ function redhen_contact_entity_info() {
       'plural label' => t('Contacts'),
       'controller class' => 'RedhenContactEntityController',
       'metadata controller class' => 'RedhenContactMetadataController',
+      'rules controller class' => 'EntityDefaultRulesController',
       'entity class' => 'RedhenContact',
       'views controller class' => 'RedhenContactViewsController',
       'base table' => 'redhen_contact',
