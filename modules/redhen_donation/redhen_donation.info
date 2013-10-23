@@ -1,0 +1,15 @@
+name = RedHen Donations
+description = Entity based donation system.
+package = RedHen
+core = 7.x
+
+dependencies[] = redhen_contact
+dependencies[] = commerce_checkout
+
+; Classes
+files[] = lib/redhen_donation.entity.inc
+files[] = lib/redhen_donation.metadata.inc
+files[] = lib/redhen_donation_type.entity.inc
+files[] = lib/redhen_donation_type.ui_controller.inc
+
+; Tests

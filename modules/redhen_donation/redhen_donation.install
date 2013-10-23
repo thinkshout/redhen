@@ -1,0 +1,234 @@
+<?php
+
+/**
+ * @file
+ * Schema and installation hooks for redhen donations module.
+ */
+
+/**
+ * Implements hook_schema().
+ */
+function redhen_donation_schema() {
+  $schema['redhen_donation'] = array(
+    'description' => 'The base table for redhen_donation module.',
+    'fields' => array(
+      'donation_id' => array(
+        'description' => 'The primary identifier for a donation.',
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'type' => array(
+        'description' => 'The {redhen_donation_type}.type of this donation.',
+        'type' => 'varchar',
+        'length' => 32,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'entity_id' => array(
+        'description' => 'The id of the entity this donation is associated with.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'entity_type' => array(
+        'description' => 'The entity type of the entity this donation is associated with.',
+        'type' => 'varchar',
+        'length' => 32,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'uid' => array(
+        'description' => 'The uid of the user who created this donation.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'order_id' => array(
+        'description' => 'The {commerce_order}.order_id of the order associated with this donation.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'created' => array(
+        'description' => 'The Unix timestamp when the donation was created.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'updated' => array(
+        'description' => 'The Unix timestamp when the donation was most recently saved.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+    ),
+    'indexes' => array(
+      'donation_updated' => array('updated'),
+      'donation_created' => array('created'),
+      'donation_type' => array(array('type', 4)),
+    ),
+    'primary key' => array('donation_id'),
+  );
+
+  $schema['redhen_donation_entity'] = array(
+    'description' => 'donation per-entity settings.',
+    'fields' => array(
+      'entity_id' => array(
+        'description' => 'Entity id these donation settings are for.',
+        'type' => 'int',
+        'not null' => TRUE,
+      ),
+      'entity_type' => array(
+        'description' => 'The entity type of the entity these donation settings are for.',
+        'type' => 'varchar',
+        'length' => 32,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'status' => array(
+        'description' => 'Boolean indicating if donations are open (1) or closed (0) for the given entity',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 1,
+      ),
+      'open' => array(
+        'description' => 'Date to open donations. Or NULL to open immediately.',
+        'mysql_type' => 'datetime',
+        'pgsql_type' => 'timestamp',
+        'sqlite_type' => 'varchar',
+        'sqlsrv_type' => 'smalldatetime',
+        'not null' => FALSE,
+      ),
+      'close' => array(
+        'description' => 'Date to close donations. Or NULL to never close automatically.',
+        'mysql_type' => 'datetime',
+        'pgsql_type' => 'timestamp',
+        'sqlite_type' => 'varchar',
+        'sqlsrv_type' => 'smalldatetime',
+        'not null' => FALSE,
+      ),
+      'settings' => array(
+        'type' => 'blob',
+        'not null' => TRUE,
+        'size' => 'big',
+        'serialize' => TRUE,
+        'description' => 'A serialized object that stores additional donation settings.',
+      ),
+    ),
+    'primary key' => array('entity_id', 'entity_type'),
+  );
+
+  $schema['redhen_donation_type'] = array(
+    'description' => 'Stores information about all defined redhen donations types.',
+    'fields' => array(
+      'id' => array(
+        'type' => 'serial',
+        'not null' => TRUE,
+        'description' => 'Primary Key: Unique donation type ID.',
+      ),
+      'name' => array(
+        'description' => 'The machine-readable name of this donation type.',
+        'type' => 'varchar',
+        'length' => 32,
+        'not null' => TRUE,
+      ),
+      'label' => array(
+        'description' => 'The human-readable name of this donation type.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'weight' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+        'size' => 'tiny',
+        'description' => 'The weight of this donation type in relation to others.',
+      ),
+      'locked' => array(
+        'description' => 'A boolean indicating whether the administrator may delete this type.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+        'size' => 'tiny',
+      ),
+      'data' => array(
+        'type' => 'text',
+        'not null' => FALSE,
+        'size' => 'big',
+        'serialize' => TRUE,
+        'description' => 'A serialized array of additional data related to this donation type.',
+        'merge' => TRUE,
+      ),
+      'status' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+        // Set the default to ENTITY_CUSTOM without using the constant as it is
+        // not safe to use it at this point.
+        'default' => 0x01,
+        'size' => 'tiny',
+        'description' => 'The exportable status of the entity.',
+      ),
+      'module' => array(
+        'description' => 'The name of the providing module if the entity has been defined in code.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => FALSE,
+      ),
+      'settings' => array(
+        'type' => 'blob',
+        'not null' => FALSE,
+        'size' => 'big',
+        'serialize' => TRUE,
+        'description' => 'A serialized object that stores additional donation settings.',
+      ),
+    ),
+    'primary key' => array('id'),
+    'unique keys' => array(
+      'name' => array('name'),
+    ),
+  );
+
+  // Create cache bins for Entity-cache module.
+  $cache_schema = drupal_get_schema_unprocessed('system', 'cache');
+  $types = array(
+    'redhen_donation',
+    'redhen_donation_type',
+  );
+
+  foreach ($types as $type) {
+    $schema["cache_entity_$type"] = $cache_schema;
+    $schema["cache_entity_$type"]['description'] = "Cache table used to store $type entity records.";
+  }
+
+  return $schema;
+}
+
+/**
+ * Implements hook_field_schema().
+ */
+function redhen_donation_field_schema($field) {
+  $columns = array(
+    'redhen_donation_type' => array(
+      'type' => 'varchar',
+      'length' => 32,
+      'not null' => FALSE,
+    ),
+  );
+  $indexes = array(
+    'redhen_donation_type' => array('redhen_donation_type'),
+  );
+  $foreign_keys = array(
+    'redhen_donation_type' => array(
+      'table' => 'redhen_donation_type',
+      'columns' => array('redhen_donation_type' => 'name'),
+    ),
+  );
+  return array(
+    'columns' => $columns,
+    'indexes' => $indexes,
+    'foreign keys' => $foreign_keys,
+  );
+}
