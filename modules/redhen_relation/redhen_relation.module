@@ -76,9 +76,15 @@ function redhen_relation_menu_alter(&$items) {
  * Custom title callback for relation pages.
  */
 function redhen_relation_page_title($relation) {
+  $endpoints = field_get_items('relation', $relation, 'endpoints');
+
+  $redhen_entities = array('redhen_contact', 'redhen_org');
+  if (!in_array($endpoints[0]['entity_type'], $redhen_entities) || !in_array($endpoints[1]['entity_type'], $redhen_entities)) {
+    return relation_ui_page_title($relation);
+  }
+
   $relation_type = relation_type_load($relation->relation_type);
 
-  $endpoints = field_get_items('relation', $relation, 'endpoints');
   foreach ($endpoints as $endpoint) {
     if ($endpoint['r_index'] == 0) {
       $label1 = entity_load_single($endpoint['entity_type'], $endpoint['entity_id'])->label();
