@@ -31,6 +31,9 @@ function redhen_contact_entity_info() {
       'rules controller class' => 'EntityDefaultRulesController',
       'entity class' => 'RedhenContact',
       'views controller class' => 'RedhenContactViewsController',
+      'inline entity form' => array(
+        'controller' => 'RedHenContactInlineEntityFormController',
+      ),
       'base table' => 'redhen_contact',
       'revision table' => 'redhen_contact_revision',
       'fieldable' => TRUE,
