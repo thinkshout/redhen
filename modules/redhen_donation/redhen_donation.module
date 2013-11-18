@@ -743,8 +743,8 @@ function redhen_donation_property_host_set(RedhenDonation $donation, $name, $val
  * @see RedhenDonationMetadataController::entityPropertyInfo().
  */
 function redhen_donation_property_user_get(RedhenDonation $donation, array $options, $property_name, $entity_type) {
-  if (is_numeric($donation->user_uid)) {
-    $entity = entity_load_single('user', $donation->user_uid);
+  if (is_numeric($donation->uid)) {
+    $entity = entity_load_single('user', $donation->uid);
     return entity_metadata_wrapper('user', $entity);
   }
 }
@@ -788,4 +788,144 @@ function theme_redhen_donation_link($variables) {
   $output .= l($donation_label, $donation_path);
 
   return $output;
+}
+
+/**
+ * Generates a string representation of an array of 'allowed values'.
+ *
+ * This string format is suitable for edition in a textarea.
+ *
+ * @param $values
+ *   An array of values, where array keys are values and array values are
+ *   labels.
+ *
+ * @return
+ *   The string representation of the $values array:
+ *    - Values are separated by a carriage return.
+ *    - Each value is in the format "value|label" or "value".
+ *
+ * @see redhen_extract_allowed_amounts()
+ */
+function redhen_allowed_amounts_string($values) {
+  $lines = array();
+  foreach ($values as $key => $value) {
+    $lines[] = "$key|$value";
+  }
+  return implode("\n", $lines);
+}
+
+/**
+ * Parses a string of 'allowed ' into an array.
+ *
+ * @param $string
+ *   The list of allowed values in string format described in
+ *   redhen_allowed_amounts_string().
+ *
+ * @return
+ *   The array of extracted key/value pairs, or NULL if the string is invalid.
+ *
+ * @see redhen_allowed_amounts_string()
+ */
+function redhen_extract_allowed_amounts($string) {
+  $values = array();
+
+  $list = explode("\n", $string);
+  $list = array_map('trim', $list);
+  $list = array_filter($list, 'strlen');
+
+  $generated_keys = $explicit_keys = FALSE;
+  foreach ($list as $position => $text) {
+    $value = $key = FALSE;
+
+    // Check for an explicit key.
+    $matches = array();
+    if (preg_match('/(.*)\|(.*)/', $text, $matches)) {
+      $key = $matches[1];
+      $value = $matches[2];
+      $explicit_keys = TRUE;
+    }
+    // Otherwise see if we can use the value as the key. Detecting true integer
+    // strings takes a little trick.
+    elseif (is_numeric($text) && (float) $text == intval($text)) {
+      $key = $value = $text;
+      $explicit_keys = TRUE;
+    }
+    // Otherwise see if we can generate a key from the position.
+    else {
+      $key = (string) $position;
+      $value = $text;
+      $generated_keys = TRUE;
+    }
+
+    $values[$key] = $value;
+  }
+
+  // We generate keys only if the list contains no explicit key at all.
+  if ($explicit_keys && $generated_keys) {
+    return;
+  }
+
+  return $values;
+}
+
+/**
+ * Loads a donation by ID.
+ */
+function redhen_donation_load($donation_id) {
+  if (empty($donation_id)) {
+    return FALSE;
+  }
+
+  $donations = redhen_donation_load_multiple(array($donation_id), array());
+  return $donations ? reset($donations) : FALSE;
+}
+
+/**
+ * Loads multiple donation by ID or based on a set of matching conditions.
+ *
+ * @see entity_load()
+ *
+ * @param $donation_ids
+ * @param $conditions
+ *   An array of conditions on the {donation} table in the form
+ *     'field' => $value.
+ * @param $reset
+ *   Whether to reset the internal donation loading cache.
+ *
+ * @return
+ *   An array of donation objects indexed by donation_id.
+ */
+function redhen_donation_load_multiple($donation_ids = array(), $conditions = array(), $reset = FALSE) {
+  if (empty($donation_ids) && empty($conditions)) {
+    return array();
+  }
+
+  return entity_load('redhen_donation', $donation_ids, $conditions, $reset);
+}
+
+/**
+ * Deletes multiple donations by ID.
+ *
+ * @param $donation_ids
+ *   An array of donation IDs to delete.
+ *
+ * @return
+ *   TRUE on success, FALSE otherwise.
+ */
+function redhen_donation_delete_multiple($donation_ids) {
+  return entity_get_controller('redhen_donation')->delete($donation_ids);
+}
+
+/**
+ * Saves a donation.
+ *
+ * @param $donation
+ *   The full donation object to save.
+ *
+ * @return
+ *   If the record insert or update failed, returns FALSE. If it succeeded,
+ *   returns SAVED_NEW or SAVED_UPDATED, depending on the operation performed.
+ */
+function redhen_donation_save(RedhenDonation $donation) {
+  return $donation->save();
 }
