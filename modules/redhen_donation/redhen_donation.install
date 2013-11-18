@@ -182,7 +182,7 @@ function redhen_donation_schema() {
         'not null' => FALSE,
         'size' => 'big',
         'serialize' => TRUE,
-        'description' => 'A serialized object that stores additional donation settings.',
+        'description' => 'A serialized object that stores additional donation type settings.',
       ),
     ),
     'primary key' => array('id'),

@@ -15,6 +15,9 @@ class RedhenDonation extends Entity {
     $type,
     $entity_id,
     $entity_type,
+    $uid = NULL,
+    $order_id = NULL,
+    $amount = NULL,
     $created,
     $updated;
 

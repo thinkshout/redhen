@@ -86,6 +86,56 @@ function redhen_donation_entity_settings_form($form, &$form_state, $settings, $e
     '#tree' => TRUE,
   );
 
+
+  $form['settings']['donation_entry'] = array(
+    '#type' => 'select',
+    '#title' => t('Donation entry'),
+    '#default_value' => $settings['settings']['donation_entry'],
+    '#options' => array('select' => t('Select list'), 'select_other' => t("Select list (with 'other' option)"), 'custom' => t('Text field (custom amount)')),
+  );
+
+  $form['settings']['donation_amounts'] = array(
+    '#type' => 'textarea',
+    '#title' => t('Donation amounts'),
+    '#default_value' => redhen_allowed_amounts_string($settings['settings']['donation_amounts']),
+    '#states' => array(
+      'invisible' => array(
+        ':input[name="settings[donation_entry]"]' => array(
+          'value' => 'custom'
+        ),
+      ),
+    ),
+    '#description' => t('List of allowed donation amounts. Enter one value per line, in the format amount|label. The amount should be entered as an integer value.'),
+  );
+
+  $form['settings']['minimum_donation'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Minimum donation'),
+    '#default_value' => $settings['settings']['minimum_donation'],
+    '#description' => t('Enter the minimum allowed donation as an integer. Leave blank for no minimum.'),
+    '#states' => array(
+      'invisible' => array(
+        ':input[name="settings[donation_entry]"]' => array(
+          'value' => 'select'
+        ),
+      ),
+    ),
+  );
+
+  $form['settings']['maximum_donation'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Maximum donation'),
+    '#default_value' => $settings['settings']['maximum_donation'],
+    '#description' => t('Enter the maximum allowed donation as an integer. Leave blank for no maximum.'),
+    '#states' => array(
+      'invisible' => array(
+        ':input[name="settings[donation_entry]"]' => array(
+          'value' => 'select'
+        ),
+      ),
+    ),
+  );
+
   // Allow other modules to add their own custom settings:
   $form['settings'] += module_invoke_all('redhen_donation_entity_settings', $settings);
 
@@ -107,6 +157,19 @@ function redhen_donation_entity_settings_form($form, &$form_state, $settings, $e
  * @param array $form_state
  */
 function redhen_donation_entity_settings_form_validate($form, &$form_state) {
+  // Extract allowed amounts
+  if ($form_state['values']['settings']['donation_entry'] == 'select' || $form_state['values']['settings']['donation_entry'] == 'select_other') {
+    $form_state['values']['settings']['donation_amounts'] = redhen_extract_allowed_amounts($form_state['values']['settings']['donation_amounts']);
+
+    // Validate allowed amounts
+    foreach ($form_state['values']['settings']['donation_amounts'] as $amount => $label) {
+      if (!is_numeric($amount)) {
+        form_set_error('settings][donation_amounts', t('Donation amounts are invalid'));
+      }
+    }
+  }
+
+
   // Validate open date:
   if (!empty($form_state['values']['scheduling']['open']) && strtotime($form_state['values']['scheduling']['open']) === FALSE) {
     form_set_error('scheduling][open', t('Date is invalid.'));
@@ -134,4 +197,153 @@ function redhen_donation_entity_settings_form_submit($form, &$form_state) {
   $uri = entity_uri($entity['entity_type'], entity_load_single($entity['entity_type'], $entity['entity_id']));
 
   $form_state['redirect'] = $uri['path'];
+}
+
+/**
+ * Form callback: create or edit a donation.
+ *
+ * @param RedhenDonation $donation
+ *   The donation object to edit or for a create form and empty donation
+ *   object with an attached entity defined.
+ */
+function redhen_donation_form($form, &$form_state, RedhenDonation $donation) {
+  $wrapper = entity_metadata_wrapper('redhen_donation', $donation);
+  $user = $wrapper->user->value();
+  $host = $wrapper->entity->value();
+
+  $form_state['donation'] = $donation;
+
+  $settings = redhen_donation_entity_settings($donation->entity_type, $donation->entity_id);
+  dsm($settings);
+
+  if ($settings['settings']['donation_entry'] == 'select' || $settings['settings']['donation_entry'] == 'select_other') {
+    $options = $settings['settings']['donation_amounts'];
+
+    if ($settings['settings']['donation_entry'] == 'select_other') {
+      $options['other'] = 'Other amount';
+    }
+
+    $form['donation_amount_select'] = array(
+      '#type' => 'select',
+      '#title' => t('Donation amount'),
+      '#options' => $options,
+      '#default_value' => $donation->amount
+    );
+  }
+
+  if ($settings['settings']['donation_entry'] == 'custom' || $settings['settings']['donation_entry'] == 'select_other') {
+    $form['donation_amount_other'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Other amount'),
+      '#default_value' => $donation->amount
+    );
+
+    if ($settings['settings']['donation_entry'] == 'select_other') {
+      $form['donation_amount_other']['#states'] = array(
+        'visible' => array(
+          ':input[name="donation_amount_select"]' => array(
+            'value' => 'other'
+          ),
+        ),
+      );
+    }
+  }
+
+  field_attach_form('redhen_donation', $donation, $form, $form_state);
+
+  $form['actions'] = array('#type' => 'actions');
+  $form['actions']['submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Save Donation'),
+  );
+
+  // Add a delete button for existing donation:
+  if (isset($donation->donation_id) && entity_access('delete', 'redhen_donation', $donation)) {
+    $form['actions']['delete'] = array(
+      '#type' => 'submit',
+      '#value' => t('Delete'),
+      '#submit' => array('redhen_donation_form_delete_submit'),
+      "#limit_validation_errors" => array(),
+    );
+  }
+
+  if ($host) {
+    $uri = entity_uri($donation->entity_type, $host);
+    $form['actions']['cancel'] = array(
+      '#type' => 'link',
+      '#title' => t('Cancel'),
+      '#href' => $uri['path'],
+    );
+  }
+
+  $form['#donation_settings'] = $settings;
+
+  return $form;
+}
+
+/**
+ * Validation callback for redhen_donation_form().
+ */
+function redhen_donation_form_validate($form, &$form_state) {
+  $donation = $form_state['donation'];
+
+  $settings = redhen_donation_entity_settings($donation->entity_type, $donation->entity_id);
+
+  // Notify field widgets to validate their data.
+  field_attach_form_validate('redhen_donation', $donation, $form, $form_state);
+}
+
+/**
+ * Submit callback for redhen_donation_form().
+ */
+function redhen_donation_form_submit($form, &$form_state) {
+  $donation = $form_state['donation'];
+
+  // Set the donation's author uid
+  if (!isset($donation->donation_id)) {
+    $donation->uid = $GLOBALS['user']->uid;
+  }
+
+  // Notify field widgets.
+  field_attach_submit('redhen_donation', $donation, $form, $form_state);
+
+  // Save the donation and redirect.
+  if (redhen_donation_save($donation)) {
+    drupal_set_message(t('Donation has been saved.'));
+    $wrapper = entity_metadata_wrapper('redhen_donation', $donation);
+    $host = $wrapper->entity->value();
+
+    // Redirect to donation
+    if (entity_access('view', 'redhen_donation', $donation)) {
+      $uri = entity_uri('redhen_donation', $donation);
+      $form_state['redirect'] = $uri['path'];
+    }
+    // Redirect to host entity
+    else {
+      if (entity_access('view', $donation->entity_type, $host)) {
+        $uri = entity_uri($donation->entity_type, $host);
+        $form_state['redirect'] = $uri['path'];
+      }
+    }
+  }
+  else {
+    drupal_set_message(t('There was a problem submitting your donation.'));
+  }
+}
+
+/**
+ * Button submit function: handle the 'Delete' button on the node form.
+ */
+function redhen_donation_form_delete_submit($form, &$form_state) {
+  $destination = array();
+  if (isset($_GET['destination'])) {
+    $destination = drupal_get_destination();
+    unset($_GET['destination']);
+  }
+  $donation = $form_state['donation'];
+  $form_state['redirect'] = array(
+    'donation/' .
+    $donation->donation_id . '/delete',
+    array('query' => $destination),
+  );
 }

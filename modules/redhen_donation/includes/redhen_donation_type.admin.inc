@@ -43,6 +43,14 @@ function redhen_donation_type_form($form, &$form_state, $donation_type, $op = 'e
     '#tree' => TRUE,
   );
 
+  $form['settings']['contact_type'] = array(
+    '#type' => 'select',
+    '#title' => t('Contact type'),
+    '#default_value' => $donation_type->settings['contact_type'],
+    '#options' => redhen_contact_type_options_list(),
+    '#description' => t('Select the contact type that will be displayed inline on the donation form.'),
+  );
+
   $form['actions'] = array('#type' => 'actions');
   $form['actions']['submit'] = array(
     '#type' => 'submit',
