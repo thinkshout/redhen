@@ -121,7 +121,7 @@ function redhen_contact_entity_property_info_alter(&$info) {
     'label' => "redhen_contact",
     'description' => "Points to the RedHen Contact entity connected to this user.",
     'getter callback' => 'redhen_contact_load_by_user_callback',
-    'type' => 'entity',
+    'type' => 'redhen_contact',
   );
 }
 
