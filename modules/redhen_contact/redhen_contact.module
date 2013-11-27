@@ -114,6 +114,25 @@ function redhen_contact_entity_info_alter(&$entity_info) {
 }
 
 /**
+ * Implements hook_entity_property_info_alter().
+ */
+function redhen_contact_entity_property_info_alter(&$info) {
+  $info['user']['properties']['redhen_contact'] = array(
+    'label' => "redhen_contact",
+    'description' => "Points to the RedHen Contact entity connected to this user.",
+    'getter callback' => 'redhen_contact_load_by_user_callback',
+    'type' => 'entity',
+  );
+}
+
+/**
+ * Wrapper around redhen_contact_load_by_user to use as user property callback.
+ */
+function redhen_contact_load_by_user_callback($user, array $options, $property_name, $entity_type) {
+  return redhen_contact_load_by_user($user);
+}
+
+/**
  * Implements hook_menu().
  */
 function redhen_contact_menu() {
