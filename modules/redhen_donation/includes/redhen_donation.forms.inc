@@ -214,7 +214,6 @@ function redhen_donation_form($form, &$form_state, RedhenDonation $donation) {
   $form_state['donation'] = $donation;
 
   $settings = redhen_donation_entity_settings($donation->entity_type, $donation->entity_id);
-  dsm($settings);
 
   if ($settings['settings']['donation_entry'] == 'select' || $settings['settings']['donation_entry'] == 'select_other') {
     $options = $settings['settings']['donation_amounts'];
@@ -247,6 +246,28 @@ function redhen_donation_form($form, &$form_state, RedhenDonation $donation) {
         ),
       );
     }
+  }
+
+  $donation_type = redhen_donation_type_load($donation->bundle());
+  $contact_type = $donation_type->settings['contact_type'];
+
+  // If a Contact type was found.
+  if ($contact_type) {
+    $contact_object = redhen_contact_create(array('type' => $contact_type));
+    module_load_include('inc', 'redhen_contact', 'includes/redhen_contact.forms');
+
+    // Get contact type form.
+    $form['redhen_contact'] = array(
+      '#type' => 'fieldset',
+      '#title' => t('%type Contact information', array('%type' => ucfirst($contact_type))),
+      'form' => redhen_contact_contact_form(array(), $form_state, $contact_object),
+    );
+
+    // Unset the contact forms action, we will use the registration form.
+    unset($form['redhen_contact']['form']['actions']);
+    // Hide the Contact email field, we will use the user mail field.
+    $form['redhen_contact']['form']['redhen_contact_email']['#access'] = FALSE;
+    // Add a submit handler for creating the contact.
   }
 
   field_attach_form('redhen_donation', $donation, $form, $form_state);
@@ -289,6 +310,34 @@ function redhen_donation_form_validate($form, &$form_state) {
 
   $settings = redhen_donation_entity_settings($donation->entity_type, $donation->entity_id);
 
+  $donation = $form_state['donation'];
+  $contact_type = $form_state['redhen_contact']->bundle();
+  $donation_type = redhen_donation_type_load($donation->bundle());
+
+  // @TODO switch this to use order email or currently logged in user?
+  $contact = redhen_donation_load_contact_by_current_user_or_mail($form_state['values']['mail']);
+  $update_existing = $donation_type->settings['contact_update'];
+
+  // We have an existing contact, but it's of a different type.
+  if ($contact && $contact->bundle() !== $contact_type) {
+    form_set_error('', t('A Contact of type %type is already associated with the email address %email.',
+      array(
+        '%type' => $contact->bundle(),
+        '%email' => $form_state['values']['mail'],
+      )
+    ));
+  }
+
+  // We don't want to update contacts, but found an existing match.
+  if ($contact && !$update_existing) {
+    form_set_error('', t('A contact already exists with that email address.'));
+  }
+
+  // Existing contact is already linked to a user.
+  if ($contact && !is_null($contact->uid) && $update_existing) {
+    form_set_error('mail', t('A contact with that email address is already linked to a Drupal user.'));
+  }
+
   // Notify field widgets to validate their data.
   field_attach_form_validate('redhen_donation', $donation, $form, $form_state);
 }
@@ -297,7 +346,9 @@ function redhen_donation_form_validate($form, &$form_state) {
  * Submit callback for redhen_donation_form().
  */
 function redhen_donation_form_submit($form, &$form_state) {
+  global $user;
   $donation = $form_state['donation'];
+  $donation_type = redhen_donation_type_load($donation->bundle());
 
   // Set the donation's author uid
   if (!isset($donation->donation_id)) {
@@ -325,6 +376,46 @@ function redhen_donation_form_submit($form, &$form_state) {
         $form_state['redirect'] = $uri['path'];
       }
     }
+
+    $contact = $form_state['redhen_contact'];
+    // Does a contact already exist with that email address?
+    // @TODO switch this to use order email or currently logged in user?
+    $existing_contact = redhen_donation_load_contact_by_current_user_or_mail($form_state['values']['mail']);
+
+    $contact = $existing_contact ? $existing_contact : $contact;
+
+
+    // Set user.
+    $contact->uid = $user->uid;
+
+    $message = t('User has been linked to the contact %name.',
+      array(
+        '%name' => $contact->label(),
+      )
+    );
+
+    // If set to update fields, do so.
+    if ($donation_type->settings['contact_update_fields'] == TRUE) {
+      // Save default parameters back into the $contact object.
+      $contact->first_name = $form_state['values']['first_name'];
+      $contact->middle_name = $form_state['values']['middle_name'];
+      $contact->last_name = $form_state['values']['last_name'];
+      $contact->author_uid = $user->uid;
+
+      // Notify field widgets.
+      field_attach_submit('redhen_contact', $contact, $form, $form_state);
+
+      // Set email address.
+      redhen_contact_property_email_set($contact, NULL, $form_state['values']['mail']);
+      $message .= t(' The contact was updated with the information provided.');
+    }
+
+    redhen_contact_save($contact);
+
+    // Update form_state contact for later processing.
+    $form_state['redhen_contact'] = $contact;
+
+    drupal_set_message($message);
   }
   else {
     drupal_set_message(t('There was a problem submitting your donation.'));

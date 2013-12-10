@@ -48,8 +48,38 @@ function redhen_donation_type_form($form, &$form_state, $donation_type, $op = 'e
     '#title' => t('Contact type'),
     '#default_value' => $donation_type->settings['contact_type'],
     '#options' => redhen_contact_type_options_list(),
+    '#empty_value' => FALSE,
     '#description' => t('Select the contact type that will be displayed inline on the donation form.'),
   );
+
+  $form['settings']['contact_update'] = array(
+    '#type' => 'checkbox',
+    '#options' => array(1,1),
+    '#title' => t('Update and link existing contacts'),
+    '#description' => t('If a contact is found with the same email as the donation order, it will be updated and linked to the new account.'),
+    '#default_value' => $donation_type->settings['contact_update'],
+    '#states' => array(
+      'invisible' => array(
+        ':input[name="settings[contact_type]"]' => array('value' => 0),
+      ),
+    ),
+  );
+  $form['settings']['contact_update_fields'] = array(
+    '#type' => 'checkbox',
+    '#options' => array(1,1),
+    '#title' => t('Update contact fields'),
+    '#description' => t('Should the contact fields be updated?'),
+    '#default_value' => $donation_type->settings['contact_update_fields'],
+    '#states' => array(
+      'invisible' => array(
+        ':input[name="settings[contact_type]"]' => array('value' => 0),
+      ),
+      'visible' => array(
+        ':input[name="settings[contact_update]"]' => array('checked' => TRUE),
+      ),
+    ),
+  );
+
 
   $form['actions'] = array('#type' => 'actions');
   $form['actions']['submit'] = array(
