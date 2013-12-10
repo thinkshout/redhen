@@ -929,3 +929,25 @@ function redhen_donation_delete_multiple($donation_ids) {
 function redhen_donation_save(RedhenDonation $donation) {
   return $donation->save();
 }
+
+/**
+ * Find a contact by either the current user or a given email.
+ *
+ * @param string $mail
+ *   Mail to use to find a user, if no contact is found for the current user.
+ */
+function redhen_donation_load_contact_by_current_user_or_mail($mail) {
+  global $user;
+
+  if ($user) {
+    $existing_contact = redhen_contact_load_by_mail($user->mail);
+    $contact = $existing_contact ? current($existing_contact) : FALSE;
+  }
+
+  if (!$contact) {
+    $existing_contact = redhen_contact_load_by_mail($mail);
+    $contact = $existing_contact ? current($existing_contact) : FALSE;
+  }
+
+  return $contact;
+}
