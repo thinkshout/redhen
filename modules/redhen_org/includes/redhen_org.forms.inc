@@ -90,7 +90,7 @@ function redhen_org_org_form_submit($form, &$form_state) {
   $org->save();
 
   drupal_set_message(t('Organization %label saved.', array('%label' => $org->label)));
-  $form_state['redirect'] = 'redhen/org/' . $org->identifier();
+  $form_state['redirect'] = 'redhen/org/' . $org->internalIdentifier();
 }
 
 /**
