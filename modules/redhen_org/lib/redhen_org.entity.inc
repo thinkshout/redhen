@@ -119,7 +119,7 @@ class RedhenOrg extends Entity {
    * Specify URI.
    */
   protected function defaultUri() {
-    return array('path' => 'redhen/org/' . $this->identifier());
+    return array('path' => 'redhen/org/' . $this->internalIdentifier());
   }
 
 }
