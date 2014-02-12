@@ -138,8 +138,18 @@ function redhen_dedupe_get_duplicates($properties, $active = TRUE) {
   $query = db_select('redhen_contact', 'rc');
   $query->addTag('redhen_dedupe');
   $query->addExpression('COUNT(*)', 'count');
-  $query->addExpression('GROUP_CONCAT(contact_id SEPARATOR \',\')', 'ids');
-  $query->havingCondition('count', '1', '>');
+
+  // PostGres doesn't support GROUP_CONCAT and aliases can't be used in
+  // conditional clauses so we need to repeat the aggregate function.
+  if (db_driver() == 'pgsql') {
+    $query->addExpression('array_to_string(array_agg(contact_id), \',\')', 'ids');
+    $query->having('COUNT(*) > 1');
+
+  }
+  else {
+    $query->addExpression('GROUP_CONCAT(contact_id SEPARATOR \',\')', 'ids');
+    $query->havingCondition('count', '1', '>');
+  }
 
   if ($active) {
     $query->condition('redhen_state', '1');
