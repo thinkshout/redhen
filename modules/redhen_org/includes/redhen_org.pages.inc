@@ -12,34 +12,34 @@ module_load_include('inc', 'redhen', 'includes/redhen.forms');
  */
 function redhen_org_page() {
 
-  // setup the header for both the query and table
+  // Setup the header for both the query and table.
   $header = array(
     'type' => array(
       'field' => 'type',
       'type' => 'property',
       'data' => 'Type',
       'sort' => 'asc',
-      'specifier' => 'type'
+      'specifier' => 'type',
     ),
     'label' => array(
       'field' => 'label',
       'type' => 'property',
       'data' => 'Name',
       'sort' => 'asc',
-      'specifier' => 'label'
+      'specifier' => 'label',
     ),
     'updated' => array(
       'field' => 'updated',
       'type' => 'property',
       'data' => 'Updated',
       'sort' => 'desc',
-      'specifier' => 'updated'
+      'specifier' => 'updated',
     ),
   );
 
   $header['operations'] = array('data' => t('Operations'));
 
-  // need to ensure the query doesn't execute when posing the form
+  // Need to ensure the query doesn't execute when posing the form.
   $result = FALSE;
   if (!isset($_POST['form_id'])) {
     $bundle = isset($_GET['bundle']) ? $_GET['bundle'] : '';
@@ -72,14 +72,14 @@ function redhen_org_page() {
         );
 
         $row_classes = array();
-        // Set a class for the row depending on if the org is active or archived
+        // Set a class for the row depending if the org is active or archived.
         $row_classes[] = $org->redhen_state == REDHEN_STATE_ACTIVE ? 'active' : 'archived';
 
         $rows[$org->org_id] = array(
           'data' => $data,
           'class' => $row_classes,
         );
-      
+
         // Build a list of all the accessible operations for the current org.
         $ops = array();
         if (redhen_org_access('update', $org)) {
@@ -132,9 +132,8 @@ function redhen_org_page() {
       '#orgs' => $orgs,
       '#header' => $header,
       '#rows' => $rows,
-    )
+    ),
   );
-
 }
 
 /**
