@@ -56,7 +56,7 @@ function redhen_org_type_form($form, &$form_state, $redhen_org_type, $op = 'edit
       '#value' => t('Delete organization type'),
       '#weight' => 45,
       '#limit_validation_errors' => array(),
-      '#submit' => array('redhen_org_type_form_submit_delete')
+      '#submit' => array('redhen_org_type_form_submit_delete'),
     );
   }
 
