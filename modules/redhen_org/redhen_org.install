@@ -508,24 +508,5 @@ function redhen_org_update_7007() {
   db_add_index('redhen_org', 'redhen_org_label', array('label'));
   db_add_index('redhen_org_revision', 'redhen_org_revision_label', array('label'));
 
-  // Add missing exportable columns for redhen_org_type.
-  $fields = array(
-    'status' => array(
-      'type' => 'int',
-      'not null' => TRUE,
-      'default' => 0x01,
-      'size' => 'tiny',
-      'description' => 'The exportable status of the entity.',
-    ),
-    'module' => array(
-      'description' => 'The name of the providing module if the entity has been defined in code.',
-      'type' => 'varchar',
-      'length' => 255,
-      'not null' => FALSE,
-    ),
-  );
-  db_add_field('redhen_org_type', 'status', $fields['status']);
-  db_add_field('redhen_org_type', 'module', $fields['module']);
-
   entity_info_cache_clear();
 }
