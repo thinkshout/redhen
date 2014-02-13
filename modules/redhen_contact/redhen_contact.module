@@ -929,9 +929,10 @@ function redhen_contact_form_user_profile_form_alter(&$form, &$form_state) {
 function redhen_contact_form_user_register_form_alter(&$form, &$form_state) {
   // Check if enabled.
   if (variable_get(REDHEN_CONTACT_REG, FALSE)) {
-    // Get menu item to check for Contact type parameter.
+    // Get menu item to check for the overriden contact type parameter, but only
+    // when a user is registering from user/register.
     $menu_item = menu_get_item();
-    if (isset($menu_item['original_map'][2])) {
+    if ($menu_item['original_map'][0] == 'user' && $menu_item['original_map'][1] == 'register' && isset($menu_item['original_map'][2])) {
       $contact_type = $menu_item['original_map'][2];
     }
     else {
@@ -939,8 +940,8 @@ function redhen_contact_form_user_register_form_alter(&$form, &$form_state) {
       $contact_type = variable_get(REDHEN_CONTACT_REG_TYPE, FALSE);
     }
 
-    // If a Contact type was found.
-    if ($contact_type) {
+    // If a valid contact type was found.
+    if (array_key_exists($contact_type, redhen_contact_get_types())) {
       $contact_object = redhen_contact_create(array('type' => $contact_type));
       module_load_include('inc', 'redhen_contact', 'includes/redhen_contact.forms');
 
@@ -958,6 +959,9 @@ function redhen_contact_form_user_register_form_alter(&$form, &$form_state) {
       // Add a submit handler for creating the contact.
       $form['#submit'][] = 'redhen_contact_user_registration_submit';
       $form['#validate'][] = 'redhen_contact_user_registration_validate';
+    }
+    else {
+      drupal_set_message(t('Invalid RedHen contact type parameter.'));
     }
   }
 }
