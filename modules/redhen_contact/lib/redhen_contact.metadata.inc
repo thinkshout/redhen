@@ -55,19 +55,20 @@ class RedhenContactMetadataController extends EntityDefaultMetadataController {
       'schema field' => 'updated',
       'setter callback' => 'entity_property_verbatim_set',
     );
-
     $properties['first_name'] = array_merge($properties['first_name'], array(
       'label' => t('First name'),
       'filter' => TRUE,
       'required' => TRUE,
       'field_type' => 'textfield',
       'setter callback' => 'entity_property_verbatim_set',
+      'filter_operator' => 'CONTAINS',
     ));
     $properties['middle_name'] = array_merge($properties['middle_name'], array(
       'label' => t('Middle Name'),
       'filter' => TRUE,
       'field_type' => 'textfield',
       'setter callback' => 'entity_property_verbatim_set',
+      'filter_operator' => 'CONTAINS',
     ));
     $properties['last_name'] = array_merge($properties['last_name'], array(
       'label' => t('Last name'),
@@ -75,8 +76,8 @@ class RedhenContactMetadataController extends EntityDefaultMetadataController {
       'filter' => TRUE,
       'field_type' => 'textfield',
       'setter callback' => 'entity_property_verbatim_set',
+      'filter_operator' => 'CONTAINS',
     ));
-
     $properties['full_name'] = array(
       'label' => t('Full name'),
       'description' => t('The full name of the contact.'),
@@ -85,8 +86,8 @@ class RedhenContactMetadataController extends EntityDefaultMetadataController {
       'getter callback' => 'redhen_contact_property_full_name_get',
       'computed' => TRUE,
       'entity views field' => TRUE,
+      'filter_operator' => 'CONTAINS',
     );
-
     $properties['redhen_state'] = array_merge($properties['redhen_state'], array(
       'label' => t('State'),
       'filter' => TRUE,
