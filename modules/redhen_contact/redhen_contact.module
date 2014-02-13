@@ -368,22 +368,10 @@ function redhen_contact_save(RedhenContact $contact) {
 function redhen_contact_access($op, $contact = NULL, $account = NULL) {
   global $user;
   $account = isset($account) ? $account : $user;
-  $self_check = FALSE;
-  if (isset($contact->uid)) {
-    $self_check = $contact->uid == $account->uid;
-  }
 
   // If it's already archived, no one can archive it again.
   if (($op == 'archive') && ($contact->redhen_state == REDHEN_STATE_ARCHIVED)) {
     return FALSE;
-  }
-
-  if (($op == 'edit') && user_access('edit own redhen contact', $account) && $self_check) {
-    return TRUE;
-  }
-
-  if (($op == 'view') && user_access('view own redhen contact', $account) && $self_check) {
-    return TRUE;
   }
 
   if (user_access('administer redhen contacts', $account)) {
