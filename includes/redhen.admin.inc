@@ -29,7 +29,7 @@ function redhen_landing_page() {
       'path' => 'redhen/memberships',
       'title' => t('Memberships'),
       'description' => t('View, manage, and search memberships.'),
-      'permission' => 'access redhen memberships',
+      'permission' => 'list redhen memberships',
     ),
     'activity' => array(
       'module' => 'redhen_activity',
