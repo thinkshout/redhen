@@ -654,12 +654,22 @@ function redhen_contact_redhen_settings() {
           '#title' => t('Connect users to Redhen contacts'),
           '#description' => t('If checked, Redhen will attempt to connect Drupal users to Redhen contacts by matching email addresses when a contact is updated.'),
           '#default_value' => variable_get(REDHEN_CONTACT_CONNECT_USERS, FALSE),
+          '#states' => array(
+            'enabled' => array(
+              ':input[name="' . REDHEN_CONTACT_REQUIRE_EMAIL . '"]' => array('checked' => TRUE),
+            ),
+          ),
         ),
         REDHEN_CONTACT_MIRROR_EMAIL => array(
           '#type' => 'checkbox',
           '#title' => t('Mirror RedHen Contact email to Drupal user'),
           '#description' => t('If checked, RedHen will mirror the primary email of a RedHen Contact with the email of the linked user account. The email field on the Drupal user form will also be disabled.'),
           '#default_value' => variable_get(REDHEN_CONTACT_MIRROR_EMAIL, FALSE),
+          '#states' => array(
+            'enabled' => array(
+              ':input[name="' . REDHEN_CONTACT_CONNECT_USERS . '"]' => array('checked' => TRUE),
+            ),
+          ),
         ),
       ),
     ),
@@ -687,7 +697,7 @@ function redhen_contact_redhen_settings() {
           '#default_value' => variable_get(REDHEN_CONTACT_REG_TYPE, FALSE),
           '#states' => array(
             'invisible' => array(
-             ':input[name="redhen_contact_reg"]' => array('checked' => FALSE),
+              ':input[name="redhen_contact_reg"]' => array('checked' => FALSE),
             ),
           ),
         ),
@@ -706,7 +716,7 @@ function redhen_contact_redhen_settings() {
           '#default_value' => variable_get(REDHEN_CONTACT_REG_UPDATE_FIELDS, FALSE),
           '#states' => array(
             'invisible' => array(
-             ':input[name="redhen_contact_reg_update"]' => array('checked' => FALSE),
+              ':input[name="redhen_contact_reg_update"]' => array('checked' => FALSE),
             ),
           ),
         ),
