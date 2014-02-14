@@ -8,7 +8,7 @@
  * The controller class for orgs contains methods for the org CRUD
  * operations. The load method is inherited from the default controller.
  */
-class RedhenOrgEntityController extends EntityAPIControllerExportable {
+class RedhenOrgEntityController extends EntityAPIController {
 
   /**
    * Saves an org.
