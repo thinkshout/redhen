@@ -10,3 +10,4 @@ dependencies[] = text
 ; Classes
 files[] = lib/redhen_note.entity.inc
 files[] = lib/redhen_note.metadata.inc
+files[] = lib/redhen_note.views.inc

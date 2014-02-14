@@ -17,6 +17,7 @@ function redhen_note_entity_info() {
       'controller class' => 'EntityAPIController',
       'metadata controller class' => 'RedhenNoteMetadataController',
       'entity class' => 'RedhenNote',
+      'views controller class' => 'RedhenNoteViewsController',
       'base table' => 'redhen_note',
       'fieldable' => TRUE,
       'entity keys' => array(
@@ -318,16 +319,6 @@ function redhen_note_entity_delete($entity, $type) {
   ));
   $note_ids = array_keys($notes);
   redhen_note_delete_multiple($note_ids);
-}
-
-/**
- * Implements hook_views_api().
- */
-function redhen_note_views_api() {
-  return array(
-    'api' => 3,
-    'path' => drupal_get_path('module', 'redhen_note') . '/includes/views',
-  );
 }
 
 /**
