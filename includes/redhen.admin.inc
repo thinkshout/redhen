@@ -78,6 +78,23 @@ function redhen_settings() {
     '#description' => t('This is used by other modules to, for example, use the admin theme on RedHen paths.'),
     '#default_value' => variable_get('redhen_admin_path', FALSE),
   );
+  $items_page_options = array(
+    5 => 5,
+    10 => 10,
+    15 => 15,
+    20 => 20,
+    30 => 30,
+    40 => 40,
+    50 => 50,
+    100 => 100,
+  );
+  $form[REDHEN_ITEMS_PAGE] = array(
+    '#title' => t('Number of items per page'),
+    '#type' => 'select',
+    '#options' => $items_page_options,
+    '#description' => t('The number of records per page to show on all RedHen list pages.'),
+    '#default_value' => variable_get(REDHEN_ITEMS_PAGE, 10),
+  );
 
   // Allow other modules to inject their own settings.
   $form += module_invoke_all('redhen_settings');
