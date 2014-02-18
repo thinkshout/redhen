@@ -1133,3 +1133,10 @@ function redhen_contact_property_email_set(RedhenContact $contact, $name, $value
     'default' => TRUE
   );
 }
+
+/**
+ * Implements hook_rules_file_info().
+ */
+function redhen_contact_rules_file_info() {
+  return array('includes/redhen_contact.rules');
+}
