@@ -31,15 +31,22 @@ function redhen_dedupe_menu() {
 function redhen_dedupe_list_page() {
   $results = FALSE;
   $contacts = array();
-  $properties = array('first_name', 'last_name');
+  $properties = array();
+  $fields = array();
   $active = TRUE;
   if (!isset($_POST['form_id'])) {
     if (isset($_GET['properties'])) {
       $properties = $_GET['properties'];
     }
-    if (!empty($properties)) {
+    if (isset($_GET['fields'])) {
+      $fields = $_GET['fields'];
+    }
+    if (empty($properties) && empty($fields)) {
+      drupal_set_message(t('Please select at least on Property or Field to match on.'), 'warning', FALSE);
+    }
+    if (!empty($properties) || !empty($fields)) {
       $active = isset($_GET['active']) ? $_GET['active'] : TRUE;
-      $results = redhen_dedupe_get_duplicates($properties, $active);
+      $results = redhen_dedupe_get_duplicates($properties, $fields, $active);
     }
   }
 
@@ -48,18 +55,44 @@ function redhen_dedupe_list_page() {
     $info = entity_get_property_info('redhen_contact');
 
     $rows = array();
-
+    $header = array();
     // Build our header array from the selected properties.
-    $header = array(t('Count'), '');
     foreach ($properties as $property) {
-      array_unshift($header, $info['properties']{$property}['label']);
+      $header[] = $info['properties']{$property}['label'];
     }
-
+    $rh_entity_info = entity_get_property_info('redhen_contact');
+    foreach ($fields as $field) {
+      $field_pieces = explode(":", $field);
+      $field = array_shift($field_pieces);
+      $info = field_info_field($field);
+      $instance = field_info_instance('redhen_contact', $field, $info['bundles']['redhen_contact'][0]);
+      $label = $instance['label'];
+      if (count($field_pieces)) {
+        $label .= ' -- ' . $rh_entity_info['bundles'][$info['bundles']['redhen_contact'][0]]['properties'][$field]['property info'][$field_pieces[0]]['label'];
+      }
+      $header[] = $label;
+    }
+    $header[] = t('Count');
+    $header[] = '';
     // Display each result basing our row on the selected properties.
     foreach ($results as $result) {
       $col = array();
       foreach ($properties as $property) {
         $col[] = $result->{$property};
+      }
+      foreach ($fields as $field) {
+        $field_pieces = explode(':', $field);
+        $name = array_shift($field_pieces);
+        if (count($field_pieces)) {
+          foreach($field_pieces as $piece) {
+            $name .= '_' . $piece;
+          }
+        }
+        else {
+          reset($info['columns']);
+          $name .= "_" . key($info['columns']);
+        }
+        $col[] = $result->{$name};
       }
       $col[] = $result->count;
       $col[] = l(t('merge'), 'redhen/dedupe/merge/' . $result->ids);
@@ -78,7 +111,7 @@ function redhen_dedupe_list_page() {
   }
 
   return array(
-    'form' => drupal_get_form('redhen_dedupe_filter_form', $properties, $active),
+    'form' => drupal_get_form('redhen_dedupe_filter_form', $properties, $fields, $active),
     'message' => array('#markup' => $message),
     'contacts' => $contacts,
   );
@@ -87,23 +120,51 @@ function redhen_dedupe_list_page() {
 /**
  * Dedupe filter form.
  */
-function redhen_dedupe_filter_form($form, &$form_state, $properties, $active) {
+function redhen_dedupe_filter_form($form, &$form_state, $properties, $fields, $active) {
   $info = entity_get_property_info('redhen_contact');
   $excluded_props = array('contact_id', 'revision_id', 'redhen_state');
-  $options = array();
+  $prop_options = $field_options = array();
   foreach ($info['properties'] as $name => $property) {
     if (isset($property['schema field']) && !in_array($name, $excluded_props)) {
-      $options[$name] = $property['label'];
+      $prop_options[$name] = $property['label'];
+    }
+  }
+
+  foreach ($info['bundles'] as $type) {
+    foreach ($type['properties'] as $name => $field) {
+      $field_options[$name] = $field['label'];
+      $type = isset($field['type']) ? entity_property_extract_innermost_type($field['type']) : 'text';
+      $is_entity = ($type == 'entity') || (bool) entity_get_info($type);
+      // Leave entities out of this.
+      if (!$is_entity) {
+        if (isset($field['field']) && $field['field'] && !empty($field['property info'])) {
+          unset($field_options[$name]);
+          foreach ($field['property info'] as $sub_key => $sub_prop) {
+            $field_options[$name . ':' . $sub_key] = $field['label'] . ' -- ' . $sub_prop['label'];
+          }
+        }
+        else {
+          $field_options[$name] = $field['label'];
+        }
+      }
     }
   }
 
   $form['properties'] = array(
     '#title' => t('Contact properties'),
     '#type' => 'checkboxes',
-    '#options' => $options,
+    '#options' => $prop_options,
     '#default_value' => $properties,
-    '#required' => TRUE,
+    '#required' => FALSE,
     '#description' => t('Selected properties will be used to query duplicates. E.g., selecting first and last name will look for contacts with the same first and last names.'),
+  );
+  $form['fields'] = array(
+    '#title' => t('Contact fields'),
+    '#type' => 'checkboxes',
+    '#options' => $field_options,
+    '#default_value' => $fields,
+    '#required' => FALSE,
+    '#description' => t('Selected fields will be used to query duplicates along with the select Properties.'),
   );
   $form['active'] = array(
     '#title' => t('Active'),
@@ -124,7 +185,9 @@ function redhen_dedupe_filter_form($form, &$form_state, $properties, $active) {
  * Submit handler for redhen_contact_filter_form().
  */
 function redhen_dedupe_filter_form_submit($form, &$form_state) {
-  $query = array('properties' => array_filter($form_state['values']['properties']), 'active' => $form_state['values']['active']);
+  $query = array('properties' => array_filter($form_state['values']['properties']),
+    'fields' => array_filter($form_state['values']['fields']),
+    'active' => $form_state['values']['active']);
   $form_state['redirect'] = array($_GET['q'], array('query' => $query));
 }
 
@@ -134,7 +197,7 @@ function redhen_dedupe_filter_form_submit($form, &$form_state) {
  * @return array
  *   Array of objects containing first, last, and ids.
  */
-function redhen_dedupe_get_duplicates($properties, $active = TRUE) {
+function redhen_dedupe_get_duplicates($properties, $fields = array(), $active = TRUE) {
   $query = db_select('redhen_contact', 'rc');
   $query->addTag('redhen_dedupe');
   $query->addExpression('COUNT(*)', 'count');
@@ -158,6 +221,31 @@ function redhen_dedupe_get_duplicates($properties, $active = TRUE) {
   foreach ($properties as $property) {
     $query->addField('rc', $property);
     $query->groupBy($property);
+  }
+  // To prevent adding the same field twice, we loop through all fields:
+  $join_fields = array();
+  foreach ($fields as $field) {
+    $field_pieces = explode(':', $field);
+    $field = array_shift($field_pieces);
+    $join_fields[$field] = $field;
+  }
+  foreach ($join_fields as $field) {
+    $query->leftJoin('field_data_' . $field, $field, $field . '.entity_id = rc.contact_id');
+  }
+  foreach ($fields as $field) {
+    $field_pieces = explode(':', $field);
+    $field = array_shift($field_pieces);
+    $info = field_info_field($field);
+    if (count($field_pieces)) {
+      $column = reset($field_pieces);
+    }
+    else {
+      reset($info['columns']);
+      $column = key($info['columns']);
+    }
+    $query->addField($field, $field . '_' . $column);
+    $query->groupBy($field . '_' . $column);
+
   }
   $query->orderBy('count', 'DESC');
 
