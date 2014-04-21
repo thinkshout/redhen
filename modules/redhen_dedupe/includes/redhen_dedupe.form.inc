@@ -184,10 +184,13 @@ function redhen_dedupe_merge_form_submit($form, &$form_state) {
   $master_id = $form_state['values']['master'];
   $contacts = $form_state['contacts'];
   $master = $contacts[$master_id];
+  $values = array();
   // Pull the actual data out of the #value array constructed for the form:
-  foreach ($form_state['values']['values'] as $name => $val) {
-    $wrapper = entity_metadata_wrapper('redhen_contact', $contacts[$val]);
-    $values[$name] = $wrapper->{$name}->value();
+  if (isset($form_state['values']['values'])) {
+    foreach ($form_state['values']['values'] as $name => $val) {
+      $wrapper = entity_metadata_wrapper('redhen_contact', $contacts[$val]);
+      $values[$name] = $wrapper->{$name}->value();
+    }
   }
   unset($contacts[$master_id]);
   $merge_status = redhen_dedupe_merge($master, $contacts, $values, array_filter($form_state['values']['related_entities']));
@@ -199,7 +202,7 @@ function redhen_dedupe_merge_form_submit($form, &$form_state) {
     $form_state['redirect'] = $uri['path'];
   }
   else {
-    drupal_set_message(t('There has been merging these contacts. Check the error log for more details.'), 'error');
+    drupal_set_message(t('Error attempting to merge these contacts. Check the error log for more details.'), 'error');
   }
 }
 

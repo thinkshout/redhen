@@ -12,3 +12,4 @@ files[] = lib/redhen_org.metadata.inc
 files[] = lib/redhen_org_type.controller.inc
 files[] = lib/redhen_org_type.entity.inc
 files[] = lib/redhen_org_type.ui_controller.inc
+files[] = lib/redhen_org.inline_entity_form.inc

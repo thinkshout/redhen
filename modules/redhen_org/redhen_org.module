@@ -23,13 +23,11 @@ function redhen_org_entity_info() {
       'base table' => 'redhen_org',
       'revision table' => 'redhen_org_revision',
       'fieldable' => TRUE,
-      'exportable' => TRUE,
       'entity keys' => array(
         'id' => 'org_id',
         'revision' => 'revision_id',
         'bundle' => 'type',
         'label' => 'label',
-        'name' => 'name',
       ),
       'bundle keys' => array(
         'bundle' => 'name',
@@ -527,32 +525,6 @@ function redhen_org_type_save(RedhenOrgType $type) {
  */
 function redhen_org_type_delete(RedhenOrgType $type) {
   $type->delete();
-}
-
-/**
- * Helper method to generate a unique machine name for an org.
- *
- * @param string $label
- *   The string (organization label) to generate a machine name from.
- *
- * @return string
- *   The generated unique machine name for the organization.
- */
-function redhen_org_machine_name($label) {
-  // Generate a machine name from the label.
-  $name = preg_replace('/[^a-z0-9]+/', '_', strtolower(substr($label, 0, 31)));
-
-  // Handle duplicate names by appending incremented integer.
-  $count = db_select('redhen_org')->condition('name', $name)->countQuery()->execute()->fetchField();
-  $increment = 1;
-  $mod_name = $name;
-  while ($count > 0) {
-    $mod_name = $name . $increment;
-    $count = db_select('redhen_org')->condition('name', $mod_name)->countQuery()->execute()->fetchField();
-    $increment++;
-  }
-
-  return $mod_name;
 }
 
 /**

@@ -78,6 +78,9 @@ function redhen_filter_form($form, &$form_state, $entity_type) {
     $type_options = array('' => t('-- Any --'));
     $entity_info = entity_get_info($entity_type);
     foreach ($entity_info['bundles'] as $key => $bundle) {
+      if ($entity_type == 'message' && strpos($key, 'redhen') === FALSE) {
+        continue;
+      }
       $type_options[$key] = $bundle['label'];
     }
 

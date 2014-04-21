@@ -8,7 +8,7 @@
  * The controller class for orgs contains methods for the org CRUD
  * operations. The load method is inherited from the default controller.
  */
-class RedhenOrgEntityController extends EntityAPIControllerExportable {
+class RedhenOrgEntityController extends EntityAPIController {
 
   /**
    * Saves an org.
@@ -36,9 +36,7 @@ class RedhenOrgEntityController extends EntityAPIControllerExportable {
         $org->default_revision = TRUE;
       }
     }
-    if (!isset($org->name) && isset($org->label)) {
-      $org->name = redhen_org_machine_name($org->label);
-    }
+
     parent::save($org);
 
     return $org;
@@ -49,9 +47,13 @@ class RedhenOrgEntityController extends EntityAPIControllerExportable {
    *
    * @param array $org_ids
    *   An array of org IDs to delete.
+   * @param DatabaseTransaction $transaction
+   *   DB transaction object.
    *
    * @return bool
    *   TRUE on success, FALSE otherwise.
+   *
+   * @throws Exception
    */
   public function delete($org_ids, DatabaseTransaction $transaction = NULL) {
     if (!empty($org_ids)) {

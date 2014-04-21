@@ -16,6 +16,7 @@ function redhen_engagement_entity_info() {
     'plural label' => t('Engagements'),
     'controller class' => 'EntityAPIController',
     'metadata controller class' => 'RedhenEngagementMetadataController',
+    'views controller class' => 'RedhenEngagementViewsController',
     'entity class' => 'RedhenEngagement',
     'base table' => 'redhen_engagement',
     'fieldable' => FALSE,
@@ -47,6 +48,7 @@ function redhen_engagement_entity_info() {
     'plural label' => t('Engagement Scores'),
     'controller class' => 'EntityAPIControllerExportable',
     'entity class' => 'RedhenEngagementScore',
+    'views controller class' => 'RedhenEngagementScoreViewsController',
     'base table' => 'redhen_engagement_score',
     'fieldable' => FALSE,
     'entity keys' => array(

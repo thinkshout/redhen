@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Defines the inline entity form controller for Nodes.
+ * Defines the inline entity form controller for RedHen contacts.
  */
 
 class RedHenContactInlineEntityFormController extends EntityInlineEntityFormController {

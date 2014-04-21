@@ -35,6 +35,7 @@ class RedhenOrgMetadataController extends EntityDefaultMetadataController {
       'field_type' => 'textfield',
       'setter callback' => 'entity_property_verbatim_set',
       'required' => TRUE,
+      'filter_operator' => 'CONTAINS',
     ) + $properties['label'];
     $properties['created'] = array(
       'label' => t("Created"),

@@ -9,6 +9,11 @@ define('REDHEN_STATE_ACTIVE', 1);
 define('REDHEN_STATE_ARCHIVED', 0);
 
 /**
+ * Variable name for list items per page.
+ */
+define('REDHEN_ITEMS_PAGE', 'redhen_items_page');
+
+/**
  * Implements hook_menu().
  */
 function redhen_menu() {
@@ -181,13 +186,13 @@ function theme_redhen_property_field($variables) {
  * @return array
  *   Executed query object.
  */
-function redhen_filter_query($entity_type, $header, $bundle = '', $properties = array(), $fields = array(), $items_page = 10) {
+function redhen_filter_query($entity_type, $header, $bundle = '', $properties = array(), $fields = array()) {
   $query = new EntityFieldQuery();
 
   $query
     ->entityCondition('entity_type', $entity_type, '=')
     ->tablesort($header)
-    ->pager($items_page);
+    ->pager(variable_get(REDHEN_ITEMS_PAGE, 10));
 
   if (!empty($bundle)) {
     $query->entityCondition('bundle', $bundle, '=');

@@ -18,8 +18,7 @@ class RedhenOrg extends Entity {
     $redhen_state = REDHEN_STATE_ACTIVE,
     $type = '',
     $created = '',
-    $updated = '',
-    $name;
+    $updated = '';
   // @codingStandardsIgnoreEnd
 
   /**
@@ -119,7 +118,7 @@ class RedhenOrg extends Entity {
    * Specify URI.
    */
   protected function defaultUri() {
-    return array('path' => 'redhen/org/' . $this->identifier());
+    return array('path' => 'redhen/org/' . $this->internalIdentifier());
   }
 
 }

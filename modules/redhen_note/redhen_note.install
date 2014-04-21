@@ -161,3 +161,10 @@ function redhen_note_uninstall() {
 function redhen_note_update_7100(&$sandbox) {
   db_add_index('redhen_note', 'redhen_note_author', array('author_uid'));
 }
+
+/**
+ * Rebuild the registry; we're adding new class files for Views relationships.
+ */
+function redhen_note_update_7101(&$sandbox) {
+  registry_rebuild();
+}

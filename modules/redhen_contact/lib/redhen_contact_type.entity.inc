@@ -41,4 +41,19 @@ class RedhenContactType extends Entity {
     }
   }
 
+  /**
+   * Permanently deletes the entity.
+   *
+   * @param bool $delete_entities
+   *   Indicates if all contacts of this type should be deleted as well.
+   *
+   * @see entity_delete()
+   */
+  public function delete($delete_entities = FALSE) {
+    $id = $this->identifier();
+    if (isset($id)) {
+      entity_get_controller($this->entityType)->delete(array($id), NULL, $delete_entities);
+    }
+  }
+
 }

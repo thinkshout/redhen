@@ -25,12 +25,6 @@ function redhen_org_schema() {
         'not null' => TRUE,
         'default' => 0,
       ),
-      'name' => array(
-        'description' => 'The machine-readable name of this org.',
-        'type' => 'varchar',
-        'length' => 32,
-        'not null' => TRUE,
-      ),
       'type' => array(
         'description' => 'The {redhen_org_type}.type of this redhen_org.',
         'type' => 'varchar',
@@ -75,22 +69,6 @@ function redhen_org_schema() {
         'not null' => TRUE,
         'default' => 0,
       ),
-      'status' => array(
-        'type' => 'int',
-        'not null' => TRUE,
-        // Set the default to ENTITY_CUSTOM without using the constant as it is
-        // not safe to use it at this point.
-        'default' => 0x01,
-        'size' => 'tiny',
-        'description' => 'The exportable status of the entity.',
-      ),
-      'module' => array(
-        'description' => 'The name of the providing module if the entity has been defined in code.',
-        'type' => 'varchar',
-        'length' => 255,
-        'not null' => FALSE,
-      ),
-
     ),
     'indexes' => array(
       'redhen_org_updated' => array('updated'),
@@ -100,10 +78,7 @@ function redhen_org_schema() {
       'redhen_org_revision' => array('revision_id'),
       'redhen_org_author' => array('author_uid'),
       'redhen_org_primary_contact_id' => array('primary_contact_id'),
-    ),
-    'unique keys' => array(
-      'org_id' => array('org_id'),
-      'name' => array('name'),
+      'redhen_org_label' => array('label'),
     ),
     'foreign keys' => array(
       'redhen_org_revision' => array(
@@ -186,6 +161,7 @@ function redhen_org_schema() {
       'revision_redhen_org' => array('org_id'),
       'redhen_org_revision_author' => array('author_uid'),
       'redhen_org_revision_primary_contact_id' => array('primary_contact_id'),
+      'redhen_org_revision_label' => array('label'),
     ),
     'foreign keys' => array(
       'revision_redhen_org' => array(
@@ -250,8 +226,6 @@ function redhen_org_schema() {
       'status' => array(
         'type' => 'int',
         'not null' => TRUE,
-        // Set the default to ENTITY_CUSTOM without using the constant as it is
-        // not safe to use it at this point.
         'default' => 0x01,
         'size' => 'tiny',
         'description' => 'The exportable status of the entity.',
@@ -518,4 +492,21 @@ function redhen_org_update_7006() {
   if ($count) {
     return t('@count additional RedHen organization(s) updated with machine name(s).', array('@count' => $count));
   }
+}
+
+/**
+ * Remove the redhen_org machine name and related export columns.
+ */
+function redhen_org_update_7007() {
+  db_drop_field('redhen_org', 'name');
+  db_drop_field('redhen_org', 'status');
+  db_drop_field('redhen_org', 'module');
+  db_drop_field('redhen_org_revision', 'name');
+
+  // Since we're removing the machine name, add an index on the label so we can
+  // use it for querying orgs by label.
+  db_add_index('redhen_org', 'redhen_org_label', array('label'));
+  db_add_index('redhen_org_revision', 'redhen_org_revision_label', array('label'));
+
+  entity_info_cache_clear();
 }

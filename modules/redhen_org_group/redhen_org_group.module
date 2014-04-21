@@ -85,7 +85,7 @@ function redhen_org_group_redhen_org_type_insert(RedhenOrgType $org_type) {
  */
 function redhen_org_group_redhen_org_type_update(RedhenOrgType $org_type) {
   if (isset($org_type->group_settings['content_types'])) {
-    $content_types = $org_type->data['group_settings']['content_types'];
+    $content_types = isset($org_type->data['group_settings']['content_types']) ? $org_type->data['group_settings']['content_types'] : array();
 
     // Delete field instances if a content type was removed.
     foreach ($org_type->group_settings['content_types'] as $old_type) {
