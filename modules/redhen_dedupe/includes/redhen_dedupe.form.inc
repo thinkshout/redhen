@@ -44,7 +44,7 @@ function redhen_dedupe_merge_form($form, &$form_state, $entity_ids) {
     '#attributes' => array('id' => 'redhen_dedupe_merge_data'),
   );
 
-  $master_id = isset($form_state['values']['master']) ? (int)$form_state['values']['master'] : key($master_options);
+  $master_id = isset($form_state['values']['master']) ? (int) $form_state['values']['master'] : key($master_options);
   $merge_data = &$form['merge_data'];
 
   $preview = $contacts[$master_id]->view();
@@ -65,7 +65,7 @@ function redhen_dedupe_merge_form($form, &$form_state, $entity_ids) {
       '!date' => $updated,
       '@name' => $wrapper->label(),
       '@bundle' => $wrapper->getBundle(),
-      '@master' => ($ent_id == $master_id) ? t('Master') . ': ' : ''
+      '@master' => ($ent_id == $master_id) ? t('Master') . ': ' : '',
     );
     $table_header[$ent_id] = array(
       'data' => t('@master@name (@bundle)<br/>Last Updated: !date', $header_data),
