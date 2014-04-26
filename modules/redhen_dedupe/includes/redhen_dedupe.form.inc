@@ -98,13 +98,22 @@ function redhen_dedupe_merge_form($form, &$form_state, $entity_ids) {
       if (isset($form_state['input']['values'][$name])) {
         unset($form_state['input']['values'][$name]);
       }
-      $merge_data['values'][$name] = array(
-        '#type' => 'radios',
-        '#title' => $property['label'],
-        '#options' => array(),
-      );
-      $options = &$merge_data['values'][$name]['#options'];
       $is_field = isset($properties[$name]['field']) && $properties[$name]['field'];
+      if ($is_field && _redhen_dedupe_field_is_multivalue($name, $property)) {
+        $merge_data['values'][$name] = array(
+          '#type' => 'checkboxes',
+          '#title' => $property['label'],
+          '#options' => array(),
+        );
+      }
+      else {
+        $merge_data['values'][$name] = array(
+          '#type' => 'radios',
+          '#title' => $property['label'],
+          '#options' => array(),
+        );
+      }
+      $options = &$merge_data['values'][$name]['#options'];
       // Loop through each contact to build a row element/radio button option:
       foreach ($contacts as $ent_id => $contact) {
         // We do some work to figure out what kind of field we are dealing with,
@@ -119,7 +128,7 @@ function redhen_dedupe_merge_form($form, &$form_state, $entity_ids) {
 
         // Set the default to match the Master record:
         if ($ent_id === $master_id) {
-          $merge_data['values'][$name]['#default_value'] = $ent_id;
+          $merge_data['values'][$name]['#default_value'] = $merge_data['values'][$name]['#type'] == 'radios' ? $ent_id : array($ent_id);
         }
 
         $options[$ent_id] = redhen_dedupe_option_label($contact, $name, $property);
@@ -188,8 +197,23 @@ function redhen_dedupe_merge_form_submit($form, &$form_state) {
   // Pull the actual data out of the #value array constructed for the form:
   if (isset($form_state['values']['values'])) {
     foreach ($form_state['values']['values'] as $name => $val) {
-      $wrapper = entity_metadata_wrapper('redhen_contact', $contacts[$val]);
-      $values[$name] = $wrapper->{$name}->value();
+      if (is_array($val)) {
+        $values[$name] = array(
+          'type' => 'combine',
+          'value' => array(),
+        );
+        foreach ($val as $ent_id => $ent_id_string) {
+          $wrapper = entity_metadata_wrapper('redhen_contact', $ent_id);
+          $values[$name]['value'][$ent_id] = $wrapper->{$name}->value();
+        }
+      }
+      else {
+        $wrapper = entity_metadata_wrapper('redhen_contact', $contacts[$val]);
+        $values[$name] = array(
+          'type' => 'direct',
+          'value' => $wrapper->{$name}->value(),
+        );
+      }
     }
   }
   unset($contacts[$master_id]);
@@ -317,4 +341,17 @@ function redhen_dedupe_option_label(RedhenContact $contact, $property_name, $pro
   }
 
   return !empty($display) ? $display : t('No value');
+}
+
+/**
+ * Determine if a property should be merged via checkboxes instead of radios.
+ */
+function _redhen_dedupe_field_is_multivalue($name, $field) {
+  $field_info = field_info_field($name);
+  if ($field_info['cardinality'] != 1) {
+    return $field_info['cardinality'];
+  }
+  else {
+    return FALSE;
+  }
 }
