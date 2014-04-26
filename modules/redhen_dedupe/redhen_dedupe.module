@@ -72,32 +72,42 @@ function redhen_dedupe_list_page() {
       }
       $header[] = $label;
     }
-    $header[] = t('Count');
+    $header[] = t('Count (IDs)');
     $header[] = '';
     // Display each result basing our row on the selected properties.
     foreach ($results as $result) {
-      $col = array();
-      foreach ($properties as $property) {
-        $col[] = $result->{$property};
-      }
-      foreach ($fields as $field) {
-        $field_pieces = explode(':', $field);
-        $name = array_shift($field_pieces);
-        if (count($field_pieces)) {
-          foreach($field_pieces as $piece) {
-            $name .= '_' . $piece;
+      $ids = explode(',', $result->ids);
+      $ids = array_flip($ids);
+      if (count($ids) > 1) {
+        $result->ids = implode(',', $ids);
+        $col = array();
+        foreach ($properties as $property) {
+          $col[] = $result->{$property};
+        }
+        foreach ($fields as $field) {
+          $field_pieces = explode(':', $field);
+          $name = array_shift($field_pieces);
+          if (count($field_pieces)) {
+            foreach ($field_pieces as $piece) {
+              $name .= '_' . $piece;
+            }
           }
+          else {
+            reset($info['columns']);
+            $name .= "_" . key($info['columns']);
+          }
+          $col[] = $result->{$name};
         }
-        else {
-          reset($info['columns']);
-          $name .= "_" . key($info['columns']);
+        $id_links = array();
+        foreach ($ids as $id => $number) {
+          $id_links[] = l($id, 'redhen/contact/' . $id);
         }
-        $col[] = $result->{$name};
-      }
-      $col[] = $result->count;
-      $col[] = l(t('merge'), 'redhen/dedupe/merge/' . $result->ids);
+        $count = $result->count . ' (' . implode(', ', $id_links) . ')';
+        $col[] = $count;
+        $col[] = l(t('merge'), 'redhen/dedupe/merge/' . $result->ids);
 
-      $rows[] = $col;
+        $rows[] = $col;
+      }
     }
 
     $contacts = array(
