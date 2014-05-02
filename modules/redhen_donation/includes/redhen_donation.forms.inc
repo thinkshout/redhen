@@ -438,3 +438,49 @@ function redhen_donation_form_delete_submit($form, &$form_state) {
     array('query' => $destination),
   );
 }
+
+/**
+ * Themes the payment methods on a fieldmap edit form into a table.
+ */
+function theme_redhen_donation_payment_options_form_table($variables) {
+  $elements = $variables['elements'];
+
+  // Build the rows array.
+  $columns = isset($elements['#columns']) ? $elements['#columns'] : (isset($elements['#header']) ? array_keys($elements['#header']) : array());
+  $rows = array();
+  foreach (element_children($elements) as $child_key) {
+    $child = & $elements[$child_key];
+    $data = array();
+    $row_columns = empty($columns) ? element_children($child) : $columns;
+    foreach ($row_columns as $column) {
+      if (isset($child[$column])) {
+        $cell = array('data' => drupal_render($child[$column]));
+        if (isset($child[$column]['#attributes'])) {
+          foreach ($child[$column]['#attributes'] as $key => $value) {
+            $cell[$key] = ($key == 'id') ? (is_array($value) ? array($value[0] . '-cell') : $value . '-cell') : $value;
+          }
+        }
+        $data[] = $cell;
+      }
+    }
+    $row = array('data' => $data);
+    if (isset($child['#attributes'])) {
+      foreach ($child['#attributes'] as $key => $value) {
+        $row[$key] = $value;
+      }
+    }
+    $rows[] = $row;
+  }
+
+  $config = array(
+    'rows' => $rows,
+  );
+  if (isset($elements['#header'])) {
+    $config['header'] = $elements['#header'];
+  }
+  if (isset($elements['#attributes']) && is_array($elements['#attributes'])) {
+    $config['attributes'] = $elements['#attributes'];
+  }
+
+  return theme('table', $config);
+}

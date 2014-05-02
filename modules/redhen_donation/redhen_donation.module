@@ -771,6 +771,9 @@ function redhen_donation_theme() {
     'redhen_donation_link' => array(
       'variables' => array('label' => NULL, 'path' => NULL),
     ),
+    'redhen_donation_payment_options_form_table' => array(
+      'render element' => 'elements',
+      'file' => 'includes/redhen_donation.forms.inc',
   );
 }
 
