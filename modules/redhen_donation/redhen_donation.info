@@ -5,6 +5,7 @@ core = 7.x
 
 dependencies[] = redhen_contact
 dependencies[] = commerce_checkout
+dependencies[] = select_or_other
 
 ; Classes
 files[] = lib/redhen_donation.entity.inc
