@@ -343,7 +343,7 @@ function redhen_dedupe_merge(RedhenContact $master, $contacts, $values, $related
     // Set the new values on the master contact.
     foreach ($values as $id => $value) {
       if ($value['type'] == 'direct') {
-        if ($master_wrapper->{$id}->itemType != 'field_collection') {
+        if (!isset($master_wrapper->{$id}->itemType) || $master_wrapper->{$id}->itemType != 'field_collection') {
           $master_wrapper->{$id}->set($value['value']);
         }
         else {
@@ -364,17 +364,20 @@ function redhen_dedupe_merge(RedhenContact $master, $contacts, $values, $related
         if (!is_array(reset($all_vals)) && !is_object(reset($all_vals))) {
           $all_vals = array_unique($all_vals);
         }
-        if ($master_wrapper->{$id}->itemType != 'field_collection') {
+        $field_info = field_info_field($id);
+        if ($field_info['type'] != 'field_collection') {
           $master_wrapper->{$id}->set($all_vals);
         }
         else {
           // Field Collections are completely obnoxious.
-          for ($i = 0; $i < $master->{$id}->count(); $i++) {
-            $master->$id[$i]->set();
+          $originals = array();
+          foreach ($master_wrapper->{$id} as $original_val) {
+            $originals[] = $original_val->item_id->value();
           }
           foreach ($all_vals as $val) {
             _redhen_dedupe_set_field_collection_value($master, $id, $val);
           }
+          entity_delete_multiple('field_collection_item', $originals);
         }
       }
     }
@@ -408,7 +411,14 @@ function redhen_dedupe_theme($existing, $type, $theme, $path) {
 function _redhen_dedupe_set_field_collection_value($entity, $field, $value) {
   $fc_item = entity_create('field_collection_item', array('field_name' => $field));
   $fc_item->setHostEntity('redhen_contact', $entity);
-  foreach ($value as $fc_field => $fc_field_val) {
-    $fc_item->$fc_field->set($fc_field_val);
+  $fc_item_wrapper = entity_metadata_wrapper('field_collection_item', $fc_item);
+  $val_wrapper = entity_metadata_wrapper('field_collection_item', $value);
+  $val_properties = $val_wrapper->getPropertyInfo();
+  foreach ($val_properties as $property => $prop_details) {
+    if (isset($prop_details['field']) && $prop_details['field']) {//} && ($val_wrapper->{$property}->value() != NULL)) {
+      //@todo support multi-value fields needed?
+      //@todo support additional field collections?
+      $fc_item_wrapper->{$property}->set($val_wrapper->{$property}->value());
+    }
   }
 }
