@@ -77,7 +77,8 @@ function redhen_dedupe_list_page() {
     // Display each result basing our row on the selected properties.
     foreach ($results as $result) {
       $ids = explode(',', $result->ids);
-      $ids = array_flip($ids);
+      // Dedupe by values:
+      $ids = array_flip(array_flip($ids));
       if (count($ids) > 1) {
         $result->ids = implode(',', $ids);
         $col = array();
