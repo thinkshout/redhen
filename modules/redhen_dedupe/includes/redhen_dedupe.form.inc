@@ -202,9 +202,11 @@ function redhen_dedupe_merge_form_submit($form, &$form_state) {
           'type' => 'combine',
           'value' => array(),
         );
-        foreach ($val as $ent_id => $ent_id_string) {
-          $wrapper = entity_metadata_wrapper('redhen_contact', $ent_id);
-          $values[$name]['value'][$ent_id] = $wrapper->{$name}->value();
+        foreach ($val as $ent_id => $selected) {
+          if ($selected) {
+            $wrapper = entity_metadata_wrapper('redhen_contact', $ent_id);
+            $values[$name]['value'][$ent_id] = $wrapper->{$name}->value();
+          }
         }
       }
       else {
