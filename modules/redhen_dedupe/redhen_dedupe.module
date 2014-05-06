@@ -100,7 +100,7 @@ function redhen_dedupe_list_page() {
           $col[] = $result->{$name};
         }
         $id_links = array();
-        foreach ($ids as $id => $number) {
+        foreach ($ids as $id) {
           $id_links[] = l($id, 'redhen/contact/' . $id);
         }
         $count = $result->count . ' (' . implode(', ', $id_links) . ')';
@@ -352,6 +352,7 @@ function redhen_dedupe_merge(RedhenContact $master, $contacts, $values, $related
       }
       if ($value['type'] == 'combine') {
         if (isset($value['value'][$master_id])) {
+          // This assures that the "Master" record value is at the 0-index:
           $all_vals = $value['value'][$master_id];
           unset($value['value'][$master_id]);
         }
