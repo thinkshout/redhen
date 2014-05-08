@@ -61,8 +61,6 @@ function redhen_donation_entity_settings_page($entity_type, $entity) {
  * @see redhen_donation_menu()
  */
 function redhen_donation_donations_page($entity_type, $entity) {
-  //@TODO Remove stub
-  return 'Donations page';
   $header = array(
     array(
       'data' => t('id'),
@@ -75,12 +73,6 @@ function redhen_donation_donations_page($entity_type, $entity) {
       'field' => 'user_uid',
       'type' => 'property',
       'specifier' => 'user_uid'
-    ),
-    array(
-      'data' => t('Created By'),
-      'field' => 'author_uid',
-      'type' => 'property',
-      'specifier' => 'author_uid'
     ),
     array(
       'data' => t('Created'),
@@ -97,54 +89,43 @@ function redhen_donation_donations_page($entity_type, $entity) {
 
   $query = new EntityFieldQuery;
   $result = $query
-    ->entityCondition('entity_type', 'registration')
+    ->entityCondition('entity_type', 'redhen_donation')
     ->propertyCondition('entity_id', $entity_id)
     ->propertyCondition('entity_type', $entity_type)
     ->pager(20)
     ->tableSort($header)
     ->execute();
 
-  if (!empty($result['registration'])) {
-    $registrations = registration_load_multiple(array_keys($result['registration']));
+  if (!empty($result['redhen_donation'])) {
+    $donations = redhen_donation_load_multiple(array_keys($result['redhen_donation']));
     $rows = array();
 
-    foreach ($registrations as $registration) {
-      $wrapper = entity_metadata_wrapper('registration', $registration);
-      $author = $wrapper->author->value();
-      $state = $wrapper->state->value();
-
-      $author_col = '';
-      if ($registration->author_uid) {
-        $uri = entity_uri('user', $author);
-        $author_col = l($author->name, $uri['path']);
-      }
+    foreach ($donations as $donation) {
+      $wrapper = entity_metadata_wrapper('redhen_donation', $donation);
+      $author = $wrapper->uid->value();
 
       $user_col = '';
-      if ($registration->user_uid) {
-        $user = user_load($registration->user_uid);
+      if ($donation->uid) {
+        $user = user_load($donation->uid);
         $uri = entity_uri('user', $user);
         $user_col = l($user->name, $uri['path']);
       }
 
       $actions = array();
-      if (entity_access('view', 'registration', $registration)) {
-        $actions[] = l(t('View'), 'registration/' . $registration->registration_id);
+      if (entity_access('view', 'redhen_donation', $donation)) {
+        $actions[] = l(t('View'), 'donation/' . $donation->donation_id);
       }
-      if (entity_access('update', 'registration', $registration)) {
-        $actions[] = l(t('Edit'), 'registration/' . $registration->registration_id . '/edit', array('query' => drupal_get_destination()));
+      if (entity_access('update', 'redhen_donation', $donation)) {
+        $actions[] = l(t('Edit'), 'donation/' . $donation->donation_id . '/edit', array('query' => drupal_get_destination()));
       }
-      if (entity_access('delete', 'registration', $registration)) {
-        $actions[] = l(t('Delete'), 'registration/' . $registration->registration_id . '/delete', array('query' => drupal_get_destination()));
+      if (entity_access('delete', 'redhen_donation', $donation)) {
+        $actions[] = l(t('Delete'), 'donation/' . $donation->donation_id . '/delete', array('query' => drupal_get_destination()));
       }
 
       $rows[] = array(
-        l($registration->registration_id, 'registration/' . $registration->registration_id),
-        l($wrapper->mail->value(), 'mailto:' . $wrapper->mail->value()),
+        l($donation->donation_id, 'donation/' . $donation->donation_id),
         $user_col,
-        $author_col,
-        $registration->count,
-        format_date($registration->created),
-        ($state ? filter_xss_admin(entity_label('registration_state', $state)) : ''),
+        format_date($donation->created),
         implode(' | ', $actions)
       );
     }
@@ -155,24 +136,12 @@ function redhen_donation_donations_page($entity_type, $entity) {
       'header' => $header,
       'rows' => $rows
     );
-    if ($settings['capacity'] != 0) {
-      $table['caption'] = t('List of registrations for %title. !count of !capacity spaces are filled.', array(
-        '%title' => $label,
-        '!count' => '<strong>' . registration_event_count($entity_type, $entity_id) . '</strong>',
-        '!capacity' => '<strong>' . $settings['capacity'] . '</strong>'
-      ));
-    }
-    else {
-      $table['caption'] = t('List of registrations for %title. !count spaces are filled.', array(
-        '%title' => $label,
-        '!count' => '<strong>' . registration_event_count($entity_type, $entity_id) . '</strong>',
-      ));
-    }
+
 
     $out = theme('table', $table) . theme('pager');
   }
   else {
-    $out = t('There are no registrants for %name',
+    $out = t('There are no donations for %name',
       array('%name' => $label));
   }
 
