@@ -81,6 +81,16 @@ function redhen_donation_type_form($form, &$form_state, $donation_type, $op = 'e
   );
 
 
+  $product_types = commerce_product_type_options_list();
+  unset($product_types['recurring']);
+  $form['settings']['one_time_product_type'] = array(
+    '#title' => t('One time product type'),
+    '#type' => 'select',
+    '#options' => $product_types,
+    '#default_value' => $donation_type->settings['one_time_product_type'],
+  );
+
+
   $form['actions'] = array('#type' => 'actions');
   $form['actions']['submit'] = array(
     '#type' => 'submit',
