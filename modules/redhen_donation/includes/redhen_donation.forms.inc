@@ -665,7 +665,7 @@ function redhen_donation_form($form, &$form_state, RedhenDonation $donation) {
     $form['commerce_customer_address'] = $form['redhen_contact']['form'][$billing_address_field];
     $form['commerce_customer_address']['#access'] = TRUE;
   }
-  $form['commerce_customer_address']['#weight'] = 1;
+  $form['commerce_customer_address']['#weight'] = 49;
 
 
   $payment_methods = array();
@@ -719,7 +719,7 @@ function redhen_donation_form($form, &$form_state, RedhenDonation $donation) {
 
   $form['commerce_payment_form'] = array(
     '#type' => 'fieldset',
-    '#weight' => 2,
+    '#weight' => 50,
     '#title' => t('Payment Information'),
   );
 
@@ -918,6 +918,9 @@ function redhen_donation_form_submit($form, &$form_state) {
   // Set the donation's author uid
   if (!isset($donation->donation_id)) {
     $donation->uid = $GLOBALS['user']->uid;
+  }
+  if ($order) {
+    $donation->order_id = $order_wrapper->order_id->value();
   }
 
   // Notify field widgets.
