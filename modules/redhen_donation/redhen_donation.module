@@ -216,6 +216,13 @@ function redhen_donation_menu() {
     }
   }
 
+  $items['donation/confirmation'] = array(
+    'title' => 'Donation confirmation',
+    'page callback' => 'redhen_donation_default_confirmation',
+    'access callback' => TRUE,
+    'type' => MENU_CALLBACK,
+  );
+
   if (module_exists('devel')) {
     $items['donation/%donation/devel'] = array(
       'title' => 'Devel',
@@ -394,6 +401,13 @@ function redhen_donation_donate_page_access($entity_type, $entity) {
 }
 
 /**
+ * Default donation confirmation page.
+ */
+function redhen_donation_default_confirmation() {
+  return t('Thank you for your donation.');
+}
+
+/**
  * Access callback: for redhen_donation_donations_page().
  *
  * Check if user has access to administer donations for a host entity.
@@ -438,7 +452,7 @@ function redhen_donation_administer_donations_access($entity_type, $entity) {
 function redhen_donation_get_entity_donation_type($entity_type, $entity) {
   $fields = field_read_fields(array('type' => 'redhen_donation'));
   foreach ($fields as $field) {
-    if (isset($entity->{$field['field_name']})) {
+    if (isset($entity->$field['field_name'])) {
       $items = field_get_items($entity_type, $entity, $field['field_name']);
       // we're assuming there's only a single value in this field
       if (!empty($items) && count($items) == 1 && !empty($items[0]['redhen_donation_type'])) {
@@ -938,24 +952,7 @@ function redhen_donation_save(RedhenDonation $donation) {
   return $donation->save();
 }
 
-/**
- * Find a contact by either the current user or a given email.
- *
- * @param string $mail
- *   Mail to use to find a user, if no contact is found for the current user.
- */
-function redhen_donation_load_contact_by_current_user_or_mail($mail) {
-  global $user;
-
-  if ($user) {
-    $existing_contact = redhen_contact_load_by_mail($user->mail);
-    $contact = $existing_contact ? current($existing_contact) : FALSE;
-  }
-
-  if (!$contact) {
-    $existing_contact = redhen_contact_load_by_mail($mail);
-    $contact = $existing_contact ? current($existing_contact) : FALSE;
-  }
-
-  return $contact;
+function redhen_donation_commerce_recurring_recurring_price_alter(&$recurring_price, $line_item, $recurring_entity) {
+  $recurring_wrapper = entity_metadata_wrapper('commerce_recurring', $recurring_entity);
+  $recurring_price['amount'] = $recurring_wrapper->commerce_recurring_fixed_price->amount->value();
 }
