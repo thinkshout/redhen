@@ -35,41 +35,41 @@ function redhen_donation_type_form($form, &$form_state, $donation_type, $op = 'e
     '#description' => t('A unique machine-readable name for this donation type. It must only contain lowercase letters, numbers, and underscores.'),
   );
 
-  $form['settings'] = array(
+  $form['settings']['contact_settings'] = array(
     '#type' => 'fieldset',
-    '#title' => t('Additional Settings'),
-    '#collapsible' => TRUE,
+    '#title' => t('Contact Settings'),
+    '#collapsible' => FALSE,
     '#collapsed' => FALSE,
     '#tree' => TRUE,
   );
 
-  $form['settings']['contact_type'] = array(
+  $form['settings']['contact_settings']['contact_type'] = array(
     '#type' => 'select',
     '#title' => t('Contact type'),
-    '#default_value' => $donation_type->settings['contact_type'],
+    '#default_value' => $donation_type->settings['contact_settings']['contact_type'],
     '#options' => redhen_contact_type_options_list(),
     '#empty_value' => FALSE,
     '#description' => t('Select the contact type that will be displayed inline on the donation form.'),
   );
 
-  $form['settings']['contact_update'] = array(
+  $form['settings']['contact_settings']['contact_update'] = array(
     '#type' => 'checkbox',
     '#options' => array(1,1),
     '#title' => t('Update and link existing contacts'),
     '#description' => t('If a contact is found with the same email as the donation order, it will be updated and linked to the new account.'),
-    '#default_value' => $donation_type->settings['contact_update'],
+    '#default_value' => $donation_type->settings['contact_settings']['contact_update'],
     '#states' => array(
       'invisible' => array(
         ':input[name="settings[contact_type]"]' => array('value' => 0),
       ),
     ),
   );
-  $form['settings']['contact_update_fields'] = array(
+  $form['settings']['contact_settings']['contact_update_fields'] = array(
     '#type' => 'checkbox',
     '#options' => array(1,1),
     '#title' => t('Update contact fields'),
     '#description' => t('Should the contact fields be updated?'),
-    '#default_value' => $donation_type->settings['contact_update_fields'],
+    '#default_value' => $donation_type->settings['contact_settings']['contact_update_fields'],
     '#states' => array(
       'invisible' => array(
         ':input[name="settings[contact_type]"]' => array('value' => 0),
@@ -81,15 +81,44 @@ function redhen_donation_type_form($form, &$form_state, $donation_type, $op = 'e
   );
 
 
+  $form['settings']['commerce_settings'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Commerce Settings'),
+    '#collapsible' => FALSE,
+    '#collapsed' => FALSE,
+    '#tree' => TRUE,
+  );
+
   $product_types = commerce_product_type_options_list();
   unset($product_types['recurring']);
-  $form['settings']['one_time_product_type'] = array(
+  $form['settings']['commerce_settings']['one_time_product_type'] = array(
     '#title' => t('One time product type'),
     '#type' => 'select',
     '#options' => $product_types,
-    '#default_value' => $donation_type->settings['one_time_product_type'],
+    '#default_value' => $donation_type->settings['commerce_settings']['one_time_product_type'],
   );
 
+  $order_type_options = commerce_order_type_options_list();
+  if (count($order_type_options) > 1) {
+    $form['settings']['commerce_settings']['order_type'] = array(
+      '#type' => 'select',
+      '#title' => t('Order type.'),
+      '#options' => $order_type_options,
+      '#default_value' => $donation_type->settings['commerce_settings']['order_type'],
+      '#description' => t('Choose an order type.'),
+    );
+  }
+
+  $line_item_type_options = commerce_line_item_type_options_list();
+  if (count($line_item_type_options) > 1) {
+    $form['settings']['commerce_settings']['line_item_type'] = array(
+      '#type' => 'select',
+      '#title' => t('Line item type.'),
+      '#options' => $line_item_type_options,
+      '#default_value' => $donation_type->settings['commerce_settings']['line_item_type'],
+      '#description' => t('Choose a line item type.'),
+    );
+  }
 
   $form['actions'] = array('#type' => 'actions');
   $form['actions']['submit'] = array(
@@ -116,6 +145,10 @@ function redhen_donation_type_form($form, &$form_state, $donation_type, $op = 'e
  */
 function redhen_donation_type_form_submit(&$form, &$form_state) {
   $donation_type = entity_ui_form_submit_build_entity($form, $form_state);
+  $donation_type->settings = array();
+  // Serialize settings
+  $donation_type->settings['contact_settings'] = $donation_type->contact_settings;
+  $donation_type->settings['commerce_settings'] = $donation_type->commerce_settings;
   $donation_type->save();
   $form_state['redirect'] = 'admin/structure/redhen/donation_types';
 }
