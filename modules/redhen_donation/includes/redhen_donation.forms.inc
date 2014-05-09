@@ -162,7 +162,7 @@ function redhen_donation_entity_settings_form($form, &$form_state, $settings, $e
 
 
   // Get fields for field selector and profile sync selector.
-  $fields = field_info_instances('redhen_contact', $donation_type->settings['contact_type']);
+  $fields = field_info_instances('redhen_contact', $donation_type->settings['contact_settings']['contact_type']);
 
   $other_fields = array();
   foreach ($fields as $field_name => $field) {
@@ -200,28 +200,19 @@ function redhen_donation_entity_settings_form($form, &$form_state, $settings, $e
     '#tree' => TRUE,
   );
 
-  $order_type_options = commerce_order_type_options_list();
-   if (count($order_type_options) > 1) {
-     $form['commerce']['order_type'] = array(
-       '#type' => 'select',
-       '#title' => t('Order type.'),
-       '#options' => $order_type_options,
-       '#default_value' => $settings['settings']['commerce']['order_type'],
-       '#description' => t('Choose an order type.'),
-     );
-   }
+  $form['commerce']['order_type'] = array(
+    '#type' => 'hidden',
+    '#value' => isset($donation_type->settings['commerce_settings']['order_type']) ?
+        $donation_type->settings['commerce_settings']['order_type']:
+        'commerce_order',
+  );
 
-   $line_item_type_options = commerce_line_item_type_options_list();
-   if (count($line_item_type_options) > 1) {
-     $form['commerce']['line_item_type'] = array(
-       '#type' => 'select',
-       '#title' => t('Line item type.'),
-       '#options' => $line_item_type_options,
-       '#default_value' => $settings['settings']['commerce']['line_item_type'],
-       '#description' => t('Choose a line item type.'),
-     );
-   }
-
+  $form['commerce']['line_item_type'] = array(
+    '#type' => 'hidden',
+    '#value' => isset($donation_type->settings['commerce_settings']['line_item_type']) ?
+        $donation_type->settings['commerce_settings']['line_item_type']:
+        'product',
+  );
 
   // Product options
   $rec_product_options = array(
@@ -234,7 +225,7 @@ function redhen_donation_entity_settings_form($form, &$form_state, $settings, $e
     ->propertyCondition(
       'type',
       array(
-        $donation_type->settings['one_time_product_type'],
+        $donation_type->settings['commerce_settings']['one_time_product_type'],
         'recurring'
       ),
       'IN'
@@ -491,28 +482,14 @@ function redhen_donation_form($form, &$form_state, RedhenDonation $donation) {
       redhen_donation_entity_settings($donation->entity_type, $donation->entity_id);
   }
 
-  if (isset($settings['settings']['commerce']['order_type'])) {
-    $form_state['order_type'] =
-        $settings['settings']['commerce']['order_type'];
-  }
-  else {
-    $order_type = array_keys(commerce_order_type_options_list());
-    $form_state['order_type'] = $order_type[0];
-  }
 
-  if (isset($settings['settings']['commerce']['line_item_type'])) {
-    $form_state['line_item_type'] =
-        $settings['settings']['commerce']['line_item_type'];
-  }
-  else {
-    $line_item_type = array_keys(commerce_line_item_type_options_list());
-    $form_state['line_item_type'] = $line_item_type[0];
-  }
+  $form_state['order_type'] = $settings['settings']['commerce']['order_type'];
+  $form_state['line_item_type'] = $settings['settings']['commerce']['line_item_type'];
 
   $payment_settings = $settings['settings']['commerce']['payment_options']['payment_methods'];
 
   $donation_type = redhen_donation_type_load($donation->bundle());
-  $contact_type = $donation_type->settings['contact_type'];
+  $contact_type = $donation_type->settings['contact_settings']['contact_type'];
 
   // If a Contact type was found.
   if ($contact_type) {
