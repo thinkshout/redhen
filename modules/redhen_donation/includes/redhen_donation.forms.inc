@@ -258,7 +258,7 @@ function redhen_donation_entity_settings_form($form, &$form_state, $settings, $e
   );
 
   if ($address_fields) {
-    $address_default = array('billing'=> t('Default'));
+    $address_default = array('billing'=> t('None'));
     $address_fields = array_merge($address_default, $address_fields);
     $form['commerce']['profile_selector'] = array(
       '#type' => 'select',
@@ -267,7 +267,7 @@ function redhen_donation_entity_settings_form($form, &$form_state, $settings, $e
       '#default_value' => $settings['settings']['commerce']['profile_selector'],
       '#description' => t(
         'Select a contact field to sync with a billing
-        profile. If no field is selected, the default billing profile will be
+        profile. If "none" is selected, the default billing profile will be
         created.'
       ),
     );
@@ -288,7 +288,7 @@ function redhen_donation_entity_settings_form($form, &$form_state, $settings, $e
     '#header' => array(
       'one_time' => t('Payment method'),
       'label' => t('Label'),
-      'currency' => t('Currency'),
+      'currency' => t('Currency Label'),
       'delete' => t('Delete'),
     ),
     '#attributes' => array(
