@@ -215,7 +215,7 @@ function redhen_donation_entity_settings_form($form, &$form_state, $settings, $e
   );
 
   // Product options
-  $rec_product_options = array(
+  $rec_product_options = $product_options = array(
     '' => t('None')
   );
 
