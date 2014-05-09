@@ -168,15 +168,6 @@ function redhen_donation_permission_list($info) {
 function redhen_donation_menu() {
   $items = array();
 
-//  $items['admin/structure/donation'] = array(
-//    'title' => 'Donations',
-//    'description' => 'Administer Donation items, such as types, states, etc.',
-//    'page callback' => 'system_admin_menu_block_page',
-//    'access arguments' => array('administer registration'),
-//    'file' => 'system.admin.inc',
-//    'file path' => drupal_get_path('module', 'system'),
-//  );
-
   $items['donation/%redhen_donation'] = array(
     'title callback' => 'donation_page_title',
     'title arguments' => array(1),
@@ -192,23 +183,6 @@ function redhen_donation_menu() {
     'access callback' => 'entity_access',
     'access arguments' => array('view', 'redhen_donation', 1),
     'type' => MENU_DEFAULT_LOCAL_TASK,
-  );
-  $items['donation/%redhen_donation/edit'] = array(
-    'title' => 'Edit',
-    'page callback' => 'drupal_get_form',
-    'page arguments' => array('redhen_donation_form', 1),
-    'access callback' => 'entity_access',
-    'access arguments' => array('update', 'redhen_donation', 1),
-    'weight' => 10,
-    'type' => MENU_LOCAL_TASK,
-  );
-  $items['donation/%redhen_donation/delete'] = array(
-    'title' => 'Delete',
-    'page callback' => 'drupal_get_form',
-    'page arguments' => array('redhen_donation_delete_confirm', 1),
-    'access callback' => 'entity_access',
-    'access arguments' => array('delete', 'redhen_donation', 1),
-    'type' => MENU_CALLBACK,
   );
 
   // entity local tasks
