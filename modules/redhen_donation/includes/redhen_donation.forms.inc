@@ -514,7 +514,7 @@ function redhen_donation_form($form, &$form_state, RedhenDonation $donation) {
     unset($form['redhen_contact']['form']['actions']);
 
     // Remove fields as defined in settings
-    $fields = field_info_instances('redhen_contact', 'general');
+    $fields = field_info_instances('redhen_contact', $contact_type);
     foreach ($fields as $field) {
       $field_info = field_info_field($field);
       $field_setting = $settings['settings']['redhen_fields']['fields'][$field_info['field_name']];
