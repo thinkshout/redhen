@@ -240,20 +240,24 @@ function redhen_donation_entity_settings_form($form, &$form_state, $settings, $e
       $product_options[$id] = $product->title;
     }
   }
+  $form['commerce']['product_options'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Product options'),
+  );
 
-  $form['commerce']['one_time_product'] = array(
+  $form['commerce']['product_options']['one_time_product'] = array(
     '#type' => 'select',
     '#title' => t('One Time Product'),
     '#options' => $product_options,
     '#description' => t('Choose a one time product.'),
-    '#default_value' => $settings['settings']['commerce']['one_time_product'],
+    '#default_value' => $settings['settings']['commerce']['product_options']['one_time_product'],
   );
 
-  $form['commerce']['recurring'] = array(
+  $form['commerce']['product_options']['recurring'] = array(
     '#type' => 'select',
     '#title' => t('Recurring Product'),
     '#options' => $rec_product_options,
-    '#default_value' => $settings['settings']['commerce']['recurring'],
+    '#default_value' => $settings['settings']['commerce']['product_options']['recurring'],
     '#description' => t('Choose a recurring product.'),
   );
 
@@ -621,14 +625,41 @@ function redhen_donation_form($form, &$form_state, RedhenDonation $donation) {
       break;
   }
 
-  if ($settings['settings']['commerce']['recurring'] != '') {
-    $form['frequency'] = array(
-      '#title'=> t('Frequency'),
-      '#type' => 'select',
-      '#options' => array(
-        'one_time' => t('One time'),
-        'recurring' => t('Recurring'),
-      ),
+  $products = commerce_product_load_multiple(
+    array(
+      $settings['settings']['commerce']['product_options']['recurring'],
+      $settings['settings']['commerce']['product_options']['one_time_product']
+    )
+  );
+  if (count($products) > 1) {
+    $product_list = array();
+    foreach ($products as $product_id => $product) {
+      $product_wrapper = entity_metadata_wrapper('commerce_product', $product);
+      $product_list[$product_id] = $product->title;
+      $descriptions[$product_id] =
+        redhen_donation_product_description($product_wrapper);
+    }
+    $form['product'] = array(
+      '#type' => 'radios',
+      '#title' => t('Donation type'),
+      '#options' => $product_list,
+      '#required' => TRUE,
+    );
+    foreach ($form['product']['#options'] as $key => $label) {
+      $form['product'][$key]['#description'] = $descriptions[$key];
+    }
+  }
+  else {
+    $product = current($products);
+    $product_wrapper = entity_metadata_wrapper('commerce_product', $product);
+    $form['product'] = array(
+      '#type' => 'hidden',
+      '#value' => $product->product_id,
+    );
+    $form['product_label'] = array(
+      '#type' => 'item',
+      '#title' => $product->title,
+      '#markup' => redhen_donation_product_description($product_wrapper),
     );
   }
 
@@ -809,10 +840,7 @@ function redhen_donation_form_submit($form, &$form_state) {
   $card_exp = $card_exp_month . '/' . $card_exp_year;
 
   // Load product
-  $product_id = $settings['settings']['commerce']['one_time_product'];
-  if (isset($values['frequency']) && $values['frequency'] == 'recurring') {
-    $product_id = $settings['settings']['commerce']['recurring'];
-  }
+  $product_id = $values['product'];
   $product = commerce_product_load($product_id);
   $product_wrapper = entity_metadata_wrapper('commerce_product', $product);
 
@@ -1033,7 +1061,6 @@ function redhen_donation_get_payment_methods(&$form_state, $delta = NULL) {
   return $value;
 }
 
-
 /**
  * Helper to rapidly retreive an empty field mapping array.
  *
@@ -1043,7 +1070,6 @@ function redhen_donation_get_payment_methods(&$form_state, $delta = NULL) {
 function redhen_donation_get_empty_field_map_row() {
   return array();
 }
-
 
 /**
  * Donation form AJAX callback.
@@ -1102,4 +1128,27 @@ function redhen_donation_update_line_item_price(&$line_item, $decimal_amount, $p
     $difference,
     TRUE
   );
+}
+
+/**
+ * Production description helper callback.
+ * @param $product_wrapper
+ *
+ * @return null|string
+ */
+function redhen_donation_product_description($product_wrapper) {
+  $description = '';
+  if ($product_wrapper->type->value() == 'recurring') {
+    $period = $product_wrapper->commerce_recurring_rec_period->period->value();
+    $interval = $product_wrapper->commerce_recurring_rec_period->interval->value();
+    $end_period = $product_wrapper->commerce_recurring_end_period->period->value();
+    $end_interval = $product_wrapper->commerce_recurring_end_period->interval->value();
+    $description = t('@interval recurrence per @period for @end_interval @end_period.', array(
+      '@interval' => $interval,
+      '@period' => $period,
+      '@end_period' => $end_period,
+      '@end_interval' => $end_interval,
+    ));
+  }
+  return $description;
 }
