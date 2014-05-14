@@ -809,6 +809,28 @@ function redhen_donation_property_user_set(RedhenDonation $donation, $name, $val
 }
 
 /**
+ * Callback to get $donation->order.
+ *
+ * @see RedhenDonationMetadataController::entityPropertyInfo().
+ */
+function redhen_donation_property_order_get(RedhenDonation $donation, array $options, $property_name, $entity_type) {
+  $order = commerce_order_load($donation->order_id);
+  return entity_metadata_wrapper('commerce_order', $order);
+}
+
+
+/**
+ * Callback to get $donation->order.
+ *
+ * @see RedhenDonationMetadataController::entityPropertyInfo().
+ */
+function redhen_donation_property_redhen_contact_get(RedhenDonation $donation, array $options, $property_name, $entity_type) {
+  $contact = redhen_contact_load($donation->uid);
+  return entity_metadata_wrapper('redhen_contact', $contact);
+}
+
+
+/**
  * Implements hook_theme().
  */
 function redhen_donation_theme() {
