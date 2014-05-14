@@ -1001,6 +1001,15 @@ function redhen_donation_save(RedhenDonation $donation) {
   return $donation->save();
 }
 
+/**
+ * Implements hook_commerce_recurring_recurring_price_alter().
+ *
+ * see: https://drupal.org/node/2263371
+ *
+ * @param $recurring_price
+ * @param $line_item
+ * @param $recurring_entity
+ */
 function redhen_donation_commerce_recurring_recurring_price_alter(&$recurring_price, $line_item, $recurring_entity) {
   $recurring_wrapper = entity_metadata_wrapper('commerce_recurring', $recurring_entity);
   $recurring_price['amount'] = $recurring_wrapper->commerce_recurring_fixed_price->amount->value();
