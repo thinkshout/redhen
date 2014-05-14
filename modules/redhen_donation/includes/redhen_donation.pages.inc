@@ -63,25 +63,37 @@ function redhen_donation_entity_settings_page($entity_type, $entity) {
 function redhen_donation_donations_page($entity_type, $entity) {
   $header = array(
     array(
-      'data' => t('id'),
+      'data' => t('ID'),
       'field' => 'donation_id',
       'type' => 'property',
       'specifier' => 'donation_id'
     ),
     array(
-      'data' => t('User'),
+      'data' => t('Contact'),
       'field' => 'user_uid',
       'type' => 'property',
       'specifier' => 'user_uid'
     ),
     array(
-      'data' => t('Created'),
-      'field' => 'created',
+      'data' => t('Amount Pledged'),
+    ),
+    array(
+      'data' => t('Amount Received'),
+    ),
+    array(
+      'data' => t('Updated'),
+      'field' => 'updated',
       'sort' => 'desc',
       'type' => 'property',
-      'specifier' => 'created'
+      'specifier' => 'updated'
     ),
-    array('data' => t('Actions')),
+    array(
+      'data' => t('Status'),
+      'specifier' => 'status'
+    ),
+    array(
+      'data' => t('Recurring/Order'),
+    ),
   );
 
   list($entity_id) = entity_extract_ids($entity_type, $entity);
@@ -114,8 +126,11 @@ function redhen_donation_donations_page($entity_type, $entity) {
       $rows[] = array(
         l($donation->donation_id, 'redhen/donation/' . $donation->donation_id),
         $user_col,
-        format_date($donation->created),
-        implode(' | ', $actions)
+        'AP',
+        'AR',
+        format_date($donation->updated),
+        'Status',
+        'Rec/Ord',
       );
     }
 
