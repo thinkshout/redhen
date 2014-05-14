@@ -484,14 +484,6 @@ function redhen_donation_get_entity_donation_type($entity_type, $entity) {
 }
 
 /**
- * RedHen Donation view.
- */
-function redhen_donation_view(RedhenDonation $donation) {
-  dpm($donation);
-  return '';
-}
-
-/**
  * Implements hook_entity_delete().
  */
 function redhen_donation_entity_delete($entity, $entity_type) {
@@ -1013,4 +1005,23 @@ function redhen_donation_save(RedhenDonation $donation) {
 function redhen_donation_commerce_recurring_recurring_price_alter(&$recurring_price, $line_item, $recurring_entity) {
   $recurring_wrapper = entity_metadata_wrapper('commerce_recurring', $recurring_entity);
   $recurring_price['amount'] = $recurring_wrapper->commerce_recurring_fixed_price->amount->value();
+}
+
+/**
+ * Implements hook_views_pre_view().
+ *
+ * Unsets operations field and add payment form for redhen/donation/% callback.
+ *
+ * @param $view
+ * @param $display_id
+ * @param $args
+ */
+function redhen_donation_views_pre_view(&$view, &$display_id, &$args) {
+  if ($view->name == 'commerce_payment_order') {
+    $menu_args = menu_get_item();
+    if ($menu_args['path'] == 'redhen/donation/%') {
+      unset($view->display_handler->options['fields']['operations']);
+      $view->display['default']->handler->options['footer']['totals']['add_payment_form'] = 0;
+    }
+  }
 }

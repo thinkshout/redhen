@@ -151,3 +151,39 @@ function redhen_donation_donations_page($entity_type, $entity) {
 
   return $out;
 }
+
+/**
+ * RedHen Donation view.
+ */
+function redhen_donation_view(RedhenDonation $donation) {
+  $donation_wrapper = entity_metadata_wrapper('redhen_donation', $donation);
+  $donation_view = entity_view('redhen_donation', array($donation));
+
+  $contact = $donation_wrapper->redhen_contact->value();
+  $contact_view = redhen_contact_view($contact);
+
+  $order = $donation_wrapper->order->value();
+  $order_view = entity_view('commerce_order', array($order));
+
+  $payments = commerce_embed_view('commerce_payment_order', 'defaults', array($order->order_id));
+
+  $host = $donation_wrapper->entity->value();
+  $uri = entity_uri($donation->entity_type, $host);
+  $output = array(
+    'donation' => $donation_view,
+    'contact' => $contact_view,
+    'order' => $order_view,
+    'payments' => array(
+      '#markup' =>  $payments,
+    ),
+    'host' => array(
+      '#markup' =>  l(
+        'Donations',
+        $uri['path'] . '/donations'
+      ),
+    ),
+  );
+  return $output;
+}
+
+
