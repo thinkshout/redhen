@@ -111,17 +111,6 @@ function redhen_donation_donations_page($entity_type, $entity) {
         $user_col = l($user->name, $uri['path']);
       }
 
-      $actions = array();
-      if (entity_access('view', 'redhen_donation', $donation)) {
-        $actions[] = l(t('View'), 'donation/' . $donation->donation_id);
-      }
-      if (entity_access('update', 'redhen_donation', $donation)) {
-        $actions[] = l(t('Edit'), 'donation/' . $donation->donation_id . '/edit', array('query' => drupal_get_destination()));
-      }
-      if (entity_access('delete', 'redhen_donation', $donation)) {
-        $actions[] = l(t('Delete'), 'donation/' . $donation->donation_id . '/delete', array('query' => drupal_get_destination()));
-      }
-
       $rows[] = array(
         l($donation->donation_id, 'redhen/donation/' . $donation->donation_id),
         $user_col,

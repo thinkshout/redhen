@@ -937,19 +937,6 @@ function redhen_donation_form_submit($form, &$form_state) {
     $wrapper = entity_metadata_wrapper('redhen_donation', $donation);
     $host = $wrapper->entity->value();
 
-    // Redirect to donation
-    if (entity_access('view', 'redhen_donation', $donation)) {
-      $uri = entity_uri('redhen_donation', $donation);
-      $form_state['redirect'] = $uri['path'];
-    }
-    // Redirect to host entity
-    else {
-      if (entity_access('view', $donation->entity_type, $host)) {
-        $uri = entity_uri($donation->entity_type, $host);
-        $form_state['redirect'] = $uri['path'];
-      }
-    }
-
     drupal_set_message($message);
     if ($settings['settings']['donation_settings']['confirmation_page'] == '') {
       drupal_goto('redhen/donation/confirmation');
@@ -961,23 +948,6 @@ function redhen_donation_form_submit($form, &$form_state) {
   else {
     drupal_set_message(t('There was a problem submitting your donation.'));
   }
-}
-
-/**
- * Button submit function: handle the 'Delete' button on the node form.
- */
-function redhen_donation_form_delete_submit($form, &$form_state) {
-  $destination = array();
-  if (isset($_GET['destination'])) {
-    $destination = drupal_get_destination();
-    unset($_GET['destination']);
-  }
-  $donation = $form_state['donation'];
-  $form_state['redirect'] = array(
-    'donation/' .
-    $donation->donation_id . '/delete',
-    array('query' => $destination),
-  );
 }
 
 /**
@@ -1055,8 +1025,6 @@ function redhen_donation_get_payment_methods(&$form_state, $delta = NULL) {
       }
     }
     $value = &$methods;
-
-
 
   return $value;
 }
