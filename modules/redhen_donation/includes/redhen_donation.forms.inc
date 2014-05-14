@@ -952,7 +952,7 @@ function redhen_donation_form_submit($form, &$form_state) {
 
     drupal_set_message($message);
     if ($settings['settings']['donation_settings']['confirmation_page'] == '') {
-      drupal_goto('donation/confirmation');
+      drupal_goto('redhen/donation/confirmation');
     }
     else {
       drupal_goto('give/thanks');

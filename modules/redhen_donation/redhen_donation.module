@@ -168,20 +168,22 @@ function redhen_donation_permission_list($info) {
 function redhen_donation_menu() {
   $items = array();
 
-  $items['donation/%redhen_donation'] = array(
+  $items['redhen/donation/%redhen_donation'] = array(
     'title callback' => 'donation_page_title',
-    'title arguments' => array(1),
+    'title arguments' => array(2),
     'page callback' => 'redhen_donation_view',
-    'page arguments' => array(1),
+    'page arguments' => array(2),
     'access callback' => 'entity_access',
-    'access arguments' => array('view', 'redhen_donation', 1),
+    'access arguments' => array('view', 'redhen_donation', 2),
+    'file' => 'includes/redhen_donation.pages.inc',
   );
-  $items['donation/%redhen_donation/view'] = array(
+  $items['redhen/donation/%redhen_donation/view'] = array(
     'title' => 'View',
     'page callback' => 'redhen_donation_view',
-    'page arguments' => array(1),
+    'page arguments' => array(2),
     'access callback' => 'entity_access',
-    'access arguments' => array('view', 'redhen_donation', 1),
+    'access arguments' => array('view', 'redhen_donation', 2),
+    'file' => 'includes/redhen_donation.pages.inc',
     'type' => MENU_DEFAULT_LOCAL_TASK,
   );
 
@@ -233,7 +235,7 @@ function redhen_donation_menu() {
     }
   }
 
-  $items['donation/confirmation'] = array(
+  $items['redhen/donation/confirmation'] = array(
     'title' => 'Donation confirmation',
     'page callback' => 'redhen_donation_default_confirmation',
     'access callback' => TRUE,
@@ -241,17 +243,17 @@ function redhen_donation_menu() {
   );
 
   if (module_exists('devel')) {
-    $items['donation/%donation/devel'] = array(
+    $items['redhen/donation/%redhen_donation/devel'] = array(
       'title' => 'Devel',
       'page callback' => 'devel_load_object',
-      'page arguments' => array('node', 1),
+      'page arguments' => array('redhen_donation', 2),
       'access arguments' => array('access devel information'),
       'type' => MENU_LOCAL_TASK,
       'file path' => drupal_get_path('module', 'devel'),
       'file' => 'devel.pages.inc',
       'weight' => 100,
     );
-    $items['donation/%donation/devel/load'] = array(
+    $items['redhen/donation/%redhen_donation/devel/load'] = array(
       'title' => 'Load',
       'type' => MENU_DEFAULT_LOCAL_TASK,
     );

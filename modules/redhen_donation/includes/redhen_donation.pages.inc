@@ -123,7 +123,7 @@ function redhen_donation_donations_page($entity_type, $entity) {
       }
 
       $rows[] = array(
-        l($donation->donation_id, 'donation/' . $donation->donation_id),
+        l($donation->donation_id, 'redhen/donation/' . $donation->donation_id),
         $user_col,
         format_date($donation->created),
         implode(' | ', $actions)
