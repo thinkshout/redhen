@@ -1,5 +1,5 @@
 name = RedHen Donations
-description = Entity based donation system.
+description = Create single page campaigns to collect donations and contacts.
 package = RedHen
 core = 7.x
 
