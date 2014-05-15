@@ -63,25 +63,37 @@ function redhen_donation_entity_settings_page($entity_type, $entity) {
 function redhen_donation_donations_page($entity_type, $entity) {
   $header = array(
     array(
-      'data' => t('id'),
+      'data' => t('ID'),
       'field' => 'donation_id',
       'type' => 'property',
       'specifier' => 'donation_id'
     ),
     array(
-      'data' => t('User'),
+      'data' => t('Contact'),
       'field' => 'user_uid',
       'type' => 'property',
       'specifier' => 'user_uid'
     ),
     array(
-      'data' => t('Created'),
-      'field' => 'created',
+      'data' => t('Amount Pledged'),
+    ),
+    array(
+      'data' => t('Amount Received'),
+    ),
+    array(
+      'data' => t('Updated'),
+      'field' => 'updated',
       'sort' => 'desc',
       'type' => 'property',
-      'specifier' => 'created'
+      'specifier' => 'updated'
     ),
-    array('data' => t('Actions')),
+    array(
+      'data' => t('Status'),
+      'specifier' => 'status'
+    ),
+    array(
+      'data' => t('Recurring/Order'),
+    ),
   );
 
   list($entity_id) = entity_extract_ids($entity_type, $entity);
@@ -111,22 +123,14 @@ function redhen_donation_donations_page($entity_type, $entity) {
         $user_col = l($user->name, $uri['path']);
       }
 
-      $actions = array();
-      if (entity_access('view', 'redhen_donation', $donation)) {
-        $actions[] = l(t('View'), 'donation/' . $donation->donation_id);
-      }
-      if (entity_access('update', 'redhen_donation', $donation)) {
-        $actions[] = l(t('Edit'), 'donation/' . $donation->donation_id . '/edit', array('query' => drupal_get_destination()));
-      }
-      if (entity_access('delete', 'redhen_donation', $donation)) {
-        $actions[] = l(t('Delete'), 'donation/' . $donation->donation_id . '/delete', array('query' => drupal_get_destination()));
-      }
-
       $rows[] = array(
-        l($donation->donation_id, 'donation/' . $donation->donation_id),
+        l($donation->donation_id, 'redhen/donation/' . $donation->donation_id),
         $user_col,
-        format_date($donation->created),
-        implode(' | ', $actions)
+        'AP',
+        'AR',
+        format_date($donation->updated),
+        'Status',
+        'Rec/Ord',
       );
     }
 
@@ -147,3 +151,39 @@ function redhen_donation_donations_page($entity_type, $entity) {
 
   return $out;
 }
+
+/**
+ * RedHen Donation view.
+ */
+function redhen_donation_view(RedhenDonation $donation) {
+  $donation_wrapper = entity_metadata_wrapper('redhen_donation', $donation);
+  $donation_view = entity_view('redhen_donation', array($donation));
+
+  $contact = $donation_wrapper->redhen_contact->value();
+  $contact_view = redhen_contact_view($contact);
+
+  $order = $donation_wrapper->order->value();
+  $order_view = entity_view('commerce_order', array($order));
+
+  $payments = commerce_embed_view('commerce_payment_order', 'defaults', array($order->order_id));
+
+  $host = $donation_wrapper->entity->value();
+  $uri = entity_uri($donation->entity_type, $host);
+  $output = array(
+    'donation' => $donation_view,
+    'contact' => $contact_view,
+    'order' => $order_view,
+    'payments' => array(
+      '#markup' =>  $payments,
+    ),
+    'host' => array(
+      '#markup' =>  l(
+        'Donations',
+        $uri['path'] . '/donations'
+      ),
+    ),
+  );
+  return $output;
+}
+
+

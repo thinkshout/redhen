@@ -80,6 +80,19 @@ class RedhenDonationMetadataController extends EntityDefaultMetadataController {
       'setter callback' => 'redhen_donation_property_user_set',
     );
 
+    $properties['order'] = array(
+      'type' => 'entity',
+      'schema field' => 'order_id',
+      'getter callback' => 'redhen_donation_property_order_get',
+      'description' => t("The order or recurring entity associated with this donation."),
+    );
+
+    $properties['redhen_contact'] = array(
+      'type' => 'redhen_contact',
+      'schema field' => 'uid',
+      'getter callback' => 'redhen_donation_property_redhen_contact_get',
+      'description' => t("The RedHen contact associated with this donation."),
+    );
 
     return $info;
   }

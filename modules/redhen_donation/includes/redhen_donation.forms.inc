@@ -215,7 +215,7 @@ function redhen_donation_entity_settings_form($form, &$form_state, $settings, $e
   );
 
   // Product options
-  $rec_product_options = $product_options = array(
+  $product_options = array(
     '' => t('None')
   );
 
@@ -234,7 +234,10 @@ function redhen_donation_entity_settings_form($form, &$form_state, $settings, $e
   $products = commerce_product_load_multiple(array_keys($result['commerce_product']));
   foreach ($products  as $id => $product) {
     if ($product->type == 'recurring') {
+      $product_wrapper = entity_metadata_wrapper('commerce_product', $product);
       $rec_product_options[$id] = $product->title;
+      $rec_product_description[$id] =
+        redhen_donation_product_description($product_wrapper);
     }
     else {
       $product_options[$id] = $product->title;
@@ -254,12 +257,16 @@ function redhen_donation_entity_settings_form($form, &$form_state, $settings, $e
   );
 
   $form['commerce']['product_options']['recurring'] = array(
-    '#type' => 'select',
+    '#type' => 'checkboxes',
+    '#multiple' => TRUE,
     '#title' => t('Recurring Product'),
     '#options' => $rec_product_options,
     '#default_value' => $settings['settings']['commerce']['product_options']['recurring'],
     '#description' => t('Choose a recurring product.'),
   );
+  foreach ($form['commerce']['product_options']['recurring']['#options'] as $key => $label) {
+    $form['commerce']['product_options']['recurring'][$key]['#description'] = $rec_product_description[$key];
+  }
 
   if ($address_fields) {
     $address_default = array('billing'=> t('None'));
@@ -626,9 +633,11 @@ function redhen_donation_form($form, &$form_state, RedhenDonation $donation) {
   }
 
   $products = commerce_product_load_multiple(
-    array(
-      $settings['settings']['commerce']['product_options']['recurring'],
-      $settings['settings']['commerce']['product_options']['one_time_product']
+    array_merge(
+      array(
+        $settings['settings']['commerce']['product_options']['one_time_product']
+      ),
+      $settings['settings']['commerce']['product_options']['recurring']
     )
   );
   if (count($products) > 1) {
@@ -937,47 +946,17 @@ function redhen_donation_form_submit($form, &$form_state) {
     $wrapper = entity_metadata_wrapper('redhen_donation', $donation);
     $host = $wrapper->entity->value();
 
-    // Redirect to donation
-    if (entity_access('view', 'redhen_donation', $donation)) {
-      $uri = entity_uri('redhen_donation', $donation);
-      $form_state['redirect'] = $uri['path'];
-    }
-    // Redirect to host entity
-    else {
-      if (entity_access('view', $donation->entity_type, $host)) {
-        $uri = entity_uri($donation->entity_type, $host);
-        $form_state['redirect'] = $uri['path'];
-      }
-    }
-
     drupal_set_message($message);
     if ($settings['settings']['donation_settings']['confirmation_page'] == '') {
-      drupal_goto('donation/confirmation');
+      drupal_goto('redhen/donation/confirmation');
     }
     else {
-      drupal_goto('give/thanks');
+      drupal_goto($settings['settings']['donation_settings']['confirmation_page']);
     }
   }
   else {
     drupal_set_message(t('There was a problem submitting your donation.'));
   }
-}
-
-/**
- * Button submit function: handle the 'Delete' button on the node form.
- */
-function redhen_donation_form_delete_submit($form, &$form_state) {
-  $destination = array();
-  if (isset($_GET['destination'])) {
-    $destination = drupal_get_destination();
-    unset($_GET['destination']);
-  }
-  $donation = $form_state['donation'];
-  $form_state['redirect'] = array(
-    'donation/' .
-    $donation->donation_id . '/delete',
-    array('query' => $destination),
-  );
 }
 
 /**
@@ -1055,8 +1034,6 @@ function redhen_donation_get_payment_methods(&$form_state, $delta = NULL) {
       }
     }
     $value = &$methods;
-
-
 
   return $value;
 }

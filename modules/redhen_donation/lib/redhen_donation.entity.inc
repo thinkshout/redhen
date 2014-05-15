@@ -95,7 +95,7 @@ class RedhenDonation extends Entity {
    * Specify URI.
    */
   protected function defaultUri() {
-    return array('path' => 'donation/' . $this->internalIdentifier());
+    return array('path' => 'redhen/donation/' . $this->internalIdentifier());
   }
 
 }
