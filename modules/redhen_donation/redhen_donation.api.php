@@ -45,9 +45,9 @@ function hook_redhen_donation_entity_settings($settings) {
 /**
  * Provides a way to alter access to the donation status.
  *
- * @param $status
+ * @param string $status
  *   The current status
- * @param $context
+ * @param array $context
  *   Contextual information about the item being altered:
  *   - 'entity_type': The host entity type.
  *   - 'entity_id': The host entity ID.

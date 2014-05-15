@@ -51,7 +51,7 @@ function redhen_donation_entity_info() {
       'bundle of' => 'redhen_donation',
       'exportable' => TRUE,
       'entity keys' => array(
-        'id' => 'id',
+        'id' => 'donation_type_id',
         'name' => 'name',
         'label' => 'label',
       ),
