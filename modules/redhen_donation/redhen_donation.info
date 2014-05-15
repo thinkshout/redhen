@@ -5,6 +5,7 @@ core = 7.x
 
 dependencies[] = redhen_contact
 dependencies[] = commerce_checkout
+dependencies[] = commerce_product
 dependencies[] = select_or_other
 
 ; Classes
