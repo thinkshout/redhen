@@ -38,14 +38,45 @@ function redhen_donation_schema() {
         'not null' => TRUE,
         'default' => '',
       ),
-      'uid' => array(
+      'author_uid' => array(
         'description' => 'The uid of the user who created this donation.',
         'type' => 'int',
         'not null' => TRUE,
         'default' => 0,
       ),
-      'order_id' => array(
-        'description' => 'The {commerce_order}.order_id of the order associated with this donation.',
+      'contact_id' => array(
+        'description' => 'The identifier of the RedHen contact who this donation is associated with.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'status' => array(
+        'description' => 'The status of this donation.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'transaction_entity_type' => array(
+        'description' => 'The entity type of the transaction (order or recurring) associated with this donation.',
+        'type' => 'varchar',
+        'length' => 32,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'transaction_entity_id' => array(
+        'description' => 'The entity id of the transaction associated with this donation.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'pledged' => array(
+        'description' => 'The amount pledged for this donation.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'received' => array(
+        'description' => 'The actual amount received for this donation.',
         'type' => 'int',
         'not null' => TRUE,
         'default' => 0,
@@ -63,12 +94,25 @@ function redhen_donation_schema() {
         'default' => 0,
       ),
     ),
+    'primary key' => array('donation_id'),
     'indexes' => array(
-      'donation_updated' => array('updated'),
-      'donation_created' => array('created'),
+      'donation_author_uid' => array('author_uid'),
+      'donation_contact_id' => array('contact_id'),
       'donation_type' => array(array('type', 4)),
     ),
-    'primary key' => array('donation_id'),
+    'unique keys' => array(
+      'transaction' => array('transaction_entity_type', 'transaction_entity_id'),
+    ),
+    'foreign keys' => array(
+      'author' => array(
+        'table' => 'user',
+        'columns' => array('author_uid' => 'uid'),
+      ),
+      'contact' => array(
+        'table' => 'redhen_contact',
+        'columns' => array('contact_id' => 'contact_id'),
+      ),
+    ),
   );
 
   $schema['redhen_donation_entity'] = array(
@@ -122,7 +166,7 @@ function redhen_donation_schema() {
   $schema['redhen_donation_type'] = array(
     'description' => 'Stores information about all defined redhen donations types.',
     'fields' => array(
-      'id' => array(
+      'donation_type_id' => array(
         'type' => 'serial',
         'not null' => TRUE,
         'description' => 'Primary Key: Unique donation type ID.',
@@ -185,7 +229,7 @@ function redhen_donation_schema() {
         'description' => 'A serialized object that stores additional donation type settings.',
       ),
     ),
-    'primary key' => array('id'),
+    'primary key' => array('donation_type_id'),
     'unique keys' => array(
       'name' => array('name'),
     ),
