@@ -46,7 +46,7 @@ function redhen_donation_type_form($form, &$form_state, $donation_type, $op = 'e
   $form['settings']['contact_settings']['contact_type'] = array(
     '#type' => 'select',
     '#title' => t('Contact type'),
-    '#default_value' => $donation_type->settings['contact_settings']['contact_type'],
+    '#default_value' => isset($donation_type->settings['contact_settings']['contact_type']) ? $donation_type->settings['contact_settings']['contact_type'] : NULL,
     '#options' => redhen_contact_type_options_list(),
     '#empty_value' => FALSE,
     '#description' => t('Select the contact type that will be displayed inline on the donation form.'),
@@ -57,7 +57,7 @@ function redhen_donation_type_form($form, &$form_state, $donation_type, $op = 'e
     '#options' => array(1,1),
     '#title' => t('Update and link existing contacts'),
     '#description' => t('If a contact is found with the same email as the donation order, it will be updated and linked to the new account.'),
-    '#default_value' => $donation_type->settings['contact_settings']['contact_update'],
+    '#default_value' => isset($donation_type->settings['contact_settings']['contact_update']) ? $donation_type->settings['contact_settings']['contact_update'] : NULL,
     '#states' => array(
       'invisible' => array(
         ':input[name="settings[contact_type]"]' => array('value' => 0),
@@ -69,7 +69,7 @@ function redhen_donation_type_form($form, &$form_state, $donation_type, $op = 'e
     '#options' => array(1,1),
     '#title' => t('Update contact fields'),
     '#description' => t('Should the contact fields be updated?'),
-    '#default_value' => $donation_type->settings['contact_settings']['contact_update_fields'],
+    '#default_value' => isset($donation_type->settings['contact_settings']['contact_update_fields']) ? $donation_type->settings['contact_settings']['contact_update_fields'] : NULL,
     '#states' => array(
       'invisible' => array(
         ':input[name="settings[contact_type]"]' => array('value' => 0),
@@ -95,7 +95,7 @@ function redhen_donation_type_form($form, &$form_state, $donation_type, $op = 'e
     '#title' => t('One time product type'),
     '#type' => 'select',
     '#options' => $product_types,
-    '#default_value' => $donation_type->settings['commerce_settings']['one_time_product_type'],
+    '#default_value' => isset($donation_type->settings['commerce_settings']['one_time_product_type']) ? $donation_type->settings['commerce_settings']['one_time_product_type'] : NULL,
   );
 
   $order_type_options = commerce_order_type_options_list();
@@ -104,7 +104,7 @@ function redhen_donation_type_form($form, &$form_state, $donation_type, $op = 'e
       '#type' => 'select',
       '#title' => t('Order type.'),
       '#options' => $order_type_options,
-      '#default_value' => $donation_type->settings['commerce_settings']['order_type'],
+      '#default_value' => isset($donation_type->settings['commerce_settings']['order_type']) ? $donation_type->settings['commerce_settings']['order_type'] : NULL,
       '#description' => t('Choose an order type.'),
     );
   }
@@ -115,7 +115,7 @@ function redhen_donation_type_form($form, &$form_state, $donation_type, $op = 'e
       '#type' => 'select',
       '#title' => t('Line item type.'),
       '#options' => $line_item_type_options,
-      '#default_value' => $donation_type->settings['commerce_settings']['line_item_type'],
+      '#default_value' => isset($donation_type->settings['commerce_settings']['line_item_type']) ? $donation_type->settings['commerce_settings']['line_item_type'] : NULL,
       '#description' => t('Choose a line item type.'),
     );
   }
