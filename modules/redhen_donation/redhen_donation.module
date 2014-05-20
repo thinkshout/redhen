@@ -305,7 +305,7 @@ function redhen_donation_access($op, RedhenDonation $donation = NULL, $account =
   }
 
   $wrapper = entity_metadata_wrapper('redhen_donation', $donation);
-  $donation_user = $wrapper->user->value();
+  $donation_user = $wrapper->author_uid->value();
   $account_own = ($donation_user && ($donation_user->uid == $account->uid));
 
   // Fall back to assigned permissions
