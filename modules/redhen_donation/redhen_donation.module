@@ -754,6 +754,59 @@ function redhen_donation_get_donation_instances($params = array()) {
   return $donation_instances;
 }
 
+
+
+/**
+ * Implements hook_field_extra_fields().
+ */
+function redhen_donation_field_extra_fields() {
+  $extra = array();
+
+  foreach (redhen_donation_get_types() as $type => $donation_type) {
+    $extra['redhen_donation'][$type] = array(
+      'display' => array(
+        'contact' => array(
+          'label' => t('RedHen Contact'),
+          'description' => t('RedHen Contact.'),
+          'weight' => 1,
+        ),
+        'pledged' => array(
+          'label' => t('Amount pledged'),
+          'description' => t('Amount pledged.'),
+          'weight' => 2,
+        ),
+        'received' => array(
+          'label' => t('Amount received'),
+          'description' => t('Amount received.'),
+          'weight' => 3,
+        ),
+        'author' => array(
+          'label' => t('Author'),
+          'description' => t('Author.'),
+          'weight' => 4,
+        ),
+        'status' => array(
+          'label' => t('Status'),
+          'description' > t('Donation statusd.'),
+          'weight' => 5,
+        ),
+        'updated' => array(
+          'label' => t('Updated'),
+          'description' > t('Date donation was Updated.'),
+          'weight' => 6,
+        ),
+        'transaction' => array(
+          'label' => t('Transaction(s)'),
+          'description' > t('Date donation was Updated.'),
+          'weight' => 7,
+        ),
+      ),
+    );
+  }
+
+  return $extra;
+}
+
 /**
  * Callback to get $donation->host.
  *
