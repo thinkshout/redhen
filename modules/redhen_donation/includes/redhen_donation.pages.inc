@@ -114,23 +114,33 @@ function redhen_donation_donations_page($entity_type, $entity) {
 
     foreach ($donations as $donation) {
       $wrapper = entity_metadata_wrapper('redhen_donation', $donation);
-      $author = $wrapper->uid->value();
+      $author = $wrapper->author_uid->value();
 
       $user_col = '';
-      if ($donation->uid) {
-        $user = user_load($donation->uid);
+      if ($donation->author_uid) {
+        $user = user_load($donation->author_uid);
         $uri = entity_uri('user', $user);
         $user_col = l($user->name, $uri['path']);
       }
 
+      $transaction_entity_wrapper = $wrapper->transaction_entity;
+      $transaction_entity = $transaction_entity_wrapper->value();
+      $transaction_entity_type = $wrapper->transaction_entity_type->value();
+      $transaction_entity_uri = entity_uri($transaction_entity_type,
+        $transaction_entity);
+      $transaction_entity_label = entity_label($transaction_entity_type, $transaction_entity);
       $rows[] = array(
         l($donation->donation_id, 'redhen/donation/' . $donation->donation_id),
         $user_col,
-        'AP',
-        'AR',
+        $wrapper->pledged->value(),
+        $wrapper->received->value(),
         format_date($donation->updated),
-        'Status',
-        'Rec/Ord',
+        $wrapper->status->value(),
+        l(
+          $transaction_entity_label ?: t('Recurring') . ' ' .
+           $donation->transaction_entity_id,
+          $transaction_entity_uri['path']
+        ),
       );
     }
 
@@ -140,7 +150,6 @@ function redhen_donation_donations_page($entity_type, $entity) {
       'header' => $header,
       'rows' => $rows
     );
-
 
     $out = theme('table', $table) . theme('pager');
   }
@@ -155,35 +164,6 @@ function redhen_donation_donations_page($entity_type, $entity) {
 /**
  * RedHen Donation view.
  */
-function redhen_donation_view(RedhenDonation $donation) {
-  $donation_wrapper = entity_metadata_wrapper('redhen_donation', $donation);
-  $donation_view = entity_view('redhen_donation', array($donation));
-
-  $contact = $donation_wrapper->redhen_contact->value();
-  $contact_view = redhen_contact_view($contact);
-
-  $order = $donation_wrapper->order->value();
-  $order_view = entity_view('commerce_order', array($order));
-
-  $payments = commerce_embed_view('commerce_payment_order', 'defaults', array($order->order_id));
-
-  $host = $donation_wrapper->entity->value();
-  $uri = entity_uri($donation->entity_type, $host);
-  $output = array(
-    'donation' => $donation_view,
-    'contact' => $contact_view,
-    'order' => $order_view,
-    'payments' => array(
-      '#markup' =>  $payments,
-    ),
-    'host' => array(
-      '#markup' =>  l(
-        'Donations',
-        $uri['path'] . '/donations'
-      ),
-    ),
-  );
-  return $output;
+function redhen_donation_view(RedhenDonation $donation, $view_mode = 'full') {
+  return $donation->view($view_mode);
 }
-
-
