@@ -23,7 +23,9 @@ function redhen_donation_entity_settings_form($form, &$form_state, $settings, $e
       'entity_type' => $entity_type
     );
   }
-
+  else {
+    return $form;
+  }
   $entity = entity_load($entity_type, array($entity_id));
   $donation_type = redhen_donation_type_load(redhen_donation_get_entity_donation_type($entity_type, current($entity)));
 
@@ -198,20 +200,6 @@ function redhen_donation_entity_settings_form($form, &$form_state, $settings, $e
     '#collapsible' => TRUE,
     '#collapsed' => FALSE,
     '#tree' => TRUE,
-  );
-
-  $form['commerce']['order_type'] = array(
-    '#type' => 'hidden',
-    '#value' => isset($donation_type->settings['commerce_settings']['order_type']) ?
-        $donation_type->settings['commerce_settings']['order_type']:
-        'commerce_order',
-  );
-
-  $form['commerce']['line_item_type'] = array(
-    '#type' => 'hidden',
-    '#value' => isset($donation_type->settings['commerce_settings']['line_item_type']) ?
-        $donation_type->settings['commerce_settings']['line_item_type']:
-        'product',
   );
 
   // Product options
@@ -477,8 +465,8 @@ function redhen_donation_entity_settings_form_submit($form, &$form_state) {
  */
 function redhen_donation_form($form, &$form_state, RedhenDonation $donation) {
   $wrapper = entity_metadata_wrapper('redhen_donation', $donation);
-  if ($wrapper->user->value()) {
-    $wrapper->user->value();
+  if ($wrapper->author_uid->value()) {
+    $wrapper->author_uid->value();
   }
   else {
     global $user;
@@ -490,12 +478,8 @@ function redhen_donation_form($form, &$form_state, RedhenDonation $donation) {
   if (!isset($form_state['#donation_settings'])) {
     $form_state['donation_settings'] =
     $settings =
-      redhen_donation_entity_settings($donation->entity_type, $donation->entity_id);
+      redhen_donation_entity_settings($donation->entity_type, $donation->entity_id, TRUE);
   }
-
-
-  $form_state['order_type'] = $settings['settings']['commerce']['order_type'];
-  $form_state['line_item_type'] = $settings['settings']['commerce']['line_item_type'];
 
   $payment_settings = $settings['settings']['commerce']['payment_options']['payment_methods'];
 
@@ -683,6 +667,7 @@ function redhen_donation_form($form, &$form_state, RedhenDonation $donation) {
     $form['commerce_customer_address']['#access'] = TRUE;
   }
   $form['commerce_customer_address']['#weight'] = 49;
+  $form['commerce_customer_address']['#required'] = TRUE;
 
 
   $payment_methods = array();
@@ -806,11 +791,19 @@ function redhen_donation_form_submit($form, &$form_state) {
     redhen_contact_save($contact);
   }
 
+  // Load product
+  $product_id = $values['product'];
+  $product = commerce_product_load($product_id);
+  $product_wrapper = entity_metadata_wrapper('commerce_product', $product);
+  $recurring_product = commerce_recurring_product_is_recurring($product);
   // If recurring and no user is found, create user and link to contact.
-  if ($values['frequency'] == 'recurring' && $contact->uid == NULL) {
-    $existing_user = $user->uid == 0 ?
-      user_load_by_mail($form['values']['email']) :
-      FALSE;
+  if ($user->uid == 0) {
+    $existing_user = user_load_by_mail($form_state['values']['email']);
+  }
+  else {
+    $existing_user = $user;
+  }
+  if ($recurring_product && $contact->uid == NULL) {
     if (!$existing_user) {
       $password = user_password();
       $fields = array(
@@ -823,9 +816,9 @@ function redhen_donation_form_submit($form, &$form_state) {
           DRUPAL_AUTHENTICATED_RID => 'authenticated user',
         ),
       );
-      $user = user_save('', $fields);
+      $new_user = user_save('', $fields);
     }
-    $contact->uid = $user->uid;
+    $contact->uid = $existing_user ? $existing_user->uid : $new_user->uid;
     redhen_contact_save($contact);
     $message .= t('User has been linked to the contact %name.',
       array(
@@ -837,7 +830,16 @@ function redhen_donation_form_submit($form, &$form_state) {
 
   // Commerce handling.
 
-  $order = commerce_cart_order_new($user->uid, $form_state['order_type']);
+  $order_type =
+    isset($donation_type->settings['commerce_settings']['order_type']) ?
+      $donation_type->settings['commerce_settings']['order_type'] :
+      'commerce_order';
+  $line_item_type =
+    isset($donation_type->settings['commerce_settings']['line_item_type']) ?
+      $donation_type->settings['commerce_settings']['line_item_type'] :
+      'product';
+  $order_uid = $existing_user ? $existing_user->uid : $new_user->uid;
+  $order = commerce_cart_order_new($order_uid, $order_type);
   commerce_order_save($order);
   $order_wrapper = entity_metadata_wrapper('commerce_order', $order);
 
@@ -848,12 +850,8 @@ function redhen_donation_form_submit($form, &$form_state) {
   $card_exp_year = substr($cc_info['exp_year'], -2);
   $card_exp = $card_exp_month . '/' . $card_exp_year;
 
-  // Load product
-  $product_id = $values['product'];
-  $product = commerce_product_load($product_id);
-  $product_wrapper = entity_metadata_wrapper('commerce_product', $product);
 
-  $line_item = commerce_product_line_item_new($product, 1, $order->order_id, array(), $form_state['line_item_type']);
+  $line_item = commerce_product_line_item_new($product, 1, $order->order_id, array(), $line_item_type);
   // Select or other?
   if ($form_state['input']['donation']['other'] == '') {
     $donation_amount = $form_state['input']['donation']['select'];
@@ -896,7 +894,7 @@ function redhen_donation_form_submit($form, &$form_state) {
     $details_values = !empty($form_state['values']['payment_details']) ? $form_state['values']['payment_details'] : $form_state['input']['payment_details'];
 
     // If recurring check if COF.
-    if ($values['frequency'] == 'recurring') {
+    if ($recurring_product) {
         $default_cof = commerce_cardonfile_load_multiple_by_uid($user->uid, NULL, TRUE);
         if (!$default_cof) {
           $details_values['cardonfile'] = 'new';
@@ -929,12 +927,32 @@ function redhen_donation_form_submit($form, &$form_state) {
 
   // Donation entity handling.
 
-  // Set the donation's author uid
-  if (!isset($donation->donation_id)) {
-    $donation->uid = $GLOBALS['user']->uid;
+
+  $donation->author_uid = $user->uid;
+  $donation->contact_id = $contact->contact_id;
+  // TODO: Set to constant?
+  $donation->status = 1;
+
+  if ($recurring_product) {
+    $pledged = redhen_donation_pledged($order_total, $product_wrapper);
+    $received = $order_total;
   }
+  else {
+    $pledged = $received = $order_total;
+  }
+  $donation->pledged = $pledged;
+  $donation->received = $received;
+
   if ($order) {
-    $donation->order_id = $order_wrapper->order_id->value();
+    $order_id = $order_wrapper->order_id->value();
+    if ($recurring_product) {
+      $donation->transaction_entity_type = 'commerce_recurring';
+      $recurring_entity = current(commerce_recurring_load_by_order($order));
+      $donation->transaction_entity_id = $recurring_entity->id;
+    } else {
+      $donation->transaction_entity_type = 'commerce_order';
+      $donation->transaction_entity_id = $order_id;
+    }
   }
 
   // Notify field widgets.
