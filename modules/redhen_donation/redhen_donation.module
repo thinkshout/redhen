@@ -1141,6 +1141,7 @@ function redhen_donation_load_by_transaction_id($transaction_type, $transaction_
   return current($donations);
 }
 
+/**
  * Implements hook_views_pre_view().
  *
  * Unsets operations field and add payment form for redhen/donation/% callback.
@@ -1157,4 +1158,24 @@ function redhen_donation_views_pre_view(&$view, &$display_id, &$args) {
       $view->display['default']->handler->options['footer']['totals']['add_payment_form'] = 0;
     }
   }
+}
+
+//hook_commerce_payment_order_paid_in_full()
+/**
+ * @param $order
+ * @param $transaction
+ */
+function redhen_donation_commerce_payment_order_paid_in_full($order, $transaction) {
+  if ($order->status == 'recurring_pending') {
+    $order_wrapper = entity_metadata_wrapper('commerce_order', $order);
+    $recurring_entity = current(commerce_recurring_load_by_order($order));
+    $donation = redhen_donation_load_by_transaction_id('commerce_recurring', $recurring_entity->id);
+    $donation_wrapper = entity_metadata_wrapper('redhen_donation', $donation);
+    $received = $donation_wrapper->received->value();
+    $order_total = $order_wrapper->commerce_order_total->amount->value();
+    $donation_wrapper->received = $received + $order_total;
+    $donation_wrapper->save();
+  }
+}
+
 }
