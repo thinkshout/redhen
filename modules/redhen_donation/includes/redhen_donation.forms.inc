@@ -1129,3 +1129,30 @@ function redhen_donation_product_description($product_wrapper) {
   }
   return $description;
 }
+
+/**
+ * Helper function to determine amount pledged.
+ *
+ * @param $order_total
+ * @param $recurring_wrapper
+ *
+ * @return mixed
+ */
+function redhen_donation_pledged($order_total, $recurring_wrapper) {
+  $period = $recurring_wrapper->commerce_recurring_rec_period->period->value();
+  $interval = $recurring_wrapper->commerce_recurring_rec_period->interval->value();
+  $end_period = $recurring_wrapper->commerce_recurring_end_period->period->value();
+  $end_interval = $recurring_wrapper->commerce_recurring_end_period->interval->value();
+
+  $duration_array = array(
+    'day' => 365,
+    'week' => 52,
+    'month' => 12,
+    'year' => 1,
+  );
+  $interval_count = $duration_array[$period] / $interval;
+  $interval_per_year = 1 / ($duration_array[$end_period] / $end_interval);
+  $recurring_count = round($interval_count * $interval_per_year);
+
+  return $order_total * $recurring_count;
+}
