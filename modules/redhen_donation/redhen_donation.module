@@ -1178,4 +1178,14 @@ function redhen_donation_commerce_payment_order_paid_in_full($order, $transactio
   }
 }
 
+/**
+ * @param $recurring_entity
+ *
+ * @return string
+ */
+function redhen_donation_commerce_recurring_uri($recurring_entity) {
+  return array(
+    'path' => 'admin/commerce/recurring-entities/' .
+      $recurring_entity->id . '/edit'
+  );
 }
