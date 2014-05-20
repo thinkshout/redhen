@@ -780,8 +780,8 @@ function redhen_donation_property_host_set(RedhenDonation $donation, $name, $val
  * @see RedhenDonationMetadataController::entityPropertyInfo().
  */
 function redhen_donation_property_user_get(RedhenDonation $donation, array $options, $property_name, $entity_type) {
-  if (is_numeric($donation->uid)) {
-    $entity = entity_load_single('user', $donation->uid);
+  if (is_numeric($donation->author_uid)) {
+    $entity = entity_load_single('user', $donation->author_uid);
     return entity_metadata_wrapper('user', $entity);
   }
 }
@@ -793,7 +793,7 @@ function redhen_donation_property_user_get(RedhenDonation $donation, array $opti
  */
 function redhen_donation_property_user_set(RedhenDonation $donation, $name, $value, $lang, $type, $info) {
   if (is_object($value) && $account = $value->value()) {
-    $donation->{$info['schema field']} = $account->uid;
+    $donation->{$info['schema field']} = $account->author_uid;
   }
   else {
     $donation->{$info['schema field']} = NULL;
@@ -801,13 +801,14 @@ function redhen_donation_property_user_set(RedhenDonation $donation, $name, $val
 }
 
 /**
- * Callback to get $donation->order.
+ * Callback to get $donation_wrapper->transaction_entity.
  *
  * @see RedhenDonationMetadataController::entityPropertyInfo().
  */
-function redhen_donation_property_order_get(RedhenDonation $donation, array $options, $property_name, $entity_type) {
-  $order = commerce_order_load($donation->order_id);
-  return entity_metadata_wrapper('commerce_order', $order);
+function redhen_donation_property_transation_entity_get(RedhenDonation $donation, array $options, $property_name, $entity_type) {
+  // TODO: Refactor to use entity not wrapper?
+  $entity = entity_load($donation->transaction_entity_type, array($donation->transaction_entity_id));
+  return entity_metadata_wrapper($donation->transaction_entity_type, current($entity));
 }
 
 
@@ -817,10 +818,71 @@ function redhen_donation_property_order_get(RedhenDonation $donation, array $opt
  * @see RedhenDonationMetadataController::entityPropertyInfo().
  */
 function redhen_donation_property_redhen_contact_get(RedhenDonation $donation, array $options, $property_name, $entity_type) {
-  $contact = redhen_contact_load($donation->uid);
+  $contact = redhen_contact_load($donation->contact_id);
   return entity_metadata_wrapper('redhen_contact', $contact);
 }
 
+/**
+ * @param RedhenDonation $donation
+ * @param array $options
+ * @param $property_name
+ * @param $entity_type
+ *
+ * @return null|string
+ */
+function redhen_donation_property_status_get(RedhenDonation $donation, array $options, $property_name, $entity_type) {
+  $status = $donation->status == 0 ? t('Disabled') : t('Enabled') ;
+  return $status;
+}
+
+/**
+ * @param RedhenDonation $donation
+ * @param array $options
+ * @param $property_name
+ * @param $entity_type
+ *
+ * @return string
+ */
+function redhen_donation_property_received_get(RedhenDonation $donation, array $options, $property_name, $entity_type) {
+  $wrapper = entity_metadata_wrapper('redhen_donation', $donation);
+  // TODO: currency_code function?
+  $transaction_entity_wrapper = $wrapper->transaction_entity;
+  $transction_entity_type = $wrapper->transaction_entity_type->value();
+  if ($transction_entity_type == 'commerce_recurring') {
+    $currency_code = $transaction_entity_wrapper->
+      commerce_recurring_fixed_price->currency_code->value();
+  }
+  else {
+    $currency_code = $transaction_entity_wrapper->
+      commerce_order_total->currency_code->value();
+  }
+
+  return commerce_currency_format($donation->received, $currency_code);
+}
+
+/**
+ * @param RedhenDonation $donation
+ * @param array $options
+ * @param $property_name
+ * @param $entity_type
+ *
+ * @return string
+ */
+function redhen_donation_property_pledged_get(RedhenDonation $donation, array $options, $property_name, $entity_type) {
+  $wrapper = entity_metadata_wrapper('redhen_donation', $donation);
+  $transaction_entity_wrapper = $wrapper->transaction_entity;
+  $transction_entity_type = $wrapper->transaction_entity_type->value();
+  if ($transction_entity_type == 'commerce_recurring') {
+    $currency_code = $transaction_entity_wrapper->
+      commerce_recurring_fixed_price->currency_code->value();
+  }
+  else {
+    $currency_code = $transaction_entity_wrapper->
+      commerce_order_total->currency_code->value();
+  }
+
+  return commerce_currency_format($donation->pledged, $currency_code);
+}
 
 /**
  * Implements hook_theme().

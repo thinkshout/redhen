@@ -45,12 +45,38 @@ class RedhenDonationMetadataController extends EntityDefaultMetadataController {
       'setter callback' => 'entity_property_verbatim_set',
     );
 
+    $properties['pledged'] = array(
+      'label' => t("Amount pledged."),
+      'type' => 'integer',
+      'description' => t("Amount pledged."),
+      'schema field' => 'pledged',
+      'setter callback' => 'entity_property_verbatim_set',
+      'getter callback' => 'redhen_donation_property_pledged_get',
+    );
+
+    $properties['received'] = array(
+      'label' => t("Amount received."),
+      'type' => 'integer',
+      'description' => t("Amount received."),
+      'schema field' => 'received',
+      'setter callback' => 'entity_property_verbatim_set',
+      'getter callback' => 'redhen_donation_property_received_get'
+    );
+
     $properties['created'] = array(
       'label' => t("Date created"),
       'type' => 'date',
       'schema field' => 'created',
       'description' => t("The date the donation was created."),
       'setter callback' => 'entity_property_verbatim_set',
+    );
+
+    $properties['status'] = array(
+      'label' => t("Status"),
+      'type' => 'int',
+      'schema field' => 'status',
+      'description' => t("The status."),
+      'getter callback' => 'redhen_donation_property_status_get',
     );
 
     $properties['updated'] = array(
@@ -61,7 +87,6 @@ class RedhenDonationMetadataController extends EntityDefaultMetadataController {
       'setter callback' => 'entity_property_verbatim_set',
     );
 
-    // Entities
     $properties['entity'] = array(
       'label' => t("Host entity"),
       'type' => 'entity',
@@ -71,25 +96,24 @@ class RedhenDonationMetadataController extends EntityDefaultMetadataController {
       'setter callback' => 'redhen_donation_property_host_set',
     );
 
-    $properties['user'] = array(
-      'label' => t("User entity"),
+    $properties['author'] = array(
+      'label' => t("Author user entity"),
       'type' => 'entity',
-      'schema field' => 'uid',
+      'schema field' => 'author_uid',
       'description' => t("The entity for which the donation belongs to. Usually a user."),
       'getter callback' => 'redhen_donation_property_user_get',
       'setter callback' => 'redhen_donation_property_user_set',
     );
 
-    $properties['order'] = array(
+    $properties['transaction_entity'] = array(
       'type' => 'entity',
-      'schema field' => 'order_id',
-      'getter callback' => 'redhen_donation_property_order_get',
+      'getter callback' => 'redhen_donation_property_transation_entity_get',
       'description' => t("The order or recurring entity associated with this donation."),
     );
 
-    $properties['redhen_contact'] = array(
+    $properties['contact'] = array(
       'type' => 'redhen_contact',
-      'schema field' => 'uid',
+      'schema field' => 'contact_id',
       'getter callback' => 'redhen_donation_property_redhen_contact_get',
       'description' => t("The RedHen contact associated with this donation."),
     );
