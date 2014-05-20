@@ -1123,6 +1123,24 @@ function redhen_donation_commerce_recurring_recurring_price_alter(&$recurring_pr
 }
 
 /**
+ * Load donation by transaction ID.
+ *
+ * @param $transaction_type
+ * @param $transaction_id
+ *
+ * @return mixed
+ */
+function redhen_donation_load_by_transaction_id($transaction_type, $transaction_id) {
+  $donations = redhen_donation_load_multiple(
+    FALSE,
+    array(
+      'transaction_entity_type' => $transaction_type,
+      'transaction_entity_id' => $transaction_id,
+    )
+  );
+  return current($donations);
+}
+
  * Implements hook_views_pre_view().
  *
  * Unsets operations field and add payment form for redhen/donation/% callback.
