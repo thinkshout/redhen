@@ -159,19 +159,65 @@ class RedhenDonation extends Entity {
     );
 
     $rows = array();
-    $header = array('order_id');
-    switch ($transction_entity_type) {
+    $header = array('Order ID', 'Amount', 'Order Date', 'Status');
+    $order_status = commerce_order_statuses();
+    switch ($this->transaction_entity_type) {
       case 'commerce_recurring':
         $transaction_entity = $transaction_entity_wrapper->value();
-        $transaction_entity_uri = entity_uri($transction_entity_type, $transaction_entity);
-        $rows[] = array(
-          l(t('Order'), $transaction_entity_uri['path']),
-        );
+        $transaction_entity_uri = entity_uri($this->transaction_entity_type, $transaction_entity);
+        foreach ($transaction_entity_wrapper->commerce_recurring_order->value() as $order) {
+          $rows[] = $this->transaction_row($order, $order_status);
+        }
+        $product_wrapper = $transaction_entity_wrapper->commerce_recurring_ref_product;
         $transactions = array(
-          'var' => array(
-            '#markup' => 'Recurring'
+          'recurring_donation' => array(
+            '#type' => 'fieldset',
+            '#title' => l(
+              t('Recurring Donation @rec_id',
+                array(
+                  '@rec_id' => $transaction_entity->id,
+                )
+              ),
+              $transaction_entity_uri['path']
+            ),
+            'amount' => array(
+              '#type' => 'item',
+              '#title' => t('Amount'),
+              '#markup' => commerce_currency_format(
+                $transaction_entity_wrapper->commerce_recurring_fixed_price->amount->value(),
+                $transaction_entity_wrapper->commerce_recurring_fixed_price->currency_code->value()
+              ),
+            ),
+            'frequency' => array(
+              '#type' => 'item',
+              '#title' => t('Frequency'),
+              '#markup' => redhen_donation_product_description($product_wrapper),
+            ),
+            'start_date' => array(
+              '#type' => 'item',
+              '#title' => t('Start Date'),
+              '#markup' => date('m-d-Y H:m',
+                $transaction_entity_wrapper->start_date->value()),
+            ),
+            'end_date' => array(
+              '#type' => 'item',
+              '#title' => t('End Date'),
+              '#markup' => date('m-d-Y H:m', $transaction_entity_wrapper->end_date->value()),
+            ),
+            'due_date' => array(
+              '#type' => 'item',
+              '#title' => t('Due Date'),
+              '#markup' => date('m-d-Y H:m', $transaction_entity_wrapper->due_date->value()),
+            ),
+            'status' => array(
+              '#type' => 'item',
+              '#title' => t('Status'),
+              '#markup' =>  $transaction_entity_wrapper->status->value() ?
+                t('Enabled'):
+                t('Disabled'),
+            ),
           ),
-          'stuff' => array(
+          'orders' => array(
             '#theme' => 'table',
             '#header' => $header,
             '#rows' => $rows,
@@ -182,13 +228,11 @@ class RedhenDonation extends Entity {
 
       default:
         $transaction_entity = $transaction_entity_wrapper->value();
-        $transaction_entity_uri = entity_uri($transction_entity_type, $transaction_entity);
-        $rows[] = array(
-          l(t('Order'), $transaction_entity_uri['path']),
-        );
+        $transaction_entity_uri = entity_uri($this->transaction_entity_type, $transaction_entity);
+        $rows[] = $this->transaction_row($transaction_entity, $order_status);
         $transactions = array(
           'var' => array(
-            '#markup' => 'ONE TIME'
+            '#markup' => t('One Time Donation'),
           ),
           'stuff' => array(
             '#theme' => 'table',
@@ -200,8 +244,6 @@ class RedhenDonation extends Entity {
         break;
     }
     $content['transaction']['list'] = $transactions;
-
-
 
     return entity_get_controller($this->entityType)
       ->buildContent($this, $view_mode, $langcode, $content);
@@ -226,6 +268,23 @@ class RedhenDonation extends Entity {
    */
   protected function defaultUri() {
     return array('path' => 'redhen/donation/' . $this->internalIdentifier());
+  }
+
+  protected function transaction_row($order, $order_status) {
+    $order_uri = entity_uri('commerce_order', $order);
+
+    $order_wrapper = entity_metadata_wrapper('commerce_order', $order);
+    $order_total = $order_wrapper->commerce_order_total->value();
+    $amount = commerce_currency_format(
+      $order_total['amount'],
+      $order_total['currency_code']
+    );
+    return array(
+      l($order->order_id, $order_uri['path']),
+      $amount,
+      date('m-d-Y H:m', $order->changed),
+      $order_status[$order->status]['title'],
+    );
   }
 
 }

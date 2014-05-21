@@ -92,7 +92,7 @@ function redhen_donation_donations_page($entity_type, $entity) {
       'specifier' => 'status'
     ),
     array(
-      'data' => t('Recurring/Order'),
+      'data' => t('Transaction(s)'),
     ),
   );
 
