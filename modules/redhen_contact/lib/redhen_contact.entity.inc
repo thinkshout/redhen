@@ -216,7 +216,11 @@ class RedhenContact extends Entity {
     if (variable_get('redhen_contact_connect_users', FALSE) && !$user) {
       $emails = $this->allEmail();
       foreach ($emails as $email) {
-        if ($user = user_load_by_mail($email['value'])) {
+        // Ensure email value is not set to empty string because that matches
+        // Drupal's anonymous user (uid=0). This can happen when creating a
+        // contact programmatically where the email field is not guaranteed to
+        // be populated.
+        if (!empty($email['value']) && $user = user_load_by_mail($email['value'])) {
           $wrapper->user->set($user);
           break;
         }
@@ -230,7 +234,7 @@ class RedhenContact extends Entity {
 
       // If we have a linked user and primary email, but they don't match, set
       // the user email.
-      if ($user && !empty($email) && ($email !== $user->mail)) {
+      if ($user && $user->uid != 0 && !empty($email) && ($email !== $user->mail)) {
         user_save($user, array('mail' => $email));
       }
     }
