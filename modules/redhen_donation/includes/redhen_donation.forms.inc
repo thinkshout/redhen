@@ -184,6 +184,9 @@ function redhen_donation_entity_settings_form($form, &$form_state, $settings, $e
     '#type' => 'fieldset',
     '#title' => t('RedHen Field Selector'),
     '#collapsible' => TRUE,
+    '#description' => t('Select the fields to display on the donation form contact information.
+      If a contact already exists and is of a different type that does not have the field selected,
+      that field will not be available.'),
     '#collapsed' => FALSE,
     '#tree' => TRUE,
   );
@@ -321,10 +324,10 @@ function redhen_donation_entity_settings_form($form, &$form_state, $settings, $e
     );
     $row = &$form['commerce']['payment_options']['payment_methods'][$delta];
 
-    $row['one_time'] = array(
+    $row['payment_method'] = array(
       '#type' => 'select',
       '#options' => $payment_options,
-      '#default_value' => $form_state['methods'][$delta]['one_time'],
+      '#default_value' => $form_state['methods'][$delta]['payment_method'],
     );
     $row['label'] = array(
       '#type' => 'textfield',
@@ -483,8 +486,11 @@ function redhen_donation_form($form, &$form_state, RedhenDonation $donation) {
 
   if (!isset($form_state['#donation_settings'])) {
     $form_state['donation_settings'] =
-    $settings =
-      redhen_donation_entity_settings($donation->entity_type, $donation->entity_id, TRUE);
+    $settings = redhen_donation_entity_settings(
+      $donation->entity_type,
+      $donation->entity_id,
+      TRUE
+    );
   }
 
   $payment_settings = $settings['settings']['commerce']['payment_options']['payment_methods'];
@@ -507,26 +513,33 @@ function redhen_donation_form($form, &$form_state, RedhenDonation $donation) {
     // Get contact type form.
     $form['redhen_contact'] = array(
       '#type' => 'fieldset',
-      '#title' => t('Contact information'),
+      '#title' => t('Contact Information'),
       'form' => redhen_contact_contact_form(array(), $form_state, $contact_object),
     );
 
     // Unset the contact forms action, we will use the registration form.
     unset($form['redhen_contact']['form']['actions']);
+    // Hide all fields by default
+    $form_fields = element_children($form['redhen_contact']['form']);
+    foreach ($form_fields as $form_field) {
+      if (strpos($form_field, 'field_') !== FALSE || $form_field == 'redhen_contact_email') {
+        $form['redhen_contact']['form'][$form_field]['#access'] = FALSE;
+      }
+    }
 
     // Remove fields as defined in settings
     $fields = field_info_instances('redhen_contact', $contact_type);
     foreach ($fields as $field) {
       $field_info = field_info_field($field);
       $field_setting = $settings['settings']['redhen_fields']['fields'][$field_info['field_name']];
-      if ($field_info['type'] == 'addressfield' || !$field_setting) {
-        $form['redhen_contact']['form'][$field_info['field_name']]['#access'] = FALSE;
+      if ($field_info['type'] != 'addressfield' && $field_setting) {
+        $form['redhen_contact']['form'][$field_info['field_name']]['#access'] = TRUE;
       }
+    }
 
-    }
-    if (!$settings['settings']['redhen_fields']['fields']['middle_name']) {
-      $form['redhen_contact']['form']['name']['middle_name']['#access'] = FALSE;
-    }
+    $middle_name = ($settings['settings']['redhen_fields']['fields']['middle_name'] === 'middle_name');
+
+    $form['redhen_contact']['form']['name']['middle_name']['#access'] = $middle_name;
     unset($form['redhen_contact']['form']['redirect']);
   }
 
@@ -691,21 +704,17 @@ function redhen_donation_form($form, &$form_state, RedhenDonation $donation) {
     );
   }
 
-  $billing_address_field = $settings['settings']['commerce']['profile_selector'];
-  if ($billing_address_field == 'billing') {
-    $billing = commerce_customer_profile_new('billing', $user->uid);
-    $form_state['commerce_customer_address'] = $billing;
-    field_attach_form('commerce_customer_profile', $billing, $form, $form_state);
-  }
-  else {
-    $form['commerce_customer_address'] = $form['redhen_contact']['form'][$billing_address_field];
-    $form['commerce_customer_address']['#access'] = TRUE;
-  }
+  $billing_address_field =  $settings['settings']['commerce']['profile_selector'];
+  $billing_user = !is_null($contact_object->uid) ? $contact->uid : $user->uid;
+  $billing = commerce_customer_profile_new('billing', $billing_user);
+  // Set default contact address.
+  $billing->commerce_customer_address = $contact_object->{$billing_address_field};
+
+  field_attach_form('commerce_customer_profile', $billing, $form, $form_state);
+
+  $form['commerce_customer_address'][LANGUAGE_NONE][0]['name_block']['#access'] = FALSE;
+  $form['commerce_customer_address'][LANGUAGE_NONE][0]['#title'] = t('Billing address');
   $form['commerce_customer_address']['#weight'] = 49;
-  $form['commerce_customer_address']['#required'] = TRUE;
-
-
-
 
   if (isset($form_state['values'])) {
     $default_method = $form_state['values']['payment_method'];
@@ -751,12 +760,7 @@ function redhen_donation_form($form, &$form_state, RedhenDonation $donation) {
 function redhen_donation_form_validate($form, &$form_state) {
   $donation = $form_state['donation'];
 
-  $settings = $form_state['donation_settings'];
-
-  $contact_type = $form_state['redhen_contact']->bundle();
-  $donation_type = redhen_donation_type_load($donation->bundle());
-
-  // Email validation
+  // Email validation.
   $valid_email = valid_email_address($form_state['values']['email']);
   if (!$valid_email) {
     $message = t('"%mail" is not a valid email address', array(
@@ -789,7 +793,7 @@ function redhen_donation_form_submit($form, &$form_state) {
   $contact = $existing_contact && is_null($contact->contact_id) ? $existing_contact : $contact;
 
   // If set to update fields, do so. Or if new contact create contact.
-  if ($donation_type->settings['contact_update_fields'] == TRUE
+  if ($donation_type->settings['contact_settings']['contact_update_fields'] == 1
     || is_null($contact->contact_id)) {
     // Save default parameters back into the $contact object.
     $contact->first_name = $form_state['values']['first_name'];
@@ -797,8 +801,19 @@ function redhen_donation_form_submit($form, &$form_state) {
     $contact->last_name = $form_state['values']['last_name'];
     $contact->author_uid = $user->uid;
 
+
     // Notify field widgets.
     field_attach_submit('redhen_contact', $contact, $form, $form_state);
+
+    // Set Address field if needed.
+    if ($settings['settings']['commerce']['profile_selector'] != 'billing') {
+      $sync_field = $settings['settings']['commerce']['profile_selector'];
+      $contact_address = $contact->{$sync_field}[LANGUAGE_NONE][0];
+      $contact_address = empty($contact_address) ? array(): $contact_address;
+      $billing_address = $form_state['values']['commerce_customer_address'][LANGUAGE_NONE][0];
+      $updated_address =  array_merge($contact_address, $billing_address);
+      $contact->{$sync_field}[LANGUAGE_NONE][0] = $updated_address;
+    }
 
     // Set email address.
     redhen_contact_property_email_set($contact, NULL, $form_state['values']['email']);
@@ -844,7 +859,6 @@ function redhen_donation_form_submit($form, &$form_state) {
   }
 
   // Commerce handling.
-
   $order_type =
     isset($donation_type->settings['commerce_settings']['order_type']) ?
       $donation_type->settings['commerce_settings']['order_type'] :
@@ -857,14 +871,6 @@ function redhen_donation_form_submit($form, &$form_state) {
   $order = commerce_cart_order_new($order_uid, $order_type);
   commerce_order_save($order);
   $order_wrapper = entity_metadata_wrapper('commerce_order', $order);
-
-  $cc_info = $form_state['values']['payment_details']['credit_card'];
-  $card_type = $cc_info['type'];
-  $card_lastfour = substr($cc_info['number'], -4);
-  $card_exp_month = $cc_info['exp_month'];
-  $card_exp_year = substr($cc_info['exp_year'], -2);
-  $card_exp = $card_exp_month . '/' . $card_exp_year;
-
 
   $line_item = commerce_product_line_item_new($product, 1, $order->order_id, array(), $line_item_type);
   // Select or other?
@@ -938,7 +944,6 @@ function redhen_donation_form_submit($form, &$form_state) {
         'field_contact_address' => $form_state['values']['commerce_customer_address']['und'][0],
       );
 
-
       commerce_order_status_update($order, 'completed', FALSE, TRUE, t('Payment accepted successful.'));
       commerce_line_item_save($line_item);
 
@@ -949,9 +954,7 @@ function redhen_donation_form_submit($form, &$form_state) {
   }
 
   // Donation entity handling.
-
-
-  $donation->author_uid = $user->uid;
+  $donation->author_uid = is_null($contact->uid) ? 0 : $contact->uid;
   $donation->contact_id = $contact->contact_id;
   // TODO: Set to constant?
   $donation->status = 1;
@@ -985,7 +988,6 @@ function redhen_donation_form_submit($form, &$form_state) {
   if (redhen_donation_save($donation)) {
     drupal_set_message(t('Donation has been saved.'));
     $wrapper = entity_metadata_wrapper('redhen_donation', $donation);
-    $host = $wrapper->entity->value();
 
     drupal_set_message($message);
     if ($settings['settings']['donation_settings']['confirmation_page'] == '') {
