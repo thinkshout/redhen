@@ -71,7 +71,6 @@ function redhen_donation_field_instance_settings_form($field, $instance) {
   unset($settings_form['save']);
   $form['default_redhen_donation_settings'] += $settings_form;
 
-  // @todo: validation
   return $form;
 }
 
@@ -79,7 +78,7 @@ function redhen_donation_field_instance_settings_form($field, $instance) {
  * Implements hook_field_validate().
  */
 function redhen_donation_field_validate($entity_type, $entity, $field, $instance, $langcode, $items, &$errors) {
-
+  // @TODO: validation
 }
 
 /**

@@ -331,9 +331,15 @@ function redhen_donation_entity_settings_form($form, &$form_state, $settings, $e
       '#size' => 2,
       '#default_value' => $form_state['methods'][$delta]['label'],
     );
+    $currency_options = array();
+    $currencies = commerce_currencies(TRUE);
+    foreach ($currencies as $currency) {
+      $currency_options[$currency['code']] = $currency['name'] . ' (' .$currency['symbol'] . ')';
+    }
+
     $row['currency'] = array(
-      '#type' => 'textfield',
-      '#size' => 2,
+      '#type' => 'select',
+      '#options' => $currency_options,
       '#default_value' => $form_state['methods'][$delta]['currency'],
     );
     $row['delete'] = array(
@@ -559,7 +565,8 @@ function redhen_donation_form($form, &$form_state, RedhenDonation $donation) {
 
   // Handle currency mapping.
   $top_payment = current($payment_settings);
-  $cur = $top_payment['currency'];
+  $cur = commerce_currency_get_symbol($top_payment['currency']);
+
 
   if ($form_state['input']) {
     $selected_method = $form_state['input']['payment_method'];
@@ -860,7 +867,15 @@ function redhen_donation_form_submit($form, &$form_state) {
     $clean_amount = preg_replace("/[^0-9.]/", "", $form_state['input']['donation']['other']);
     $donation_amount = $clean_amount * 100;
   }
-  $currency = $product_wrapper->commerce_price->currency_code->value();
+
+  $payment_methods = $settings['settings']['commerce']['payment_options']['payment_methods'];
+  // TODO: This should be filter?
+  foreach ($payment_methods as $payment_method) {
+    if ($payment_method['payment_method'] == $form_state['values']['payment_method']) {
+      $currency = $payment_method['currency'];
+      continue;
+    }
+  }
 
   redhen_donation_update_line_item_price($line_item, $donation_amount, $product, $currency);
   // Save the line item to get the ID.
