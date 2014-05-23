@@ -202,7 +202,9 @@ class RedhenDonation extends Entity {
             'end_date' => array(
               '#type' => 'item',
               '#title' => t('End Date'),
-              '#markup' => date('m-d-Y H:m', $transaction_entity_wrapper->end_date->value()),
+              '#markup' =>  $transaction_entity_wrapper->end_date->value() == 0 ?
+                t('None') :
+                date('m-d-Y H:m', $transaction_entity_wrapper->end_date->value()),
             ),
             'due_date' => array(
               '#type' => 'item',

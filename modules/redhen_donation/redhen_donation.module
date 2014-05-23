@@ -1130,7 +1130,7 @@ function redhen_donation_commerce_recurring_recurring_price_alter(&$recurring_pr
  *
  * @return mixed
  */
-function redhen_donation_load_by_transaction_id($transaction_type, $transaction_id) {
+function redhen_donation_load_by_transaction_entity_id($transaction_type, $transaction_id) {
   $donations = redhen_donation_load_multiple(
     FALSE,
     array(
@@ -1169,11 +1169,22 @@ function redhen_donation_commerce_payment_order_paid_in_full($order, $transactio
   if ($order->status == 'recurring_pending') {
     $order_wrapper = entity_metadata_wrapper('commerce_order', $order);
     $recurring_entity = current(commerce_recurring_load_by_order($order));
-    $donation = redhen_donation_load_by_transaction_id('commerce_recurring', $recurring_entity->id);
+    $recurring_entity_wrapper = entity_metadata_wrapper('commerce_recurring', $recurring_entity);
+    $recurring_product_wrapper = $recurring_entity_wrapper->commerce_recurring_ref_product;
+    $donation = redhen_donation_load_by_transaction_entity_id('commerce_recurring', $recurring_entity->id);
     $donation_wrapper = entity_metadata_wrapper('redhen_donation', $donation);
-    $received = $donation_wrapper->received->value();
+    $received = $donation->received;
     $order_total = $order_wrapper->commerce_order_total->amount->value();
     $donation_wrapper->received = $received + $order_total;
+
+    // If no enddate update pledged.
+    $end_period = $recurring_product_wrapper->commerce_recurring_end_period->value() ?
+      $recurring_product_wrapper->commerce_recurring_end_period->period->value() : '';
+    if ($end_period == '') {
+      $pledged = $donation->pledged;
+      $donation_wrapper->pledged =
+        $donation_wrapper->received = $received + $order_total;
+    }
     $donation_wrapper->save();
   }
 }
