@@ -6,6 +6,8 @@ core = 7.x
 dependencies[] = redhen_contact
 dependencies[] = commerce_checkout
 dependencies[] = commerce_product
+dependencies[] = commerce_recurring
+dependencies[] = commerce_cardonfile
 dependencies[] = select_or_other
 
 ; Classes
