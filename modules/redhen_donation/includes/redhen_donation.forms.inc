@@ -288,7 +288,7 @@ function redhen_donation_entity_settings_form($form, &$form_state, $settings, $e
     '#theme' => 'redhen_donation_payment_options_form_table',
     '#tree' => TRUE,
     '#header' => array(
-      'one_time' => t('Payment method'),
+      'payment_method' => t('Payment method'),
       'label' => t('Label'),
       'currency' => t('Currency Label'),
       'delete' => t('Delete'),
