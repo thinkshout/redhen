@@ -92,7 +92,7 @@ function redhen_donation_donations_page($entity_type, $entity) {
       'specifier' => 'status'
     ),
     array(
-      'data' => t('Transaction(s)'),
+      'data' => t('Recurring/Order'),
     ),
   );
 
@@ -121,6 +121,9 @@ function redhen_donation_donations_page($entity_type, $entity) {
         $user = user_load($donation->author_uid);
         $uri = entity_uri('user', $user);
         $user_col = l($user->name, $uri['path']);
+      }
+      else {
+        $user_col = t('Anonymous');
       }
 
       $transaction_entity_wrapper = $wrapper->transaction_entity;
