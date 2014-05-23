@@ -114,9 +114,7 @@ function redhen_donation_donations_page($entity_type, $entity) {
 
     foreach ($donations as $donation) {
       $wrapper = entity_metadata_wrapper('redhen_donation', $donation);
-      $author = $wrapper->author_uid->value();
 
-      $user_col = '';
       if ($donation->author_uid) {
         $user = user_load($donation->author_uid);
         $uri = entity_uri('user', $user);
@@ -146,8 +144,6 @@ function redhen_donation_donations_page($entity_type, $entity) {
         ),
       );
     }
-
-    $settings = registration_entity_settings($entity_type, $entity_id);
 
     $table = array(
       'header' => $header,

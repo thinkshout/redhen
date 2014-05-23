@@ -331,7 +331,7 @@ function redhen_donation_entity_settings_form($form, &$form_state, $settings, $e
     );
     $row['label'] = array(
       '#type' => 'textfield',
-      '#size' => 2,
+      '#size' => 20,
       '#default_value' => $form_state['methods'][$delta]['label'],
     );
     $currency_options = array();
@@ -468,9 +468,13 @@ function redhen_donation_entity_settings_form_submit($form, &$form_state) {
 /**
  * Form callback: create or edit a donation.
  *
+ * @param $form
+ * @param $form_state
  * @param RedhenDonation $donation
  *   The donation object to edit or for a create form and empty donation
  *   object with an attached entity defined.
+ *
+ * @return mixed
  */
 function redhen_donation_form($form, &$form_state, RedhenDonation $donation) {
   $wrapper = entity_metadata_wrapper('redhen_donation', $donation);
@@ -480,7 +484,6 @@ function redhen_donation_form($form, &$form_state, RedhenDonation $donation) {
   else {
     global $user;
   }
-  $host = $wrapper->entity->value();
 
   $form_state['donation'] = $donation;
 
@@ -611,7 +614,7 @@ function redhen_donation_form($form, &$form_state, RedhenDonation $donation) {
 
   if ($form_state['input']) {
     $selected_method = $form_state['input']['payment_method'];
-    foreach ($payment_settings as $delta => $payment_setting) {
+    foreach ($payment_settings as $payment_setting) {
       if ($payment_setting['payment_method'] == $selected_method) {
         $cur = commerce_currency_get_symbol($payment_setting['currency']);
         continue;
@@ -733,6 +736,7 @@ function redhen_donation_form($form, &$form_state, RedhenDonation $donation) {
   $order = new stdClass();
   $pane_values = array();
   if ($callback = commerce_payment_method_callback($payment_method, 'submit_form')) {
+    /** @var $callback string */
     $pane_form['payment_details'] = $callback($payment_method, $pane_values, $checkout_pane, $order);
   }
   else {
@@ -931,22 +935,13 @@ function redhen_donation_form_submit($form, &$form_state) {
         }
     }
 
+    /** @var $callback string */
     $callback($payment_method, $details_form, $details_values, $order, $charge);
     $transaction = entity_load('commerce_payment_transaction', FALSE, array('order_id' => $order->order_id));
     $transaction = current($transaction);
     if ($transaction->status == 'success') {
-      //Lookup or create contact
-      $name = array(
-        'first' => $form_state['values']['first_name'],
-        'last' => $form_state['values']['last_name'],
-      );
-      $contact_settings = array(
-        'field_contact_address' => $form_state['values']['commerce_customer_address']['und'][0],
-      );
-
       commerce_order_status_update($order, 'completed', FALSE, TRUE, t('Payment accepted successful.'));
       commerce_line_item_save($line_item);
-
     }
     else {
       commerce_order_status_update($order, 'canceled', FALSE, TRUE, t('Payment declined.'));
@@ -987,7 +982,6 @@ function redhen_donation_form_submit($form, &$form_state) {
   // Save the donation and redirect.
   if (redhen_donation_save($donation)) {
     drupal_set_message(t('Donation has been saved.'));
-    $wrapper = entity_metadata_wrapper('redhen_donation', $donation);
 
     drupal_set_message($message);
     if ($settings['settings']['donation_settings']['confirmation_page'] == '') {
@@ -1112,18 +1106,16 @@ function redhen_donation_form_refresh(&$form, &$form_state) {
   return $result;
 }
 
-
-
 /**
  * Donation line item update callback.
  *
  * @param $line_item
  * @param $decimal_amount
  * @param bool $product
+ * @param string $currency
  */
-// TODO: Refactor
 function redhen_donation_update_line_item_price(&$line_item, $decimal_amount, $product = FALSE, $currency = 'USD') {
-
+  // TODO: Refactor
   $wrapper = entity_metadata_wrapper('commerce_line_item', $line_item);
   $wrapper->commerce_unit_price->currency_code = $currency;
   $unit_price = commerce_price_wrapper_value($wrapper, 'commerce_unit_price', TRUE);

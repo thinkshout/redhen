@@ -321,21 +321,22 @@ function redhen_donation_access($op, RedhenDonation $donation = NULL, $account =
   }
 }
 
-
 /**
  * Gets an array of all donation types, keyed by the name.
  *
- * @param $name
- *   If set, the type with the given name is returned.
+ * @param null $name
+ *
+ * @return array|mixed
  */
 function redhen_donation_get_types($name = NULL) {
   $types = entity_load_multiple_by_name('redhen_donation_type', isset($name) ? array($name) : FALSE);
   return isset($name) ? reset($types) : $types;
 }
 
-
 /**
  * Gets an array of all donation types, keyed by the name.
+ *
+ * @param null $name
  *
  * @return array
  *   A list of all donation types.
@@ -355,7 +356,7 @@ function redhen_donation_type_get_names($name = NULL) {
  * @param $type
  *   The machine-readable name of a donation type to load.
  *
- * @return
+ * @return array|mixed
  *   A donation type array or FALSE if $type does not exist.
  */
 function redhen_donation_type_load($type) {
@@ -364,6 +365,13 @@ function redhen_donation_type_load($type) {
 
 /**
  * Access callback for the entity API.
+ *
+ * @param $op
+ * @param null $entity
+ * @param null $account
+ * @param null $entity_type
+ *
+ * @return bool
  */
 function redhen_donation_type_access($op, $entity = NULL, $account = NULL, $entity_type = NULL) {
   return user_access('administer donation types', $account);
@@ -509,7 +517,7 @@ function redhen_donation_entity_delete($entity, $entity_type) {
           ->execute();
         foreach ($result as $host_entity_type => $entities) {
           $entities = entity_load($host_entity_type, array_keys($entities));
-          foreach ($entities as $entity_id => $host_entity) {
+          foreach ($entities as $host_entity) {
             $host_entity->{$field_name}[LANGUAGE_NONE][0] = NULL;
             entity_save($host_entity_type, $host_entity);
           }
@@ -551,6 +559,7 @@ function redhen_donation_entity_update($entity, $entity_type) {
  *   The host entity type.
  * @param int $entity_id
  *   The host entity ID.
+ * @param bool $reset
  *
  * @return array|bool
  *   A row from {redhen_donation_entity}, or FALSE if no settings exist.
@@ -735,6 +744,8 @@ function redhen_donation_status($entity_type, $entity_id, $reset = FALSE, &$erro
 
 /**
  * Return all redhen_donation field instances.
+ *
+ * @param array $params
  *
  * @return array
  *   A list of field instances
@@ -957,6 +968,8 @@ function redhen_donation_theme() {
  *
  * @param array $variables
  *   Contains the label and path for the link.
+ *
+ * @return string
  */
 function theme_redhen_donation_link($variables) {
   $output = '';
@@ -977,7 +990,7 @@ function theme_redhen_donation_link($variables) {
  *   An array of values, where array keys are values and array values are
  *   labels.
  *
- * @return
+ * @return string
  *   The string representation of the $values array:
  *    - Values are separated by a carriage return.
  *    - Each value is in the format "value|label" or "value".
@@ -999,7 +1012,7 @@ function redhen_allowed_amounts_string($values) {
  *   The list of allowed values in string format described in
  *   redhen_allowed_amounts_string().
  *
- * @return
+ * @return array
  *   The array of extracted key/value pairs, or NULL if the string is invalid.
  *
  * @see redhen_allowed_amounts_string()
@@ -1013,8 +1026,6 @@ function redhen_extract_allowed_amounts($string) {
 
   $generated_keys = $explicit_keys = FALSE;
   foreach ($list as $position => $text) {
-    $value = $key = FALSE;
-
     // Check for an explicit key.
     $matches = array();
     if (preg_match('/(.*)\|(.*)/', $text, $matches)) {
@@ -1070,7 +1081,7 @@ function redhen_donation_load($donation_id) {
  * @param $reset
  *   Whether to reset the internal donation loading cache.
  *
- * @return
+ * @return array
  *   An array of donation objects indexed by donation_id.
  */
 function redhen_donation_load_multiple($donation_ids = array(), $conditions = array(), $reset = FALSE) {
@@ -1181,7 +1192,6 @@ function redhen_donation_commerce_payment_order_paid_in_full($order, $transactio
     $end_period = $recurring_product_wrapper->commerce_recurring_end_period->value() ?
       $recurring_product_wrapper->commerce_recurring_end_period->period->value() : '';
     if ($end_period == '') {
-      $pledged = $donation->pledged;
       $donation_wrapper->pledged =
         $donation_wrapper->received = $received + $order_total;
     }
