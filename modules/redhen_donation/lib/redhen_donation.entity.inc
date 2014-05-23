@@ -39,8 +39,10 @@ class RedhenDonation extends Entity {
   /**
    * Build content for Donation.
    *
-   * @return array
-   *   Render array for a donation entity.
+   * @param string $view_mode
+   * @param null $langcode
+   *
+   * @return mixed
    */
   public function buildContent($view_mode = 'full', $langcode = NULL) {
     $content = parent::buildContent($view_mode, $langcode);
@@ -77,7 +79,7 @@ class RedhenDonation extends Entity {
     $contact_uri = entity_uri('redhen_contact', $wrapper->contact->value());
     $content['contact'] = array(
       '#theme' => 'redhen_property_field',
-      '#label' => t('RedHen Conact'),
+      '#label' => t('RedHen Contact'),
       '#items' => array(
         array(
           '#markup' => l($wrapper->contact->full_name->value(), $contact_uri['path']),
@@ -230,7 +232,6 @@ class RedhenDonation extends Entity {
 
       default:
         $transaction_entity = $transaction_entity_wrapper->value();
-        $transaction_entity_uri = entity_uri($this->transaction_entity_type, $transaction_entity);
         $rows[] = $this->transaction_row($transaction_entity, $order_status);
         $transactions = array(
           'var' => array(

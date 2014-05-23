@@ -558,9 +558,37 @@ function redhen_donation_form($form, &$form_state, RedhenDonation $donation) {
     );
   }
 
+  $payment_methods = array();
+  foreach ($payment_settings as $payment_setting) {
+    $payment_methods[$payment_setting['payment_method']] = commerce_payment_method_instance_load($payment_setting['payment_method']);
+  }
+  $options = array();
 
-  if ($host) {
-    $uri = entity_uri($donation->entity_type, $host);
+  $payment_methods_new = $settings['settings']['commerce']['payment_options']['payment_methods'];
+  foreach ($payment_methods_new as $payment_method_new) {
+    $options[$payment_method_new['payment_method']] = $payment_method_new['label'];
+  }
+  $first_payment_option = current(current($payment_methods_new));
+
+  // Add a radio select widget to specify the payment method.
+  if (count($payment_methods) > 1) {
+    $form['payment_method'] = array(
+      '#title' => t('Payment Options'),
+      '#type' => 'radios',
+      '#options' => $options,
+      '#default_value' => $first_payment_option,
+      '#ajax' => array(
+        'callback' => 'redhen_donation_form_refresh',
+        'wrapper' => 'payment-details',
+      ),
+      '#limit_validation_errors' => array(),
+    );
+  }
+  else {
+    $form['payment_method'] = array(
+      '#type' => 'hidden',
+      '#value' => $first_payment_option,
+    );
   }
 
   // Handle currency mapping.
@@ -571,23 +599,22 @@ function redhen_donation_form($form, &$form_state, RedhenDonation $donation) {
   if ($form_state['input']) {
     $selected_method = $form_state['input']['payment_method'];
     foreach ($payment_settings as $delta => $payment_setting) {
-      if ($payment_setting['one_time'] == $selected_method) {
-        $cur = $payment_setting['currency'];
+      if ($payment_setting['payment_method'] == $selected_method) {
+        $cur = commerce_currency_get_symbol($payment_setting['currency']);
         continue;
       }
     }
   }
 
   foreach ($settings['settings']['donation_settings']['donation_amounts'] as $amount) {
-    $donation_ammounts[$amount * 100] =  $cur . $amount;
+    $donation_ammounts[$amount * 100] =  $amount;
   }
 
-  $other = t('Other (please type an amount in @cur)', array('@cur' => $cur));
   switch ($settings['settings']['donation_settings']['donation_entry']) {
     case 'select':
       $form['donation'] = array(
         '#type' => 'select',
-        '#title' => t('Donation'),
+        '#title' => t('Donation (') . $cur . ')',
         '#required' => TRUE,
         '#options' => $donation_ammounts,
         '#multiple' => FALSE,
@@ -598,11 +625,12 @@ function redhen_donation_form($form, &$form_state, RedhenDonation $donation) {
     case 'radio_other':
       $form['donation'] = array(
         '#type' => 'select_or_other',
-        '#title' => t('Donation'),
+        '#title' => t('Donation (') . $cur . ')',
         '#required' => TRUE,
-        '#options' => $donation_ammounts,
-        '#other' => $other,
         '#multiple' => FALSE,
+        '#options' => $donation_ammounts,
+        '#other' => t('Other'),
+        '#other_description' => t('Please enter an amount.'),
         '#other_unknown_defaults' => 'other',
         '#other_delimiter' => ', ',
         '#select_type' =>
@@ -615,10 +643,10 @@ function redhen_donation_form($form, &$form_state, RedhenDonation $donation) {
     default:
       $form['donation'] = array(
         '#type' => 'textfield',
-        '#title' => t('Amount'),
+        '#title' => t('Donation (') . $cur . ')',
         '#default_value' => '',
-        '#description' =>
-          $other = t('Other (please type an amount in @cur)', array('@cur' => $cur)),
+        '#required' => TRUE,
+        '#description' => t('Please enter an amount.'),
       );
       break;
   }
@@ -677,27 +705,7 @@ function redhen_donation_form($form, &$form_state, RedhenDonation $donation) {
   $form['commerce_customer_address']['#required'] = TRUE;
 
 
-  $payment_methods = array();
-  foreach ($payment_settings as $payment_setting) {
-    $payment_methods[$payment_setting['one_time']] = commerce_payment_method_instance_load($payment_setting['one_time']);
-  }
-  $options = array();
 
-  $payment_methods_new = $settings['settings']['commerce']['payment_options']['payment_methods'];
-  foreach ($payment_methods_new as $payment_method_new) {
-    $options[$payment_method_new['one_time']] = $payment_method_new['label'];
-  }
-
-  // Add a radio select widget to specify the payment method.
-  $pane_form['payment_method'] = array(
-    '#type' => 'radios',
-    '#options' => $options,
-    '#ajax' => array(
-      'callback' => 'redhen_donation_form_refresh',
-      'wrapper' => 'payment-details',
-    ),
-    '#limit_validation_errors' => array(),
-  );
 
   if (isset($form_state['values'])) {
     $default_method = $form_state['values']['payment_method'];
