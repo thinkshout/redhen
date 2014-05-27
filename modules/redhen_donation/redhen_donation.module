@@ -85,7 +85,7 @@ function redhen_donation_entity_info_alter(&$entity_info) {
           'path' => 'admin/structure/redhen/donation_types/manage/%redhen_donation_type',
           'real path' => 'admin/structure/redhen/donation_types/manage/' . $type,
           'bundle argument' => 5,
-          'access arguments' => array('administer donation types'),
+          'access arguments' => array('administer redhen donation types'),
         ),
       );
     }
@@ -97,13 +97,13 @@ function redhen_donation_entity_info_alter(&$entity_info) {
  */
 function redhen_donation_permission() {
   $permissions = array(
-    'administer donation types' => array(
-      'title' => t('Administer donation types'),
+    'administer redhen donation types' => array(
+      'title' => t('Administer RedHen donation types'),
       'description' => t('Manage donation types, fields, and display settings.'),
       'restrict access' => TRUE,
     ),
-    'administer donation' => array(
-      'title' => t('Administer donation'),
+    'administer redhen donations' => array(
+      'title' => t('Administer RedHen donations'),
       'description' => t('View, edit, delete, and manage all donations, regardless of type.'),
       'restrict access' => TRUE,
     ),
@@ -130,34 +130,34 @@ function redhen_donation_permission_list($info) {
   $label = $info->label;
 
   return array(
-    "administer $type donation" => array(
+    "administer $type redhen donation" => array(
       'title' => t('%type_name: Administer settings', array('%type_name' => $label)),
-      'description' => t('Allow changing donation settings for all entities of this type.'),
+      'description' => t('Allow changing RedHen donation settings for all entities of this type.'),
     ),
-    "administer own $type donation" => array(
+    "administer own $type redhen donation" => array(
       'title' => t('%type_name: Administer own settings', array('%type_name' => $label)),
-      'description' => t('Allow changing donation settings for entities which a user has edit access.'),
+      'description' => t('Allow changing RedHen donation settings for entities which a user has edit access.'),
     ),
-    "view $type donation" => array(
-      'title' => t('%type_name: View all donations', array('%type_name' => $label)),
+    "view $type redhen donation" => array(
+      'title' => t('%type_name: View all RedHen donations', array('%type_name' => $label)),
     ),
-    "view own $type donation" => array(
-      'title' => t('%type_name: View own donations', array('%type_name' => $label)),
+    "view own $type redhen donation" => array(
+      'title' => t('%type_name: View own RedHen donations', array('%type_name' => $label)),
     ),
-    "create $type donation" => array(
-      'title' => t('%type_name: Create new donation', array('%type_name' => $label)),
+    "create $type redhen donation" => array(
+      'title' => t('%type_name: Create new RedHen donation', array('%type_name' => $label)),
     ),
-    "update own $type donation" => array(
-      'title' => t('%type_name: Edit own donations', array('%type_name' => $label)),
+    "update own $type redhen donation" => array(
+      'title' => t('%type_name: Edit own RedHen donations', array('%type_name' => $label)),
     ),
-    "update any $type donation" => array(
-      'title' => t('%type_name: Edit any donations', array('%type_name' => $label)),
+    "update any $type redhen donation" => array(
+      'title' => t('%type_name: Edit any RedHen donations', array('%type_name' => $label)),
     ),
-    "delete own $type donation" => array(
-      'title' => t('%type_name: Delete own donations', array('%type_name' => $label)),
+    "delete own $type redhen donation" => array(
+      'title' => t('%type_name: Delete own RedHen donations', array('%type_name' => $label)),
     ),
-    "delete any $type donation" => array(
-      'title' => t('%type_name: Delete any donations', array('%type_name' => $label)),
+    "delete any $type redhen donation" => array(
+      'title' => t('%type_name: Delete any RedHen donations', array('%type_name' => $label)),
     ),
   );
 }
@@ -281,7 +281,7 @@ function redhen_donation_menu() {
  */
 function redhen_donation_access($op, RedhenDonation $donation = NULL, $account = NULL) {
   $account = isset($account) ? $account : $GLOBALS['user'];
-  $admin = user_access('administer donation', $account);
+  $admin = user_access('administer redhen donations', $account);
 
   if (!isset($donation)) {
     return $admin;
@@ -290,7 +290,7 @@ function redhen_donation_access($op, RedhenDonation $donation = NULL, $account =
   $type = $donation->bundle();
 
   // bypass further access checks if user can administer donation
-  if ($admin || user_access("administer $type donation", $account)) {
+  if ($admin || user_access("administer $type redhen donation", $account)) {
     return TRUE;
   }
 
@@ -311,13 +311,13 @@ function redhen_donation_access($op, RedhenDonation $donation = NULL, $account =
   // Fall back to assigned permissions
   switch ($op) {
     case 'view':
-      return ($account_own && user_access("view own $type donation", $account)) || user_access("view $type donation", $account);
+      return ($account_own && user_access("view own $type redhen donation", $account)) || user_access("view $type donation", $account);
     case 'update':
-      return ($account_own && user_access("update own $type donation", $account)) || user_access("update any $type donation", $account);
+      return ($account_own && user_access("update own $type redhen donation", $account)) || user_access("update any $type donation", $account);
     case 'create':
-      return (user_access("create $type donation", $account));
+      return (user_access("create $type redhen donation", $account));
     case 'delete':
-      return ($account_own && user_access("delete own $type donation", $account)) || user_access("delete any $type donation", $account);
+      return ($account_own && user_access("delete own $type redhen donation", $account)) || user_access("delete any $type donation", $account);
   }
 }
 
@@ -453,10 +453,10 @@ function redhen_donation_default_confirmation() {
 function redhen_donation_administer_donations_access($entity_type, $entity) {
   $donation_type = redhen_donation_get_entity_donation_type($entity_type, $entity);
   if ($donation_type) {
-    if (user_access("administer $donation_type donation")) {
+    if (user_access("administer $donation_type redhen donation")) {
       return TRUE;
     }
-    elseif (user_access("administer own $donation_type donation") && entity_access('update', $entity_type, $entity)) {
+    elseif (user_access("administer own $donation_type redhen donation") && entity_access('update', $entity_type, $entity)) {
       return TRUE;
     }
   }
@@ -698,7 +698,7 @@ function redhen_donation_status($entity_type, $entity_id, $reset = FALSE, &$erro
   }
 
   // bypass further access checks if user can administer donation
-  if (user_access('administer donation') || user_access("administer $donation_type donation")) {
+  if (user_access('administer redhen donations') || user_access("administer $donation_type donation")) {
     return TRUE;
   }
 
