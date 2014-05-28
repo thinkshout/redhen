@@ -932,11 +932,13 @@ function redhen_donation_form_submit($form, &$form_state) {
 
     // If recurring check if COF.
     if ($recurring_product) {
-        $default_cof = commerce_cardonfile_load_multiple_by_uid($user->uid, NULL, TRUE);
-        if (!$default_cof) {
-          $details_values['cardonfile'] = 'new';
-          $details_values['credit_card']['cardonfile_store'] = TRUE;
-        }
+      $default_cof = commerce_cardonfile_load_multiple_by_uid($user->uid, NULL, TRUE);
+      if (!$default_cof) {
+        $details_values['cardonfile_instance_default'] = TRUE;
+        $details_values['cardonfile'] = 'new';
+        $details_values['credit_card']['cardonfile_store'] = TRUE;
+        $details_values['credit_card']['default'] = TRUE;
+      }
     }
 
     /** @var $callback string */
