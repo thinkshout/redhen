@@ -36,8 +36,7 @@ class RedhenDonation extends Entity {
    */
   protected function defaultLabel() {
     $wrapper = entity_metadata_wrapper('redhen_donation', $this);
-    $host = $wrapper->entity->value();
-    return t('Donation for !title', array('!title' => $host->label()));
+    return t('Donation for !title', array('!title' => $wrapper->entity->label()));
   }
 
   /**
