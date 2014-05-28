@@ -90,7 +90,6 @@ class RedhenDonationMetadataController extends EntityDefaultMetadataController {
     $properties['entity'] = array(
       'label' => t("Host entity"),
       'type' => 'entity',
-      'schema field' => 'entity',
       'description' => t("The host entity."),
       'getter callback' => 'redhen_donation_property_host_get',
       'setter callback' => 'redhen_donation_property_host_set',
