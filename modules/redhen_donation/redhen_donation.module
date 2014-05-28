@@ -1163,7 +1163,7 @@ function redhen_donation_commerce_payment_order_paid_in_full($order, $transactio
     $donation_wrapper->received->set($received + $order_total);
 
     // If no end date update pledged.
-    $end_period = $recurring_product_wrapper->commerce_recurring_end_period->value() ?
+    $end_period = !empty($recurring_product_wrapper->commerce_recurring_end_period) ?
       $recurring_product_wrapper->commerce_recurring_end_period->period->value() : '';
     if ($end_period == '') {
       $donation_wrapper->pledged->set($received + $order_total);
