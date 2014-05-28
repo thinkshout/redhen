@@ -134,8 +134,8 @@ function redhen_donation_donations_page($entity_type, $entity) {
         l($donation->donation_id, $donation->uri()['path']),
         $user_col,
         l($wrapper->contact->label(), $wrapper->contact->value()->uri()['path']),
-        $donation->pledged,
-        $donation->received,
+        $wrapper->pledged->value(),
+        $wrapper->received->value(),
         format_date($donation->updated),
         $wrapper->status->value(),
         l(

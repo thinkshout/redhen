@@ -890,14 +890,14 @@ function redhen_donation_property_status_get(RedhenDonation $donation, array $op
  * Getter callback for donation received property.
  */
 function redhen_donation_property_received_get(RedhenDonation $donation, array $options, $property_name, $entity_type) {
-  redhen_donation_get_formatted_amount($donation, 'received');
+  return redhen_donation_get_formatted_amount($donation, 'received');
 }
 
 /**
  * Getter callback for donation pledged property.
  */
 function redhen_donation_property_pledged_get(RedhenDonation $donation, array $options, $property_name, $entity_type) {
-  redhen_donation_get_formatted_amount($donation, 'pledged');
+  return redhen_donation_get_formatted_amount($donation, 'pledged');
 }
 
 /**
