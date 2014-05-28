@@ -66,7 +66,8 @@ function redhen_donation_donations_page($entity_type, $entity) {
       'data' => t('ID'),
       'field' => 'donation_id',
       'type' => 'property',
-      'specifier' => 'donation_id'
+      'specifier' => 'donation_id',
+    ),
     array(
       'data' => t('Author'),
     ),
@@ -84,11 +85,11 @@ function redhen_donation_donations_page($entity_type, $entity) {
       'field' => 'updated',
       'sort' => 'desc',
       'type' => 'property',
-      'specifier' => 'updated'
+      'specifier' => 'updated',
     ),
     array(
       'data' => t('Status'),
-      'specifier' => 'status'
+      'specifier' => 'status',
     ),
     array(
       'data' => t('Recurring/Order'),
@@ -147,14 +148,13 @@ function redhen_donation_donations_page($entity_type, $entity) {
 
     $table = array(
       'header' => $header,
-      'rows' => $rows
+      'rows' => $rows,
     );
 
     $out = theme('table', $table) . theme('pager');
   }
   else {
-    $out = t('There are no donations for %name',
-      array('%name' => $label));
+    $out = t('There are no donations for %name', array('%name' => $label));
   }
 
   return $out;
