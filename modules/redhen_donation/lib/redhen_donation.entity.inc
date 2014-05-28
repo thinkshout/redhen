@@ -165,7 +165,7 @@ class RedhenDonation extends Entity {
     );
 
     $rows = array();
-    $header = array('Order ID', 'Amount', 'Order Date', 'Status');
+    $header = array(t('Order ID'), t('Amount'), t('Order Date'), t('Status'));
     $order_status = commerce_order_statuses();
     switch ($this->transaction_entity_type) {
       case 'commerce_recurring':
