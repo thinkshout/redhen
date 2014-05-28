@@ -136,10 +136,12 @@ function redhen_donation_donations_page($entity_type, $entity) {
       $transaction_entity_uri = entity_uri($transaction_entity_type,
         $transaction_entity);
       $transaction_entity_label = entity_label($transaction_entity_type, $transaction_entity);
+      $donation_uri = $donation->uri();
+      $contact_uri = $wrapper->contact->value()->uri();
       $rows[] = array(
-        l($donation->donation_id, $donation->uri()['path']),
+        l($donation->donation_id, $donation_uri['path']),
         $user_col,
-        l($wrapper->contact->label(), $wrapper->contact->value()->uri()['path']),
+        l($wrapper->contact->label(), $contact_uri['path']),
         $wrapper->pledged->value(),
         $wrapper->received->value(),
         format_date($donation->updated),
