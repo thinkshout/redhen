@@ -501,7 +501,7 @@ function redhen_donation_entity_delete($entity, $entity_type) {
     $donation_fields = field_read_fields(array('type' => 'redhen_donation'));
     if (!empty($donation_fields)) {
       foreach (array_keys($donation_fields) as $field_name) {
-        $query = new EntityFieldQuery;
+        $query = new EntityFieldQuery();
         $result = $query
           ->fieldCondition($field_name, 'redhen_donation_type', $entity->name)
           ->execute();
