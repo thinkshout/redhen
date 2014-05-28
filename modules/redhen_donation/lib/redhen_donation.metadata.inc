@@ -1,10 +1,20 @@
 <?php
+/**
+ * @file
+ * Entity metadata include.
+ */
 
 /**
  * @see hook_entity_property_info()
  */
 class RedhenDonationMetadataController extends EntityDefaultMetadataController {
 
+  /**
+   * Entity Prodperty info callback.
+   *
+   * @return array
+   *   Entity Property info array.
+   */
   public function entityPropertyInfo() {
     $info = parent::entityPropertyInfo();
     $properties = &$info[$this->type]['properties'];

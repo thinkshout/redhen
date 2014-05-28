@@ -1,4 +1,8 @@
 <?php
+/**
+ * @file
+ * Donation pages include.
+ */
 
 /**
  * Page callback: Add a new donation to a host entity.
@@ -34,8 +38,10 @@ function redhen_donation_donate_page($entity_type, $entity) {
 /**
  * Page callback for entity donation settings.
  *
- * @param $entity_type
- * @param $entity
+ * @param string $entity_type
+ *   Host entity type.
+ * @param object $entity
+ *   Host entity.
  *
  * @return array
  *   Donation entity settings form.

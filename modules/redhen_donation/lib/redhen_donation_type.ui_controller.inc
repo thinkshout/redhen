@@ -1,4 +1,8 @@
 <?php
+/**
+ * @file
+ * Entity type UI Controller file.
+ */
 
 /**
  * Redhen Donation Type UI controller.

@@ -1,26 +1,37 @@
 <?php
+/**
+ * @file
+ * Form include.
+ */
 
 /**
  * Return a form for an entity's donation settings.
  *
+ * @internal object $entity
+ *   Donation Entity.
+ *
  * @param array $form
+ *   Form array.
  * @param array $form_state
- * @param $settings
- * @param object $entity_type
+ *   Form state array.
+ * @param array $settings
+ *   Settings array.
+ * @param string $entity_type
+ *   Host entity type.
  * @param null $entity_id
+ *   Host entity id.
  *
- * @internal param object $entity
+ * @see hook_redhen_donation_entity_settings()
  *
- * @return array $form
- *
- * @see hook_redhen_donation_entity_settings().
+ * @return array
+ *   Form array.
  */
 function redhen_donation_entity_settings_form($form, &$form_state, $settings, $entity_type = NULL, $entity_id = NULL) {
   if ($entity_id) {
     // We'll need this info when we submit the form:
     $form_state['entity'] = array(
       'entity_id' => $entity_id,
-      'entity_type' => $entity_type
+      'entity_type' => $entity_type,
     );
   }
   else {
@@ -30,7 +41,7 @@ function redhen_donation_entity_settings_form($form, &$form_state, $settings, $e
   $donation_type = redhen_donation_type_load(redhen_donation_get_entity_donation_type($entity_type, current($entity)));
 
   if (!isset($form_state['methods'])) {
-    $form_state['methods'] = $settings['settings']['commerce']['payment_options']['payment_methods']?:array();
+    $form_state['methods'] = $settings['settings']['commerce']['payment_options']['payment_methods'] ?: array();
   }
 
   // Check to see if date_popup is installed so we can provide a friendlier UI.
@@ -50,7 +61,7 @@ function redhen_donation_entity_settings_form($form, &$form_state, $settings, $e
     '#title' => t('Scheduling'),
     '#collapsible' => TRUE,
     '#collapsed' => TRUE,
-    '#tree' => TRUE
+    '#tree' => TRUE,
   );
 
   $form['scheduling']['open'] = array(
@@ -105,7 +116,6 @@ function redhen_donation_entity_settings_form($form, &$form_state, $settings, $e
     '#default_value' => $settings['settings']['donation_settings']['confirmation_page'],
   );
 
-
   $form['settings']['donation_entry'] = array(
     '#type' => 'select',
     '#title' => t('Donation entry'),
@@ -124,7 +134,7 @@ function redhen_donation_entity_settings_form($form, &$form_state, $settings, $e
     '#states' => array(
       'invisible' => array(
         ':input[name="settings[donation_entry]"]' => array(
-          'value' => 'custom'
+          'value' => 'custom',
         ),
       ),
     ),
@@ -139,7 +149,7 @@ function redhen_donation_entity_settings_form($form, &$form_state, $settings, $e
     '#states' => array(
       'invisible' => array(
         ':input[name="settings[donation_entry]"]' => array(
-          'value' => 'select'
+          'value' => 'select',
         ),
       ),
     ),
@@ -153,7 +163,7 @@ function redhen_donation_entity_settings_form($form, &$form_state, $settings, $e
     '#states' => array(
       'invisible' => array(
         ':input[name="settings[donation_entry]"]' => array(
-          'value' => 'select'
+          'value' => 'select',
         ),
       ),
     ),
@@ -301,7 +311,7 @@ function redhen_donation_entity_settings_form($form, &$form_state, $settings, $e
   $conditions = array(
     'event' => 'commerce_payment_methods',
     'plugin' => 'reaction rule',
-    'active' => TRUE
+    'active' => TRUE,
   );
   $payment_rules = rules_config_load_multiple(FALSE, $conditions);
   foreach ($payment_rules as $name => $rule) {
@@ -513,12 +523,13 @@ function redhen_donation_form($form, &$form_state, RedhenDonation $donation) {
   $form_state['donation'] = $donation;
 
   if (!isset($form_state['#donation_settings'])) {
-    $form_state['donation_settings'] =
-    $settings = redhen_donation_entity_settings(
-      $donation->entity_type,
-      $donation->entity_id,
-      TRUE
-    );
+    $form_state['donation_settings']
+      = $settings
+        = redhen_donation_entity_settings(
+            $donation->entity_type,
+            $donation->entity_id,
+            TRUE
+          );
   }
 
   $payment_settings = $settings['settings']['commerce']['payment_options']['payment_methods'];
@@ -547,7 +558,7 @@ function redhen_donation_form($form, &$form_state, RedhenDonation $donation) {
 
     // Unset the contact forms action, we will use the registration form.
     unset($form['redhen_contact']['form']['actions']);
-    // Hide all fields by default
+    // Hide all fields by default.
     $form_fields = element_children($form['redhen_contact']['form']);
     foreach ($form_fields as $form_field) {
       if (strpos($form_field, 'field_') !== FALSE || $form_field == 'redhen_contact_email') {
@@ -555,7 +566,7 @@ function redhen_donation_form($form, &$form_state, RedhenDonation $donation) {
       }
     }
 
-    // Remove fields as defined in settings
+    // Remove fields as defined in settings.
     $fields = field_info_instances('redhen_contact', $contact_type);
     foreach ($fields as $field) {
       $field_info = field_info_field($field);
@@ -636,7 +647,6 @@ function redhen_donation_form($form, &$form_state, RedhenDonation $donation) {
   $top_payment = current($payment_settings);
   $cur = commerce_currency_get_symbol($top_payment['currency']);
 
-
   if ($form_state['input']) {
     $selected_method = $form_state['input']['payment_method'];
     foreach ($payment_settings as $payment_setting) {
@@ -664,6 +674,7 @@ function redhen_donation_form($form, &$form_state, RedhenDonation $donation) {
 
     case 'select_other':
     case 'radio_other':
+
       $form['donation'] = array(
         '#type' => 'select_or_other',
         '#title' => t('Donation (') . $cur . ')',
@@ -674,9 +685,8 @@ function redhen_donation_form($form, &$form_state, RedhenDonation $donation) {
         '#other_description' => t('Please enter an amount.'),
         '#other_unknown_defaults' => 'other',
         '#other_delimiter' => ', ',
-        '#select_type'
-          => $settings['settings']['donation_entry'] == 'select_other' ?
-          'select' : 'radios',
+        '#select_type' => $settings['settings']['donation_entry'] ==
+        'select_other' ? 'select' : 'radios',
       );
 
       break;
@@ -1125,34 +1135,41 @@ function redhen_donation_get_empty_field_map_row() {
 /**
  * Donation form AJAX callback.
  *
- * @param $form
- * @param $form_state
+ * @param array $form
+ *   Form array.
+ * @param array $form_state
+ *   Form state array.
  *
  * @return array
+ *   AJAX command array.
  */
 function redhen_donation_form_refresh(&$form, &$form_state) {
   $html1 = drupal_render($form['commerce_payment_form']['payment_details']);
   $html2 = drupal_render($form['donation']);
   $result = array(
-      '#type' => 'ajax',
-      '#commands' => array(
-        ajax_command_replace('#payment-details', $html1),
-        ajax_command_replace('.form-item-donation', $html2),
-      ),
-    );
+    '#type' => 'ajax',
+    '#commands' => array(
+      ajax_command_replace('#payment-details', $html1),
+      ajax_command_replace('.form-item-donation', $html2),
+    ),
+  );
   return $result;
 }
 
 /**
  * Donation line item update callback.
  *
- * @param $line_item
- * @param $decimal_amount
- * @param bool $product
+ * @param object $line_item
+ *   Commerce Line Item.
+ * @param string $decimal_amount
+ *   Item amount.
+ * @param mixed $product
+ *   Commerce Product.
  * @param string $currency
+ *   Item currency.
  */
 function redhen_donation_update_line_item_price(&$line_item, $decimal_amount, $product = FALSE, $currency = 'USD') {
-  // TODO: Refactor
+  // TODO: Refactor.
   $wrapper = entity_metadata_wrapper('commerce_line_item', $line_item);
   $wrapper->commerce_unit_price->currency_code = $currency;
   $unit_price = commerce_price_wrapper_value($wrapper, 'commerce_unit_price', TRUE);
@@ -1181,9 +1198,12 @@ function redhen_donation_update_line_item_price(&$line_item, $decimal_amount, $p
 
 /**
  * Production description helper callback.
- * @param $product_wrapper
+ *
+ * @param object $product_wrapper
+ *   Product Entity Metadata wrapper.
  *
  * @return null|string
+ *   Product description.
  */
 function redhen_donation_product_description($product_wrapper) {
   $description = '';
@@ -1199,7 +1219,7 @@ function redhen_donation_product_description($product_wrapper) {
       '@period' => $period,
     ));
     if ($end_period != '') {
-      $description .= t(' for @end_interval @end_period(s)', array(
+      $description .= ' ' . t('for @end_interval @end_period(s)', array(
         '@end_period' => $end_period,
         '@end_interval' => $end_interval,
       ));
@@ -1212,10 +1232,13 @@ function redhen_donation_product_description($product_wrapper) {
 /**
  * Helper function to determine amount pledged.
  *
- * @param $order_total
- * @param $product_wrapper
+ * @param string $order_total
+ *   Order total.
+ * @param object $product_wrapper
+ *   Product Entity Metatdata wrapper.
  *
  * @return mixed
+ *   Pledged amount.
  */
 function redhen_donation_pledged($order_total, $product_wrapper) {
   $period = $product_wrapper->commerce_recurring_rec_period->period->value();

@@ -10,16 +10,15 @@
  */
 class RedhenDonation extends Entity {
 
-  public
-    $donation_id,
-    $type,
-    $entity_id,
-    $entity_type,
-    $uid = NULL,
-    $order_id = NULL,
-    $amount = NULL,
-    $created,
-    $updated;
+  public $donation_id;
+  public $type;
+  public $entity_id;
+  public $entity_type;
+  public $uid = NULL;
+  public $order_id = NULL;
+  public $amount = NULL;
+  public $created;
+  public $updated;
 
   /**
    * Override parent constructor with entity type.

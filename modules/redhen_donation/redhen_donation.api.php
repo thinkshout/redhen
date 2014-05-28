@@ -8,11 +8,15 @@
 /**
  * Override redhen_donation_access with custom access control logic.
  *
- * @param $op
+ * @param string $op
+ *   Access operation.
  * @param RedhenDonation $donation
+ *   RedHen Donation object.
  * @param object $account
+ *   User account.
  *
  * @return bool
+ *   Access boolean.
  */
 function hook_redhen_donation_access($op, $donation, $account = NULL) {
   if ($donation->user_uid == $account->uid) {

@@ -65,7 +65,6 @@ function redhen_donation_type_form($form, &$form_state, $donation_type, $op = 'e
     ),
   );
 
-
   $form['settings']['commerce_settings'] = array(
     '#type' => 'fieldset',
     '#title' => t('Commerce Settings'),
@@ -131,7 +130,7 @@ function redhen_donation_type_form($form, &$form_state, $donation_type, $op = 'e
 function redhen_donation_type_form_submit(&$form, &$form_state) {
   $donation_type = entity_ui_form_submit_build_entity($form, $form_state);
   $donation_type->settings = array();
-  // Serialize settings
+  // Serialize settings.
   $donation_type->settings['contact_settings'] = $donation_type->contact_settings;
   $donation_type->settings['commerce_settings'] = $donation_type->commerce_settings;
   $donation_type->save();
