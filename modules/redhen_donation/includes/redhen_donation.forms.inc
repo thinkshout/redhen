@@ -162,7 +162,6 @@ function redhen_donation_entity_settings_form($form, &$form_state, $settings, $e
   // Allow other modules to add their own custom settings:
   $form['settings'] += module_invoke_all('redhen_donation_entity_settings', $settings);
 
-
   // Get fields for field selector and profile sync selector.
   $fields = field_info_instances('redhen_contact', $donation_type->settings['contact_settings']['contact_type']);
 
@@ -440,6 +439,13 @@ function redhen_donation_entity_settings_form_validate($form, &$form_state) {
         form_set_error('settings][donation_amounts', t('Donation amounts are invalid'));
       }
     }
+  }
+
+  // Must select at least one product.
+  $one_time_product = $form_state['values']['commerce']['product_options']['one_time_product'];
+  $recurring_products = array_filter($form_state['values']['commerce']['product_options']['recurring']);
+  if ($one_time_product == '' && empty($recurring_products)) {
+    form_set_error('form', t('Must select at lest one product.'));
   }
 
   // Validate open date:
