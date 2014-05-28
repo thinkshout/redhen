@@ -115,7 +115,7 @@ function redhen_donation_donations_page($entity_type, $entity) {
       $wrapper = entity_metadata_wrapper('redhen_donation', $donation);
 
       if ($donation->author_uid) {
-        $user = user_load($donation->author_uid);
+        $user = $wrapper->author->value();
         $uri = entity_uri('user', $user);
         $user_col = l($user->name, $uri['path']);
       }
