@@ -98,7 +98,7 @@ function redhen_donation_donations_page($entity_type, $entity) {
   list($entity_id) = entity_extract_ids($entity_type, $entity);
   $label = entity_label($entity_type, $entity);
 
-  $query = new EntityFieldQuery;
+  $query = new EntityFieldQuery();
   $result = $query
     ->entityCondition('entity_type', 'redhen_donation')
     ->propertyCondition('entity_id', $entity_id)
