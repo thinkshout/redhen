@@ -60,7 +60,7 @@ class RedhenDonationMetadataController extends EntityDefaultMetadataController {
       'description' => t("Amount received."),
       'schema field' => 'received',
       'setter callback' => 'entity_property_verbatim_set',
-      'getter callback' => 'redhen_donation_property_received_get'
+      'getter callback' => 'redhen_donation_property_received_get',
     );
 
     $properties['created'] = array(

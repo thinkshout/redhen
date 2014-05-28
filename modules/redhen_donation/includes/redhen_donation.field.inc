@@ -21,11 +21,10 @@ function redhen_donation_field_info() {
             'open' => NULL,
             'close' => NULL,
           ),
-          'settings' => array(
-          ),
+          'settings' => array(),
         ),
       ),
-      'default_widget' => 'redhen_dontation_select',
+      'default_widget' => 'redhen_donation_select',
       'default_formatter' => 'redhen_donation_form',
       'no_ui' => FALSE,
     ),
@@ -64,7 +63,7 @@ function redhen_donation_field_instance_settings_form($field, $instance) {
     '#type' => 'fieldset',
     '#title' => t('Default donation settings'),
     '#collapsible' => TRUE,
-    '#description' => t('These settings will be applied when an entity with this field is saved and does not yet have it\'s own settings applied.')
+    '#description' => t("These settings will be applied when an entity with this field is saved and does not yet have it's own settings applied."),
   );
 
   // Unset the save button just in case.
@@ -122,9 +121,8 @@ function redhen_donation_field_widget_form(&$form, &$form_state, $field, $instan
     '#default_value' => isset($items[$delta]) ? $items[$delta] : array(),
   );
 
-  // force some help text into the field, appending anything the user added.
-  $element['#description'] .= ' ' . t('Select what type of donation should be
-    enabled for this @type.', array('@type' => $instance['bundle']));
+  // Force some help text into the field, appending anything the user added.
+  $element['#description'] .= ' ' . t('Select what type of donation should be enabled for this @type.', array('@type' => $instance['bundle']));
 
   return array('redhen_donation_type' => $element);
 }
@@ -205,7 +203,7 @@ function redhen_donation_field_formatter_settings_summary($field, $instance, $vi
 function redhen_donation_field_formatter_view($entity_type, $entity, $field, $instance, $langcode, $items, $display) {
   $element = array();
 
-  // we know we should only have a single item
+  // We know we should only have a single item.
   if (isset($items[0]['redhen_donation_type']) && !empty($items[0]['redhen_donation_type'])) {
     $donation_type = redhen_donation_type_load($items[0]['redhen_donation_type']);
     $settings = $display['settings'];
@@ -215,6 +213,7 @@ function redhen_donation_field_formatter_view($entity_type, $entity, $field, $in
       case 'redhen_donation_default':
         $element[0] = array('#markup' => $label);
         break;
+
       case 'redhen_donation_link':
         // Enable donation link if accessible.
         if (redhen_donation_donate_page_access($entity_type, $entity)) {
@@ -223,12 +222,13 @@ function redhen_donation_field_formatter_view($entity_type, $entity, $field, $in
             '#markup' => theme('redhen_donation_link',
               array(
                 'label' => $label,
-                'path' => $uri['path'] . '/donate'
+                'path' => $uri['path'] . '/donate',
               )
-            )
+            ),
           );
         }
         break;
+
       case 'redhen_donation_form':
         // Enable donation form if accessible.
         list($entity_id) = entity_extract_ids($entity_type, $entity);
@@ -261,12 +261,9 @@ function redhen_donation_form_field_ui_field_edit_form_alter(&$form, &$form_stat
 }
 
 /**
- * Validation handler for redhen_donationdrush c_form_field_ui_field_edit_form.
+ * Validation handler for redhen_donation.
  *
  * Ensure cardinality is set to 1 on donation fields.
- *
- * @param $form
- * @param $form_state
  */
 function redhen_donation_form_field_ui_field_edit_form_validate(&$form, &$form_state) {
   if ($form['#field']['type'] == 'redhen_donation') {
@@ -293,11 +290,8 @@ function redhen_donation_form_field_ui_field_edit_form_validate(&$form, &$form_s
 /**
  * Implements hook_form_FORM_ID_alter().
  *
- * Add a validation handler for redhen_donation_form_field_ui_field_overview_form().
- *
- * @param $form
- * @param $form_state
- * @param $form_id
+ * Add a validation handler for
+ * redhen_donation_form_field_ui_field_overview_form().
  */
 function redhen_donation_form_field_ui_field_overview_form_alter(&$form, &$form_state, $form_id) {
   $form['#validate'][] = 'redhen_donation_form_field_ui_field_overview_form_validate';
@@ -307,9 +301,6 @@ function redhen_donation_form_field_ui_field_overview_form_alter(&$form, &$form_
  * Validation callback for redhen_donation_form_field_ui_field_overview_form().
  *
  * Ensure only one donation field is added per entity.
- *
- * @param $form
- * @param $form_state
  */
 function redhen_donation_form_field_ui_field_overview_form_validate(&$form, &$form_state) {
   $fields = $form_state['values']['fields'];
@@ -344,7 +335,7 @@ function redhen_donation_field_delete_instance($instance) {
 /**
  * Rebuild the menu for a given donation field instance.
  *
- * @param $instance
+ * @param string $instance
  *   Field instance being added or deleted.
  */
 function _redhen_donation_menu_rebuild($instance) {
