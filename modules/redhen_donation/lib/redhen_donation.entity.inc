@@ -41,12 +41,7 @@ class RedhenDonation extends Entity {
   }
 
   /**
-   * Build content for Donation.
-   *
-   * @param string $view_mode
-   * @param null $langcode
-   *
-   * @return mixed
+   * Add content for RedHen donation custom properties.
    */
   public function buildContent($view_mode = 'full', $langcode = NULL) {
     $content = parent::buildContent($view_mode, $langcode);
@@ -64,8 +59,7 @@ class RedhenDonation extends Entity {
 
     // Link to host entity.
     $host_entity_link_label = (isset($host_entity_type_info['bundles'][$host_entity_bundle]['label'])) ?
-      $host_entity_type_info['bundles'][$host_entity_bundle]['label']
-      : '';
+      $host_entity_type_info['bundles'][$host_entity_bundle]['label'] : '';
 
     $content['host_entity_link'] = array(
       '#theme' => 'redhen_property_field',
@@ -77,7 +71,6 @@ class RedhenDonation extends Entity {
       ),
       '#weight' => -10,
       '#classes' => 'field field-label-inline clearfix',
-      '#attributes' => '',
     );
 
     $contact_uri = entity_uri('redhen_contact', $wrapper->contact->value());
@@ -90,7 +83,6 @@ class RedhenDonation extends Entity {
         ),
       ),
       '#classes' => 'field field-label-inline clearfix',
-      '#attributes' => '',
     );
 
 
@@ -100,13 +92,10 @@ class RedhenDonation extends Entity {
       '#label' => t('Author'),
       '#items' => array(
         array(
-          '#markup' => $author->uid == 0 ?
-            t('Anonymous'):
-            l($author->name, $author_uri['path']),
+          '#markup' => $author->uid == 0 ? t('Anonymous') : l($author->name, $author_uri['path']),
         ),
       ),
       '#classes' => 'field field-label-inline clearfix',
-      '#attributes' => '',
     );
 
     $content['pledged'] = array(
@@ -118,7 +107,6 @@ class RedhenDonation extends Entity {
         ),
       ),
       '#classes' => 'field field-label-inline clearfix',
-      '#attributes' => '',
     );
 
     $content['received'] = array(
@@ -130,7 +118,6 @@ class RedhenDonation extends Entity {
         ),
       ),
       '#classes' => 'field field-label-inline clearfix',
-      '#attributes' => '',
     );
 
     $content['updated'] = array(
@@ -142,7 +129,6 @@ class RedhenDonation extends Entity {
         ),
       ),
       '#classes' => 'field field-label-inline clearfix',
-      '#attributes' => '',
     );
 
     $content['status'] = array(
@@ -154,7 +140,6 @@ class RedhenDonation extends Entity {
         ),
       ),
       '#classes' => 'field field-label-inline clearfix',
-      '#attributes' => '',
     );
 
     $content['transaction'] = array(
@@ -172,7 +157,7 @@ class RedhenDonation extends Entity {
         $transaction_entity = $transaction_entity_wrapper->value();
         $transaction_entity_uri = entity_uri($this->transaction_entity_type, $transaction_entity);
         foreach ($transaction_entity_wrapper->commerce_recurring_order->value() as $order) {
-          $rows[] = $this->transaction_row($order, $order_status);
+          $rows[] = $this->transactionRow($order, $order_status);
         }
         $product_wrapper = $transaction_entity_wrapper->commerce_recurring_ref_product;
         $transactions = array(
@@ -208,9 +193,7 @@ class RedhenDonation extends Entity {
             'end_date' => array(
               '#type' => 'item',
               '#title' => t('End Date'),
-              '#markup' =>  $transaction_entity_wrapper->end_date->value() == 0 ?
-                t('None') :
-                date('m-d-Y H:m', $transaction_entity_wrapper->end_date->value()),
+              '#markup' => $transaction_entity_wrapper->end_date->value() == 0 ? t('None') : date('m-d-Y H:m', $transaction_entity_wrapper->end_date->value()),
             ),
             'due_date' => array(
               '#type' => 'item',
@@ -220,23 +203,20 @@ class RedhenDonation extends Entity {
             'status' => array(
               '#type' => 'item',
               '#title' => t('Status'),
-              '#markup' =>  $transaction_entity_wrapper->status->value() ?
-                t('Enabled'):
-                t('Disabled'),
+              '#markup' => $transaction_entity_wrapper->status->value() ? t('Enabled') : t('Disabled'),
             ),
           ),
           'orders' => array(
             '#theme' => 'table',
             '#header' => $header,
             '#rows' => $rows,
-          )
-
+          ),
         );
         break;
 
       default:
         $transaction_entity = $transaction_entity_wrapper->value();
-        $rows[] = $this->transaction_row($transaction_entity, $order_status);
+        $rows[] = $this->transactionRow($transaction_entity, $order_status);
         $transactions = array(
           'var' => array(
             '#markup' => t('One Time Donation'),
@@ -245,15 +225,13 @@ class RedhenDonation extends Entity {
             '#theme' => 'table',
             '#header' => $header,
             '#rows' => $rows,
-          )
-
+          ),
         );
         break;
     }
     $content['transaction']['list'] = $transactions;
 
-    return entity_get_controller($this->entityType)
-      ->buildContent($this, $view_mode, $langcode, $content);
+    return entity_get_controller($this->entityType)->buildContent($this, $view_mode, $langcode, $content);
   }
 
   /**
@@ -277,7 +255,10 @@ class RedhenDonation extends Entity {
     return array('path' => 'redhen/donation/' . $this->internalIdentifier());
   }
 
-  protected function transaction_row($order, $order_status) {
+  /**
+   * Helper to build a row in the donation transactions table.
+   */
+  protected function transactionRow($order, $order_status) {
     $order_uri = entity_uri('commerce_order', $order);
 
     $order_wrapper = entity_metadata_wrapper('commerce_order', $order);
