@@ -429,7 +429,7 @@ function redhen_donation_settings_form_callback($form, $form_state) {
 }
 
 /**
- * Validaiton handler for redhen_donation_entity_settings_form().
+ * Validation handler for redhen_donation_entity_settings_form().
  *
  * @param array $form
  *   Form array.
@@ -640,17 +640,18 @@ function redhen_donation_form($form, &$form_state, RedhenDonation $donation) {
     }
   }
 
+  $donation_amounts = array();
   foreach ($settings['settings']['donation_settings']['donation_amounts'] as $amount) {
-    $donation_ammounts[$amount * 100] = $amount;
+    $donation_amounts[$amount * 100] = $amount;
   }
 
   switch ($settings['settings']['donation_settings']['donation_entry']) {
     case 'select':
       $form['donation'] = array(
         '#type' => 'select',
-        '#title' => t('Donation (') . $cur . ')',
+        '#title' => t('Donation (@cur)', array('@cur' => $cur)),
         '#required' => TRUE,
-        '#options' => $donation_ammounts,
+        '#options' => $donation_amounts,
         '#multiple' => FALSE,
       );
       break;
@@ -660,10 +661,10 @@ function redhen_donation_form($form, &$form_state, RedhenDonation $donation) {
 
       $form['donation'] = array(
         '#type' => 'select_or_other',
-        '#title' => t('Donation (') . $cur . ')',
+        '#title' => t('Donation (@cur)', array('@cur' => $cur)),
         '#required' => TRUE,
         '#multiple' => FALSE,
-        '#options' => $donation_ammounts,
+        '#options' => $donation_amounts,
         '#other' => t('Other'),
         '#other_description' => t('Please enter an amount.'),
         '#other_unknown_defaults' => 'other',
@@ -677,7 +678,7 @@ function redhen_donation_form($form, &$form_state, RedhenDonation $donation) {
     default:
       $form['donation'] = array(
         '#type' => 'textfield',
-        '#title' => t('Donation (') . $cur . ')',
+        '#title' => t('Donation (@cur)', array('@cur' => $cur)),
         '#default_value' => '',
         '#required' => TRUE,
         '#description' => t('Please enter an amount.'),
@@ -726,10 +727,10 @@ function redhen_donation_form($form, &$form_state, RedhenDonation $donation) {
   }
 
   $billing_address_field = $settings['settings']['commerce']['profile_selector'];
-  $billing_user = !is_null($contact_object->uid) ? $contact->uid : $user->uid;
+  $billing_user = !is_null($contact_object->uid) ? $contact_object->uid : $user->uid;
   $billing = commerce_customer_profile_new('billing', $billing_user);
   // Set default contact address.
-  if (!(is_null($contact->contact_id))) {
+  if (!(is_null($contact_object->contact_id))) {
     $billing->commerce_customer_address = $contact_object->{$billing_address_field};
   }
 
