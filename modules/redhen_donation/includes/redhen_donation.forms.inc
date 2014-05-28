@@ -432,11 +432,13 @@ function redhen_donation_entity_settings_form_validate($form, &$form_state) {
     $form_state['values']['settings']['donation_entry'] == 'select_other' ||
     $form_state['values']['settings']['donation_entry'] == 'radio_other') {
     $form_state['values']['settings']['donation_amounts'] = redhen_extract_allowed_amounts($form_state['values']['settings']['donation_amounts']);
-
+    if (empty($form_state['values']['settings']['donation_amounts'])) {
+      form_set_error('settings][donation_amounts', t('No amount(s) set.'));
+    }
     // Validate allowed amounts.
     foreach ($form_state['values']['settings']['donation_amounts'] as $amount => $label) {
       if (!is_numeric($amount)) {
-        form_set_error('settings][donation_amounts', t('Donation amounts are invalid'));
+        form_set_error('settings][donation_amounts', t('Donation amounts are invalid.'));
       }
     }
   }
@@ -456,6 +458,11 @@ function redhen_donation_entity_settings_form_validate($form, &$form_state) {
   // Validate close date:
   if (!empty($form_state['values']['scheduling']['close']) && strtotime($form_state['values']['scheduling']['close']) === FALSE) {
     form_set_error('scheduling][close', t('Date is invalid.'));
+  }
+
+  // Validate payment methods:
+  if (!isset($form_state['values']['commerce']['payment_options']['payment_methods'])) {
+    form_set_error('payment_methods', t('Must select at lest one payment method.'));
   }
 }
 
@@ -1096,6 +1103,10 @@ function redhen_donation_get_payment_methods(&$form_state) {
       unset($methods[$delta]);
     }
   }
+
+  // Ensure one method exists.
+  $methods = empty($methods) && empty(array_filter($methods)) ?
+    array(array()) : $methods;
   $value = &$methods;
 
   return $value;
