@@ -73,11 +73,11 @@ function redhen_donation_entity_info() {
  * Implements hook_entity_info_alter().
  */
 function redhen_donation_entity_info_alter(&$entity_info) {
-  // @todo: we're testing to ensure the schema exists; needed because running gui
+  // @todo: testing to ensure the schema exists; needed because running gui
   // install profile was hitting this BEFORE the schema was installed.
   if (drupal_get_schema('redhen_donation')) {
     // We are adding the info about the donation types via a hook to avoid a
-    // recursion issue as loading the model types requires the entity info as well.
+    // recursion issue as loading the model types requires the entity info.
     foreach (redhen_donation_get_types() as $type => $info) {
       $entity_info['redhen_donation']['bundles'][$type] = array(
         'label' => $info->label,
@@ -281,6 +281,7 @@ function redhen_donation_menu() {
  *   (optional) An user object, or omit for logged in user.
  *
  * @return bool
+ *   True if access allowed.
  *
  * @see redhen_donation_entity_info()
  */
@@ -294,7 +295,7 @@ function redhen_donation_access($op, RedhenDonation $donation = NULL, $account =
 
   $type = $donation->bundle();
 
-  // bypass further access checks if user can administer donation
+  // Bypass further access checks if user can administer donations.
   if ($admin || user_access("administer $type redhen donation", $account)) {
     return TRUE;
   }
@@ -313,7 +314,7 @@ function redhen_donation_access($op, RedhenDonation $donation = NULL, $account =
   $donation_user = $wrapper->author_uid->value();
   $account_own = ($donation_user && ($donation_user->uid == $account->uid));
 
-  // Fall back to assigned permissions
+  // Fall back to assigned permissions.
   switch ($op) {
     case 'view':
       return ($account_own && user_access("view own $type redhen donation", $account)) || user_access("view $type redhen donation", $account);
@@ -323,6 +324,7 @@ function redhen_donation_access($op, RedhenDonation $donation = NULL, $account =
 
     case 'create':
       return (user_access("create $type redhen donation", $account));
+
     case 'delete':
       return ($account_own && user_access("delete own $type redhen donation", $account)) || user_access("delete any $type redhen donation", $account);
   }
@@ -331,9 +333,11 @@ function redhen_donation_access($op, RedhenDonation $donation = NULL, $account =
 /**
  * Gets an array of all donation types, keyed by the name.
  *
- * @param null $name
+ * @param string $name
+ *   The name of the donation type to load.
  *
- * @return array|mixed
+ * @return array|RedhenDonationType
+ *   Either a single donation type or an array.
  */
 function redhen_donation_get_types($name = NULL) {
   $types = entity_load_multiple_by_name('redhen_donation_type', isset($name) ? array($name) : FALSE);
@@ -343,7 +347,7 @@ function redhen_donation_get_types($name = NULL) {
 /**
  * Menu argument loader; Load a donation type by string.
  *
- * @param $type
+ * @param string $type
  *   The machine-readable name of a donation type to load.
  *
  * @return array|mixed
@@ -355,13 +359,6 @@ function redhen_donation_type_load($type) {
 
 /**
  * Access callback for the entity API.
- *
- * @param $op
- * @param null $entity
- * @param null $account
- * @param null $entity_type
- *
- * @return bool
  */
 function redhen_donation_type_access($op, $entity = NULL, $account = NULL, $entity_type = NULL) {
   return user_access('administer redhen donation types', $account);
@@ -471,7 +468,7 @@ function redhen_donation_get_entity_donation_type($entity_type, $entity) {
   foreach ($fields as $field) {
     if (isset($entity->$field['field_name'])) {
       $items = field_get_items($entity_type, $entity, $field['field_name']);
-      // we're assuming there's only a single value in this field
+      // We're assuming there's only a single value in this field.
       if (!empty($items) && count($items) == 1 && !empty($items[0]['redhen_donation_type'])) {
         return $items[0]['redhen_donation_type'];
       }
@@ -496,7 +493,7 @@ function redhen_donation_entity_delete($entity, $entity_type) {
     ->condition('entity_type', $entity_type)
     ->execute();
 
-  // Remove references to a donation_type on host entities
+  // Remove references to a donation_type on host entities.
   if ($entity_type == 'redhen_donation_type') {
     $donation_fields = field_read_fields(array('type' => 'redhen_donation'));
     if (!empty($donation_fields)) {
@@ -519,6 +516,8 @@ function redhen_donation_entity_delete($entity, $entity_type) {
 
 /**
  * Implements hook_entity_insert().
+ *
+ * Set the default donation settings for an applicable entity.
  */
 function redhen_donation_entity_insert($entity, $entity_type) {
   $donation_type = redhen_donation_get_entity_donation_type($entity_type, $entity);
@@ -529,13 +528,15 @@ function redhen_donation_entity_insert($entity, $entity_type) {
 
 /**
  * Implements hook_entity_update().
+ *
+ * Set the default donation settings if they have not yet been set.
  */
 function redhen_donation_entity_update($entity, $entity_type) {
   $donation_type = redhen_donation_get_entity_donation_type($entity_type, $entity);
   if ($donation_type !== FALSE) {
     list($entity_id) = entity_extract_ids($entity_type, $entity);
     $settings = redhen_donation_entity_settings($entity_type, $entity_id);
-    // no settings yet, try to set defaults
+    // No settings yet, try to set defaults.
     if (!$settings) {
       redhen_donation_entity_set_default_settings($entity_type, $entity);
     }
@@ -550,6 +551,7 @@ function redhen_donation_entity_update($entity, $entity_type) {
  * @param int $entity_id
  *   The host entity ID.
  * @param bool $reset
+ *   Reset the static cache.
  *
  * @return array|bool
  *   A row from {redhen_donation_entity}, or FALSE if no settings exist.
@@ -602,14 +604,16 @@ function redhen_donation_update_entity_settings($entity_type, $entity_id, $setti
 /**
  * Sets the the donation entity settings to the defaults.
  *
- * @param $entity_type
- * @param $entity
+ * @param string $entity_type
+ *   Host entity type.
+ * @param object $entity
+ *   Host entity object.
  */
 function redhen_donation_entity_set_default_settings($entity_type, $entity) {
   list($entity_id, , $bundle) = entity_extract_ids($entity_type, $entity);
   $donation_instances = redhen_donation_get_donation_instances(array(
     'entity_type' => $entity_type,
-    'bundle' => $bundle
+    'bundle' => $bundle,
   ));
   foreach ($donation_instances as $instance) {
     if (isset($instance['settings']['default_redhen_donation_settings'])) {
@@ -621,6 +625,8 @@ function redhen_donation_entity_set_default_settings($entity_type, $entity) {
 
 /**
  * Helper to convert donation entity settings form values into a fields.
+ *
+ * @todo: Explain me.
  *
  * @param $values
  *
@@ -638,12 +644,12 @@ function redhen_donation_convert_form_settings($values) {
     'close' => NULL,
   );
 
-  // Scheduling: open date
+  // Scheduling: open date.
   if (!empty($values['scheduling']['open'])) {
     $fields['open'] = date('Y-m-d H:i:s', strtotime($values['scheduling']['open']));
   }
 
-  // Scheduling: close date
+  // Scheduling: close date.
   if (!empty($values['scheduling']['close'])) {
     $fields['close'] = date('Y-m-d H:i:s', strtotime($values['scheduling']['close']));
   }
@@ -656,8 +662,8 @@ function redhen_donation_convert_form_settings($values) {
 /**
  * Check if new donations are permitted for a host entity.
  *
- * Modules may implement hook_redhen_donation_status_alter() to alter the status at
- * runtime.
+ * Modules may implement hook_redhen_donation_status_alter() to alter the status
+ * at runtime.
  *
  * @param string $entity_type
  *   The host entity type.
@@ -670,6 +676,7 @@ function redhen_donation_convert_form_settings($values) {
  *   (optional) An array of error message strings.
  *
  * @return bool
+ *   Whether or a not donations are active for the host entity.
  */
 function redhen_donation_status($entity_type, $entity_id, $reset = FALSE, &$errors = array()) {
   $checked = &drupal_static(__FUNCTION__, array());
@@ -687,8 +694,8 @@ function redhen_donation_status($entity_type, $entity_id, $reset = FALSE, &$erro
     return FALSE;
   }
 
-  // bypass further access checks if user can administer donation
-  if (user_access('administer redhen donations') || user_access("administer $donation_type donation")) {
+  // Bypass further access checks if user can administer donation.
+  if (user_access('administer redhen donations') || user_access("administer $donation_type redhen donation")) {
     return TRUE;
   }
 
@@ -698,14 +705,14 @@ function redhen_donation_status($entity_type, $entity_id, $reset = FALSE, &$erro
   $close = isset($settings['close']) ? strtotime($settings['close']) : NULL;
   $now = REQUEST_TIME;
 
-  // only explore other settings if main status is enabled
+  // Only explore other settings if main status is enabled.
   if ($status) {
-    // check open date range
+    // Check open date range.
     if (isset($open) && ($now < $open)) {
       $status = FALSE;
       $errors[] = t('donations are not yet open');
     }
-    // check close date range
+    // Check close date range.
     if (isset($close) && ($now >= $close)) {
       $status = FALSE;
       $errors[] = t('donations are closed');
@@ -715,11 +722,11 @@ function redhen_donation_status($entity_type, $entity_id, $reset = FALSE, &$erro
     $errors[] = t('donations are disabled');
   }
 
-  // allow other mods to override status
+  // Allow other mods to override status.
   $context = array(
     'entity_type' => $entity_type,
     'entity_id' => $entity_id,
-    'errors' => &$errors
+    'errors' => &$errors,
   );
 
   drupal_alter('redhen_donation_status', $status, $context);
@@ -736,6 +743,7 @@ function redhen_donation_status($entity_type, $entity_id, $reset = FALSE, &$erro
  * Return all redhen_donation field instances.
  *
  * @param array $params
+ *   Associative array of key => value filters.
  *
  * @return array
  *   A list of field instances
@@ -745,17 +753,13 @@ function redhen_donation_get_donation_instances($params = array()) {
 
   $donation_instances = array();
   if (!empty($donation_fields)) {
-    $field_name = array(
-      'field_name' => array_keys($donation_fields)
-    );
+    $field_name = array('field_name' => array_keys($donation_fields));
     $params = array_merge($field_name, $params);
     $donation_instances = field_read_instances($params);
   }
 
   return $donation_instances;
 }
-
-
 
 /**
  * Implements hook_field_extra_fields().
@@ -768,7 +772,7 @@ function redhen_donation_field_extra_fields() {
       'display' => array(
         'contact' => array(
           'label' => t('RedHen Contact'),
-          'description' => t('RedHen Contact.'),
+          'description' => t('RedHen contact associated with the donation.'),
           'weight' => 1,
         ),
         'pledged' => array(
@@ -783,22 +787,22 @@ function redhen_donation_field_extra_fields() {
         ),
         'author' => array(
           'label' => t('Author'),
-          'description' => t('Author.'),
+          'description' => t('Drupal user who created the donation.'),
           'weight' => 4,
         ),
         'status' => array(
           'label' => t('Status'),
-          'description' > t('Donation statusd.'),
+          'description' => t('Donation status.'),
           'weight' => 5,
         ),
         'updated' => array(
           'label' => t('Updated'),
-          'description' > t('Date donation was Updated.'),
+          'description' => t('Date donation was Updated.'),
           'weight' => 6,
         ),
         'transaction' => array(
           'label' => t('Transaction(s)'),
-          'description' > t('Date donation was Updated.'),
+          'description' => t('Date donation was Updated.'),
           'weight' => 7,
         ),
       ),
@@ -811,7 +815,7 @@ function redhen_donation_field_extra_fields() {
 /**
  * Callback to get $donation->host.
  *
- * @see RedhenDonationMetadataController::entityPropertyInfo().
+ * @see RedhenDonationMetadataController::entityPropertyInfo()
  */
 function redhen_donation_property_host_get(RedhenDonation $donation, array $options, $property_name, $entity_type) {
   $entity = entity_load_single($donation->entity_type, $donation->entity_id);
@@ -821,7 +825,7 @@ function redhen_donation_property_host_get(RedhenDonation $donation, array $opti
 /**
  * Callback to set $donation->host.
  *
- * @see RedhenDonationMetadataController::entityPropertyInfo().
+ * @see RedhenDonationMetadataController::entityPropertyInfo()
  */
 function redhen_donation_property_host_set(RedhenDonation $donation, $name, $value, $lang, $type, $info) {
   $donation->entity_type = $value->type();
@@ -831,7 +835,7 @@ function redhen_donation_property_host_set(RedhenDonation $donation, $name, $val
 /**
  * Callback to get $donation->user.
  *
- * @see RedhenDonationMetadataController::entityPropertyInfo().
+ * @see RedhenDonationMetadataController::entityPropertyInfo()
  */
 function redhen_donation_property_user_get(RedhenDonation $donation, array $options, $property_name, $entity_type) {
   if (is_numeric($donation->author_uid)) {
@@ -843,7 +847,7 @@ function redhen_donation_property_user_get(RedhenDonation $donation, array $opti
 /**
  * Callback to set $donation->user that supports null value.
  *
- * @see RedhenDonationMetadataController::entityPropertyInfo().
+ * @see RedhenDonationMetadataController::entityPropertyInfo()
  */
 function redhen_donation_property_user_set(RedhenDonation $donation, $name, $value, $lang, $type, $info) {
   if (is_object($value) && $account = $value->value()) {
@@ -857,7 +861,7 @@ function redhen_donation_property_user_set(RedhenDonation $donation, $name, $val
 /**
  * Callback to get $donation_wrapper->transaction_entity.
  *
- * @see RedhenDonationMetadataController::entityPropertyInfo().
+ * @see RedhenDonationMetadataController::entityPropertyInfo()
  */
 function redhen_donation_property_transation_entity_get(RedhenDonation $donation, array $options, $property_name, $entity_type) {
   // TODO: Refactor to use entity not wrapper?
@@ -869,7 +873,7 @@ function redhen_donation_property_transation_entity_get(RedhenDonation $donation
 /**
  * Callback to get $donation->order.
  *
- * @see RedhenDonationMetadataController::entityPropertyInfo().
+ * @see RedhenDonationMetadataController::entityPropertyInfo()
  */
 function redhen_donation_property_redhen_contact_get(RedhenDonation $donation, array $options, $property_name, $entity_type) {
   $contact = redhen_contact_load($donation->contact_id);
@@ -877,15 +881,10 @@ function redhen_donation_property_redhen_contact_get(RedhenDonation $donation, a
 }
 
 /**
- * @param RedhenDonation $donation
- * @param array $options
- * @param $property_name
- * @param $entity_type
- *
- * @return null|string
+ * Getter callback for donation status.
  */
 function redhen_donation_property_status_get(RedhenDonation $donation, array $options, $property_name, $entity_type) {
-  $status = $donation->status == 0 ? t('Disabled') : t('Enabled') ;
+  $status = $donation->status == 0 ? t('Disabled') : t('Enabled');
   return $status;
 }
 
@@ -950,6 +949,7 @@ function redhen_donation_theme() {
  *   Contains the label and path for the link.
  *
  * @return string
+ *   Markup for a donation link.
  */
 function theme_redhen_donation_link($variables) {
   $output = '';
@@ -966,7 +966,7 @@ function theme_redhen_donation_link($variables) {
  *
  * This string format is suitable for edition in a textarea.
  *
- * @param $values
+ * @param array $values
  *   An array of values, where array keys are values and array values are
  *   labels.
  *
@@ -988,7 +988,7 @@ function redhen_allowed_amounts_string($values) {
 /**
  * Parses a string of 'allowed ' into an array.
  *
- * @param $string
+ * @param string $string
  *   The list of allowed values in string format described in
  *   redhen_allowed_amounts_string().
  *
@@ -1031,7 +1031,7 @@ function redhen_extract_allowed_amounts($string) {
 
   // We generate keys only if the list contains no explicit key at all.
   if ($explicit_keys && $generated_keys) {
-    return;
+    return NULL;
   }
 
   return $values;
@@ -1054,11 +1054,12 @@ function redhen_donation_load($donation_id) {
  *
  * @see entity_load()
  *
- * @param $donation_ids
- * @param $conditions
+ * @param array $donation_ids
+ *   Array of donation IDs.
+ * @param array $conditions
  *   An array of conditions on the {donation} table in the form
  *     'field' => $value.
- * @param $reset
+ * @param bool $reset
  *   Whether to reset the internal donation loading cache.
  *
  * @return array
@@ -1075,10 +1076,10 @@ function redhen_donation_load_multiple($donation_ids = array(), $conditions = ar
 /**
  * Deletes multiple donations by ID.
  *
- * @param $donation_ids
+ * @param array $donation_ids
  *   An array of donation IDs to delete.
  *
- * @return
+ * @return bool
  *   TRUE on success, FALSE otherwise.
  */
 function redhen_donation_delete_multiple($donation_ids) {
@@ -1088,10 +1089,10 @@ function redhen_donation_delete_multiple($donation_ids) {
 /**
  * Saves a donation.
  *
- * @param $donation
+ * @param RedhenDonation $donation
  *   The full donation object to save.
  *
- * @return
+ * @return mixed
  *   If the record insert or update failed, returns FALSE. If it succeeded,
  *   returns SAVED_NEW or SAVED_UPDATED, depending on the operation performed.
  */
@@ -1103,10 +1104,6 @@ function redhen_donation_save(RedhenDonation $donation) {
  * Implements hook_commerce_recurring_recurring_price_alter().
  *
  * see: https://drupal.org/node/2263371
- *
- * @param $recurring_price
- * @param $line_item
- * @param $recurring_entity
  */
 function redhen_donation_commerce_recurring_recurring_price_alter(&$recurring_price, $line_item, $recurring_entity) {
   $recurring_wrapper = entity_metadata_wrapper('commerce_recurring', $recurring_entity);
@@ -1116,12 +1113,15 @@ function redhen_donation_commerce_recurring_recurring_price_alter(&$recurring_pr
 /**
  * Load donation by transaction ID.
  *
- * @param $transaction_type
- * @param $transaction_id
+ * @param string $transaction_type
+ *   Order or recurring entity.
+ * @param int $transaction_id
+ *   Entity id.
  *
- * @return mixed
+ * @return RedhenDonation
+ *   The donation for the given transaction id.
  */
-function redhen_donation_load_by_transaction_entity_id($transaction_type, $transaction_id) {
+function redhen_donation_load_by_transaction_entity($transaction_type, $transaction_id) {
   $donations = redhen_donation_load_multiple(
     FALSE,
     array(
@@ -1136,10 +1136,6 @@ function redhen_donation_load_by_transaction_entity_id($transaction_type, $trans
  * Implements hook_views_pre_view().
  *
  * Unsets operations field and add payment form for redhen/donation/% callback.
- *
- * @param $view
- * @param $display_id
- * @param $args
  */
 function redhen_donation_views_pre_view(&$view, &$display_id, &$args) {
   if ($view->name == 'commerce_payment_order') {
@@ -1151,10 +1147,8 @@ function redhen_donation_views_pre_view(&$view, &$display_id, &$args) {
   }
 }
 
-//hook_commerce_payment_order_paid_in_full()
 /**
- * @param $order
- * @param $transaction
+ * Implements hook_commerce_payment_order_paid_in_full().
  */
 function redhen_donation_commerce_payment_order_paid_in_full($order, $transaction) {
   if ($order->status == 'recurring_pending') {
@@ -1182,13 +1176,14 @@ function redhen_donation_commerce_payment_order_paid_in_full($order, $transactio
 }
 
 /**
+ * @todo: Explain me.
+ *
  * @param $recurring_entity
  *
  * @return string
  */
 function redhen_donation_commerce_recurring_uri($recurring_entity) {
   return array(
-    'path' => 'admin/commerce/recurring-entities/' .
-      $recurring_entity->id . '/edit'
+    'path' => 'admin/commerce/recurring-entities/' . $recurring_entity->id . '/edit',
   );
 }
