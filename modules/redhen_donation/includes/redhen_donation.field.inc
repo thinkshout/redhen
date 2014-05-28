@@ -25,7 +25,7 @@ function redhen_donation_field_info() {
           ),
         ),
       ),
-      'default_widget' => 'redhen_dontation_select',
+      'default_widget' => 'redhen_donation_select',
       'default_formatter' => 'redhen_donation_form',
       'no_ui' => FALSE,
     ),
