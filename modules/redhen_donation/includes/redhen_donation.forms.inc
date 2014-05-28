@@ -594,16 +594,6 @@ function redhen_donation_form($form, &$form_state, RedhenDonation $donation) {
     '#value' => t('Save Donation'),
   );
 
-  // Add a delete button for existing donation:
-  if (isset($donation->donation_id) && entity_access('delete', 'redhen_donation', $donation)) {
-    $form['actions']['delete'] = array(
-      '#type' => 'submit',
-      '#value' => t('Delete'),
-      '#submit' => array('redhen_donation_form_delete_submit'),
-      "#limit_validation_errors" => array(),
-    );
-  }
-
   $payment_methods = array();
   foreach ($payment_settings as $payment_setting) {
     $payment_methods[$payment_setting['payment_method']] = commerce_payment_method_instance_load($payment_setting['payment_method']);
@@ -627,7 +617,6 @@ function redhen_donation_form($form, &$form_state, RedhenDonation $donation) {
         'callback' => 'redhen_donation_form_refresh',
         'wrapper' => 'payment-details',
       ),
-      '#limit_validation_errors' => array(),
     );
   }
   else {
