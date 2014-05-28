@@ -429,7 +429,7 @@ function redhen_donation_settings_form_callback($form, $form_state) {
 }
 
 /**
- * Validaiton handler for redhen_donation_entity_settings_form().
+ * Validation handler for redhen_donation_entity_settings_form().
  *
  * @param array $form
  *   Form array.
