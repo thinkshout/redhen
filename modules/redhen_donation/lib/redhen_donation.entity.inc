@@ -268,7 +268,7 @@ class RedhenDonation extends Entity {
       $order_total['currency_code']
     );
     return array(
-      l($order->order_id, $order_uri['path']),
+      isset($order_uri['path']) ? l($order->order_id, $order_uri['path']) : $order->order_id,
       $amount,
       date('m-d-Y H:m', $order->changed),
       $order_status[$order->status]['title'],
