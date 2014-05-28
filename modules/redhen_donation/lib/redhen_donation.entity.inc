@@ -85,7 +85,6 @@ class RedhenDonation extends Entity {
       '#classes' => 'field field-label-inline clearfix',
     );
 
-
     $author_uri = entity_uri('user', $author);
     $content['author'] = array(
       '#theme' => 'redhen_property_field',
@@ -276,4 +275,3 @@ class RedhenDonation extends Entity {
   }
 
 }
-

@@ -624,13 +624,13 @@ function redhen_donation_entity_set_default_settings($entity_type, $entity) {
 }
 
 /**
- * Helper to convert donation entity settings form values into a fields.
+ * Helper to convert donation entity settings form values into an single array.
  *
- * @todo: Explain me.
- *
- * @param $values
+ * @param array $values
+ *   Settings form values.
  *
  * @return array
+ *   Properly formatted settings array.
  */
 function redhen_donation_convert_form_settings($values) {
   $fields = array(
@@ -656,8 +656,6 @@ function redhen_donation_convert_form_settings($values) {
 
   return $fields;
 }
-
-
 
 /**
  * Check if new donations are permitted for a host entity.
@@ -1176,11 +1174,7 @@ function redhen_donation_commerce_payment_order_paid_in_full($order, $transactio
 }
 
 /**
- * @todo: Explain me.
- *
- * @param $recurring_entity
- *
- * @return string
+ * Implements hook_commerce_recurring_uri().
  */
 function redhen_donation_commerce_recurring_uri($recurring_entity) {
   return array(
