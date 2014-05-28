@@ -341,23 +341,6 @@ function redhen_donation_get_types($name = NULL) {
 }
 
 /**
- * Gets an array of all donation types, keyed by the name.
- *
- * @param null $name
- *
- * @return array
- *   A list of all donation types.
- */
-function redhen_donation_type_get_names($name = NULL) {
-  $types = redhen_donation_get_types();
-  $data = array();
-  foreach (array_keys($types) as $name) {
-    $data[$name] = $name;
-  }
-  return $data;
-}
-
-/**
  * Menu argument loader; Load a donation type by string.
  *
  * @param $type
