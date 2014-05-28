@@ -66,13 +66,13 @@ function redhen_donation_donations_page($entity_type, $entity) {
       'data' => t('ID'),
       'field' => 'donation_id',
       'type' => 'property',
-      'specifier' => 'donation_id'
+      'specifier' => 'donation_id',
+    ),
+    array(
+      'data' => t('Author'),
     ),
     array(
       'data' => t('Contact'),
-      'field' => 'user_uid',
-      'type' => 'property',
-      'specifier' => 'user_uid'
     ),
     array(
       'data' => t('Amount Pledged'),
@@ -85,11 +85,11 @@ function redhen_donation_donations_page($entity_type, $entity) {
       'field' => 'updated',
       'sort' => 'desc',
       'type' => 'property',
-      'specifier' => 'updated'
+      'specifier' => 'updated',
     ),
     array(
       'data' => t('Status'),
-      'specifier' => 'status'
+      'specifier' => 'status',
     ),
     array(
       'data' => t('Recurring/Order'),
@@ -99,7 +99,7 @@ function redhen_donation_donations_page($entity_type, $entity) {
   list($entity_id) = entity_extract_ids($entity_type, $entity);
   $label = entity_label($entity_type, $entity);
 
-  $query = new EntityFieldQuery;
+  $query = new EntityFieldQuery();
   $result = $query
     ->entityCondition('entity_type', 'redhen_donation')
     ->propertyCondition('entity_id', $entity_id)
@@ -116,7 +116,7 @@ function redhen_donation_donations_page($entity_type, $entity) {
       $wrapper = entity_metadata_wrapper('redhen_donation', $donation);
 
       if ($donation->author_uid) {
-        $user = user_load($donation->author_uid);
+        $user = $wrapper->author->value();
         $uri = entity_uri('user', $user);
         $user_col = l($user->name, $uri['path']);
       }
@@ -131,10 +131,11 @@ function redhen_donation_donations_page($entity_type, $entity) {
         $transaction_entity);
       $transaction_entity_label = entity_label($transaction_entity_type, $transaction_entity);
       $rows[] = array(
-        l($donation->donation_id, 'redhen/donation/' . $donation->donation_id),
+        l($donation->donation_id, $donation->uri()['path']),
         $user_col,
-        $wrapper->pledged->value(),
-        $wrapper->received->value(),
+        l($wrapper->contact->label(), $wrapper->contact->value()->uri()['path']),
+        $donation->pledged,
+        $donation->received,
         format_date($donation->updated),
         $wrapper->status->value(),
         l(
@@ -147,14 +148,13 @@ function redhen_donation_donations_page($entity_type, $entity) {
 
     $table = array(
       'header' => $header,
-      'rows' => $rows
+      'rows' => $rows,
     );
 
     $out = theme('table', $table) . theme('pager');
   }
   else {
-    $out = t('There are no donations for %name',
-      array('%name' => $label));
+    $out = t('There are no donations for %name', array('%name' => $label));
   }
 
   return $out;
