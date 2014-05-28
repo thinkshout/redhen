@@ -187,11 +187,16 @@ function redhen_donation_menu() {
     'type' => MENU_DEFAULT_LOCAL_TASK,
   );
 
-  // entity local tasks
+  // Entity local tasks.
   foreach (redhen_donation_get_donation_instances() as $instance) {
     $type = $instance['entity_type'];
     if (!in_array($type, array('redhen_donation', 'redhen_donation_type'))) {
-      $items[$type . '/%entity_object/donate'] = array(
+      $info = entity_get_info($type);
+      $bundle_key = $info['bundle keys']['bundle'];
+      $entity = entity_create($type, array($bundle_key => $instance['bundle']));
+      $uri = entity_uri($type, $entity);
+      $path = $uri['path'];
+      $items[$path . '%entity_object/donate'] = array(
         'load arguments' => array($type),
         'title' => 'Donate',
         'page callback' => 'redhen_donation_donate_page',
@@ -201,7 +206,7 @@ function redhen_donation_menu() {
         'type' => MENU_LOCAL_TASK,
         'file' => 'includes/redhen_donation.pages.inc',
       );
-      $items[$type . '/%entity_object/donations'] = array(
+      $items[$path . '%entity_object/donations'] = array(
         'load arguments' => array($type),
         'title' => 'Manage Donations',
         'page callback' => 'redhen_donation_donations_page',
@@ -211,7 +216,7 @@ function redhen_donation_menu() {
         'type' => MENU_LOCAL_TASK,
         'file' => 'includes/redhen_donation.pages.inc',
       );
-      $items[$type . '/%entity_object/donations/list'] = array(
+      $items[$path . '%entity_object/donations/list'] = array(
         'load arguments' => array($type),
         'title' => 'Donations',
         'page callback' => 'redhen_donation_donations_page',
@@ -221,7 +226,7 @@ function redhen_donation_menu() {
         'type' => MENU_DEFAULT_LOCAL_TASK,
         'file' => 'includes/redhen_donation.pages.inc',
       );
-      $items[$type . '/%entity_object/donations/settings'] = array(
+      $items[$path . '%entity_object/donations/settings'] = array(
         'load arguments' => array($type),
         'title' => 'Settings',
         'page callback' => 'redhen_donation_entity_settings_page',
