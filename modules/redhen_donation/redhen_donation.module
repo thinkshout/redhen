@@ -890,52 +890,42 @@ function redhen_donation_property_status_get(RedhenDonation $donation, array $op
 }
 
 /**
- * @param RedhenDonation $donation
- * @param array $options
- * @param $property_name
- * @param $entity_type
- *
- * @return string
+ * Getter callback for donation received property.
  */
 function redhen_donation_property_received_get(RedhenDonation $donation, array $options, $property_name, $entity_type) {
-  $wrapper = entity_metadata_wrapper('redhen_donation', $donation);
-  // TODO: currency_code function?
-  $transaction_entity_wrapper = $wrapper->transaction_entity;
-  $transction_entity_type = $wrapper->transaction_entity_type->value();
-  if ($transction_entity_type == 'commerce_recurring') {
-    $currency_code = $transaction_entity_wrapper->
-      commerce_recurring_fixed_price->currency_code->value();
-  }
-  else {
-    $currency_code = $transaction_entity_wrapper->
-      commerce_order_total->currency_code->value();
-  }
-
-  return commerce_currency_format($donation->received, $currency_code);
+  redhen_donation_get_formatted_amount($donation, 'received');
 }
 
 /**
- * @param RedhenDonation $donation
- * @param array $options
- * @param $property_name
- * @param $entity_type
- *
- * @return string
+ * Getter callback for donation pledged property.
  */
 function redhen_donation_property_pledged_get(RedhenDonation $donation, array $options, $property_name, $entity_type) {
+  redhen_donation_get_formatted_amount($donation, 'pledged');
+}
+
+/**
+ * Return the formatted value from a donation.
+ *
+ * @param RedhenDonation $donation
+ *   Fully loaded donation object.
+ * @param string $amount_type
+ *   Pledged or received.
+ *
+ * @return string
+ *   Formatted amount.
+ */
+function redhen_donation_get_formatted_amount(RedhenDonation $donation, $amount_type) {
   $wrapper = entity_metadata_wrapper('redhen_donation', $donation);
   $transaction_entity_wrapper = $wrapper->transaction_entity;
-  $transction_entity_type = $wrapper->transaction_entity_type->value();
-  if ($transction_entity_type == 'commerce_recurring') {
-    $currency_code = $transaction_entity_wrapper->
-      commerce_recurring_fixed_price->currency_code->value();
+  $transaction_entity_type = $wrapper->transaction_entity_type->value();
+  if ($transaction_entity_type == 'commerce_recurring') {
+    $currency_code = $transaction_entity_wrapper->commerce_recurring_fixed_price->currency_code->value();
   }
   else {
-    $currency_code = $transaction_entity_wrapper->
-      commerce_order_total->currency_code->value();
+    $currency_code = $transaction_entity_wrapper->commerce_order_total->currency_code->value();
   }
 
-  return commerce_currency_format($donation->pledged, $currency_code);
+  return commerce_currency_format($donation->$amount_type, $currency_code);
 }
 
 /**
