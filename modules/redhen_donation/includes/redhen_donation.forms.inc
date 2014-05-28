@@ -711,7 +711,9 @@ function redhen_donation_form($form, &$form_state, RedhenDonation $donation) {
   $billing_user = !is_null($contact_object->uid) ? $contact->uid : $user->uid;
   $billing = commerce_customer_profile_new('billing', $billing_user);
   // Set default contact address.
-  $billing->commerce_customer_address = $contact_object->{$billing_address_field};
+  if (!(is_null($contact->contact_id))) {
+    $billing->commerce_customer_address = $contact_object->{$billing_address_field};
+  }
 
   field_attach_form('commerce_customer_profile', $billing, $form, $form_state);
 
@@ -812,7 +814,9 @@ function redhen_donation_form_submit($form, &$form_state) {
     // Set Address field if needed.
     if ($settings['settings']['commerce']['profile_selector'] != 'billing') {
       $sync_field = $settings['settings']['commerce']['profile_selector'];
-      $contact_address = $contact->{$sync_field}[LANGUAGE_NONE][0];
+      $contact_address = empty($contact->{$sync_field}[LANGUAGE_NONE]) ?
+        array():
+        $contact->{$sync_field}[LANGUAGE_NONE][0];
       $contact_address = empty($contact_address) ? array(): $contact_address;
       $billing_address = $form_state['values']['commerce_customer_address'][LANGUAGE_NONE][0];
       $updated_address =  array_merge($contact_address, $billing_address);
