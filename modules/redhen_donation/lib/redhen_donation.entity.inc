@@ -22,6 +22,16 @@ class RedhenDonation extends Entity {
     $updated;
 
   /**
+   * Override parent constructor with entity type.
+   *
+   * @param array $values
+   *   Entity values to populate object.
+   */
+  public function __construct(array $values = array()) {
+    parent::__construct($values, 'redhen_donation');
+  }
+
+  /**
    * Specifies the default label, which is picked up by label() by default.
    */
   protected function defaultLabel() {
