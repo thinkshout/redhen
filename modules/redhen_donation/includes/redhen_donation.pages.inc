@@ -67,12 +67,11 @@ function redhen_donation_donations_page($entity_type, $entity) {
       'field' => 'donation_id',
       'type' => 'property',
       'specifier' => 'donation_id'
+    array(
+      'data' => t('Author'),
     ),
     array(
       'data' => t('Contact'),
-      'field' => 'user_uid',
-      'type' => 'property',
-      'specifier' => 'user_uid'
     ),
     array(
       'data' => t('Amount Pledged'),
@@ -135,6 +134,7 @@ function redhen_donation_donations_page($entity_type, $entity) {
         $user_col,
         $wrapper->pledged->value(),
         $wrapper->received->value(),
+        l($wrapper->contact->label(), $wrapper->contact->value()->uri()['path']),
         format_date($donation->updated),
         $wrapper->status->value(),
         l(
