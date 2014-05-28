@@ -512,13 +512,7 @@ function redhen_donation_entity_settings_form_submit($form, &$form_state) {
  *   Donation form array.
  */
 function redhen_donation_form($form, &$form_state, RedhenDonation $donation) {
-  $wrapper = entity_metadata_wrapper('redhen_donation', $donation);
-  if ($wrapper->author_uid->value()) {
-    $wrapper->author_uid->value();
-  }
-  else {
-    global $user;
-  }
+  global $user;
 
   $form_state['donation'] = $donation;
 
