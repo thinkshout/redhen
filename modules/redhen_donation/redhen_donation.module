@@ -324,7 +324,7 @@ function redhen_donation_access($op, RedhenDonation $donation = NULL, $account =
     case 'create':
       return (user_access("create $type redhen donation", $account));
     case 'delete':
-      return ($account_own && user_access("delete own $type redhen donation", $account)) || user_access("delete any $type donation", $account);
+      return ($account_own && user_access("delete own $type redhen donation", $account)) || user_access("delete any $type redhen donation", $account);
   }
 }
 
