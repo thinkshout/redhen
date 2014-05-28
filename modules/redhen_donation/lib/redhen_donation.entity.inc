@@ -86,7 +86,7 @@ class RedhenDonation extends Entity {
       '#label' => t('RedHen Contact'),
       '#items' => array(
         array(
-          '#markup' => l($wrapper->contact->full_name->value(), $contact_uri['path']),
+          '#markup' => l($wrapper->contact->label(), $contact_uri['path']),
         ),
       ),
       '#classes' => 'field field-label-inline clearfix',
