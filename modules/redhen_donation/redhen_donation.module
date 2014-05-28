@@ -364,7 +364,7 @@ function redhen_donation_type_load($type) {
  * @return bool
  */
 function redhen_donation_type_access($op, $entity = NULL, $account = NULL, $entity_type = NULL) {
-  return user_access('administer donation types', $account);
+  return user_access('administer redhen donation types', $account);
 }
 
 /**
