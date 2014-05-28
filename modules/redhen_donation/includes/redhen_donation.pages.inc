@@ -132,9 +132,9 @@ function redhen_donation_donations_page($entity_type, $entity) {
       $rows[] = array(
         l($donation->donation_id, 'redhen/donation/' . $donation->donation_id),
         $user_col,
-        $wrapper->pledged->value(),
-        $wrapper->received->value(),
         l($wrapper->contact->label(), $wrapper->contact->value()->uri()['path']),
+        $donation->pledged,
+        $donation->received,
         format_date($donation->updated),
         $wrapper->status->value(),
         l(
