@@ -316,9 +316,11 @@ function redhen_donation_access($op, RedhenDonation $donation = NULL, $account =
   // Fall back to assigned permissions
   switch ($op) {
     case 'view':
-      return ($account_own && user_access("view own $type redhen donation", $account)) || user_access("view $type donation", $account);
+      return ($account_own && user_access("view own $type redhen donation", $account)) || user_access("view $type redhen donation", $account);
+
     case 'update':
-      return ($account_own && user_access("update own $type redhen donation", $account)) || user_access("update any $type donation", $account);
+      return ($account_own && user_access("update own $type redhen donation", $account)) || user_access("update any $type redhen donation", $account);
+
     case 'create':
       return (user_access("create $type redhen donation", $account));
     case 'delete':
