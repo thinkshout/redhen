@@ -114,6 +114,8 @@ function redhen_donation_entity_settings_form($form, &$form_state, $settings, $e
     '#type' => 'textfield',
     '#title' => t('Confirmation page'),
     '#default_value' => $settings['settings']['donation_settings']['confirmation_page'],
+    '#description' => t('Set the URL of the confirmation page. Will default
+      to redhen/donation/confirmation.'),
   );
 
   $form['settings']['donation_entry'] = array(
@@ -125,6 +127,7 @@ function redhen_donation_entity_settings_form($form, &$form_state, $settings, $e
       'select_other' => t("Select list (with 'other' option)"),
       'radio_other' => t("Radio options (with 'other' option)"),
       'custom' => t('Text field (custom amount)')),
+    '#description' => t('Select the type of amount widget.'),
   );
 
   $form['settings']['donation_amounts'] = array(
@@ -204,6 +207,8 @@ function redhen_donation_entity_settings_form($form, &$form_state, $settings, $e
     '#type' => 'checkboxes',
     '#options' => $other_fields,
     '#default_value' => $settings['settings']['redhen_fields']['fields'],
+    // Adding break for readability.
+    '#prefix' => '<br/>',
   );
 
   $form['commerce'] = array(
@@ -277,9 +282,8 @@ function redhen_donation_entity_settings_form($form, &$form_state, $settings, $e
       '#options' => $address_fields,
       '#default_value' => $settings['settings']['commerce']['profile_selector'],
       '#description' => t(
-        'Select a contact field to sync with a billing
-        profile. If "none" is selected, the default billing profile will be
-        created.'
+        'Select a contact field to sync with the billing
+        profile. If "none" is selected, no Contact address fields will be updated.'
       ),
     );
   }
@@ -291,6 +295,9 @@ function redhen_donation_entity_settings_form($form, &$form_state, $settings, $e
     '#collapsed' => FALSE,
     '#tree' => TRUE,
     '#id' => 'edit-redhen-donation-payment-options-wrapper',
+    '#description' => t('Select the payment methods that will be available on
+      the form. If a recurring product is used, ensure that methods that
+      support Commerce Recurring.'),
   );
 
   $form['commerce']['payment_options']['payment_methods'] = array(
