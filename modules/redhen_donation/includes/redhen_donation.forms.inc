@@ -820,9 +820,9 @@ function redhen_donation_form_submit($form, &$form_state) {
   $contact = $form_state['redhen_contact'];
 
   // Does a contact already exist with that email address?
-  $existing_contact = current(redhen_contact_load_by_mail($form_state['values']['email']));
-
-  $contact = $existing_contact && is_null($contact->contact_id) ? $existing_contact : $contact;
+  if (is_null($contact->contact_id)) {
+    $contact = current(redhen_contact_load_by_mail($form_state['values']['email']));
+  }
 
   // If set to update fields, do so. Or if new contact create contact.
   if ($donation_type->settings['contact_settings']['contact_update_fields'] == 1
