@@ -9,10 +9,12 @@ It relies on Commerce Card on File and Commere Recurring to process recurring do
 ## Notes
 
 * Donation products should have an amount of 0.
-* Recurring donations requires the patchs found at:
-  * https://drupal.org/node/2273443
-  * https://drupal.org/node/2263371
-
+* Recurring donations requires the patches found at:
+  * Commerce Recurring
+    * https://drupal.org/node/2273443
+    * https://drupal.org/node/2263371
+  * Commerce Card on File
+    * https://drupal.org/node/2275263
 
 ## Usage
 
