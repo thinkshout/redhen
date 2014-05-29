@@ -982,8 +982,6 @@ function redhen_donation_form_submit($form, &$form_state) {
   // Donation entity handling.
   $donation->author_uid = $user->uid;
   $donation->contact_id = $contact->contact_id;
-  // TODO: Set to constant?
-  $donation->status = 1;
 
   if ($recurring_product) {
     $pledged = redhen_donation_pledged($order_total, $product_wrapper);

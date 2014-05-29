@@ -54,7 +54,7 @@ function redhen_donation_schema() {
         'description' => 'The status of this donation.',
         'type' => 'int',
         'not null' => TRUE,
-        'default' => 0,
+        'default' => 1,
       ),
       'transaction_entity_type' => array(
         'description' => 'The entity type of the transaction (order or recurring) associated with this donation.',
