@@ -764,7 +764,6 @@ function redhen_donation_form($form, &$form_state, RedhenDonation $donation) {
   $order = new stdClass();
   $pane_values = array();
   if ($callback = commerce_payment_method_callback($payment_method, 'submit_form')) {
-    /** @var $callback string */
     $pane_form['payment_details'] = $callback($payment_method, $pane_values, $checkout_pane, $order);
   }
   else {

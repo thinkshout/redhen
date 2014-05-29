@@ -12,11 +12,13 @@ class RedhenDonationTypeUIController extends EntityDefaultUIController {
   /**
    * Overrides hook_menu() defaults.
    */
+  // @codingStandardsIgnoreStart
   public function hook_menu() {
     $items = parent::hook_menu();
     $items[$this->path]['description'] = 'Manage donation entity types, including adding and removing fields and the display of fields.';
     return $items;
   }
+  // @codingStandardsIgnoreEnd
 
   /**
    * Override parent::operationForm to set a more meaningful message on delete.
