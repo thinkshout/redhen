@@ -967,7 +967,6 @@ function redhen_donation_form_submit($form, &$form_state) {
       }
     }
 
-    /** @var $callback string */
     $callback($payment_method, $details_form, $details_values, $order, $charge);
     $transaction = entity_load('commerce_payment_transaction', FALSE, array('order_id' => $order->order_id));
     $transaction = current($transaction);
