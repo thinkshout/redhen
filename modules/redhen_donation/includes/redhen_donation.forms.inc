@@ -821,7 +821,8 @@ function redhen_donation_form_submit($form, &$form_state) {
 
   // Does a contact already exist with that email address?
   if (is_null($contact->contact_id)) {
-    $contact = current(redhen_contact_load_by_mail($form_state['values']['email']));
+    $contact_email_search = current(redhen_contact_load_by_mail($form_state['values']['email']));
+    $contact = is_null($contact_email_search) ? $contact : $contact_email_search;
   }
 
   // If set to update fields, do so. Or if new contact create contact.
@@ -864,17 +865,17 @@ function redhen_donation_form_submit($form, &$form_state) {
 
   // If recurring and no user is found, create user and link to contact.
   if ($user->uid == 0) {
-    $existing_user = user_load_by_mail($form_state['values']['email']);
+    $donation_user = user_load_by_mail($form_state['values']['email']);
   }
   else {
-    $existing_user = $user;
+    $donation_user = $user;
   }
   if ($recurring_product && $contact->uid == NULL) {
-    if (!$existing_user) {
+    if (!$donation_user) {
       $password = user_password();
       $fields = array(
-        'name' => $form['values']['email'],
-        'mail' => $form['values']['email'],
+        'name' => $form_state['values']['email'],
+        'mail' => $form_state['values']['email'],
         'pass' => $password,
         'status' => 1,
         'init' => $form['values']['email'],
@@ -882,9 +883,9 @@ function redhen_donation_form_submit($form, &$form_state) {
           DRUPAL_AUTHENTICATED_RID => 'authenticated user',
         ),
       );
-      $new_user = user_save('', $fields);
+      $donation_user = user_save('', $fields);
     }
-    $contact->uid = $existing_user ? $existing_user->uid : $new_user->uid;
+    $contact->uid = $donation_user->uid;
     redhen_contact_save($contact);
     $message .= t('User has been linked to the contact %name.',
       array(
@@ -902,7 +903,7 @@ function redhen_donation_form_submit($form, &$form_state) {
     = isset($donation_type->settings['commerce_settings']['line_item_type']) ?
       $donation_type->settings['commerce_settings']['line_item_type'] :
       'product';
-  $order_uid = $existing_user ? $existing_user->uid : $new_user->uid;
+  $order_uid = $donation_user->uid;
   $order = commerce_cart_order_new($order_uid, $order_type);
   commerce_order_save($order);
   $order_wrapper = entity_metadata_wrapper('commerce_order', $order);
@@ -932,7 +933,7 @@ function redhen_donation_form_submit($form, &$form_state) {
   // Add the item to the list of line items.
   $order_wrapper->commerce_line_items[] = $line_item;
 
-  $customer_profile = commerce_customer_profile_new('billing', $user->uid);
+  $customer_profile = commerce_customer_profile_new('billing', $donation_user->uid);
   $customer_profile->commerce_customer_address[LANGUAGE_NONE][0] = array();
   $billing_address =& $customer_profile->commerce_customer_address[LANGUAGE_NONE][0];
   $form_state['values']['commerce_customer_address']['und'][0]['name_line'] = $form_state['values']['first_name'] . ' ' . $form_state['values']['last_name'];
@@ -959,7 +960,7 @@ function redhen_donation_form_submit($form, &$form_state) {
 
     // If recurring check if COF.
     if ($recurring_product) {
-      $default_cof = commerce_cardonfile_load_multiple_by_uid($user->uid, NULL, TRUE);
+      $default_cof = commerce_cardonfile_load_multiple_by_uid($donation_user->uid, NULL, TRUE);
       if (!$default_cof) {
         $details_values['cardonfile_instance_default'] = TRUE;
         $details_values['cardonfile'] = 'new';
