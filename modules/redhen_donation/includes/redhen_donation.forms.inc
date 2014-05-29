@@ -253,6 +253,14 @@ function redhen_donation_entity_settings_form($form, &$form_state, $settings, $e
     '#title' => t('Product options'),
   );
 
+  $form['commerce']['product_options']['product_select_label'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Product selection label'),
+    '#default_value' => $settings['settings']['commerce']['product_options']['product_select_label'],
+    '#description' => t('The label to be show above product selections.
+      Defaults to "Donation Type"'),
+  );
+
   $form['commerce']['product_options']['one_time_product'] = array(
     '#type' => 'select',
     '#title' => t('One Time Product'),
@@ -709,9 +717,11 @@ function redhen_donation_form($form, &$form_state, RedhenDonation $donation) {
       $descriptions[$product_id]
         = redhen_donation_product_description($product_wrapper);
     }
+    $product_label = isset($settings['settings']['commerce']['product_options']['product_select_label']) ?
+      $settings['settings']['commerce']['product_options']['product_select_label'] : t('Donation Type');
     $form['product'] = array(
       '#type' => 'radios',
-      '#title' => t('Donation type'),
+      '#title' => $product_label,
       '#options' => $product_list,
       '#required' => TRUE,
     );
