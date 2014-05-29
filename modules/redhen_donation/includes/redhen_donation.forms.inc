@@ -871,7 +871,7 @@ function redhen_donation_form_submit($form, &$form_state) {
     if (!$existing_user) {
       $password = user_password();
       $fields = array(
-        'name' => $values['first_name'] . $values['last_name'] . (string) rand(),
+        'name' => $form['values']['email'],
         'mail' => $form['values']['email'],
         'pass' => $password,
         'status' => 1,
