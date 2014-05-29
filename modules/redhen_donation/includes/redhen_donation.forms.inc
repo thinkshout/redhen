@@ -831,7 +831,9 @@ function redhen_donation_form_submit($form, &$form_state) {
     $contact->first_name = $form_state['values']['first_name'];
     $contact->middle_name = $form_state['values']['middle_name'];
     $contact->last_name = $form_state['values']['last_name'];
-    $contact->author_uid = $user->uid;
+    // Only update if new.
+    $contact->author_uid = is_null($contact->contact_id) ?
+      $contact->author_uid : $user->uid;
 
     // Notify field widgets.
     field_attach_submit('redhen_contact', $contact, $form, $form_state);
