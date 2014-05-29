@@ -819,6 +819,7 @@ function redhen_donation_form_submit($form, &$form_state) {
 
   // Contact and User handling.
   $contact = $form_state['redhen_contact'];
+
   // Does a contact already exist with that email address?
   $existing_contact = current(redhen_contact_load_by_mail($form_state['values']['email']));
 
@@ -859,6 +860,7 @@ function redhen_donation_form_submit($form, &$form_state) {
   $product = commerce_product_load($product_id);
   $product_wrapper = entity_metadata_wrapper('commerce_product', $product);
   $recurring_product = commerce_recurring_product_is_recurring($product);
+
   // If recurring and no user is found, create user and link to contact.
   if ($user->uid == 0) {
     $existing_user = user_load_by_mail($form_state['values']['email']);
@@ -888,7 +890,6 @@ function redhen_donation_form_submit($form, &$form_state) {
         '%name' => $contact->label(),
       )
     );
-
   }
 
   // Commerce handling.
@@ -980,7 +981,7 @@ function redhen_donation_form_submit($form, &$form_state) {
   }
 
   // Donation entity handling.
-  $donation->author_uid = is_null($contact->uid) ? 0 : $contact->uid;
+  $donation->author_uid = $user->uid;
   $donation->contact_id = $contact->contact_id;
   // TODO: Set to constant?
   $donation->status = 1;
