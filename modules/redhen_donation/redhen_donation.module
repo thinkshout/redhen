@@ -240,13 +240,6 @@ function redhen_donation_menu() {
     }
   }
 
-  $items['redhen/donation/confirmation'] = array(
-    'title' => 'Donation confirmation',
-    'page callback' => 'redhen_donation_default_confirmation',
-    'access callback' => TRUE,
-    'type' => MENU_CALLBACK,
-  );
-
   if (module_exists('devel')) {
     $items['redhen/donation/%redhen_donation/devel'] = array(
       'title' => 'Devel',
@@ -412,13 +405,6 @@ function redhen_donation_donate_page_access($entity_type, $entity) {
   }
 
   return FALSE;
-}
-
-/**
- * Default donation confirmation page.
- */
-function redhen_donation_default_confirmation() {
-  return t('Thank you for your donation.');
 }
 
 /**

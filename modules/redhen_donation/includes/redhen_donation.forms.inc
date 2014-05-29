@@ -114,8 +114,8 @@ function redhen_donation_entity_settings_form($form, &$form_state, $settings, $e
     '#type' => 'textfield',
     '#title' => t('Confirmation page'),
     '#default_value' => $settings['settings']['donation_settings']['confirmation_page'],
-    '#description' => t('Set the URL of the confirmation page. Will default
-      to redhen/donation/confirmation.'),
+    '#description' => t('Set the URL of the confirmation page. If not set,
+      the form will redirect to itself with a "Thank you" message.'),
   );
 
   $form['settings']['donation_entry'] = array(
@@ -1013,11 +1013,11 @@ function redhen_donation_form_submit($form, &$form_state) {
 
   // Save the donation and redirect.
   if (redhen_donation_save($donation)) {
-    drupal_set_message(t('Donation has been saved.'));
+    redhen_set_message(t('Donation has been saved.'));
 
-    drupal_set_message($message);
+    redhen_set_message($message);
     if ($settings['settings']['donation_settings']['confirmation_page'] == '') {
-      drupal_goto('redhen/donation/confirmation');
+      drupal_set_message(t('Thank you for your donation.'));
     }
     else {
       drupal_goto($settings['settings']['donation_settings']['confirmation_page']);
