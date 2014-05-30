@@ -864,6 +864,10 @@ function redhen_donation_form_submit($form, &$form_state) {
     // Set email address.
     redhen_contact_property_email_set($contact, NULL, $form_state['values']['email']);
     $message .= ' ' . t('The contact was updated with the information provided.');
+    watchdog('redhen_donation', 'RedHen Contact %contact_id has been updated..',
+      array('%contact_id' => $contact->contact_id),
+      WATCHDOG_NOTICE
+    );
     redhen_contact_save($contact);
   }
 
@@ -1024,6 +1028,10 @@ function redhen_donation_form_submit($form, &$form_state) {
   // Save the donation and redirect.
   if (redhen_donation_save($donation)) {
     redhen_set_message(t('Donation has been saved.'));
+    watchdog('redhen_donation', 'RedHen Donation %donation_id has been saved.',
+      array('%donation_id' => $donation->donation_id),
+      WATCHDOG_NOTICE
+    );
 
     redhen_set_message($message);
     if ($settings['settings']['donation_settings']['confirmation_page'] == '') {
@@ -1035,6 +1043,11 @@ function redhen_donation_form_submit($form, &$form_state) {
   }
   else {
     drupal_set_message(t('There was a problem submitting your donation.'));
+    watchdog('redhen_donation', 'There was a problem with submitting
+      a RedHen Donation for RedHen Contact %contact_id',
+      array('%contact_id' => $contact->contact_id),
+      WATCHDOG_NOTICE
+    );
   }
 }
 
