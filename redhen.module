@@ -372,3 +372,15 @@ function redhen_format_date($timestamp, $type = 'short') {
 
   return $date;
 }
+
+/**
+ * Redhen set message.
+ *
+ * Wrapper around drupal_set_message(), checks for proper permissions.
+ */
+function redhen_set_message($message = NULL, $type = 'status', $repeat = TRUE) {
+  global $user;
+  if ($user->uid == 1 || user_access('administer redhen', $user)) {
+    drupal_set_message($message, $type, $repeat);
+  }
+}
