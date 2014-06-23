@@ -151,6 +151,10 @@ function redhen_relation_access($op, $entity) {
   return FALSE;
 }
 
+function redhen_relation_role_access($op, $entity = NULL, $account = NULL, $entity_type = NULL) {
+  return user_access('administer relation roles', $account);
+}
+
 /**
  * Page callback for listing connections.
  *
@@ -493,6 +497,45 @@ function redhen_relation_entity_update($entity, $entity_type) {
   }
 }
 
+
+/**
+ * Implements hook_entity_info().
+ */
+function redhen_relation_entity_info() {
+  $entities = array(
+    'redhen_relation_role' => array(
+      'label' => t('RedHen Relation Role'),
+      'plural label' => t('RedHen Relation Roles'),
+      'controller class' => 'RedHenRelationRoleEntityController',
+      'entity class' => 'RedHenRelationRole',
+      'base table' => 'redhen_relation_role',
+      'fieldable' => FALSE,
+      'entity keys' => array(
+        'id' => 'redhen_relation_role_id',
+        'label' => 'label',
+        'name' => 'name',
+      ),
+      'bundles' => array(
+        'redhen_relation_role' => array(
+          'label' => 'RedHen Relation Role',
+        ),
+      ),
+      'admin ui' => array(
+        'path' => 'admin/structure/redhen/relation_roles',
+        'file' => 'redhen_relation_role.forms.inc',
+        'file path' => drupal_get_path('module', 'redhen_relation') . '/includes',
+        'controller class' => 'RedHenRelationRoleUIController',
+      ),
+      'token type' => 'redhen_relation_role',
+      'module' => 'redhen_relation',
+      'access callback' => 'redhen_relation_role_access',
+      'exportable' => TRUE,
+    ),
+  );
+
+  return $entities;
+}
+
 /**
  * Implements hook_entity_info_alter().
  */
@@ -549,4 +592,46 @@ function redhen_relation_get_available_types($entity_type, $bundle) {
   }
 
   return $relation_types;
+}
+
+/**
+ * Returns whether a relation roles name already exists.
+ */
+function redhen_relation_role_name_exists($name, $element, &$form_state) {
+  $relation_role = entity_load('redhen_relation_role', array($name));
+  $relation_role = current($relation_role);
+  if ($relation_role
+    && $relation_role->redhen_relation_role_id !=
+    $form_state['redhen_relation_role']->redhen_relation_role_id) {
+    return TRUE;
+  }
+}
+
+/**
+ * Returns permissions.
+ *
+ * @return array
+ *   Permissions array.
+ */
+function redhen_relation_role_permissions() {
+  $roles = module_invoke_all('redhen_relation_role_permissions');
+  return $roles;
+}
+
+/**
+ * Implements hook_redhen_relation_role_permissions().
+ */
+function redhen_relation_redhen_relation_role_permissions() {
+  $roles = array(
+    'add_relation' => array(
+      'label' => 'Add Relation',
+    ),
+    'edit_relation' => array(
+      'label' => 'Edit Relation',
+    ),
+    'delete_relation' => array(
+      'label' => 'Delete Relation',
+    ),
+  );
+  return $roles;
 }
