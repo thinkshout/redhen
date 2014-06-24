@@ -86,9 +86,10 @@ function redhen_dedupe_merge_form($form, &$form_state, $entity_ids) {
   $properties = entity_get_all_property_info('redhen_contact');
   // Loop through each property and build a form element for it. The form
   // element will be placed into a table in redhen_dedupe_form_table:
+  $master_wrapper = entity_metadata_wrapper('redhen_contact', $contacts[$master_id]);
   foreach ($properties as $name => $property) {
     // Skip property if it does not exist on the master record.
-    if (!isset($contacts[$master_id]->{$name})) {
+    if (!isset($master_wrapper->{$name})) {
       continue;
     }
 
