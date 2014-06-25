@@ -153,6 +153,32 @@ function redhen_relation_access($op, $entity) {
 
 function redhen_relation_role_access($op, $entity = NULL, $account = NULL, $entity_type = NULL) {
   return user_access('administer relation roles', $account);
+/**
+ * @param $account
+ * @param string $permission
+ *
+ * @return array
+ */
+function redhen_relation_role_get_permissions($account, $permission = 'edit_relation') {
+  $return = array();
+  $contact = redhen_contact_load_by_user($account);
+  if ($contact) {
+    $related = redhen_relation_relations($contact, REDHEN_RELATION_AFFILIATION, TRUE);
+
+    $relations = relation_load_multiple(array_keys($related));
+    foreach ($relations as $relation_id => $relation) {
+      $relation_wrapper = entity_metadata_wrapper('relation', $relation);
+      $redhen_relation_role = $relation_wrapper->redhen_relation_roles->value();
+      $redhen_relation_role_wrapper = entity_metadata_wrapper('redhen_relation_role', $redhen_relation_role);
+      $org_id = $related[$relation_id][0]->org_id;
+      $permissions = $redhen_relation_role_wrapper->permissions->value();
+      foreach ($permissions as $permission => $value) {
+        $return[$org_id][$permission] = $value;
+      }
+
+    }
+  }
+  return $return;
 }
 
 /**
