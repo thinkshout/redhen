@@ -187,6 +187,11 @@ function redhen_contact_menu() {
     'weight' => -10,
     'context' => MENU_CONTEXT_PAGE | MENU_CONTEXT_INLINE,
   );
+  $items['redhen/contact/%redhen_contact/view/view'] = array(
+    'title' => 'View',
+    'type' => MENU_DEFAULT_LOCAL_TASK,
+    'weight' => 1,
+  );
   $items['redhen/contact/%redhen_contact/view/edit'] = array(
     'title' => 'Edit',
     'page callback' => 'drupal_get_form',

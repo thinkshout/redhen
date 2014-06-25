@@ -147,13 +147,27 @@ function redhen_org_menu() {
     'page arguments' => array(2),
     'access callback' => 'redhen_org_access',
     'access arguments' => array('view', 2),
-    'weight' => -20,
   );
   $items['redhen/org/%redhen_org/view'] = array(
     'title' => 'Summary',
     'type' => MENU_DEFAULT_LOCAL_TASK,
     'weight' => -20,
     'context' => MENU_CONTEXT_PAGE | MENU_CONTEXT_INLINE,
+  );
+  $items['redhen/org/%redhen_org/view/view'] = array(
+    'title' => 'View',
+    'type' => MENU_DEFAULT_LOCAL_TASK,
+    'weight' => 1,
+  );
+
+  $items['redhen/org/%redhen_org/view/edit'] = array(
+    'title' => 'Edit',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('redhen_org_org_form', 2),
+    'access callback' => 'redhen_org_access',
+    'access arguments' => array('edit', 2),
+    'type' => MENU_LOCAL_TASK,
+    'weight' => 2,
   );
 
   $items['redhen/org/%redhen_org/view/delete'] = array(
@@ -163,15 +177,7 @@ function redhen_org_menu() {
     'access callback' => 'redhen_org_access',
     'access arguments' => array('delete', 2),
     'type' => MENU_LOCAL_TASK,
-    'weight' => 10,
-  );
-  $items['redhen/org/%redhen_org/view/edit'] = array(
-    'title' => 'Edit',
-    'page callback' => 'drupal_get_form',
-    'page arguments' => array('redhen_org_org_form', 2),
-    'access callback' => 'redhen_org_access',
-    'access arguments' => array('edit', 2),
-    'type' => MENU_LOCAL_TASK,
+    'weight' => 3,
   );
 
   $items['redhen/org/%redhen_org/view/archive'] = array(
@@ -181,7 +187,7 @@ function redhen_org_menu() {
     'access callback' => 'redhen_org_access',
     'access arguments' => array('archive', 2),
     'type' => MENU_LOCAL_TASK,
-    'weight' => 9,
+    'weight' => 4,
   );
 
   $items['redhen/org/%redhen_org/primary/%redhen_contact'] = array(
