@@ -372,7 +372,12 @@ function redhen_contact_save(RedhenContact $contact) {
  */
 function redhen_contact_access($op, $contact = NULL, $account = NULL) {
   global $user;
+  $redhen_relation_role_permissions = module_exists('redhen_relation') ?
+    redhen_relation_role_get_permissions($user) : array();
   $account = isset($account) ? $account : $user;
+  $related_orgs = $contact ?
+    redhen_relation_relations($contact, REDHEN_RELATION_AFFILIATION, TRUE) :
+    array();
 
   // If it's already archived, no one can archive it again.
   if (($op == 'archive') && ($contact->redhen_state == REDHEN_STATE_ARCHIVED)) {
@@ -383,17 +388,28 @@ function redhen_contact_access($op, $contact = NULL, $account = NULL) {
     return TRUE;
   }
 
-  if ($op == 'view' && user_access('access redhen contacts', $account)) {
-    return TRUE;
+  foreach ($related_orgs as $relation_id => $org) {
+    $org = current($org);
+    if ($op == 'view' && (user_access('access redhen contacts', $account) ||
+        isset($redhen_relation_role_permissions[$org->org_id]))
+    ) {
+      return TRUE;
+    }
+
+    if (($op == 'edit' || $op == 'archive') &&
+      ((user_access('manage redhen contacts', $account) && ($contact->redhen_state != REDHEN_STATE_ARCHIVED)) ||
+        (isset($redhen_relation_role_permissions[$org->org_id]) && $redhen_relation_role_permissions[$org->org_id]['edit_contact'] !== 0))
+    ) {
+      return TRUE;
+    }
+
+    if (($op == 'create' || $op == 'delete') && (user_access('manage redhen contacts', $account) ||
+        (isset($redhen_relation_role_permissions[$org->org_id]) && $redhen_relation_role_permissions[$org->org_id]['delete_contact'] !== 0))
+    ) {
+      return TRUE;
+    }
   }
 
-  if (($op == 'edit' || $op == 'archive') && user_access('manage redhen contacts', $account) && ($contact->redhen_state != REDHEN_STATE_ARCHIVED)) {
-    return TRUE;
-  }
-
-  if (($op == 'create' || $op == 'delete') && user_access('manage redhen contacts', $account)) {
-    return TRUE;
-  }
 
   if (isset($contact) && is_string($contact) && $op == 'create' && user_access('create ' . $contact . ' contacts', $account)) {
     return TRUE;
@@ -1144,4 +1160,19 @@ function redhen_contact_property_email_set(RedhenContact $contact, $name, $value
  */
 function redhen_contact_rules_file_info() {
   return array('includes/redhen_contact.rules');
+}
+
+/**
+ * Implements hook_redhen_relation_role_permissions().
+ */
+function redhen_contact_redhen_relation_role_permissions() {
+  $roles = array(
+    'edit_contact' => array(
+      'label' => 'Edit Contact',
+    ),
+    'delete_contact' => array(
+      'label' => 'Delete Contact',
+    ),
+  );
+  return $roles;
 }
