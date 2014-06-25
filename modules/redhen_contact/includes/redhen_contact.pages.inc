@@ -155,7 +155,7 @@ function redhen_contact_page() {
       '#contacts' => $contacts,
       '#header' => $header,
       '#rows' => $rows,
-    )
+    ),
   );
 }
 
@@ -180,9 +180,11 @@ function redhen_contact_types_list_page() {
 /**
  * Page callback for adding a contact.
  *
- * @param $type
+ * @param string $type
+ *   The redhen Contact Bundle name to create.
  *
- * @return array|mixed
+ * @return array
+ *   The contact creation form.
  */
 function redhen_contact_add_page($type) {
   $contact = redhen_contact_create(array('type' => $type));
