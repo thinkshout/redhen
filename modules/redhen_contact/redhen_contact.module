@@ -1013,13 +1013,6 @@ function redhen_contact_user_registration_submit($form, &$form_state) {
   $contact = $existing_contact ? current($existing_contact) : $contact;
   // Set user.
   $contact->uid = $uid;
-
-  $message = t('User has been linked to the contact %name.',
-    array(
-      '%name' => $contact->label(),
-    )
-  );
-
   // If set to update fields, do so.
   if (variable_get(REDHEN_CONTACT_REG_UPDATE_FIELDS, FALSE) == TRUE || !empty($contact->is_new)) {
     // Save default parameters back into the $contact object.
@@ -1033,11 +1026,18 @@ function redhen_contact_user_registration_submit($form, &$form_state) {
 
     // Set email address.
     redhen_contact_property_email_set($contact, NULL, $form_state['values']['mail']);
-    $message .= t(' The contact was updated with the information provided.');
+    $message_update = t('The contact was updated with the information provided.');
   }
 
   redhen_contact_save($contact);
-
+  $message = t('User has been linked to the contact %name.',
+    array(
+      '%name' => $contact->label(),
+    )
+  );
+  if (isset($message_update)) {
+    $message .= ' ' . $message_update;
+  }
   // Update form_state contact for later processing.
   $form_state['redhen_contact'] = $contact;
 
