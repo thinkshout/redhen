@@ -70,6 +70,43 @@ function redhen_relation_menu() {
 function redhen_relation_menu_alter(&$items) {
   // Use our own page title callback for relation/X pages.
   $items['relation/%relation']['title callback'] = 'redhen_relation_page_title';
+
+  // Relation menu overrides.
+  $items['relation/%relation/edit']['access arguments'] = array('edit relations', 1);
+  $items['relation/%relation/edit']['access callback'] = 'redhen_relation_entity_access';
+  $items['relation/%relation/delete']['access arguments'] = array('delete relations', 1);
+  $items['relation/%relation/delete']['access callback'] = 'redhen_relation_entity_access';
+}
+
+/**
+ * @param $op
+ * @param $entity
+ *
+ * @return bool
+ */
+function redhen_relation_entity_access($op, $entity) {
+  global $user;
+  $permissions = redhen_relation_role_get_permissions($user);
+  $user_access = user_access('edit relations');
+
+  if (array_key_exists('relation_type', $entity)) {
+    switch ($op) {
+      case 'edit relations':
+        $permission = 'edit_relation';
+        break;
+
+      case 'delete relations':
+        $permission = 'delete_relation';
+        break;
+    }
+    $org = current(current(relation_get_endpoints($entity, 'redhen_org')));
+    if (isset($permissions[$org->org_id]['edit_relation']) &&
+      $permissions[$org->org_id][$permission] !== 0) {
+      $user_access = TRUE;
+    }
+  }
+
+  return $user_access;
 }
 
 /**
@@ -141,18 +178,41 @@ function redhen_relation_permission() {
  *
  * @return bool
  */
-function redhen_relation_access($op, $entity) {
+function redhen_relation_access($op, $entity = NULL) {
+  global $user;
+  $permissions = redhen_relation_role_get_permissions($user);
   $entity_type = $entity->entityType();
   $type = ($entity_type == 'redhen_contact') ? 'contact' : 'org';
   if (entity_access($op, $entity_type, $entity) && user_access("$op redhen $type connections")) {
+    return TRUE;
+  }
+  $entity_class = get_class($entity);
+  if ($entity_class == 'RedhenOrg' && $permissions[$entity->org_id]['add_connection'] !== 0) {
     return TRUE;
   }
 
   return FALSE;
 }
 
+/**
+ * @param $op
+ * @param null $entity
+ * @param null $account
+ * @param null $entity_type
+ *
+ * @return bool
+ */
 function redhen_relation_role_access($op, $entity = NULL, $account = NULL, $entity_type = NULL) {
-  return user_access('administer relation roles', $account);
+  // TODO: Is this ever not true?
+  if ($op == 'view') {
+    return TRUE;
+  }
+  else {
+    return user_access('administer relation roles', $account);
+  }
+
+}
+
 /**
  * @param $account
  * @param string $permission
@@ -571,6 +631,7 @@ function redhen_relation_entity_info_alter(&$entity_info) {
     'label' => t('Teaser'),
     'custom settings' => TRUE,
   );
+  $entity_info['relation']['access callback'] = 'redhen_relation_access';
 }
 
 /**
