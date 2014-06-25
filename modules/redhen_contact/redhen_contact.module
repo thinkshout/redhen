@@ -1021,7 +1021,7 @@ function redhen_contact_user_registration_submit($form, &$form_state) {
   );
 
   // If set to update fields, do so.
-  if (variable_get(REDHEN_CONTACT_REG_UPDATE_FIELDS, FALSE) == TRUE) {
+  if (variable_get(REDHEN_CONTACT_REG_UPDATE_FIELDS, FALSE) == TRUE || !empty($contact->is_new)) {
     // Save default parameters back into the $contact object.
     $contact->first_name = $form_state['values']['first_name'];
     $contact->middle_name = $form_state['values']['middle_name'];
