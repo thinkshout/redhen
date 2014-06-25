@@ -11,7 +11,7 @@ module_load_include('inc', 'redhen', 'includes/redhen.forms');
  * Page callback for org overview page.
  */
 function redhen_org_page() {
-
+  
   // Setup the header for both the query and table.
   $header = array(
     'type' => array(
@@ -45,6 +45,15 @@ function redhen_org_page() {
     $bundle = isset($_GET['bundle']) ? $_GET['bundle'] : '';
     $properties = isset($_GET['properties']) ? $_GET['properties'] : array();
     $fields = isset($_GET['fields']) ? $_GET['fields'] : array();
+
+    // Check Relation Role Permissions if necessary.
+    global $user;
+    if (!user_access('access redhen orgs')) {
+      $redhen_relation_role_permissions = redhen_relation_role_get_permissions($user);
+      $relation_role_orgs['org_id'] = array_keys($redhen_relation_role_permissions);
+      $properties = array_merge($properties, $relation_role_orgs);
+    }
+
     $result = redhen_filter_query('redhen_org', $header, $bundle, $properties, $fields);
   }
 
@@ -82,7 +91,7 @@ function redhen_org_page() {
 
         // Build a list of all the accessible operations for the current org.
         $ops = array();
-        if (redhen_org_access('update', $org)) {
+        if (redhen_org_access('edit', $org)) {
           $ops['edit'] = array(
             'title' => t('edit'),
             'href' => $uri['path'] . '/view/edit',
@@ -119,7 +128,9 @@ function redhen_org_page() {
           );
         }
         else {
-          unset($header['operations']);
+          $rows[$org->org_id]['data']['operations'] = array(
+            'data' => '',
+          );
         }
       }
     }

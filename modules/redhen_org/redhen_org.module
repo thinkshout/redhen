@@ -361,6 +361,8 @@ function redhen_org_save(RedhenOrg $org) {
  */
 function redhen_org_access($op, $org = NULL, $account = NULL) {
   global $user;
+  $redhen_relation_role_permissions = module_exists('redhen_relation') ?
+    redhen_relation_role_get_permissions($user) : array();
   $account = isset($account) ? $account : $user;
 
   // If it's already archived, no one can archive it again.
@@ -372,15 +374,23 @@ function redhen_org_access($op, $org = NULL, $account = NULL) {
     return TRUE;
   }
 
-  if ($op == 'view' && user_access('access redhen orgs', $account)) {
+  if ($op == 'view' && (user_access('access redhen orgs', $account) ||
+    isset($redhen_relation_role_permissions[$org->org_id]))) {
     return TRUE;
   }
 
-  if (($op == 'edit' || $op == 'archive') && user_access('manage redhen orgs', $account) && ($org->redhen_state != REDHEN_STATE_ARCHIVED)) {
+  if (($op == 'edit' || $op == 'archive') &&
+    ((user_access('manage redhen orgs', $account) && $org->redhen_state != REDHEN_STATE_ARCHIVED) ||
+    $redhen_relation_role_permissions[$org->org_id]['edit_org'] !== 0)) {
     return TRUE;
   }
 
-  if (($op == 'create' || $op == 'delete') && user_access('manage redhen orgs', $account)) {
+  if ($op == 'delete' && (user_access('manage redhen orgs', $account) ||
+    $redhen_relation_role_permissions[$org->org_id]['delete_org'] !== 0)) {
+    return TRUE;
+  }
+
+  if ($op == 'create' && user_access('manage redhen orgs', $account)) {
     return TRUE;
   }
 
@@ -585,4 +595,19 @@ function theme_redhen_org_list($variables) {
   );
 
   return render($render);
+}
+
+/**
+ * Implements hook_redhen_relation_role_permissions().
+ */
+function redhen_org_redhen_relation_role_permissions() {
+  $roles = array(
+    'edit_org' => array(
+      'label' => 'Edit Organization',
+    ),
+    'delete_org' => array(
+      'label' => 'Delete Organization',
+    ),
+  );
+  return $roles;
 }
