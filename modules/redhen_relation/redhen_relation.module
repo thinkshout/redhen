@@ -623,8 +623,8 @@ function redhen_relation_role_permissions() {
  */
 function redhen_relation_redhen_relation_role_permissions() {
   $roles = array(
-    'add_relation' => array(
-      'label' => 'Add Relation',
+    'add_connection' => array(
+      'label' => 'Add Connection',
     ),
     'edit_relation' => array(
       'label' => 'Edit Relation',
