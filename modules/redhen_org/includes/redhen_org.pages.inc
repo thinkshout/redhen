@@ -11,7 +11,6 @@ module_load_include('inc', 'redhen', 'includes/redhen.forms');
  * Page callback for org overview page.
  */
 function redhen_org_page() {
-  
   // Setup the header for both the query and table.
   $header = array(
     'type' => array(
