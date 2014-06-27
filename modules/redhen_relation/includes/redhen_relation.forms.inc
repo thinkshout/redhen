@@ -8,35 +8,38 @@
 /**
  * Return a form array for adding/editing a connection.
  *
- * @param $form
- * @param $form_state
+ * @param array $form
+ *   Form array.
+ * @param array $form_state
+ *   Form state array.
  * @param RedhenContact|RedhenOrg $entity
- * @param stdClass $relation
+ *   Entity object.
  *
- * @return array
+ * @return mixed
+ *   Form array.
  */
 function redhen_relation_connection_form($form, &$form_state, $entity) {
   $relation_types = redhen_relation_get_available_types($entity->entityType(), $entity->bundle(), 'both');
 
-  // there are no valid relation types for this entity, so exit w/message.
+  // There are no valid relation types for this entity, so exit w/message.
   if (empty($relation_types)) {
     $form['message'] = array(
-      '#markup' => t('%label has no valid relation types so a connection cannot be made.', array('%label' => $entity->label()))
+      '#markup' => t('%label has no valid relation types so a connection cannot be made.', array('%label' => $entity->label())),
     );
     return $form;
   }
 
-  // instantiate new relation based on default or submitted relation type
+  // Instantiate new relation based on default or submitted relation type.
   $relation_type = isset($form_state['values']['relation_type']) ?
     $form_state['values']['relation_type'] :
     reset($relation_types)->relation_type;
   $relation = relation_create($relation_type, array());
 
-  // store contact and relation entities for use on submit
+  // Store contact and relation entities for use on submit.
   $form_state['entity'] = $entity;
   $form_state['relation'] = $relation;
 
-  // load all available relation types
+  // Load all available relation types.
   $options = array();
   foreach ($relation_types as $type) {
     list($endpoint_entity_type) = explode(':', $type->source_bundles[0]);
@@ -56,13 +59,13 @@ function redhen_relation_connection_form($form, &$form_state, $entity) {
       'effect' => 'fade',
       'progress' => array(
         'type' => 'throbber',
-        'message' => t('Retrieving fields for this connection type.')
-      )
+        'message' => t('Retrieving fields for this connection type.'),
+      ),
     ),
-    '#description' => t('Connections are only allowed between contacts and organizations.')
+    '#description' => t('Connections are only allowed between contacts and organizations.'),
   );
 
-  // determine the entity type we're going to relate to
+  // Determine the entity type we're going to relate to.
   $active_relation_type = $relation_types[$relation_type];
   $entity_type_to_relate = '';
   if (!empty($active_relation_type->target_bundles)) {
@@ -80,7 +83,7 @@ function redhen_relation_connection_form($form, &$form_state, $entity) {
 
   $form['fields'] = array(
     '#type' => 'fieldset',
-    '#id' => 'redhen_relation_fields'
+    '#id' => 'redhen_relation_fields',
   );
   // Attach any fields.
   field_attach_form('relation', $relation, $form['fields'], $form_state);
