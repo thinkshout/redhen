@@ -132,27 +132,29 @@ function redhen_relation_install() {
   }
 
   // Add relation role field.
-  $field = array(
+  $role_field = array(
     'field_name' => REDHEN_RELATION_ROLES_FIELD,
-    'type' => 'entityreference',
+    'type' => 'list_text',
+    'locked' => TRUE,
     'cardinality' => 1,
     'settings' => array(
-      'target_type' => 'redhen_relation_role',
-      'target_bundles' => array('redhen_relation_role'),
-    ),
+      'allowed_values' => array('Admin', 'Member')
+    )
   );
-  field_create_field($field);
-  $instance = array(
+  field_create_field($role_field);
+
+  field_create_instance(array(
     'field_name' => REDHEN_RELATION_ROLES_FIELD,
     'entity_type' => 'relation',
     'bundle' => REDHEN_RELATION_AFFILIATION,
-    'required' => 1,
     'label' => 'Organization Role',
+    'required' => 1,
+    'default_value' => array(array('value' => 1)),
     'widget' => array(
       'type' => 'options_select',
     ),
-  );
-  field_create_instance($instance);
+    'description' => t('This is a placeholder field to control what actions a contact in an organization can perform. Access control to be implemented.')
+  ));
 
   entity_info_cache_clear();
 
@@ -215,6 +217,45 @@ function redhen_relation_uninstall() {
 
   // delete status field
   field_delete_field('redhen_relation_status');
+
+  entity_info_cache_clear();
+}
+
+/**
+ * Remove old relation role field and add new.
+ */
+function redhen_relation_update_7001() {
+  // Remove old relation role field.
+  $instance = field_info_instance(
+    'relation',
+    REDHEN_RELATION_ROLES_FIELD,
+    REDHEN_RELATION_AFFILIATION
+  );
+  field_delete_instance($instance, $field_cleanup = TRUE);
+  field_delete_field(REDHEN_RELATION_ROLES_FIELD);
+  field_purge_batch(5);
+  // Add new relation role field.
+  $field = array(
+    'field_name' => REDHEN_RELATION_ROLES_FIELD,
+    'type' => 'entityreference',
+    'cardinality' => 1,
+    'settings' => array(
+      'target_type' => 'redhen_relation_role',
+      'target_bundles' => array('redhen_relation_role'),
+    ),
+  );
+  field_create_field($field);
+  $instance = array(
+    'field_name' => REDHEN_RELATION_ROLES_FIELD,
+    'entity_type' => 'relation',
+    'bundle' => REDHEN_RELATION_AFFILIATION,
+    'required' => 1,
+    'label' => 'Organization Role',
+    'widget' => array(
+      'type' => 'options_select',
+    ),
+  );
+  field_create_instance($instance);
 
   entity_info_cache_clear();
 }
