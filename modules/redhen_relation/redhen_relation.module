@@ -79,12 +79,12 @@ function redhen_relation_menu_alter(&$items) {
   // Relation menu overrides.
   $items['relation/%relation/edit']['access arguments'] = array(
     'edit relations',
-    1
+    1,
   );
   $items['relation/%relation/edit']['access callback'] = 'redhen_relation_entity_access';
   $items['relation/%relation/delete']['access arguments'] = array(
     'delete relations',
-    1
+    1,
   );
   $items['relation/%relation/delete']['access callback'] = 'redhen_relation_entity_access';
 }
@@ -532,7 +532,7 @@ function redhen_relation_get_available_entities($entity, $entity_type_to_relate,
 
   if (!in_array($entity_type_to_relate, array(
     'redhen_contact',
-    'redhen_org'
+    'redhen_org',
   ))
   ) {
     return $entities;
