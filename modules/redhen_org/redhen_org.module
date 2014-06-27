@@ -374,6 +374,11 @@ function redhen_org_access($op, $org = NULL, $account = NULL) {
     return TRUE;
   }
 
+  if ($op == 'access redhen orgs' && (user_access('access redhen orgs', $account) ||
+    !empty($redhen_relation_role_permissions))) {
+    return TRUE;
+  }
+
   if ($op == 'view' && (user_access('access redhen orgs', $account) ||
     isset($redhen_relation_role_permissions[$org->org_id]))) {
     return TRUE;
