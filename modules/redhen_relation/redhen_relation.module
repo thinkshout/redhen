@@ -99,9 +99,11 @@ function redhen_relation_entity_access($op, $entity) {
         $permission = 'delete_relation';
         break;
     }
-    $org = current(current(relation_get_endpoints($entity, 'redhen_org')));
-    if (isset($permissions[$org->org_id]['edit_relation']) &&
-      $permissions[$org->org_id][$permission] !== 0) {
+    $relation = relation_get_endpoints($entity, 'redhen_org');
+    $org = $relation ? current(current($relation)) : array();
+    if ($relation && isset($permissions[$org->org_id]['edit_relation']) &&
+      $permissions[$org->org_id][$permission] !== 0
+    ) {
       $user_access = TRUE;
     }
   }
@@ -342,20 +344,21 @@ function redhen_relation_connections_page($entity) {
 
         // Build a list of all the accessible operations for the current relation.
         $ops = array();
+        if (user_access('access relations')) {
+          $ops['view'] = array(
+            'title' => t('view'),
+            'href' => $relation_uri['path'],
+          );
+        }
 
-        $ops['view'] = array(
-          'title' => t('view'),
-          'href' => $relation_uri['path'],
-        );
-
-        if (redhen_relation_access('edit', $entity)) {
+        if (redhen_relation_entity_access('edit relations', $relation)) {
           $ops['edit'] = array(
             'title' => t('edit'),
             'href' => $relation_uri['path'] . '/edit',
             'query' => $destination,
           );
         }
-        if (redhen_relation_access('delete', $entity)) {
+        if (redhen_relation_entity_access('delete relations', $relation)) {
           $ops['delete'] = array(
             'title' => t('delete'),
             'href' => $relation_uri['path'] . '/delete',
