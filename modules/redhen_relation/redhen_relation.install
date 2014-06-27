@@ -100,7 +100,7 @@ function redhen_relation_install() {
     relation_type_save($relation_type);
   }
 
-  // add relation status field
+  // Add relation status field.
   $status_field = array(
     'field_name' => REDHEN_RELATION_STATUS_FIELD,
     'type' => 'list_boolean',
@@ -184,38 +184,38 @@ function redhen_relation_install() {
 }
 
 /**
- * Implements hook_uninstall()
+ * Implements hook_uninstall().
  */
 function redhen_relation_uninstall() {
 
-  // get all the relationship_types (bundles), find all fields
-  // delete them
-  $query = db_select('relation_bundles', 'rb')->
-    fields('rb', array('relation_type'))->
-    condition('rb.entity_type', 'redhen_contact')->
-    distinct()->
-    execute();
+  // Get all the relationship_types (bundles), find all fields
+  // delete them.
+  $query = db_select('relation_bundles', 'rb')
+    ->fields('rb', array('relation_type'))
+    ->condition('rb.entity_type', 'redhen_contact')
+    ->distinct()
+    ->execute();
 
   while ($record = $query->fetchAssoc()) {
     $relationship_type[] = $record['relation_type'];
   }
 
   foreach ($relationship_type as $type) {
-    // look into the database for each type
-    $relationship_query = db_select('relation', 'r')->
-      fields('r', array('rid'))->
-      condition('r.relation_type', $type)->
-      execute();
+    // Look into the database for each type.
+    $relationship_query = db_select('relation', 'r')
+      ->fields('r', array('rid'))
+      ->condition('r.relation_type', $type)
+      ->execute();
 
     while ($result = $relationship_query->fetchAssoc()) {
-      // delete all the relationships of that type
+      // Delete all the relationships of that type.
       relation_delete($result['rid']);
     }
-    // finally delete the relationshp_type
+    // Finally delete the relationshp_type.
     relation_type_delete($type);
   }
 
-  // delete status field
+  // Delete status field.
   field_delete_field('redhen_relation_status');
 
   entity_info_cache_clear();
