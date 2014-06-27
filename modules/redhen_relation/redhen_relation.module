@@ -258,6 +258,7 @@ function redhen_relation_connections_page($entity) {
       'connection' => t('Connection'),
       'type' => t('Type'),
       'name' => t('Name'),
+      'role' => t('Role'),
       'status' => t('Status'),
       'created' => t('Created'),
       'author' => t('Author'),
@@ -272,6 +273,7 @@ function redhen_relation_connections_page($entity) {
     $destination = drupal_get_destination();
     foreach ($related as $relation_id => $related_entities) {
       $relation = relation_load($relation_id);
+      $relation_wrapper = entity_metadata_wrapper('relation', $relation);
       $relation_uri = entity_uri('relation', $relation);
 
       $reversed = FALSE;
@@ -312,6 +314,7 @@ function redhen_relation_connections_page($entity) {
               '#href' => $object_uri['path'],
             ),
           ),
+          'role' => isset($relation_wrapper->redhen_relation_roles) ? $relation_wrapper->redhen_relation_roles->label->value() : 'N/A',
           'active' => $active,
           'created' => date('m/d/Y', $relation->created),
           'author' => $author->name,
