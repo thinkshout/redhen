@@ -479,8 +479,14 @@ function redhen_fields_field_widget_info() {
 function redhen_fields_field_widget_form(&$form, &$form_state, $field, $instance, $langcode, $items, $delta, $element) {
   switch ($instance['widget']['type']) {
     case 'redhen_email_widget':
+      $field_class = drupal_html_class($field['type']);
+      if ($field['cardinality'] == 1) {
+        $element_class = $field_class . '-single-value';
+        $element['#prefix'] = '<div class="'. $element_class . '">';
+        $element['#suffix'] = '</div>';
+      }
       $element['value'] = array(
-        '#title' => t('Email address'),
+        '#title' => t("@label", array('@label' => $instance['label'])),
         '#type' => 'textfield',
         '#default_value' => isset($items[$delta]['value']) ? $items[$delta]['value'] : NULL,
         '#size' => 35,
@@ -492,22 +498,24 @@ function redhen_fields_field_widget_form(&$form, &$form_state, $field, $instance
         '#type' => 'container',
         '#attributes' => array(
           'class' => array(
-            drupal_html_class($field['type']) . '-options',
+            $field_class . '-options',
           ),
         ),
         '#weight' => 1,
         '#process' => $process,
       );
-      $label_options[0] = '- None -';
-      $label_options = $label_options + $field['settings']['labels'];
-      $element['options']['label_id'] = array(
-        '#title' => t('Label'),
-        '#type' => 'select',
-        '#multiple' => FALSE,
-        '#options' => $label_options,
-        '#default_value' => isset($items[$delta]['label_id']) ? $items[$delta]['label_id'] : 0,
-        '#weight' => 1,
-      );
+      if (!empty($field['settings']['labels'])) {
+        $label_options[0] = '- None -';
+        $label_options = $label_options + $field['settings']['labels'];
+        $element['options']['label_id'] = array(
+          '#title' => t('Label'),
+          '#type' => 'select',
+          '#multiple' => FALSE,
+          '#options' => $label_options,
+          '#default_value' => isset($items[$delta]['label_id']) ? $items[$delta]['label_id'] : 0,
+          '#weight' => 1,
+        );
+      }
       $element['options']['hold'] = array(
         '#title' => t('Hold'),
         '#type' => 'checkbox',
