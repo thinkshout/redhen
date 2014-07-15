@@ -3,7 +3,7 @@
 /**
  * RedHen Relation Role UI controller.
  */
-class RedHenRelationRoleUIController extends EntityDefaultUIController {
+class RedhenRelationRoleUIController extends EntityDefaultUIController {
 
   /**
    * Overrides hook_menu() defaults.

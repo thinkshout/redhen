@@ -7,7 +7,7 @@
 /**
  * The class used for relation role entities.
  */
-class RedHenRelationRole extends Entity {
+class RedhenRelationRole extends Entity {
 
   // @codingStandardsIgnoreStart
   public

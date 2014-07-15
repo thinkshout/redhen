@@ -9,7 +9,7 @@
  * The controller class for contact types contains methods for CRUD
  * operations. The load method is inherited from the default controller.
  */
-class RedHenRelationRoleEntityController extends EntityAPIControllerExportable {
+class RedhenRelationRoleEntityController extends EntityAPIControllerExportable {
   /**
    * Saves an relation role.
    *

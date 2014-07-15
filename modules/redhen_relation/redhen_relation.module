@@ -640,8 +640,8 @@ function redhen_relation_entity_info() {
     'redhen_relation_role' => array(
       'label' => t('RedHen Relation Role'),
       'plural label' => t('RedHen Relation Roles'),
-      'controller class' => 'RedHenRelationRoleEntityController',
-      'entity class' => 'RedHenRelationRole',
+      'controller class' => 'RedhenRelationRoleEntityController',
+      'entity class' => 'RedhenRelationRole',
       'base table' => 'redhen_relation_role',
       'fieldable' => FALSE,
       'entity keys' => array(
@@ -658,7 +658,7 @@ function redhen_relation_entity_info() {
         'path' => 'admin/structure/redhen/relation_roles',
         'file' => 'redhen_relation_role.forms.inc',
         'file path' => drupal_get_path('module', 'redhen_relation') . '/includes',
-        'controller class' => 'RedHenRelationRoleUIController',
+        'controller class' => 'RedhenRelationRoleUIController',
       ),
       'token type' => 'redhen_relation_role',
       'module' => 'redhen_relation',

@@ -7,12 +7,12 @@ dependencies[] = redhen_contact
 dependencies[] = redhen_org
 dependencies[] = relation
 dependencies[] = relation_ui
-dependencies[] = list
+dependencies[] = entityreference
 
+files[] = lib/redhen_relation_role.controller.inc
+files[] = lib/redhen_relation_role.entity.inc
+files[] = lib/redhen_relation_role.ui_controller.inc
+files[] = includes/redhen_relation_role.forms.inc
 files[] = includes/redhen_relation.forms.inc
 files[] = includes/views/redhen_relation_handler_field_primary_contact.inc
 files[] = includes/views/redhen_relation_handler_sort_primary_contact.inc
-files[] = includes/redhen_relation_role.forms.inc
-files[] = lib/redhen_relation_role.entity.inc
-files[] = lib/redhen_relation_role.controller.inc
-files[] = lib/redhen_relation_role.ui_controller.inc
