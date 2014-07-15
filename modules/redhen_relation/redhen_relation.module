@@ -200,16 +200,18 @@ function redhen_relation_permission() {
  * @return bool
  *   Access grant.
  */
-function redhen_relation_access($op, $entity = NULL) {
+function redhen_relation_access($op, $entity = NULL, $account = NULL, $entity_type = NULL) {
   global $user;
-  $permissions = redhen_relation_role_get_permissions($user);
-  $entity_type = $entity->entityType();
+
+  $account = isset($account) ? $account : $user;
+  $permissions = redhen_relation_role_get_permissions($account);
+  $entity_type = ($entity_type) ? $entity_type : $entity->entityType();
   $type = ($entity_type == 'redhen_contact') ? 'contact' : 'org';
   if (entity_access($op, $entity_type, $entity) && user_access("$op redhen $type connections")) {
     return TRUE;
   }
-  $entity_class = get_class($entity);
-  if (($op == 'edit' || $op == 'view') && $entity_class == 'RedhenOrg' && isset($permissions[$entity->org_id]) && $permissions[$entity->org_id]['add_connection'] !== 0) {
+
+  if (($op == 'edit' || $op == 'view') && $entity_type == 'redhen_org' && isset($permissions[$entity->org_id]) && $permissions[$entity->org_id]['add_connection'] !== 0) {
     return TRUE;
   }
 
