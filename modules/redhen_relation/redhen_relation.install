@@ -326,4 +326,28 @@ function redhen_relation_update_7101() {
   field_create_instance($instance);
 
   entity_info_cache_clear();
+
+  // Create default Admin and Member roles.
+  $default_roles = array(
+    'admin' => array(
+      'name' => 'admin',
+      'label' => 'Admin',
+      'permissions' => array(
+        'add_relation' => 'add_relation',
+        'edit_relation' => 'edit_relation',
+        'delete_relation' => 'delete_relation',
+      ),
+      'default_role' => 0,
+    ),
+    'member' => array(
+      'name' => 'member',
+      'label' => 'Member',
+      'permissions' => array(),
+      'default_role' => 1,
+    ),
+  );
+  foreach ($default_roles as $default_role) {
+    $relation_role = entity_create('redhen_relation_role', $default_role);
+    $relation_role->save();
+  }
 }
