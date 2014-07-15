@@ -134,12 +134,12 @@ function redhen_relation_install() {
   // Add relation role field.
   $role_field = array(
     'field_name' => REDHEN_RELATION_ROLES_FIELD,
-    'type' => 'list_text',
-    'locked' => TRUE,
+    'type' => 'entityreference',
     'cardinality' => 1,
     'settings' => array(
-      'allowed_values' => array('Admin', 'Member')
-    )
+      'target_type' => 'redhen_relation_role',
+      'target_bundles' => array('redhen_relation_role'),
+    ),
   );
   field_create_field($role_field);
 
@@ -153,12 +153,11 @@ function redhen_relation_install() {
     'widget' => array(
       'type' => 'options_select',
     ),
-    'description' => t('This is a placeholder field to control what actions a contact in an organization can perform. Access control to be implemented.')
   ));
 
   entity_info_cache_clear();
 
-  // Create default Amdin and Member roles.
+  // Create default Admin and Member roles.
   $default_roles = array(
     'admin' => array(
       'name' => 'admin',
