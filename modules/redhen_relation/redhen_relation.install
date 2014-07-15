@@ -226,6 +226,71 @@ function redhen_relation_uninstall() {
  */
 function redhen_relation_update_7001() {
 function redhen_relation_update_7101() {
+
+  // Install redhen_relation_role schema.
+  $relation_role_schema = array(
+    'description' => 'RedHen Relation Role.',
+    'fields' => array(
+      'redhen_relation_role_id' => array(
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'description' => 'The redhen relation role ID.',
+      ),
+      'name' => array(
+        'type' => 'varchar',
+        'length' => 128,
+        'not null' => TRUE,
+        'description' => 'The machine name of the redhen relation role.',
+      ),
+      'label' => array(
+        'type' => 'varchar',
+        'length' => 128,
+        'not null' => TRUE,
+        'description' => 'The human readable name of the redhen relation role.',
+      ),
+      'default_role' => array(
+        'type' => 'int',
+        'size' => 'tiny',
+        'not null' => FALSE,
+        'default' => 1,
+        'description' => 'Default role.',
+      ),
+      'permissions' => array(
+        'type' => 'text',
+        'not null' => FALSE,
+        'size' => 'big',
+        'serialize' => TRUE,
+        'description' => 'A serialized array of permissions.',
+      ),
+      'status' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+        // Set the default to ENTITY_CUSTOM without using the constant as it is
+        // not safe to use it at this point.
+        'default' => 0x01,
+        'size' => 'tiny',
+        'description' => 'The exportable status of the entity.',
+      ),
+      'module' => array(
+        'description' => 'The name of the providing module if the entity has been defined in code.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => FALSE,
+      ),
+    ),
+    'indexes' => array(
+      'redhen_relation_role_name' => array('name'),
+      'redhen_relation_role_default_role' => array('default_role'),
+    ),
+    'primary key' => array('redhen_relation_role_id'),
+    'unique keys' => array(
+      'name' => array('name'),
+    ),
+  );
+
+  db_create_table('redhen_relation_role', $relation_role_schema);
+
   // Remove old relation role field.
   $instance = field_info_instance(
     'relation',
@@ -235,6 +300,7 @@ function redhen_relation_update_7101() {
   field_delete_instance($instance, $field_cleanup = TRUE);
   field_delete_field(REDHEN_RELATION_ROLES_FIELD);
   field_purge_batch(5);
+
   // Add new relation role field.
   $field = array(
     'field_name' => REDHEN_RELATION_ROLES_FIELD,
