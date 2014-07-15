@@ -55,6 +55,7 @@ function redhen_relation_role_form($form, &$form_state, $redhen_relation_role, $
       '#type' => 'checkbox',
       '#default_value' => isset($redhen_relation_role->default_role) ?
       $redhen_relation_role->default_role : 0,
+      '#description' => t('If selected, this role will be the default for new RedHen affiliations.'),
     );
   }
 
@@ -69,12 +70,13 @@ function redhen_relation_role_form($form, &$form_state, $redhen_relation_role, $
     '#options' => $options,
     '#default_value' => isset($redhen_relation_role->permissions) ?
     $redhen_relation_role->permissions : array(),
+    '#description' => t('Optional special permissions to grant this role.'),
   );
 
   $form['actions'] = array('#type' => 'actions');
   $form['actions']['submit'] = array(
     '#type' => 'submit',
-    '#value' => t('Save Relation role'),
+    '#value' => t('Save relation role'),
     '#weight' => 40,
   );
 
