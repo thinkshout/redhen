@@ -224,7 +224,6 @@ function redhen_relation_uninstall() {
 /**
  * Remove old relation role field and add new.
  */
-function redhen_relation_update_7001() {
 function redhen_relation_update_7101() {
 
   // Install redhen_relation_role schema.
