@@ -49,7 +49,14 @@ function redhen_org_page() {
     global $user;
     if (!user_access('access redhen orgs')) {
       $redhen_relation_role_permissions = redhen_relation_role_get_permissions($user);
-      $relation_role_orgs['org_id'] = array_keys($redhen_relation_role_permissions);
+      if (count($redhen_relation_role_permissions) > 0) {
+        $org_ids = array_keys($redhen_relation_role_permissions);
+      }
+      else {
+        // No allowed organizations.
+        $org_ids = -1;
+      }
+      $relation_role_orgs['org_id'] = $org_ids;
       $properties = array_merge($properties, $relation_role_orgs);
     }
 
