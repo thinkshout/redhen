@@ -265,7 +265,7 @@ function redhen_contact_menu() {
   $items['redhen/contact/%redhen_contact/revisions/%redhen_contact_revision/delete'] = array(
     'title' => 'Delete',
     'page callback' => 'drupal_get_form',
-    'page arguments' => array('redhen_contact_contact_delete_revision_form', 4),
+    'page arguments' => array('redhen_contact_contact_delete_form', 4),
     'access callback' => 'redhen_contact_access',
     'access arguments' => array('delete', 4),
     'type' => MENU_LOCAL_TASK,
