@@ -173,6 +173,58 @@ function redhen_org_add_page($type) {
 }
 
 /**
+ * Page callback for listing org revisions.
+ *
+ * @param Entity $org
+ *   The org entity.
+ *
+ * @return array
+ *   A renderable array.
+ */
+function redhen_org_revision_list(Entity $org) {
+  drupal_set_title(t('Revisions for %title', array('%title' => $org->label())), PASS_THROUGH);
+
+  $header = array(t('Revision'), array('data' => t('Operations'), 'colspan' => 2));
+  // There is no way to list revisions using EFQ, thus use a direct SQL query.
+  $revision_ids = db_select('redhen_org_revision', 'r')
+    ->fields('r', array('revision_id'))
+    ->condition('org_id', $org->org_id)
+    ->orderBy('updated', 'DESC')
+    ->execute()
+    ->fetchCol();
+
+  $rows = array();
+  foreach ($revision_ids as $revision_id) {
+    $row = array();
+    $operations = array();
+    $revision = entity_revision_load('redhen_org', $revision_id);
+
+    if ($revision->isDefaultRevision()) {
+      $row[] = array('data' => t('!date by !username', array('!date' => l(format_date($revision->updated, 'short'), "redhen/org/$revision->org_id"), '!username' => theme('username', array('account' => user_load($revision->author_uid))))),
+        'class' => array('revision-default'));
+      $operations[] = array('data' => drupal_placeholder(t('default revision')), 'class' => array('revision-default'), 'colspan' => 2);
+    }
+    else {
+      $row[] = t('!date by !username', array('!date' => l(format_date($revision->updated, 'short'), "redhen/org/$revision->org_id/revisions/$revision->revision_id/view"), '!username' => theme('username', array('account' => user_load($revision->author_uid)))));
+      if (redhen_org_access('edit', $revision)) {
+        $operations[] = l(t('edit'), "redhen/org/$revision->org_id/revisions/$revision->revision_id/edit");
+      }
+      if (redhen_org_access('delete', $revision)) {
+        $operations[] = l(t('delete'), "redhen/org/$revision->org_id/revisions/$revision->revision_id/delete");
+      }
+    }
+    $rows[] = array_merge($row, $operations);
+  }
+
+  $build['revisions_table'] = array(
+    '#theme' => 'table',
+    '#rows' => $rows,
+    '#header' => $header,
+  );
+  return $build;
+}
+
+/**
  * Autocomplete helper
  *
  * @param $string

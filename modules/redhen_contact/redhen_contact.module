@@ -228,6 +228,50 @@ function redhen_contact_menu() {
     'file' => 'includes/redhen_contact.forms.inc',
     'weight' => 4,
   );
+  $items['redhen/contact/%redhen_contact/revisions'] = array(
+    'title' => 'Revisions',
+    'type' => MENU_LOCAL_TASK,
+    'page callback' => 'redhen_contact_revision_list',
+    'page arguments' => array(2),
+    'access callback' => 'user_access',
+    'access arguments' => array('view redhen contact revisions'),
+    'file' => 'includes/redhen_contact.pages.inc',
+    'weight' => 4,
+  );
+  $items['redhen/contact/%redhen_contact/revisions/%redhen_contact_revision'] = array(
+    'title callback' => 'redhen_contact_contact_title',
+    'title arguments' => array(4),
+    'page callback' => 'redhen_contact_view',
+    'page arguments' => array(4),
+    'access callback' => 'redhen_contact_access',
+    'access arguments' => array('view', 4),
+  );
+  $items['redhen/contact/%redhen_contact/revisions/%redhen_contact_revision/view'] = array(
+    'title' => 'Summary',
+    'type' => MENU_DEFAULT_LOCAL_TASK,
+    'weight' => -10,
+    'context' => MENU_CONTEXT_PAGE | MENU_CONTEXT_INLINE,
+  );
+  $items['redhen/contact/%redhen_contact/revisions/%redhen_contact_revision/edit'] = array(
+    'title' => 'Edit',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('redhen_contact_contact_form', 4),
+    'access callback' => 'redhen_contact_access',
+    'access arguments' => array('edit', 4),
+    'type' => MENU_LOCAL_TASK,
+    'file' => 'includes/redhen_contact.forms.inc',
+    'weight' => 2,
+  );
+  $items['redhen/contact/%redhen_contact/revisions/%redhen_contact_revision/delete'] = array(
+    'title' => 'Delete',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('redhen_contact_contact_delete_revision_form', 4),
+    'access callback' => 'redhen_contact_access',
+    'access arguments' => array('delete', 4),
+    'type' => MENU_LOCAL_TASK,
+    'file' => 'includes/redhen_contact.forms.inc',
+    'weight' => 5,
+  );
 
   if (module_exists('devel')) {
     $items['redhen/contact/%redhen_contact/devel'] = array(
@@ -325,6 +369,16 @@ function redhen_contact_load_multiple($contact_ids = array(), $conditions = arra
 }
 
 /**
+ * Loads a contact revision by ID.
+ */
+function redhen_contact_revision_load($revision_id) {
+  if (empty($revision_id)) {
+    return FALSE;
+  }
+  return entity_revision_load('redhen_contact', $revision_id);
+}
+
+/**
  * Deletes multiple contacts by ID.
  *
  * @param array $contact_ids
@@ -378,6 +432,22 @@ function redhen_contact_access($op, $contact = NULL, $account = NULL) {
     return TRUE;
   }
 
+  // Handle revisions.
+  if (isset($contact) && !$contact->isDefaultRevision()) {
+    if ($op == 'view' && user_access('view redhen contact revisions', $account)) {
+      return TRUE;
+    }
+
+    if ($op == 'edit' && user_access('edit redhen contact revisions', $account) && ($contact->redhen_state != REDHEN_STATE_ARCHIVED)) {
+      return TRUE;
+    }
+
+    if ($op == 'delete' && user_access('delete redhen contact revisions', $account)) {
+      return TRUE;
+    }
+    return FALSE;
+  }
+
   if ($op == 'view' && user_access('access redhen contacts', $account)) {
     return TRUE;
   }
@@ -425,6 +495,15 @@ function redhen_contact_permission() {
     'edit own redhen contact' => array(
       'title' => t('Edit Own Redhen Contact.'),
       'description' => t('Edit your own contact information.'),
+    ),
+    'view redhen contact revisions' => array(
+      'title' => t('View Redhen Contact revisions'),
+    ),
+    'edit redhen contact revisions' => array(
+      'title' => t('Edit Redhen Contact revisions'),
+    ),
+    'delete redhen contact revisions' => array(
+      'title' => t('Delete Redhen Contact revisions'),
     ),
   );
 }

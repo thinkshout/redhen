@@ -110,10 +110,18 @@ function redhen_org_org_delete_form($form, &$form_state, $org) {
 function redhen_org_org_delete_form_submit($form, &$form_state) {
   $org = $form_state['redhen_org'];
 
-  redhen_org_delete_multiple(array($org->org_id));
-  drupal_set_message(t('%label has been deleted.', array('%label' => $org->label)));
-  watchdog('redhen_org', 'Deleted organization %label.', array('%label' => $org->label), WATCHDOG_NOTICE);
-  $form_state['redirect'] = 'redhen/org';
+  if ($org->isDefaultRevision()) {
+    redhen_org_delete_multiple(array($org->org_id));
+    drupal_set_message(t('%label has been deleted.', array('%label' => $org->label)));
+    watchdog('redhen_org', 'Deleted organization %label.', array('%label' => $org->label), WATCHDOG_NOTICE);
+    $form_state['redirect'] = 'redhen/org';
+  }
+  else {
+    entity_revision_delete('redhen_org', $org->revision_id);
+    drupal_set_message(t('Revision %label has been deleted.', array('%label' => $org->label)));
+    watchdog('redhen_org', 'Deleted organization revision %label.', array('%label' => $org->label), WATCHDOG_NOTICE);
+    $form_state['redirect'] = 'redhen/org/' . $org->org_id . '/revisions';
+  }
 }
 
 /**

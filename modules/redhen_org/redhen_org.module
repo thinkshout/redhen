@@ -183,7 +183,48 @@ function redhen_org_menu() {
     'type' => MENU_LOCAL_TASK,
     'weight' => 9,
   );
-
+  $items['redhen/org/%redhen_org/revisions'] = array(
+    'title' => 'Revisions',
+    'type' => MENU_LOCAL_TASK,
+    'page callback' => 'redhen_org_revision_list',
+    'page arguments' => array(2),
+    'access callback' => 'user_access',
+    'access arguments' => array('access redhen orgs'),
+    'file' => 'includes/redhen_org.pages.inc',
+    'weight' => 4,
+  );
+  $items['redhen/org/%redhen_org/revisions/%redhen_org_revision'] = array(
+    'title callback' => 'redhen_org_org_title',
+    'title arguments' => array(4),
+    'page callback' => 'redhen_org_view',
+    'page arguments' => array(4),
+    'access callback' => 'redhen_org_access',
+    'access arguments' => array('view', 4),
+  );
+  $items['redhen/org/%redhen_org/revisions/%redhen_org_revision/view'] = array(
+    'title' => 'Summary',
+    'type' => MENU_DEFAULT_LOCAL_TASK,
+    'weight' => -10,
+    'context' => MENU_CONTEXT_PAGE | MENU_CONTEXT_INLINE,
+  );
+  $items['redhen/org/%redhen_org/revisions/%redhen_org_revision/edit'] = array(
+    'title' => 'Edit',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('redhen_org_org_form', 4),
+    'access callback' => 'redhen_org_access',
+    'access arguments' => array('edit', 4),
+    'type' => MENU_LOCAL_TASK,
+    'weight' => 2,
+  );
+  $items['redhen/org/%redhen_org/revisions/%redhen_org_revision/delete'] = array(
+    'title' => 'Delete',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('redhen_org_org_delete_form', 4),
+    'access callback' => 'redhen_org_access',
+    'access arguments' => array('delete', 4),
+    'type' => MENU_LOCAL_TASK,
+    'weight' => 10,
+  );
   $items['redhen/org/%redhen_org/primary/%redhen_contact'] = array(
     'title callback' => 'Change primary contact',
     'page callback' => 'drupal_get_form',
@@ -300,6 +341,16 @@ function redhen_org_load_multiple($org_ids = array(), $conditions = array(), $re
 }
 
 /**
+ * Loads an org revision by ID.
+ */
+function redhen_org_revision_load($revision_id) {
+  if (empty($revision_id)) {
+    return FALSE;
+  }
+  return entity_revision_load('redhen_org', $revision_id);
+}
+
+/**
  * Deletes multiple orgs by ID.
  *
  * @param array $org_ids
@@ -366,6 +417,21 @@ function redhen_org_access($op, $org = NULL, $account = NULL) {
     return TRUE;
   }
 
+  if (isset($org) && !$org->isDefaultRevision()) {
+    if ($op == 'view' && user_access('access redhen org revisions', $account)) {
+      return TRUE;
+    }
+
+    if ($op == 'edit' && user_access('manage redhen org revisions', $account) && ($org->redhen_state != REDHEN_STATE_ARCHIVED)) {
+      return TRUE;
+    }
+
+    if ($op == 'delete' && user_access('manage redhen org revisions', $account)) {
+      return TRUE;
+    }
+    return FALSE;
+  }
+
   if ($op == 'view' && user_access('access redhen orgs', $account)) {
     return TRUE;
   }
@@ -402,9 +468,17 @@ function redhen_org_permission() {
       'title' => t('Manage RedHen Organizations'),
       'description' => t('Create, update or delete RedHen Organizations.'),
     ),
+    'manage redhen org revisions' => array(
+      'title' => t('Manage RedHen Organization Revisions'),
+      'description' => t('Update or delete RedHen Organization revisions.'),
+    ),
     'access redhen orgs' => array(
       'title' => t('Access Redhen Organizations'),
       'description' => t('View for Redhen Organizations.'),
+    ),
+    'access redhen org revisions' => array(
+      'title' => t('Access Redhen Organization Revisions'),
+      'description' => t('View for Redhen Organizations revisions'),
     ),
   );
 }
