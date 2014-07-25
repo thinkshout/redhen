@@ -220,7 +220,8 @@ function redhen_relation_permission() {
 }
 
 /**
- * Access callback for viewing and managing relations.
+ * Access callback for viewing and managing relations on the RedHen connection
+ * pages.
  *
  * @param string $op
  *   Operation.
@@ -289,24 +290,29 @@ function redhen_relation_role_access($op, $entity = NULL, $account = NULL, $enti
  */
 function redhen_relation_role_get_permissions($account) {
   $return = array();
-  $contact = redhen_contact_load_by_user($account);
-  if ($contact) {
-    $related = redhen_relation_relations($contact, REDHEN_RELATION_AFFILIATION, TRUE);
+  $return = &drupal_static(__FUNCTION__);
+  if (!isset($return[$account->uid])) {
+    $return_permissions = array();
+    $contact = redhen_contact_load_by_user($account);
+    if ($contact) {
+      $related = redhen_relation_relations($contact, REDHEN_RELATION_AFFILIATION, TRUE);
 
-    $relations = relation_load_multiple(array_keys($related));
-    foreach ($relations as $relation_id => $relation) {
-      $relation_wrapper = entity_metadata_wrapper('relation', $relation);
-      $redhen_relation_role = $relation_wrapper->redhen_relation_roles->value();
-      $redhen_relation_role_wrapper = entity_metadata_wrapper('redhen_relation_role', $redhen_relation_role);
-      $org_id = $related[$relation_id][0]->org_id;
-      $permissions = $redhen_relation_role_wrapper->permissions->value();
-      foreach ($permissions as $permission => $value) {
-        $return[$org_id][$permission] = $value;
+      $relations = relation_load_multiple(array_keys($related));
+      foreach ($relations as $relation_id => $relation) {
+        $relation_wrapper = entity_metadata_wrapper('relation', $relation);
+        $redhen_relation_role = $relation_wrapper->redhen_relation_roles->value();
+        $redhen_relation_role_wrapper = entity_metadata_wrapper('redhen_relation_role', $redhen_relation_role);
+        $org_id = $related[$relation_id][0]->org_id;
+        $permissions = $redhen_relation_role_wrapper->permissions->value();
+        foreach ($permissions as $permission => $value) {
+          $return_permissions[$org_id][$permission] = $value;
+        }
       }
-
+      $return[$account->uid] = $return_permissions;
     }
   }
-  return $return;
+
+  return $return[$account->uid];
 }
 
 /**
