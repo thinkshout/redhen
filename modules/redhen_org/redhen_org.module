@@ -361,9 +361,11 @@ function redhen_org_save(RedhenOrg $org) {
  */
 function redhen_org_access($op, $org = NULL, $account = NULL) {
   global $user;
+
+  $account = isset($account) ? $account : $user;
+
   $redhen_relation_role_permissions = module_exists('redhen_relation') ?
     redhen_relation_role_get_permissions($user) : array();
-  $account = isset($account) ? $account : $user;
 
   // If it's already archived, no one can archive it again.
   if (($op == 'archive') && ($org->redhen_state == REDHEN_STATE_ARCHIVED)) {

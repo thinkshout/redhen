@@ -70,56 +70,86 @@ function redhen_relation_menu() {
  * Implements hook_menu_alter().
  */
 function redhen_relation_menu_alter(&$items) {
-  // Use our own page title callback for relation/X pages.
-  $items['relation/%relation']['title callback'] = 'redhen_relation_page_title';
-
   // RedHen Org menu overrides.
   $items['redhen/org']['access callback'] = 'redhen_org_access';
 
-  // Relation menu overrides.
-  $items['relation/%relation/edit']['access arguments'] = array(
-    'edit relations',
+  // Relation_ui menu overrides.
+  // Use our own page title callback for relation/X pages.
+  $items['relation/%relation']['title callback'] = 'redhen_relation_page_title';
+  $items['relation/%relation']['access callback'] = 'redhen_relation_entity_access';
+  $items['relation/%relation']['access arguments'] = array(
+    'view',
     1,
   );
   $items['relation/%relation/edit']['access callback'] = 'redhen_relation_entity_access';
-  $items['relation/%relation/delete']['access arguments'] = array(
-    'delete relations',
+  $items['relation/%relation/edit']['access arguments'] = array(
+    'update',
     1,
   );
+
   $items['relation/%relation/delete']['access callback'] = 'redhen_relation_entity_access';
+  $items['relation/%relation/delete']['access arguments'] = array(
+    'delete',
+    1,
+  );
 }
 
 /**
- * Relation entity access call back.
+ * Relation entity access call back. Replaces the default relation entity
+ * access and menu access callbacks.
  *
  * @param string $op
- *   Operation.
+ *   Operation. One of view, update, create or delete.
  * @param array $entity
- *   Entity.
+ *   Relation entity.
  *
  * @return bool
  *   Access grant.
  */
 function redhen_relation_entity_access($op, $entity) {
   global $user;
-  $permissions = redhen_relation_role_get_permissions($user);
-  $user_access = user_access('edit relations');
 
-  // Check for Org relation permissions.
-  if (array_key_exists('relation_type', $entity)) {
-    switch ($op) {
-      case 'edit relations':
-        $permission = 'edit_relation';
-        break;
+  // If admin, skip other checks.
+  if (user_access('administer relations')) {
+    return TRUE;
+  }
 
-      case 'delete relations':
-        $permission = 'delete_relation';
-        break;
-    }
+  $permission = FALSE;
+
+  switch ($op) {
+    case 'view':
+      $permission = 'access relations';
+      $relation_permission = 'view_relation';
+      break;
+
+    case 'create':
+      $permission = 'create relations';
+      $relation_permission = 'edit_relation';
+      break;
+
+    case 'update':
+      $relation_permission = 'edit_relation';
+      $permission = 'edit relations';
+      break;
+
+    case 'delete':
+      $relation_permission = 'delete_relation';
+      $permission = 'delete relations';
+      break;
+  }
+
+  // Get the default access permission based on the $op.
+  $user_access = user_access($permission);
+
+  // Check that this is a relation we care about.
+  if (array_key_exists('relation_type', $entity) && $entity->relation_type == REDHEN_RELATION_AFFILIATION) {
+    // Check for Org relation permissions.
+    $permissions = redhen_relation_role_get_permissions($user);
+
     $relation = relation_get_endpoints($entity, 'redhen_org');
     $org = $relation ? current(current($relation)) : array();
-    if ($relation && isset($permissions[$org->org_id]['edit_relation']) &&
-      $permissions[$org->org_id][$permission] !== 0
+    if ($relation && isset($permissions[$org->org_id][$relation_permission]) &&
+      $permissions[$org->org_id][$relation_permission] !== 0
     ) {
       $user_access = TRUE;
     }
@@ -194,8 +224,12 @@ function redhen_relation_permission() {
  *
  * @param string $op
  *   Operation.
- * @param array $entity
+ * @param $entity
  *   Entity.
+ * @param $account
+ *   User account to check permission for.
+ * @param $entity_type
+ *   The type of entity being checked.
  *
  * @return bool
  *   Access grant.
@@ -335,9 +369,7 @@ function redhen_relation_connections_page($entity) {
         $data = array(
           'connection' => array(
             'data' => array(
-              '#type' => 'link',
-              '#title' => relation_get_type_label($relation, $reversed),
-              '#href' => $relation_uri['path'],
+              '#markup' => relation_get_type_label($relation, $reversed),
             ),
           ),
           'type' => $related_entity_info['label'],
@@ -381,21 +413,21 @@ function redhen_relation_connections_page($entity) {
 
         // Build a list of all the accessible operations for the current relation.
         $ops = array();
-        if (user_access('access relations')) {
+        if (redhen_relation_entity_access('view', $relation)) {
           $ops['view'] = array(
             'title' => t('view'),
             'href' => $relation_uri['path'],
           );
         }
 
-        if (redhen_relation_entity_access('edit relations', $relation)) {
+        if (redhen_relation_entity_access('update', $relation)) {
           $ops['edit'] = array(
             'title' => t('edit'),
             'href' => $relation_uri['path'] . '/edit',
             'query' => $destination,
           );
         }
-        if (redhen_relation_entity_access('delete relations', $relation)) {
+        if (redhen_relation_entity_access('delete', $relation)) {
           $ops['delete'] = array(
             'title' => t('delete'),
             'href' => $relation_uri['path'] . '/delete',
@@ -420,7 +452,7 @@ function redhen_relation_connections_page($entity) {
               '#type' => 'link',
               '#title' => $link['title'],
               '#href' => $link['href'],
-              '#options' => array('query' => $link['query']),
+              '#options' => (isset($link['query'])) ? array('query' => $link['query']) : array(),
             ),
           );
         }
@@ -681,7 +713,7 @@ function redhen_relation_entity_info_alter(&$entity_info) {
     'label' => t('Teaser'),
     'custom settings' => TRUE,
   );
-  $entity_info['relation']['access callback'] = 'redhen_relation_access';
+  $entity_info['relation']['access callback'] = 'redhen_relation_entity_access';
 }
 
 /**
@@ -765,6 +797,9 @@ function redhen_relation_redhen_relation_role_permissions() {
   $roles = array(
     'add_connection' => array(
       'label' => 'Add Connection',
+    ),
+    'view_relation' => array(
+      'label' => 'View Relation',
     ),
     'edit_relation' => array(
       'label' => 'Edit Relation',
