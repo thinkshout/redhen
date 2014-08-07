@@ -208,7 +208,7 @@ class RedhenContactEntityController extends EntityAPIController {
         // Clone the contact to populate with the old user info.
         $old_contact = clone $contact;
         $old_user = $contact_result->fetchAssoc();
-        $old_contact->uid = $old_user->uid;
+        $old_contact->uid = $old_user['uid'];
 
         module_invoke_all('redhen_contact_user_update', 'update', $contact, $old_contact);
       }

@@ -16,26 +16,26 @@ function redhen_contact_page() {
     'type' => array(
       'field' => 'type',
       'type' => 'property',
-      'data' => 'Type',
+      'data' => t('Type'),
       'specifier' => 'type',
     ),
     'first_name' => array(
       'field' => 'first_name',
       'type' => 'property',
-      'data' => 'First Name',
+      'data' => t('First name'),
       'specifier' => 'first_name',
     ),
     'last_name' => array(
       'field' => 'last_name',
       'type' => 'property',
-      'data' => 'Last Name',
+      'data' => t('Last name'),
       'specifier' => 'last_name',
     ),
     'email' => array('data' => t('Email')),
     'updated' => array(
       'field' => 'updated',
       'type' => 'property',
-      'data' => 'Updated',
+      'data' => t('Updated'),
       'sort' => 'desc',
       'specifier' => 'updated',
     ),
@@ -155,7 +155,7 @@ function redhen_contact_page() {
       '#contacts' => $contacts,
       '#header' => $header,
       '#rows' => $rows,
-    )
+    ),
   );
 }
 
@@ -180,9 +180,11 @@ function redhen_contact_types_list_page() {
 /**
  * Page callback for adding a contact.
  *
- * @param $type
+ * @param string $type
+ *   The redhen Contact Bundle name to create.
  *
- * @return array|mixed
+ * @return array
+ *   The contact creation form.
  */
 function redhen_contact_add_page($type) {
   $contact = redhen_contact_create(array('type' => $type));

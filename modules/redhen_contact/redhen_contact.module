@@ -1034,31 +1034,36 @@ function redhen_contact_user_registration_submit($form, &$form_state) {
   $contact = $existing_contact ? current($existing_contact) : $contact;
   // Set user.
   $contact->uid = $uid;
-
-  $message = t('User has been linked to the contact %name.',
-    array(
-      '%name' => $contact->label(),
-    )
-  );
-
   // If set to update fields, do so.
-  if (variable_get(REDHEN_CONTACT_REG_UPDATE_FIELDS, FALSE) == TRUE) {
+  if (variable_get(REDHEN_CONTACT_REG_UPDATE_FIELDS, FALSE) == TRUE || !empty($contact->is_new)) {
     // Save default parameters back into the $contact object.
     $contact->first_name = $form_state['values']['first_name'];
     $contact->middle_name = $form_state['values']['middle_name'];
     $contact->last_name = $form_state['values']['last_name'];
     $contact->author_uid = $uid;
 
-    // Notify field widgets.
-    field_attach_submit('redhen_contact', $contact, $form, $form_state);
+    // If a contact already exists, we only want to update fields that have
+    // values from the registration form. This avoids overwriting Contact
+    // field values that are not exposed on the registration form.
+    $limited_state = redhen_contact_user_registration_form_state($form['redhen_contact']['form'], $form_state);
+
+    // Notify field widgets using the limited state variable.
+    field_attach_submit('redhen_contact', $contact, $form['redhen_contact']['form'], $limited_state);
 
     // Set email address.
     redhen_contact_property_email_set($contact, NULL, $form_state['values']['mail']);
-    $message .= t(' The contact was updated with the information provided.');
+    $message_update = t('The contact was updated with the information provided.');
   }
 
   redhen_contact_save($contact);
-
+  $message = t('User has been linked to the contact %name.',
+    array(
+      '%name' => $contact->label(),
+    )
+  );
+  if (isset($message_update)) {
+    $message .= ' ' . $message_update;
+  }
   // Update form_state contact for later processing.
   $form_state['redhen_contact'] = $contact;
 
@@ -1153,6 +1158,38 @@ function redhen_contact_property_email_set(RedhenContact $contact, $name, $value
     'value' => $value,
     'default' => TRUE
   );
+}
+
+/**
+ * Return the form_state that includes just the values from the visible form
+ * elements.
+ *
+ * @param $form
+ *   The RedHen contact form.
+ * @param $form_state
+ *   The RedHen contact form state.
+ *
+ * @return
+ *   The modified form_state array.
+ */
+function redhen_contact_user_registration_form_state($form, $form_state) {
+  $limited_state = $form_state;
+  $limited_state['values'] = array();
+
+  foreach (element_children($form) as $key) {
+    $child = $form[$key];
+
+    // Skip un-accessible children.
+    if (isset($child['#access']) && !$child['#access']) {
+      continue;
+    }
+
+    if (isset($form_state['values'][$key])) {
+      $limited_state['values'][$key] = $form_state['values'][$key];
+    }
+  }
+
+  return $limited_state;
 }
 
 /**
