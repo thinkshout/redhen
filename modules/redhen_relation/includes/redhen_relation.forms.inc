@@ -88,7 +88,8 @@ function redhen_relation_connection_form($form, &$form_state, $entity) {
   $form['fields']['entity_to_relate'] = array(
     '#title' => $plural_label,
     '#type' => 'textfield',
-    '#required' => TRUE,
+    '#required' => ($active_relation_type->min_arity == 1) ? FALSE : TRUE,
+    '#access' => ($active_relation_type->max_arity == 1) ? FALSE : TRUE,
     '#autocomplete_path' => 'redhen/relation/autocomplete/' . $relation->relation_type . '/' . $entity_type_to_relate . '/' . $entity->entityType() . '/' . $entity->internalIdentifier(),
   );
 
@@ -123,11 +124,13 @@ function redhen_relation_connection_form_validate($form, &$form_state) {
     $entity = $form_state['entity'];
     $relation = $form_state['relation'];
 
+    // Load the relation information, to determine arity.
+    $relation_type = relation_type_load($form_state['values']['relation_type']);
+
     // parse out the entity id from the autocomplete string
     preg_match('/(.+) \((\d+)\)$/', $form_state['values']['entity_to_relate'], $matches);
 
     if (isset($matches[2]) && ($matches[2] > 0)) {
-      $relation_type = relation_type_load($form_state['values']['relation_type']);
       list($src_relation_entity_type) = explode(":", $relation_type->source_bundles[0]);
 
       // ensure source/target order are correct
@@ -156,6 +159,15 @@ function redhen_relation_connection_form_validate($form, &$form_state) {
         );
       }
 
+      $form_state['values']['endpoints'][LANGUAGE_NONE] = $endpoints;
+    }
+    else if ($relation_type->min_arity == 1 && empty($form_state['values']['entity_to_relate'])) {
+      $endpoints = array(
+        array(
+          'entity_type' => $entity->entityType(),
+          'entity_id' => $entity->internalIdentifier()
+        )
+      );
       $form_state['values']['endpoints'][LANGUAGE_NONE] = $endpoints;
     }
     else {

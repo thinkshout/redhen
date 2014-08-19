@@ -366,8 +366,9 @@ function redhen_relation_relations($entity, $relation_type = NULL, $active = FAL
 
       $endpoints = field_get_items('relation', $relation, 'endpoints');
       foreach ($endpoints as $endpoint) {
-        // Add all entities that aren't this entity or duplicates.
-        if ($endpoint['entity_type'] == $entity->entityType() && $endpoint['entity_id'] == $entity->internalIdentifier() && $duplicate == FALSE) {
+        // Add all entities that aren't this entity or duplicates, unless the
+        // relation only has this entity as endpoint ($relation->arity = 1).
+        if ($relation->arity > 1 && $endpoint['entity_type'] == $entity->entityType() && $endpoint['entity_id'] == $entity->internalIdentifier() && $duplicate == FALSE) {
           $duplicate = TRUE;
         }
         else {
