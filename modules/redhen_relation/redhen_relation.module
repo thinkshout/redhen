@@ -64,11 +64,9 @@ function redhen_relation_menu() {
 
 /**
  * Implements hook_menu_alter().
- *
- * @param $items
  */
 function redhen_relation_menu_alter(&$items) {
-  // Use our own page title callback for relation/X pages
+  // Use our own page title callback for relation/X pages.
   $items['relation/%relation']['title callback'] = 'redhen_relation_page_title';
 }
 
