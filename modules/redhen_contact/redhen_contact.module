@@ -1125,7 +1125,10 @@ function redhen_contact_user_registration_submit($form, &$form_state) {
   // Update form_state contact for later processing.
   $form_state['redhen_contact'] = $contact;
 
-  drupal_set_message($message);
+  // Only display this message to CRM users to avoid confusion.
+  if (user_access('access redhen contacts')) {
+    drupal_set_message($message);
+  }
 }
 
 /**
