@@ -39,9 +39,9 @@ function redhen_filter_form($form, &$form_state, $entity_type) {
         $default_value = isset($_GET['properties'][$key]) ? $_GET['properties'][$key] : NULL;
         if ($prop['type'] == 'date' && !empty($default_value)) {
           $default_value['from'] = ($default_value['from'] == '') ? '' :
-            format_date(strtotime($default_value['from']), 'medium', 'm/d/Y');
+            format_date(strtotime($default_value['from']));
           $default_value['to'] = ($default_value['to'] == '') ? '' :
-            format_date(strtotime($default_value['to']), 'medium', 'm/d/Y');
+            format_date(strtotime($default_value['to']));
         }
 
         if ($prop['type'] == 'date') {
