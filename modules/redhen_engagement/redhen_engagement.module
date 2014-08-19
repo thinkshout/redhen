@@ -390,12 +390,24 @@ function redhen_engagement_score_options() {
 }
 
 /**
- * Implements hook_entity_delete().
+ * Implements hook_ENTITY_TYPE_delete().
  */
 function redhen_engagement_redhen_contact_delete(RedhenContact $contact) {
   // Delete engagements when the parent contact is deleted.
   db_delete('redhen_engagement')
     ->condition('contact_id', $contact->contact_id)
+    ->execute();
+}
+
+/**
+ * Implements hook_entity_delete().
+ *
+ * Delete engagements associated with a source entity that has been deleted.
+ */
+function redhen_engagement_entity_delete($entity, $type) {
+  db_delete('redhen_engagement')
+    ->condition('entity_type', $type)
+    ->condition('entity_id', entity_id($type, $entity))
     ->execute();
 }
 
