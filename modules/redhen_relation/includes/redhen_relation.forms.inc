@@ -103,6 +103,8 @@ function redhen_relation_connection_form($form, &$form_state, $entity) {
   $form['fields']['entity_to_relate'] = array(
     '#title' => $plural_label,
     '#type' => 'textfield',
+    '#required' => ($active_relation_type->min_arity == 1) ? FALSE : TRUE,
+    '#access' => ($active_relation_type->max_arity == 1) ? FALSE : TRUE,
     '#autocomplete_path' => 'redhen/relation/autocomplete/' . $relation->relation_type . '/' . $entity_type_to_relate . '/' . $entity->entityType() . '/' . $entity->internalIdentifier(),
     '#states' => array(
       'invisible' => array(
@@ -241,17 +243,50 @@ function redhen_relation_connection_form_validate($form, &$form_state) {
   $relation = $form_state['relation'];
 
   if ($form_state['input']['new_or_exsiting'] == 0 && isset($form_state['values']['entity_to_relate'])) {
-    // Parse out the entity id from the autocomplete string.
+    // Load the relation information, to determine arity.
+    $relation_type = relation_type_load($form_state['values']['relation_type']);
+
+    // parse out the entity id from the autocomplete string
     preg_match('/(.+) \((\d+)\)$/', $form_state['values']['entity_to_relate'], $matches);
 
     if (isset($matches[2]) && ($matches[2] > 0)) {
-      $endpoints = redhen_relation_endpoints(
-        $form_state['values']['relation_type'],
-        $form_state['entity_to_relate_type'],
-        $matches[2],
-        $entity
-      );
+      list($src_relation_entity_type) = explode(":", $relation_type->source_bundles[0]);
 
+      // ensure source/target order are correct
+      if ($relation_type->directional && $form_state['entity_to_relate_type'] == $src_relation_entity_type) {
+        $endpoints = array(
+          array(
+            'entity_type' => $form_state['entity_to_relate_type'],
+            'entity_id' => $matches[2]
+          ),
+          array(
+            'entity_type' => $entity->entityType(),
+            'entity_id' => $entity->internalIdentifier()
+          )
+        );
+      }
+      else {
+        $endpoints = array(
+          array(
+            'entity_type' => $entity->entityType(),
+            'entity_id' => $entity->internalIdentifier()
+          ),
+          array(
+            'entity_type' => $form_state['entity_to_relate_type'],
+            'entity_id' => $matches[2]
+          )
+        );
+      }
+
+      $form_state['values']['endpoints'][LANGUAGE_NONE] = $endpoints;
+    }
+    else if ($relation_type->min_arity == 1 && empty($form_state['values']['entity_to_relate'])) {
+      $endpoints = array(
+        array(
+          'entity_type' => $entity->entityType(),
+          'entity_id' => $entity->internalIdentifier()
+        )
+      );
       $form_state['values']['endpoints'][LANGUAGE_NONE] = $endpoints;
     }
     else {

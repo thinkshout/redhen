@@ -103,7 +103,7 @@ function redhen_dedupe_merge_form($form, &$form_state, $entity_ids) {
       if ($is_field && _redhen_dedupe_field_is_multivalue($name, $property)) {
         $merge_data['values'][$name] = array(
           '#type' => 'checkboxes',
-          '#title' => $property['label'],
+          '#title' => filter_xss($property['label']),
           '#options' => array(),
         );
       }

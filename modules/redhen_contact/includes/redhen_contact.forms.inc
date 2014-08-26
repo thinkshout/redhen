@@ -168,13 +168,17 @@ function redhen_contact_contact_delete_form_submit($form, &$form_state) {
   $wrapper = entity_metadata_wrapper('redhen_contact', $contact);
   $full_name = $wrapper->full_name->value();
 
-  if (redhen_contact_delete_multiple(array($contact->contact_id))) {
+  if ($contact->isDefaultRevision()) {
+    $contact->delete();
     drupal_set_message(t('%title has been deleted.', array('%title' => $full_name)));
     watchdog('redhen_contact', 'Deleted contact %title.', array('%title' => $full_name), WATCHDOG_NOTICE);
     $form_state['redirect'] = 'redhen/contact';
   }
   else {
-    drupal_set_message(t('%title could not be deleted.', array('%title' => $full_name)), 'error');
+    entity_revision_delete('redhen_contact', $contact->revision_id);
+    drupal_set_message(t('Revision %title has been deleted.', array('%title' => $full_name)));
+    watchdog('redhen_contact', 'Deleted contact revision %title.', array('%title' => $full_name), WATCHDOG_NOTICE);
+    $form_state['redirect'] = 'redhen/contact/' . $contact->contact_id . '/revisions';
   }
 }
 
