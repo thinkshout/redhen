@@ -19,6 +19,7 @@ function redhen_org_entity_info() {
       'controller class' => 'RedhenOrgEntityController',
       'rules controller class' => 'EntityDefaultRulesController',
       'metadata controller class' => 'RedhenOrgMetadataController',
+      'views controller class' => 'RedhenOrgViewsController',
       'entity class' => 'RedhenOrg',
       'base table' => 'redhen_org',
       'revision table' => 'redhen_org_revision',
