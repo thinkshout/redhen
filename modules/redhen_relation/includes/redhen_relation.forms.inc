@@ -51,7 +51,7 @@ function redhen_relation_connection_form($form, &$form_state, $entity) {
     '#title' => t('Connection type'),
     '#type' => 'select',
     '#options' => $options,
-    '#default value' => isset($relation) ? $relation->relation_type : NULL,
+    '#default_value' => isset($relation) ? $relation->relation_type : NULL,
     '#ajax' => array(
       'callback' => 'redhen_relation_form_refresh',
       'wrapper' => 'redhen_relation_fields',
@@ -91,13 +91,16 @@ function redhen_relation_connection_form($form, &$form_state, $entity) {
   $info = entity_get_info($entity_type_to_relate);
   $plural_label = isset($info['plural label']) ? $info['plural label'] : $info['label'] . 's';
 
-  $form['fields']['new_or_exsiting'] = array(
+  $form['fields']['new_or_existing'] = array(
+    '#title' => t('New or existing @type', array('@type' => drupal_strtolower($info['label']))),
     '#type' => 'select',
     '#options' => array(
-      'Existing',
-      'New',
+      1 => 'New',
+      0 => 'Existing',
     ),
+    '#default_value' => 1,
     '#weight' => 9,
+    '#required' => TRUE,
   );
 
   $form['fields']['entity_to_relate'] = array(
@@ -108,12 +111,12 @@ function redhen_relation_connection_form($form, &$form_state, $entity) {
     '#autocomplete_path' => 'redhen/relation/autocomplete/' . $relation->relation_type . '/' . $entity_type_to_relate . '/' . $entity->entityType() . '/' . $entity->internalIdentifier(),
     '#states' => array(
       'invisible' => array(
-        ':input[name="new_or_exsiting"]' => array(
+        ':input[name="new_or_existing"]' => array(
           'value' => '1',
         ),
       ),
       'required' => array(
-        ':input[name="new_or_exsiting"]' => array(
+        ':input[name="new_or_existing"]' => array(
           'value' => '0',
         ),
       ),
@@ -125,7 +128,7 @@ function redhen_relation_connection_form($form, &$form_state, $entity) {
     '#type' => 'fieldset',
     '#states' => array(
       'invisible' => array(
-        ':input[name="new_or_exsiting"]' => array(
+        ':input[name="new_or_existing"]' => array(
           'value' => '0',
         ),
       ),
@@ -152,14 +155,15 @@ function redhen_relation_connection_form($form, &$form_state, $entity) {
 
   }
 
-  $entity_type_options = array('_none' => 'None');
   foreach ($entity_types as $type_name => $type) {
     $entity_type_options[$type_name] = $type->label;
   }
+  $default_entity_type = key($entity_type_options);
   $form['entity_info']['entity_type'] = array(
     '#type' => 'select',
-    '#title' => t('Select type'),
+    '#title' => t('Select @type type', array('@type' => drupal_strtolower($info['label']))),
     '#options' => $entity_type_options,
+    '#default_value' => $default_entity_type,
     '#ajax' => array(
       'callback' => 'redhen_relation_form_refresh',
       'wrapper' => 'entity-form',
@@ -167,7 +171,7 @@ function redhen_relation_connection_form($form, &$form_state, $entity) {
     '#id' => 'entity-type',
     '#states' => array(
       'required' => array(
-        ':input[name="new_or_exsiting"]' => array(
+        ':input[name="new_or_existing"]' => array(
           'value' => '1',
         ),
       ),
@@ -178,10 +182,7 @@ function redhen_relation_connection_form($form, &$form_state, $entity) {
     '#type' => 'container',
   );
 
-  $entity_type = NULL;
-  if ($form_state['input'] && $form_state['input']['_triggering_element_name'] !== 'relation_type' && $form_state['input']['entity_type'] != '_none') {
-    $entity_type = $form_state['input']['entity_type'];
-  }
+  $entity_type = isset($form_state['input']['entity_type']) ? $form_state['input']['entity_type'] : $default_entity_type;
 
   if (!is_null($entity_type)) {
     $target_entity = $create_function(array('type' => $entity_type));
@@ -242,7 +243,7 @@ function redhen_relation_connection_form_validate($form, &$form_state) {
   $entity = $form_state['entity'];
   $relation = $form_state['relation'];
 
-  if ($form_state['input']['new_or_exsiting'] == 0 && isset($form_state['values']['entity_to_relate'])) {
+  if ($form_state['input']['new_or_existing'] == 0 && isset($form_state['values']['entity_to_relate'])) {
     // Load the relation information, to determine arity.
     $relation_type = relation_type_load($form_state['values']['relation_type']);
 
@@ -297,11 +298,6 @@ function redhen_relation_connection_form_validate($form, &$form_state) {
     $relation->relation_type = $form_state['values']['relation_type'];
   }
   field_attach_form_validate('relation', $relation, $form, $form_state);
-
-  // Check type if required.
-  if ($form_state['input']['new_or_exsiting'] == 1 && $form_state['values']['entity_type'] == '_none') {
-    form_set_error('entity_type', 'Entity type is required.');
-  }
 }
 
 /**
@@ -311,7 +307,7 @@ function redhen_relation_connection_form_submit($form, &$form_state) {
   $entity = $form_state['entity'];
   $relation = $form_state['relation'];
 
-  if ($form_state['input']['new_or_exsiting'] == 1) {
+  if ($form_state['input']['new_or_existing'] == 1) {
     $entity_to_relate = $form_state[$form_state['entity_to_relate_type']];
     field_attach_submit($form_state['entity_to_relate_type'], $entity_to_relate, $form, $form_state);
     // Attach properties.
