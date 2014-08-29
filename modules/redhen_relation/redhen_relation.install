@@ -113,8 +113,8 @@ function redhen_relation_install() {
   field_create_field($status_field);
 
   $bundles = array(
-    REDHEN_RELATION_AFFILIATION => 'Affiliation Status',
-    REDHEN_RELATION_CONNECTION => 'Connection Status'
+    REDHEN_RELATION_AFFILIATION => 'Active',
+    REDHEN_RELATION_CONNECTION => 'Active'
   );
   foreach ($bundles as $key => $label) {
     field_create_instance(array(
@@ -349,5 +349,20 @@ function redhen_relation_update_7101() {
   foreach ($default_roles as $default_role) {
     $relation_role = entity_create('redhen_relation_role', $default_role);
     $relation_role->save();
+  }
+}
+
+/**
+ * Update affiliation and connection status field labels to Active
+ */
+function redhen_relation_update_7102(&$sandbox) {
+  $bundles = array(
+    REDHEN_RELATION_AFFILIATION,
+    REDHEN_RELATION_CONNECTION,
+  );
+  foreach ($bundles as $bundle) {
+    $instance = field_info_instance('relation', REDHEN_RELATION_STATUS_FIELD, $bundle);
+    $instance['label'] = 'Active';
+    field_update_instance($instance);
   }
 }
