@@ -624,21 +624,21 @@ function redhen_relation_get_available_entities($entity, $entity_type_to_relate,
  * Autocomplete callback for listing available entities for a relation type.
  */
 function redhen_relation_autocomplete($relation_type = '', $entity_type_to_relate = '', $entity_type = '', $entity_id = '', $search = '') {
-  if (empty($relation_type) || empty($entity_type_to_relate) || empty($entity_type) || empty($entity_id)) {
-    exit();
+  $options = array();
+
+  if (!empty($relation_type) && !empty($entity_type_to_relate) && !empty($entity_type) && !empty($entity_id)) {
+    $entity = entity_load_single($entity_type, $entity_id);
+
+    $available_entities = redhen_relation_get_available_entities($entity, $entity_type_to_relate, $relation_type, $search, 10);
+
+    foreach ($available_entities as $available_entity) {
+      $entity_id = $available_entity->internalIdentifier();
+      $entity_label = $available_entity->label();
+      $options[check_plain($entity_label) . ' (' . $entity_id . ')'] = check_plain($entity_label);
+    }
   }
 
-  $entity = entity_load_single($entity_type, $entity_id);
-
-  $available_entities = redhen_relation_get_available_entities($entity, $entity_type_to_relate, $relation_type, $search, 10);
-
-  foreach ($available_entities as $available_entity) {
-    $entity_id = $available_entity->internalIdentifier();
-    $entity_label = $available_entity->label();
-    $options[check_plain($entity_label) . ' (' . $entity_id . ')'] = check_plain($entity_label);
-  }
-  print drupal_json_encode($options);
-  exit();
+  drupal_json_output($options);
 }
 
 /**
