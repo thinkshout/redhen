@@ -91,6 +91,8 @@ function redhen_relation_connection_form($form, &$form_state, $entity) {
   $info = entity_get_info($entity_type_to_relate);
   $plural_label = isset($info['plural label']) ? $info['plural label'] : $info['label'] . 's';
 
+  $new = isset($form_state['values']['new_or_existing']) ? $form_state['values']['new_or_existing'] : 1;
+
   $form['fields']['new_or_existing'] = array(
     '#title' => t('New or existing @type', array('@type' => drupal_strtolower($info['label']))),
     '#type' => 'select',
@@ -98,104 +100,88 @@ function redhen_relation_connection_form($form, &$form_state, $entity) {
       1 => 'New',
       0 => 'Existing',
     ),
-    '#default_value' => 1,
+    '#default_value' => $new,
     '#weight' => 9,
     '#required' => TRUE,
-  );
-
-  $form['fields']['entity_to_relate'] = array(
-    '#title' => $plural_label,
-    '#type' => 'textfield',
-    '#required' => ($active_relation_type->min_arity == 1) ? FALSE : TRUE,
-    '#access' => ($active_relation_type->max_arity == 1) ? FALSE : TRUE,
-    '#autocomplete_path' => 'redhen/relation/autocomplete/' . $relation->relation_type . '/' . $entity_type_to_relate . '/' . $entity->entityType() . '/' . $entity->internalIdentifier(),
-    '#states' => array(
-      'invisible' => array(
-        ':input[name="new_or_existing"]' => array(
-          'value' => '1',
-        ),
-      ),
-      'required' => array(
-        ':input[name="new_or_existing"]' => array(
-          'value' => '0',
-        ),
-      ),
+    '#ajax' => array(
+      'callback' => 'redhen_relation_form_related_entity_refresh',
+      'wrapper' => 'related-entity',
     ),
-    '#weight' => 10,
   );
 
   $form['entity_info'] = array(
     '#type' => 'fieldset',
-    '#states' => array(
-      'invisible' => array(
-        ':input[name="new_or_existing"]' => array(
-          'value' => '0',
-        ),
-      ),
-    ),
     '#weight' => 9,
+    '#prefix' => '<div id="related-entity">',
+    '#suffix' => '</div>',
   );
 
-  // Get entity callbacks and variables.
-  $entity_types = array();
-  switch ($entity_type_to_relate) {
-    case 'redhen_contact':
-      module_load_include('inc', 'redhen_contact', 'includes/redhen_contact.forms');
-      $entity_types = redhen_contact_get_types();
-      $create_function = 'redhen_contact_create';
-      $entity_form_callback = 'redhen_contact_contact_form';
-      break;
-
-    case 'redhen_org':
-      module_load_include('inc', 'redhen_org', 'includes/redhen_org.forms');
-      $entity_types = redhen_org_get_types();
-      $create_function = 'redhen_org_create';
-      $entity_form_callback = 'redhen_org_org_form';
-      break;
-
+  if ($new == 0) {
+    $form['entity_info']['entity_to_relate'] = array(
+      '#title' => $plural_label,
+      '#type' => 'textfield',
+      '#required' => ($active_relation_type->min_arity == 1) ? FALSE : TRUE,
+      '#access' => ($active_relation_type->max_arity == 1) ? FALSE : TRUE,
+      '#autocomplete_path' => 'redhen/relation/autocomplete/' . $relation->relation_type . '/' . $entity_type_to_relate . '/' . $entity->entityType() . '/' . $entity->internalIdentifier(),
+      '#weight' => 10,
+    );
   }
 
-  foreach ($entity_types as $type_name => $type) {
-    $entity_type_options[$type_name] = $type->label;
-  }
-  $default_entity_type = key($entity_type_options);
-  $form['entity_info']['entity_type'] = array(
-    '#type' => 'select',
-    '#title' => t('Select @type type', array('@type' => drupal_strtolower($info['label']))),
-    '#options' => $entity_type_options,
-    '#default_value' => $default_entity_type,
-    '#ajax' => array(
-      'callback' => 'redhen_relation_form_refresh',
-      'wrapper' => 'entity-form',
-    ),
-    '#id' => 'entity-type',
-    '#states' => array(
-      'required' => array(
-        ':input[name="new_or_existing"]' => array(
-          'value' => '1',
-        ),
+  if ($new == 1) {
+    // Get entity callbacks and variables.
+    $entity_types = array();
+    switch ($entity_type_to_relate) {
+      case 'redhen_contact':
+        module_load_include('inc', 'redhen_contact', 'includes/redhen_contact.forms');
+        $entity_types = redhen_contact_get_types();
+        $create_function = 'redhen_contact_create';
+        $entity_form_callback = 'redhen_contact_contact_form';
+        break;
+
+      case 'redhen_org':
+        module_load_include('inc', 'redhen_org', 'includes/redhen_org.forms');
+        $entity_types = redhen_org_get_types();
+        $create_function = 'redhen_org_create';
+        $entity_form_callback = 'redhen_org_org_form';
+        break;
+
+    }
+
+    foreach ($entity_types as $type_name => $type) {
+      $entity_type_options[$type_name] = $type->label;
+    }
+    $default_entity_type = key($entity_type_options);
+    $form['entity_info']['entity_type'] = array(
+      '#type' => 'select',
+      '#title' => t('Select @type type', array('@type' => drupal_strtolower($info['label']))),
+      '#options' => $entity_type_options,
+      '#default_value' => $default_entity_type,
+      '#ajax' => array(
+        'callback' => 'redhen_relation_form_refresh',
+        'wrapper' => 'entity-form',
       ),
-    ),
-  );
+      '#id' => 'entity-type',
+    );
 
-  $form['entity_info']['entity_form_wrapper'] = array(
-    '#type' => 'container',
-  );
+    $form['entity_info']['entity_form_wrapper'] = array(
+      '#type' => 'container',
+    );
 
-  $entity_type = isset($form_state['input']['entity_type']) ? $form_state['input']['entity_type'] : $default_entity_type;
+    $entity_type = isset($form_state['input']['entity_type']) ? $form_state['input']['entity_type'] : $default_entity_type;
 
-  if (!is_null($entity_type)) {
-    $target_entity = $create_function(array('type' => $entity_type));
-    $entity_form = $entity_form_callback(array(), $form_state, $target_entity);
-    unset($entity_form['actions']);
+    if (!is_null($entity_type)) {
+      $target_entity = $create_function(array('type' => $entity_type));
+      $entity_form = $entity_form_callback(array(), $form_state, $target_entity);
+      unset($entity_form['actions']);
+    }
+    else {
+      $entity_form = array();
+    }
+
+    $entity_form['#prefix'] = '<div id="entity-form">';
+    $entity_form['#suffix'] = '</div>';
+    $form['entity_info']['entity_form_wrapper']['form'] = $entity_form;
   }
-  else {
-    $entity_form = array();
-  }
-
-  $entity_form['#prefix'] = '<div id="entity-form">';
-  $entity_form['#suffix'] = '</div>';
-  $form['entity_info']['entity_form_wrapper']['form'] = $entity_form;
 
   // Hide the endpoints field widget. @TODO: Find out why appearing.
   $form['fields']['endpoints']['#access'] = FALSE;
@@ -216,24 +202,21 @@ function redhen_relation_connection_form($form, &$form_state, $entity) {
  *   Form array.
  * @param array $form_state
  *   Form state array.
- *
- * @return array
- *   AJAX commands.
  */
 function redhen_relation_form_refresh(&$form, &$form_state) {
-  $html1 = drupal_render($form['entity_info']['entity_form_wrapper']);
-  $html2 = drupal_render($form['fields']);
-  unset($form['entity_info']['entity_type']['#title']);
-  $html3 = drupal_render($form['entity_info']['entity_type']);
-  $result = array(
-    '#type' => 'ajax',
-    '#commands' => array(
-      ajax_command_replace('#entity-form', $html1),
-      ajax_command_replace('#redhen_relation_fields', $html2),
-      ajax_command_replace('#entity-type', $html3),
-    ),
-  );
-  return $result;
+  return $form['entity_info']['entity_form_wrapper']['form'];
+}
+
+/**
+ * AJAX refresh callback for new or existing entity.
+ *
+ * @param array $form
+ *   Form array.
+ * @param array $form_state
+ *   Form state array.
+ */
+function redhen_relation_form_related_entity_refresh(&$form, &$form_state) {
+  return $form['entity_info'];
 }
 
 /**
