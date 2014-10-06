@@ -27,4 +27,17 @@ function redhen_relation_views_data_alter(&$data) {
     ),
   );
 
+  // Use our own Views field handler for the relation edit field.
+  $data['relation']['redhen_combined_edit'] = array(
+    'title' => t('Combined edit link'),
+    'help' => t('Provide a simple link to edit the relation entity AND the RedHen organization or contact associated with it.'),
+    'field' => array(
+      'handler' => 'redhen_relation_handler_field_relation_link_combined_edit',
+      'click sortable' => TRUE,
+      'real field' => 'rid',
+      'additional fields' => array(
+        'rid',
+      ),
+    ),
+  );
 }
