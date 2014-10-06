@@ -20,12 +20,13 @@
  * @return mixed
  *   Form array.
  */
-function redhen_relation_connection_form($form, &$form_state, $entity, $relation) {
+function redhen_relation_connection_form($form, &$form_state, $entity, $relation = NULL) {
 
   // Is this editing an existing relation?
   $edit = (!empty($relation->rid)) ? TRUE : FALSE;
 
   $new = NULL;
+  $entity_label = NULL;
 
   // New relation.
   if (!$edit) {
@@ -80,7 +81,6 @@ function redhen_relation_connection_form($form, &$form_state, $entity, $relation
     foreach ($relation_types as $type) {
       list($endpoint_entity_type) = explode(':', $type->source_bundles[0]);
       $reverse = $type->directional & ($endpoint_entity_type == $entity->entityType());
-
       $options[$type->relation_type] = relation_get_type_label($type, $reverse);
     }
     $form['relation_type'] = array(
@@ -99,6 +99,7 @@ function redhen_relation_connection_form($form, &$form_state, $entity, $relation
         ),
       ),
       '#description' => t('Connections are only allowed between contacts and organizations.'),
+      '#weight' => -99,
     );
 
     // Determine the entity type we're going to relate to.
@@ -117,6 +118,7 @@ function redhen_relation_connection_form($form, &$form_state, $entity, $relation
 
     $info = entity_get_info($entity_type_to_relate);
     $plural_label = isset($info['plural label']) ? $info['plural label'] : $info['label'] . 's';
+    $form['entity_info']['#title'] = $info['label'];
 
     $new = isset($form_state['values']['new_or_existing']) ? $form_state['values']['new_or_existing'] : 1;
 
@@ -355,7 +357,7 @@ function redhen_relation_connection_form_submit($form, &$form_state) {
         $entity_to_relate->$entity_property = $form_state['values'][$entity_property];
       }
     }
-    entity_save($entity_to_relate, $entity_to_relate);
+    entity_save($form_state['entity_to_relate_type'], $entity_to_relate);
     list($entity_to_relate_id, ,) = entity_extract_ids($form_state['entity_to_relate_type'], $entity_to_relate);
 
     // If new, populate the endpoints.
