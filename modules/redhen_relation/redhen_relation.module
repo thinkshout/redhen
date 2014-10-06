@@ -34,6 +34,15 @@ function redhen_relation_menu() {
     'access arguments' => array('edit', 2),
     'type' => MENU_LOCAL_ACTION,
   );
+  $items['redhen/contact/%redhen_contact/connections/%relation/edit'] = array(
+    'title' => 'Edit Connection',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('redhen_relation_connection_form', 2, 4),
+    'file' => 'includes/redhen_relation.forms.inc',
+    'access callback' => 'redhen_relation_entity_access',
+    'access arguments' => array('update', 4),
+    'type' => MENU_LOCAL_ACTION,
+  );
 
   // Org connections.
   $items['redhen/org/%redhen_org/connections'] = array(
