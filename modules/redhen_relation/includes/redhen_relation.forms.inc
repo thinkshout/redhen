@@ -51,7 +51,6 @@ function redhen_relation_connection_form($form, &$form_state, $entity, $relation
     $default_entity_type = $entity->bundle();
     $info = entity_get_info($entity_type_to_relate);
     $entity_label = $info['label'];
-
   }
 
   // Store contact and relation entities for use on submit.
@@ -149,8 +148,6 @@ function redhen_relation_connection_form($form, &$form_state, $entity, $relation
     }
   }
 
-
-
   if ( ($new == 1) || ($edit) ) {
     // Get entity callbacks and variables.
     $entity_types = array();
@@ -197,8 +194,17 @@ function redhen_relation_connection_form($form, &$form_state, $entity, $relation
 
     if (!is_null($entity_type)) {
       $target_entity = ($edit) ? $entity : $create_function(array('type' => $entity_type));
-      $entity_form = $entity_form_callback(array(), $form_state, $target_entity);
-      unset($entity_form['actions']);
+      // This either needs to be a new connection or user needs to have
+      // permission to edit the related entity.
+      if (!$edit || entity_access('edit', $entity_type_to_relate, $target_entity)) {
+        $entity_form = $entity_form_callback(array(), $form_state, $target_entity);
+        unset($entity_form['actions']);
+      }
+      else {
+        $entity_form = array(
+          '#markup' => entity_label($entity_type_to_relate, $target_entity),
+        );
+      }
     }
     else {
       $entity_form = array();
@@ -257,6 +263,9 @@ function redhen_relation_connection_form_validate($form, &$form_state) {
   // Is this editing an existing relation?
   $edit = (!empty($relation->rid)) ? TRUE : FALSE;
 
+  // Check if user has edit/update permission on the entity.
+  $edit_access = entity_access('edit', $entity->entityType(), $entity);
+
   if (!$edit && (isset($form_state['input']['new_or_existing']) && $form_state['input']['new_or_existing'] == 0 && isset($form_state['values']['entity_to_relate']))) {
     // Load the relation information, to determine arity.
     $relation_type = relation_type_load($form_state['values']['relation_type']);
@@ -313,7 +322,8 @@ function redhen_relation_connection_form_validate($form, &$form_state) {
   }
 
   // On edit of existing or creation of new entity, validate fields.
-  if ($edit || (isset($form_state['input']['new_or_existing']) && $form_state['input']['new_or_existing'] == 1)) {
+  if (($edit && $edit_access) ||
+    (isset($form_state['input']['new_or_existing']) && $form_state['input']['new_or_existing'] == 1)) {
     field_attach_form_validate($entity->entityType(), $entity, $form, $form_state);
   }
 
@@ -330,8 +340,12 @@ function redhen_relation_connection_form_submit($form, &$form_state) {
   // Is this editing an existing relation?
   $edit = (!empty($relation->rid)) ? TRUE : FALSE;
 
+  // Check if user has edit/update permission on the entity.
+  $edit_access = entity_access('edit', $entity->entityType(), $entity);
+
   // On edit of existing or creation of new entity, submit field values for related entity.
-  if ($edit || (isset($form_state['input']['new_or_existing']) && $form_state['input']['new_or_existing'] == 1)) {
+  if (($edit && $edit_access) ||
+    (isset($form_state['input']['new_or_existing']) && $form_state['input']['new_or_existing'] == 1)) {
     $entity_to_relate = $form_state[$form_state['entity_to_relate_type']];
     field_attach_submit($form_state['entity_to_relate_type'], $entity_to_relate, $form, $form_state);
     // Attach properties.
