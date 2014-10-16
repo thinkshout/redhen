@@ -113,7 +113,7 @@ function redhen_org_menu() {
     'description' => 'View RedHen CRM Organizations.',
     'page callback' => 'redhen_org_page',
     'file' => 'includes/redhen_org.pages.inc',
-    'access arguments' => array('access redhen orgs'),
+    'access callback' => 'redhen_org_page_access',
   );
 
   // Add a org.
@@ -419,62 +419,122 @@ function redhen_org_access($op, $org = NULL, $account = NULL) {
   $redhen_relation_role_permissions = module_exists('redhen_relation') ?
     redhen_relation_role_get_permissions($user) : array();
 
-  // If it's already archived, no one can archive it again.
-  if (($op == 'archive') && ($org->redhen_state == REDHEN_STATE_ARCHIVED)) {
+  // The 'archive' case is special because if it's already archived, it is not
+  // possible to archive it again.
+  if ($op == 'archive' && $org->redhen_state == REDHEN_STATE_ARCHIVED) {
     return FALSE;
   }
 
+  // If user has 'administer redhen orgs', all actions are allowed.
   if (user_access('administer redhen orgs', $account)) {
     return TRUE;
   }
 
-  // Check for the organization listing page.
-  if ($op == 'access redhen orgs' && (user_access('access redhen orgs', $account) ||
-    is_array($redhen_relation_role_permissions))) {
-    return TRUE;
+  // Set $default_revision as a shortcut variable to check, because relation
+  // role permissions do not currently support revisions.
+  if (isset($org) && $org->isDefaultRevision()) {
+    $default_revision = TRUE;
+  }
+  else {
+    $default_revision = FALSE;
   }
 
-  // Revision access check. Currently does not support relation role permissions.
-  if (isset($org) && !$org->isDefaultRevision()) {
-    if ($op == 'view' && user_access('access redhen org revisions', $account)) {
-      return TRUE;
-    }
+  switch ($op) {
+    case 'view':
+      if ($default_revision) {
+        // Regular and relation role checks.
+        if (user_access('access redhen orgs', $account)) {
+          return TRUE;
+        }
+        // If the org id exists as a key in this user's relation role
+        // permissions, they have access to view it.
+        if (isset($redhen_relation_role_permissions[$org->org_id])) {
+          return TRUE;
+        }
+      }
+      else {
+        // Revision checks. Relation role permissions not currently supported.
+        if (user_access('access redhen org revisions', $account)) {
+          return TRUE;
+        }
+      }
+      break;
 
-    if ($op == 'edit' && user_access('manage redhen org revisions', $account) && ($org->redhen_state != REDHEN_STATE_ARCHIVED)) {
-      return TRUE;
-    }
+    // The same permission is used for both 'edit' and 'archive' actions.
+    case 'edit':
+    case 'archive':
+      if ($default_revision) {
+        // Regular and relation role checks.
+        if (user_access('manage redhen orgs', $account) && $org->redhen_state != REDHEN_STATE_ARCHIVED) {
+          return TRUE;
+        }
+        // Check 'edit_org' for the org_id of relation role permissions. It will
+        // usually be set to either 0 or 'edit_org', but we check for anything
+        // non null-ish.
+        if (!empty($redhen_relation_role_permissions[$org->org_id]['edit_org'])) {
+          return TRUE;
+        }
+      }
+      else {
+        // Revision checks. Relation role permissions not currently supported.
+        if (user_access('manage redhen org revisions', $account) && $org->redhen_state != REDHEN_STATE_ARCHIVED) {
+          return TRUE;
+        }
+      }
+      break;
 
-    if ($op == 'delete' && user_access('manage redhen org revisions', $account)) {
-      return TRUE;
-    }
-    return FALSE;
-  }
+    case 'delete':
+      if ($default_revision) {
+        // Regular and relation role checks.
+        if (user_access('manage redhen orgs', $account)) {
+          return TRUE;
+        }
+        // Check 'delete_org' for the org_id of relation role permissions. It will
+        // usually be set to either 0 or 'delete_org', but we check for anything
+        // non null-ish.
+        if (!empty($redhen_relation_role_permissions[$org->org_id]['delete_org'])) {
+          return TRUE;
+        }
+      }
+      else {
+        // Revision checks. Relation role permissions not currently supported.
+        if (user_access('manage redhen org revisions', $account)) {
+          return TRUE;
+        }
+      }
+      break;
 
-  if ($op == 'view' && (user_access('access redhen orgs', $account) ||
-    isset($redhen_relation_role_permissions[$org->org_id]))) {
-    return TRUE;
-  }
-
-  if (($op == 'edit' || $op == 'archive') &&
-    ((user_access('manage redhen orgs', $account) && $org->redhen_state != REDHEN_STATE_ARCHIVED) ||
-    $redhen_relation_role_permissions[$org->org_id]['edit_org'] !== 0)) {
-    return TRUE;
-  }
-
-  if ($op == 'delete' && (user_access('manage redhen orgs', $account) ||
-    $redhen_relation_role_permissions[$org->org_id]['delete_org'] !== 0)) {
-    return TRUE;
-  }
-
-  if ($op == 'create' && user_access('manage redhen orgs', $account)) {
-    return TRUE;
-  }
-
-  if (isset($org) && is_string($org) && $op == 'create' && user_access('create ' . $org . ' orgs', $account)) {
-    return TRUE;
+    case 'create':
+      if (user_access('manage redhen orgs', $account)) {
+        return TRUE;
+      }
+      if (isset($org) && is_string($org)) {
+        if (user_access('create ' . $org . ' orgs', $account)) {
+          return TRUE;
+        }
+      }
+      break;
   }
 
   return FALSE;
+}
+
+/**
+ * Access callback for organization list page.
+ */
+function redhen_org_page_access() {
+  global $user;
+  $redhen_relation_role_permissions = module_exists('redhen_relation') ?
+    redhen_relation_role_get_permissions($user) : array();
+  // Regular and relation role checks.
+  if (user_access('access redhen orgs', $user)) {
+    return TRUE;
+  }
+  // If any relation role permissions are set, access is granted to see
+  // listing pages.
+  if (is_array($redhen_relation_role_permissions) && count($redhen_relation_role_permissions) > 0) {
+    return TRUE;
+  }
 }
 
 /**

@@ -79,10 +79,6 @@ function redhen_relation_menu() {
  * Implements hook_menu_alter().
  */
 function redhen_relation_menu_alter(&$items) {
-
-  // RedHen Org menu overrides.
-  $items['redhen/org']['access callback'] = 'redhen_org_access';
-
   // Relation_ui menu overrides.
   // Use our own page title callback for relation/X pages.
   $items['relation/%relation']['title callback'] = 'redhen_relation_page_title';
