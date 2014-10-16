@@ -31,13 +31,6 @@ function redhen_relation_schema() {
         'not null' => TRUE,
         'description' => 'The human readable name of the redhen relation role.',
       ),
-      'default_role' => array(
-        'type' => 'int',
-        'size' => 'tiny',
-        'not null' => FALSE,
-        'default' => 1,
-        'description' => 'Default role.',
-      ),
       'permissions' => array(
         'type' => 'text',
         'not null' => FALSE,
@@ -63,7 +56,6 @@ function redhen_relation_schema() {
     ),
     'indexes' => array(
       'redhen_relation_role_name' => array('name'),
-      'redhen_relation_role_default_role' => array('default_role'),
     ),
     'primary key' => array('redhen_relation_role_id'),
     'unique keys' => array(
@@ -250,13 +242,6 @@ function redhen_relation_update_7101() {
         'not null' => TRUE,
         'description' => 'The human readable name of the redhen relation role.',
       ),
-      'default_role' => array(
-        'type' => 'int',
-        'size' => 'tiny',
-        'not null' => FALSE,
-        'default' => 1,
-        'description' => 'Default role.',
-      ),
       'permissions' => array(
         'type' => 'text',
         'not null' => FALSE,
@@ -282,7 +267,6 @@ function redhen_relation_update_7101() {
     ),
     'indexes' => array(
       'redhen_relation_role_name' => array('name'),
-      'redhen_relation_role_default_role' => array('default_role'),
     ),
     'primary key' => array('redhen_relation_role_id'),
     'unique keys' => array(

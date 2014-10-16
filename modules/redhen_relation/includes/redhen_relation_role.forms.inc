@@ -38,27 +38,6 @@ function redhen_relation_role_form($form, &$form_state, $redhen_relation_role, $
      numbers, and underscores.'),
   );
 
-  if (isset($redhen_relation_role->default_role)
-    && $redhen_relation_role->default_role == 1) {
-    $form['default_role_placeholder'] = array(
-      '#type' => 'markup',
-      '#markup' => t('Default role.'),
-    );
-    $form['default_role'] = array(
-      '#type' => 'hidden',
-      '#value' => 1,
-    );
-  }
-  else {
-    $form['default_role'] = array(
-      '#title' => t('Default'),
-      '#type' => 'checkbox',
-      '#default_value' => isset($redhen_relation_role->default_role) ?
-      $redhen_relation_role->default_role : 0,
-      '#description' => t('If selected, this role will be the default for new RedHen affiliations.'),
-    );
-  }
-
   $options = array();
   $permissions = redhen_relation_role_permissions();
   foreach ($permissions as $name => $permission) {
@@ -81,27 +60,6 @@ function redhen_relation_role_form($form, &$form_state, $redhen_relation_role, $
   );
 
   return $form;
-}
-
-/**
- * Form API validation callback for the relation role form.
- */
-function redhen_relation_role_form_validate(&$form, &$form_state) {
-  // Check for at least one default.
-  if ($form_state['values']['default_role'] == 0) {
-    $id = isset($form_state['redhen_relation_role']->redhen_relation_role_id) ?
-      $form_state['redhen_relation_role']->redhen_relation_role_id :
-      0;
-    $default_roles_query = db_select('redhen_relation_role')
-      ->condition('default_role', 1)
-      ->condition('redhen_relation_role_id', $id, '<>');
-    $default_roles_count = $default_roles_query
-      ->countQuery()->execute()->fetchField();
-    if ($default_roles_count == 0) {
-      form_set_error('default_role', t('Must have one default role.'));
-    }
-  }
-
 }
 
 /**

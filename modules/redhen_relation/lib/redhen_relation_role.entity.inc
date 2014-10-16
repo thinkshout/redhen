@@ -11,8 +11,7 @@ class RedhenRelationRole extends Entity {
 
   // @codingStandardsIgnoreStart
   public
-    $label = '',
-    $default_role = 0;
+    $label = '';
   // @codingStandardsIgnoreEnd
 
   /**
