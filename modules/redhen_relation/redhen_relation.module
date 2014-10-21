@@ -295,7 +295,6 @@ function redhen_relation_role_access($op, $entity = NULL, $account = NULL, $enti
  *   Permissions array.
  */
 function redhen_relation_role_get_permissions($account) {
-  $return = array();
   $return = &drupal_static(__FUNCTION__);
   if (!isset($return[$account->uid])) {
     $return_permissions = array();
@@ -306,12 +305,19 @@ function redhen_relation_role_get_permissions($account) {
       $relations = relation_load_multiple(array_keys($related));
       foreach ($relations as $relation_id => $relation) {
         $relation_wrapper = entity_metadata_wrapper('relation', $relation);
-        $redhen_relation_role = $relation_wrapper->redhen_relation_roles->value();
-        $redhen_relation_role_wrapper = entity_metadata_wrapper('redhen_relation_role', $redhen_relation_role);
-        $org_id = $related[$relation_id][0]->org_id;
-        $permissions = $redhen_relation_role_wrapper->permissions->value();
-        foreach ($permissions as $permission => $value) {
-          $return_permissions[$org_id][$permission] = $value;
+        // Loop through all roles on this relation.
+        $redhen_relation_roles = $relation_wrapper->redhen_relation_roles->value();
+        foreach ($redhen_relation_roles as $redhen_relation_role) {
+          $redhen_relation_role_wrapper = entity_metadata_wrapper('redhen_relation_role', $redhen_relation_role);
+          $org_id = $related[$relation_id][0]->org_id;
+          $permissions = $redhen_relation_role_wrapper->permissions->value();
+          // Add all permissions from all roles on this relation.
+          foreach ($permissions as $permission => $value) {
+            // Add permissions if set.
+            if ($value) {
+              $return_permissions[$org_id][$permission] = $value;
+            }
+          }
         }
       }
       $return[$account->uid] = $return_permissions;
@@ -338,7 +344,7 @@ function redhen_relation_connections_page($entity) {
       'connection' => t('Connection'),
       'type' => t('Type'),
       'name' => t('Name'),
-      'role' => t('Role'),
+      'role' => t('Roles'),
       'status' => t('Status'),
       'created' => t('Created'),
       'author' => t('Author'),
@@ -378,6 +384,17 @@ function redhen_relation_connections_page($entity) {
         }
         $related_entity_info = entity_get_info($related_entity->entityType());
 
+        // Get roles of the relation.
+        $relation_role_names = array();
+        $relation_roles = $relation_wrapper->redhen_relation_roles->value();
+        foreach ($relation_roles as $relation_role) {
+          if (!empty($relation_role)) {
+            $relation_role_names[] = $relation_role->label();
+          }
+        }
+        sort($relation_role_names);
+        $relation_role_names = implode(', ', $relation_role_names);
+
         $data = array(
           'connection' => array(
             'data' => array(
@@ -392,7 +409,7 @@ function redhen_relation_connections_page($entity) {
               '#href' => $object_uri['path'],
             ),
           ),
-          'role' => isset($relation_wrapper->redhen_relation_roles) ? $relation_wrapper->redhen_relation_roles->label->value() : 'N/A',
+          'role' => $relation_role_names,
           'active' => $active,
           'created' => date('m/d/Y', $relation->created),
           'author' => $author->name,

@@ -69,6 +69,30 @@ function redhen_relation_schema() {
  * Implements hook_install().
  */
 function redhen_relation_install() {
+  // Create default Admin and Member roles.
+  $default_roles = array(
+    'admin' => array(
+      'name' => 'admin',
+      'label' => 'Admin',
+      'permissions' => array(
+        'add_relation' => 'add_relation',
+        'edit_relation' => 'edit_relation',
+        'delete_relation' => 'delete_relation',
+      ),
+      'default_role' => 0,
+    ),
+    'member' => array(
+      'name' => 'member',
+      'label' => 'Member',
+      'permissions' => array(),
+      'default_role' => 1,
+    ),
+  );
+  foreach ($default_roles as $default_role) {
+    $relation_role = entity_create('redhen_relation_role', $default_role);
+    $relation_role->save();
+  }
+
   // Add default relationships.
   $relation_types_info = array(
     array(
@@ -127,7 +151,7 @@ function redhen_relation_install() {
   $role_field = array(
     'field_name' => REDHEN_RELATION_ROLES_FIELD,
     'type' => 'entityreference',
-    'cardinality' => 1,
+    'cardinality' => FIELD_CARDINALITY_UNLIMITED,
     'settings' => array(
       'target_type' => 'redhen_relation_role',
       'target_bundles' => array('redhen_relation_role'),
@@ -135,43 +159,23 @@ function redhen_relation_install() {
   );
   field_create_field($role_field);
 
+  // Get default value: ID of Member role.
+  $member_role_entity = entity_load('redhen_relation_role', FALSE, array('name' => 'member'));
+  $member_role_id = (int) array_shift($member_role_entity)->redhen_relation_role_id;
+
   field_create_instance(array(
     'field_name' => REDHEN_RELATION_ROLES_FIELD,
     'entity_type' => 'relation',
     'bundle' => REDHEN_RELATION_AFFILIATION,
     'label' => 'Organization Role',
     'required' => 1,
-    'default_value' => array(array('value' => 1)),
+    'default_value' => array(array('value' => $member_role_id)),
     'widget' => array(
-      'type' => 'options_select',
+      'type' => 'options_buttons',
     ),
   ));
 
   entity_info_cache_clear();
-
-  // Create default Admin and Member roles.
-  $default_roles = array(
-    'admin' => array(
-      'name' => 'admin',
-      'label' => 'Admin',
-      'permissions' => array(
-        'add_relation' => 'add_relation',
-        'edit_relation' => 'edit_relation',
-        'delete_relation' => 'delete_relation',
-      ),
-      'default_role' => 0,
-    ),
-    'member' => array(
-      'name' => 'member',
-      'label' => 'Member',
-      'permissions' => array(),
-      'default_role' => 1,
-    ),
-  );
-  foreach ($default_roles as $default_role) {
-    $relation_role = entity_create('redhen_relation_role', $default_role);
-    $relation_role->save();
-  }
 }
 
 /**
