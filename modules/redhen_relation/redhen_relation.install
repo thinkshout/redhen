@@ -169,7 +169,7 @@ function redhen_relation_install() {
     'bundle' => REDHEN_RELATION_AFFILIATION,
     'label' => 'Organization Role',
     'required' => 1,
-    'default_value' => array(array('value' => $member_role_id)),
+    'default_value' => array(array('target_id' => $member_role_id)),
     'widget' => array(
       'type' => 'options_buttons',
     ),
@@ -290,31 +290,6 @@ function redhen_relation_update_7101() {
   field_delete_field(REDHEN_RELATION_ROLES_FIELD);
   field_purge_batch(5);
 
-  // Add new relation role field.
-  $field = array(
-    'field_name' => REDHEN_RELATION_ROLES_FIELD,
-    'type' => 'entityreference',
-    'cardinality' => 1,
-    'settings' => array(
-      'target_type' => 'redhen_relation_role',
-      'target_bundles' => array('redhen_relation_role'),
-    ),
-  );
-  field_create_field($field);
-  $instance = array(
-    'field_name' => REDHEN_RELATION_ROLES_FIELD,
-    'entity_type' => 'relation',
-    'bundle' => REDHEN_RELATION_AFFILIATION,
-    'required' => 1,
-    'label' => 'Organization Role',
-    'widget' => array(
-      'type' => 'options_select',
-    ),
-  );
-  field_create_instance($instance);
-
-  entity_info_cache_clear();
-
   // Create default Admin and Member roles.
   $default_roles = array(
     'admin' => array(
@@ -338,6 +313,37 @@ function redhen_relation_update_7101() {
     $relation_role = entity_create('redhen_relation_role', $default_role);
     $relation_role->save();
   }
+
+  // Add new relation role field.
+  $field = array(
+    'field_name' => REDHEN_RELATION_ROLES_FIELD,
+    'type' => 'entityreference',
+    'cardinality' => FIELD_CARDINALITY_UNLIMITED,
+    'settings' => array(
+      'target_type' => 'redhen_relation_role',
+      'target_bundles' => array('redhen_relation_role'),
+    ),
+  );
+  field_create_field($field);
+
+  // Get default value: ID of Member role.
+  $member_role_entity = entity_load('redhen_relation_role', FALSE, array('name' => 'member'));
+  $member_role_id = (int) array_shift($member_role_entity)->redhen_relation_role_id;
+
+  $instance = array(
+    'field_name' => REDHEN_RELATION_ROLES_FIELD,
+    'entity_type' => 'relation',
+    'bundle' => REDHEN_RELATION_AFFILIATION,
+    'label' => 'Organization Role',
+    'required' => 1,
+    'default_value' => array(array('target_id' => $member_role_id)),
+    'widget' => array(
+      'type' => 'options_buttons',
+    ),
+  );
+  field_create_instance($instance);
+
+  entity_info_cache_clear();
 }
 
 /**
