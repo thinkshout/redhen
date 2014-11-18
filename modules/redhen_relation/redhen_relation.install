@@ -168,7 +168,7 @@ function redhen_relation_install() {
     'entity_type' => 'relation',
     'bundle' => REDHEN_RELATION_AFFILIATION,
     'label' => 'Organization Role',
-    'required' => 1,
+    'required' => 0,
     'default_value' => array(array('target_id' => $member_role_id)),
     'widget' => array(
       'type' => 'options_buttons',
@@ -335,7 +335,7 @@ function redhen_relation_update_7101() {
     'entity_type' => 'relation',
     'bundle' => REDHEN_RELATION_AFFILIATION,
     'label' => 'Organization Role',
-    'required' => 1,
+    'required' => 0,
     'default_value' => array(array('target_id' => $member_role_id)),
     'widget' => array(
       'type' => 'options_buttons',
