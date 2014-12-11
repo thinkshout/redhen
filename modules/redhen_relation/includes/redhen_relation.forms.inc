@@ -346,8 +346,10 @@ function redhen_relation_connection_form_submit($form, &$form_state) {
   $edit_access = entity_access('edit', $entity->entityType(), $entity);
 
   // On edit of existing or creation of new entity, submit field values for related entity.
-  if (($edit && $edit_access) ||
-    (isset($form_state['input']['new_or_existing']) && $form_state['input']['new_or_existing'] == 1)) {
+  if (
+    ($edit && $edit_access) ||
+    (isset($form_state['values']['new_or_existing']) && $form_state['values']['new_or_existing'] == 1)
+  ) {
     $entity_to_relate = $form_state[$form_state['entity_to_relate_type']];
     field_attach_submit($form_state['entity_to_relate_type'], $entity_to_relate, $form, $form_state);
     // Attach properties.
