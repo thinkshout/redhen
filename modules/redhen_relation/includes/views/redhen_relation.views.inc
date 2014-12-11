@@ -40,4 +40,13 @@ function redhen_relation_views_data_alter(&$data) {
       ),
     ),
   );
+
+  // Add the affiliation status form field to relations
+  $data['relation']['redhen_relation_status_edit'] = array(
+    'field' => array(
+      'title' => t('RedHen Affiliation Status form field'),
+      'help' => t('Edit the RedHen affiliation status form field'),
+      'handler' => 'redhen_relation_handler_field_redhen_relation_status_edit',
+    ),
+  );
 }
