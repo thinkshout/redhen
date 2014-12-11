@@ -33,16 +33,22 @@ class redhen_relation_handler_field_relation_link_combined_edit extends views_ha
    * Renders the link.
    */
   function render_link($relation, $values) {
-
-    $types = redhen_entity_types();
-
     $type = $this->options['redhen_entity_type'];
-    $id = $types[$type] . '_id';
-    if (!$values->{$id} || !entity_access('update', 'relation', $relation)) {
+    $entity_id = 0;
+    // Presumes different entity types on each endpoint. Entity ID will be from
+    // the last one of the designated entity type.
+    foreach($relation->endpoints[LANGUAGE_NONE] as $endpoint) {
+      if ($endpoint['entity_type'] == $type) {
+        $entity_id = $endpoint['entity_id'];
+      }
+    }
+
+    if (!$entity_id || !entity_access('update', 'relation', $relation)) {
       return;
     }
 
-    $path = 'redhen/' . $types[$type] . '/' . $values->{$id} . '/connections/' . $relation->rid . '/edit';
+    $types = redhen_entity_types();
+    $path = 'redhen/' . $types[$type] . '/' . $entity_id . '/connections/' . $relation->rid . '/edit';
 
     $this->options['alter']['make_link'] = TRUE;
     $this->options['alter']['path'] = $path;
