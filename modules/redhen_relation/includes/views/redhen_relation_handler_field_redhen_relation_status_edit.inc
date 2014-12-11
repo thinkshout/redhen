@@ -11,7 +11,11 @@ class redhen_relation_handler_field_redhen_relation_status_edit extends views_ha
   function construct() {
     parent::construct();
     $this->additional_fields['rid'] = 'rid';
-    $this->additional_fields[REDHEN_RELATION_STATUS_FIELD] = array('field' => REDHEN_RELATION_STATUS_FIELD);
+    // @TODO Make this more abstract.
+    $this->additional_fields[REDHEN_RELATION_STATUS_FIELD] = array(
+      'table' => 'field_data_' . REDHEN_RELATION_STATUS_FIELD,
+      'field' => REDHEN_RELATION_STATUS_FIELD . '_value'
+    );
   }
 
   function query() {
@@ -59,7 +63,7 @@ class redhen_relation_handler_field_redhen_relation_status_edit extends views_ha
     foreach($this->view->result as $row_index => $row) {
       $value = $form_redhen_relation_status['values'][$this->options['id']][$row_index];
       if ($row->{$this->aliases[REDHEN_RELATION_STATUS_FIELD]} != $value) {
-        $updates[$row->{$this->aliases['registration_id']}] = $value;
+        $updates[$row->{$this->aliases['rid']}] = $value;
       }
     }
 

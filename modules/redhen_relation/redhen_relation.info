@@ -17,3 +17,4 @@ files[] = includes/redhen_relation.forms.inc
 files[] = includes/views/redhen_relation_handler_field_primary_contact.inc
 files[] = includes/views/redhen_relation_handler_sort_primary_contact.inc
 files[] = includes/views/redhen_relation_handler_field_relation_link_combined_edit.inc
+files[] = includes/views/redhen_relation_handler_field_redhen_relation_status_edit.inc
