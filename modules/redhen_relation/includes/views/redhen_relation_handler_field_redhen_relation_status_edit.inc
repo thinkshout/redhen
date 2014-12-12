@@ -74,6 +74,15 @@ class redhen_relation_handler_field_redhen_relation_status_edit extends views_ha
       $relation_wrapper->save();
     }
 
+    $count = count($relations);
+    if ($count) {
+      drupal_set_message(
+        format_plural(
+          $count,
+          'Updated 1 connection.',
+          'Updated @count connections.'
+        )
+      );
+    }
   }
-
 }
