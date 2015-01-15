@@ -429,7 +429,7 @@ function redhen_contact_access($op, $contact = NULL, $account = NULL) {
   $redhen_relation_role_permissions = module_exists('redhen_relation') ?
     redhen_relation_role_get_permissions($user) : array();
   $account = isset($account) ? $account : $user;
-  $related_orgs = $contact ?
+  $related_orgs = $contact && module_exists('redhen_relation') ?
     redhen_relation_relations($contact, REDHEN_RELATION_AFFILIATION, TRUE) :
     array();
 
