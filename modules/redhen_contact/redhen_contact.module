@@ -448,8 +448,14 @@ function redhen_contact_access($op, $contact = NULL, $account = NULL) {
     return FALSE;
   }
 
-  if ($op == 'view' && user_access('access redhen contacts', $account)) {
-    return TRUE;
+  if ($op == 'view') {
+    if (user_access('access redhen contacts', $account)) {
+      return TRUE;
+    }
+    // Check whether user can view own contact.
+    if (user_access('view own redhen contact', $account) && $contact->uid == $user->uid) {
+      return TRUE;
+    }
   }
 
   if (($op == 'edit' || $op == 'archive') && user_access('manage redhen contacts', $account) && ($contact->redhen_state != REDHEN_STATE_ARCHIVED)) {
