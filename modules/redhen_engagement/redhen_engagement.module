@@ -111,18 +111,8 @@ function redhen_engagements_page(RedhenContact $contact) {
   // Engagement totals.
 
   $engagement_totals_header = array(
-    'score' => array(
-      'data' => t('Score'),
-      'field' => 'score',
-      'type' => 'property',
-      'specifier' => 'score',
-    ),
-    'type' => array(
-      'data' => t('Type'),
-      'field' => 'type',
-      'type' => 'property',
-      'specifier' => 'type',
-    ),
+    t('Score'),
+    t('Type'),
   );
 
   $engagement_totals_rows = array();
