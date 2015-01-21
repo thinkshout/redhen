@@ -1,3 +1,4 @@
+
 <?php
 
 /**
@@ -107,7 +108,52 @@ function redhen_engagement_menu() {
 function redhen_engagements_page(RedhenContact $contact) {
   module_load_include('inc', 'redhen', 'includes/redhen.forms');
 
-  $header = array(
+  // Engagement totals.
+
+  $engagement_totals_header = array(
+    'score' => array(
+      'data' => t('Score'),
+      'field' => 'score',
+      'type' => 'property',
+      'specifier' => 'score',
+    ),
+    'type' => array(
+      'data' => t('Type'),
+      'field' => 'type',
+      'type' => 'property',
+      'specifier' => 'type',
+    ),
+  );
+
+  $engagement_totals_rows = array();
+
+  $query = db_select('redhen_engagement', 're')
+    ->fields('re', array('engagement_score'))
+    ->condition('type', 'engagement', '=')
+    ->condition('contact_id', $contact->contact_id, '=')
+    ->groupBy('re.engagement_score');
+  $query->addExpression('COUNT (engagement_score)', 'count');
+
+  $result = $query->execute();
+
+  if ($result) {
+    $engagement_scores = redhen_engagement_get_scores();
+    foreach ($result as $record) {
+      if (isset($engagement_scores[$record->engagement_score])) {
+        $engagement_score = $engagement_scores[$record->engagement_score];
+        $engagement_totals_rows[] = array(
+          'data' => array(
+            'score' => ($record->count * $engagement_score->score),
+            'type' => $record->engagement_score,
+          ),
+        );
+      }
+    }
+  }
+
+  // Engagements.
+
+  $engagements_header = array(
     'score' => array(
       'data' => t('Score'),
       'field' => 'score',
@@ -135,9 +181,9 @@ function redhen_engagements_page(RedhenContact $contact) {
   $properties = isset($_GET['properties']) ? $_GET['properties'] : array();
   $properties += array('contact_id' => $contact->contact_id);
 
-  $result = redhen_filter_query('redhen_engagement', $header, '', $properties);
+  $result = redhen_filter_query('redhen_engagement', $engagements_header, '', $properties);
 
-  $rows = array();
+  $engagements_rows = array();
   if ($result) {
     $engagements = entity_load('redhen_engagement', array_keys($result['redhen_engagement']));
     foreach ($engagements as $engagement) {
@@ -163,7 +209,7 @@ function redhen_engagements_page(RedhenContact $contact) {
           ),
         );
       }
-      $rows[] = array(
+      $engagements_rows[] = array(
         'data' => array(
           'score' => $engagement_wrapper->engagement_score->score->value(),
           'type' => entity_label('redhen_engagement_score', $engagement_wrapper->engagement_score->value()),
@@ -178,10 +224,18 @@ function redhen_engagements_page(RedhenContact $contact) {
 
   $render = array(
     'form' => drupal_get_form('redhen_filter_form', 'redhen_engagement'),
-    'table' => array(
+    'engagement_totals_table' => array(
       '#theme' => 'table',
-      '#header' => $header,
-      '#rows' => $rows,
+      '#caption' => 'Engagement score totals',
+      '#header' => $engagement_totals_header,
+      '#rows' => $engagement_totals_rows,
+      '#empty' => t('Sorry, there are no engagements that match your criteria.'),
+    ),
+    'engagements_table' => array(
+      '#theme' => 'table',
+      '#caption' => 'Engagement scores',
+      '#header' => $engagements_header,
+      '#rows' => $engagements_rows,
       '#empty' => t('Sorry, there are no engagements that match your criteria.'),
     ),
     'pager' => array(
