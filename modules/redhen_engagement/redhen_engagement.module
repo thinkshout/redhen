@@ -144,7 +144,7 @@ function redhen_engagements_page(RedhenContact $contact) {
         $engagement_totals_rows[] = array(
           'data' => array(
             'score' => ($record->count * $engagement_score->score),
-            'type' => $record->engagement_score,
+            'type' => $engagement_score->label(),
           ),
         );
       }
