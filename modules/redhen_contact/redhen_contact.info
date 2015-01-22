@@ -15,6 +15,7 @@ files[] = lib/redhen_contact.inline_entity_form.inc
 files[] = lib/redhen_contact_type.controller.inc
 files[] = lib/redhen_contact_type.entity.inc
 files[] = lib/redhen_contact_type.ui_controller.inc
+files[] = plugins/selection/RedhenContactSelectionHandler.class.php
 
 ; Tests
 ;files[] = tests/redhen_contact.test
