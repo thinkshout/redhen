@@ -273,6 +273,17 @@ function redhen_contact_menu() {
     'weight' => 5,
   );
 
+  $items['redhen/contact/%redhen_contact/view/unarchive'] = array(
+      'title' => 'Unarchive',
+      'page callback' => 'drupal_get_form',
+      'page arguments' => array('redhen_contact_contact_unarchive_form', 2),
+      'access callback' => 'redhen_contact_access',
+      'access arguments' => array('unarchive', 2),
+      'type' => MENU_LOCAL_TASK,
+      'file' => 'includes/redhen_contact.forms.inc',
+      'weight' => 4,
+  );
+
   if (module_exists('devel')) {
     $items['redhen/contact/%redhen_contact/devel'] = array(
       'title' => 'Devel',
@@ -423,8 +434,11 @@ function redhen_contact_access($op, $contact = NULL, $account = NULL) {
   global $user;
   $account = isset($account) ? $account : $user;
 
-  // If it's already archived, no one can archive it again.
-  if (($op == 'archive') && ($contact->redhen_state == REDHEN_STATE_ARCHIVED)) {
+  if ($op == 'archive' && $contact->redhen_state == REDHEN_STATE_ARCHIVED) {
+    return FALSE;
+  }
+
+  if ($op == 'unarchive' && $contact->redhen_state == REDHEN_STATE_ACTIVE) {
     return FALSE;
   }
 
@@ -458,6 +472,9 @@ function redhen_contact_access($op, $contact = NULL, $account = NULL) {
     }
   }
 
+  if ($op == 'unarchive' && user_access('manage redhen contacts', $account) && ($contact->redhen_state != REDHEN_STATE_ACTIVE)) {
+    return TRUE;
+  }
   if (($op == 'edit' || $op == 'archive') && user_access('manage redhen contacts', $account) && ($contact->redhen_state != REDHEN_STATE_ARCHIVED)) {
     return TRUE;
   }
