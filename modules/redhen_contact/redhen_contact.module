@@ -1233,14 +1233,14 @@ function redhen_contact_property_email_set(RedhenContact $contact, $name, $value
   // Reset the default flag for any existing emails.
   if (!empty($contact->{REDHEN_CONTACT_EMAIL_FIELD})) {
     foreach ($contact->{REDHEN_CONTACT_EMAIL_FIELD}[LANGUAGE_NONE] as $key => $email) {
-      $contact->{REDHEN_CONTACT_EMAIL_FIELD}[LANGUAGE_NONE][$key]['default'] = FALSE;
+      $contact->{REDHEN_CONTACT_EMAIL_FIELD}[LANGUAGE_NONE][$key]['default'] = 0;
     }
   }
 
   // Now set the new email as default.
   $contact->{REDHEN_CONTACT_EMAIL_FIELD}[LANGUAGE_NONE][$key] = array(
     'value' => $value,
-    'default' => TRUE
+    'default' => 1
   );
 }
 
