@@ -540,8 +540,8 @@ function redhen_contact_permission() {
  * @return array
  *   Render array.
  */
-function redhen_contact_view(RedhenContact $contact, $view_mode = 'full') {
-  return $contact->view($view_mode);
+function redhen_contact_view(RedhenContact $contact, $view_mode = 'full', $langcode = NULL, $page = NULL) {
+  return $contact->view($view_mode, $langcode, $page);
 }
 
 /**
