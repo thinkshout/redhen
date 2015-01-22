@@ -460,13 +460,18 @@ function redhen_engagement_entity_delete($entity, $type) {
  */
 function redhen_engagement_redhen_contact_view(RedhenContact $entity, $view_mode, $langcode) {
   // Add engagement scores to a contact entity.
-  $entity->content['redhen_engagement'] = array(
-    '#theme' => 'redhen_property_field',
-    '#label' => t('Engagement Score'),
-    '#items' => array(array('#markup' => $entity->engagement_score)),
-    '#classes' => 'field field-label-inline clearfix',
-    '#attributes' => '',
-  );
+
+  $field_display = field_extra_fields_get_display('redhen_contact', $entity->type, $view_mode);
+
+  if (isset($field_display['engagement_score']) && $field_display['engagement_score']['visible']) {
+    $entity->content['redhen_engagement'] = array(
+      '#theme' => 'redhen_property_field',
+      '#label' => t('Engagement Score'),
+      '#items' => array(array('#markup' => $entity->engagement_score)),
+      '#classes' => 'field field-label-inline clearfix',
+      '#attributes' => '',
+    );
+  }
 }
 
 /**
