@@ -219,9 +219,9 @@ function redhen_filter_form_fields(&$form, &$form_state, $entity_type, $bundle) 
       $instance['description'] = '';
       $field_info['cardinality'] = 1;
 
-      // Field collections break the filter form.
-      // @see: https://www.drupal.org/node/2408311
-      if ($field_info['type'] == 'field_collection') {
+      // Filter out field types we know break the filter form.
+      $black_list = redhen_filter_form_blacklist();
+      if (in_array($field_info['type'], $black_list)) {
         continue;
       }
 
