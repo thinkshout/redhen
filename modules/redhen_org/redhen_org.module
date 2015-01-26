@@ -198,7 +198,7 @@ function redhen_org_menu() {
     'page callback' => 'redhen_org_revision_list',
     'page arguments' => array(2),
     'access callback' => 'user_access',
-    'access arguments' => array('access redhen orgs'),
+    'access arguments' => array('access redhen org revisions'),
     'file' => 'includes/redhen_org.pages.inc',
     'weight' => 4,
   );
