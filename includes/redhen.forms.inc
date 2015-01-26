@@ -219,6 +219,12 @@ function redhen_filter_form_fields(&$form, &$form_state, $entity_type, $bundle) 
       $instance['description'] = '';
       $field_info['cardinality'] = 1;
 
+      // Field collections break the filter form.
+      // @see: https://www.drupal.org/node/2408311
+      if ($field_info['type'] == 'field_collection') {
+        continue;
+      }
+
       // Set up specific field types.
       switch ($field_info['type']) {
         // Set up date fields.
