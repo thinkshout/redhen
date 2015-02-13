@@ -442,56 +442,88 @@ function redhen_contact_access($op, $contact = NULL, $account = NULL) {
     return TRUE;
   }
 
-  // Handle revisions.
-  if (isset($contact) && !$contact->isDefaultRevision()) {
-    if ($op == 'view' && user_access('view redhen contact revisions', $account)) {
-      return TRUE;
-    }
-
-    if ($op == 'edit' && user_access('edit redhen contact revisions', $account) && ($contact->redhen_state != REDHEN_STATE_ARCHIVED)) {
-      return TRUE;
-    }
-
-    if ($op == 'delete' && user_access('delete redhen contact revisions', $account)) {
-      return TRUE;
-    }
-    return FALSE;
+  // Set $default_revision as a shortcut variable to check, because relation
+  // role permissions do not currently support revisions.
+  if (!empty($contact) && $contact->isDefaultRevision()) {
+    $default_revision = TRUE;
+  }
+  else {
+    $default_revision = FALSE;
   }
 
-  if ($op == 'view' && user_access('access redhen contacts', $account)) {
-    return TRUE;
-  }
+  switch($op) {
+    case 'view':
+      if ($default_revision) {
+        // Regular and relation role checks.
+        if (user_access('access redhen contacts', $account)) {
+          return TRUE;
+        }
+        foreach($related_orgs as $org) {
+          if (isset($redhen_relation_role_permissions[$org[0]->org_id])) {
+            return TRUE;
+          }
+        }
+      }
+      else {
+        // Revision checks. Relation role permissions do not support revisions.
+        if (user_access('view redhen contact revisions', $account)) {
+          return TRUE;
+        }
+      }
+      break;
 
-  // Manage RedHen contacts give access to edit/delete/archive ops.
-  if (($op == 'edit' || $op == 'delete' || $op == 'archive') && user_access('manage redhen contacts', $account)) {
-    return TRUE;
-  }
+    // The same permission is used for both 'edit' and 'archive' actions.
+    case 'edit':
+    case 'archive':
+      if ($default_revision) {
+        // Regular and relations role checks.
+        if (user_access('manage redhen contacts', $account)) {
+          return TRUE;
+        }
+        foreach($related_orgs as $org) {
+          if (isset($redhen_relation_role_permissions[$org[0]->org_id]['edit_contact']) && $redhen_relation_role_permissions[$org[0]->org_id]['edit_contact'] !== 0) {
+            return TRUE;
+          }
+        }
+      }
+      else {
+        // Revision checks. Relation role permissions do not support revisions.
+        if (user_access('edit redhen contact revisions', $account)) {
+          return TRUE;
+        }
+      }
+      break;
 
-  // Check for relation role permissions.
-  foreach ($related_orgs as $relation_id => $org) {
-    $org = current($org);
-    if ($op == 'view' && (user_access('access redhen contacts', $account) ||
-        isset($redhen_relation_role_permissions[$org->org_id]))
-    ) {
-      return TRUE;
-    }
+    case 'delete';
+      if ($default_revision) {
+        // Regular and relations role checks.
+        if (user_access('manage redhen contacts', $account)) {
+          return TRUE;
+        }
+        foreach($related_orgs as $org) {
+          if (isset($redhen_relation_role_permissions[$org[0]->org_id]['delete_contact']) && $redhen_relation_role_permissions[$org[0]->org_id]['delete_contact'] !== 0) {
+            return TRUE;
+          }
+        }
+      }
+      else {
+        // Revision checks. Relation role permissions do not support revisions.
+        if (user_access('manage redhen contacts', $account)) {
+          return TRUE;
+        }
+      }
+      break;
 
-    if (($op == 'edit' || $op == 'archive') &&
-      ((user_access('manage redhen contacts', $account) && ($contact->redhen_state != REDHEN_STATE_ARCHIVED)) ||
-        (isset($redhen_relation_role_permissions[$org->org_id]) && $redhen_relation_role_permissions[$org->org_id]['edit_contact'] !== 0))
-    ) {
-      return TRUE;
-    }
-
-    if (($op == 'create' || $op == 'delete') && (user_access('manage redhen contacts', $account) ||
-        (isset($redhen_relation_role_permissions[$org->org_id]) && $redhen_relation_role_permissions[$org->org_id]['delete_contact'] !== 0))
-    ) {
-      return TRUE;
-    }
-  }
-
-  if (isset($contact) && is_string($contact) && $op == 'create' && user_access('create ' . $contact . ' contacts', $account)) {
-    return TRUE;
+    case 'create';
+      if (user_access('manage redhen contacts', $account)) {
+        return TRUE;
+      }
+      if (isset($contact) && is_string($contact)) {
+        if (user_access('create ' . $contact . ' contacts', $account)) {
+          return TRUE;
+        }
+      }
+      break;
   }
 
   return FALSE;
