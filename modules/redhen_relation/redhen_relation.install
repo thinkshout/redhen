@@ -225,6 +225,9 @@ function redhen_relation_uninstall() {
  */
 function redhen_relation_update_7101() {
 
+  // Make sure that new new entity classes are available.
+  registry_rebuild();
+
   // Install redhen_relation_role schema.
   $relation_role_schema = array(
     'description' => 'RedHen Relation Role.',
