@@ -28,7 +28,7 @@ function hook_redhen_contact_can_delete(RedhenContact $contact) {
 /**
  * Act on the contact when the link to a drupal user account is modified
  *
- * @param string $op ( insert | delete )
+ * @param string $op ( insert | update | delete )
  * @param $contact
  *  The RedhenContact object with the new user drupal user info
  * @param $old_contact
@@ -37,7 +37,14 @@ function hook_redhen_contact_can_delete(RedhenContact $contact) {
  * @return void
  */
 function hook_redhen_contact_user_update($op, RedhenContact $contact, $old_contact = NULL) {
-
+  // Send "Welcome (no approval required)" email to new user.
+  if ($op == 'insert') {
+    $wrapper = entity_metadata_wrapper('redhen_contact', $contact);
+    // Set _user_mail_notify specific operation.
+    $op = 'register_no_approval_required';
+    // Send an email.
+    _user_mail_notify($op, $wrapper->user->value());
+  }
 }
 
 /**
