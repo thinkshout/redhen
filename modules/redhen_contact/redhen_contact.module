@@ -10,6 +10,7 @@
  */
 define('REDHEN_CONTACT_ALTER_USERNAME', 'redhen_contact_alter_username');
 define('REDHEN_CONTACT_CONNECT_USERS', 'redhen_contact_connect_users');
+define('REDHEN_CONTACT_CREATE_USERS', 'redhen_contact_create_users');
 define('REDHEN_CONTACT_MIRROR_EMAIL', 'redhen_contact_mirror_email');
 define('REDHEN_CONTACT_REQUIRE_EMAIL', 'redhen_contact_require_email');
 define('REDHEN_CONTACT_REG', 'redhen_contact_reg');
@@ -759,6 +760,17 @@ function redhen_contact_redhen_settings() {
           '#states' => array(
             'enabled' => array(
               ':input[name="' . REDHEN_CONTACT_REQUIRE_EMAIL . '"]' => array('checked' => TRUE),
+            ),
+          ),
+        ),
+        REDHEN_CONTACT_CREATE_USERS => array(
+          '#type' => 'checkbox',
+          '#title' => t('Create a new Drupal user if an existing user with the same email cannot be found'),
+          '#description' => t('If checked, Redhen will first check if the new Contact can be connected with an existing Drupal user. If no user with the same email if found, a new user will be created and connected to the contact.'),
+          '#default_value' => variable_get(REDHEN_CONTACT_CREATE_USERS, FALSE),
+          '#states' => array(
+            'enabled' => array(
+              ':input[name="' . REDHEN_CONTACT_CONNECT_USERS . '"]' => array('checked' => TRUE),
             ),
           ),
         ),

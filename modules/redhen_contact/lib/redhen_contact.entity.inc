@@ -230,6 +230,50 @@ class RedhenContact extends Entity {
     $ret = parent::save();
 
     if ($ret && variable_get('redhen_contact_mirror_email', FALSE)) {
+      // Create entity_metadata_wrapper to ease interaction with Contact.
+      $wrapper = entity_metadata_wrapper('redhen_contact', $ret);
+
+      // Create new Drupal user account for the Contact, if Contact is not
+      // already linked to an existing Drupal user.
+      $existing_user = $wrapper->user->value();
+      if (!isset($existing_user) && $wrapper->email->value()) {
+        // Create a Drupal new user.
+        $new_user = new stdClass();
+
+        // Generate unique username.
+        do {
+          // @todo Tauno, do we need a check here for existance of first_name & last_name?
+          // @todo I didn't think so because they're required fields.
+          //  Using first and last names when generating username for ease of
+          // visual association.
+          $new_username = implode('_', array($wrapper->first_name->value(),
+            $wrapper->last_name->value(), user_password()));
+          // Ensure the new username is unique.
+          $query = new EntityFieldQuery();
+          $query->entityCondition('entity_type', 'user')
+            ->propertyCondition('name', $new_username);
+          $found = $query->execute();
+        } while (!empty($found));
+        $new_user->name = $new_username;
+
+        // Set new user's password to random alphanumeric string.
+        $new_user->pass = user_password();
+        // Set new user's email to same as Redhen contact.
+        $new_user->mail = $wrapper->email->value();
+        // Make new user active.
+        $new_user->status = 1;
+        // Set new user's time zone to match the site default.
+        $new_user->timezone = variable_get('date_default_timezone', '');
+
+        // Save the new Drupal user account.
+        $user = user_save($new_user);
+
+        // Create contact/user linkage.
+        $ret->uid = $user->uid;
+      }
+    }
+
+    if ($ret && variable_get('redhen_contact_mirror_email', FALSE)) {
       $email = $wrapper->email->value();
 
       // If we have a linked user and primary email, but they don't match, set
