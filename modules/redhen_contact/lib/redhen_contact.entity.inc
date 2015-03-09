@@ -240,22 +240,8 @@ class RedhenContact extends Entity {
         // Create a Drupal new user.
         $new_user = new stdClass();
 
-        // Generate unique username.
-        do {
-          // @todo Tauno, do we need a check here for existance of first_name & last_name?
-          // @todo I didn't think so because they're required fields.
-          //  Using first and last names when generating username for ease of
-          // visual association.
-          $new_username = implode('_', array($wrapper->first_name->value(),
-            $wrapper->last_name->value(), user_password()));
-          // Ensure the new username is unique.
-          $query = new EntityFieldQuery();
-          $query->entityCondition('entity_type', 'user')
-            ->propertyCondition('name', $new_username);
-          $found = $query->execute();
-        } while (!empty($found));
-        $new_user->name = $new_username;
-
+        // Set username to primary email as it is unique.
+        $new_user->name = $wrapper->email->value();
         // Set new user's password to random alphanumeric string.
         $new_user->pass = user_password();
         // Set new user's email to same as Redhen contact.
