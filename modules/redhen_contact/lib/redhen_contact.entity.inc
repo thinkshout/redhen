@@ -229,7 +229,7 @@ class RedhenContact extends Entity {
 
     $ret = parent::save();
 
-    if ($ret && variable_get('redhen_contact_mirror_email', FALSE)) {
+    if ($ret && variable_get('redhen_contact_create_user', FALSE)) {
       // Create entity_metadata_wrapper to ease interaction with Contact.
       $wrapper = entity_metadata_wrapper('redhen_contact', $ret);
 
