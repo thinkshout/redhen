@@ -14,7 +14,8 @@ class redhen_relation_handler_field_relation_link_combined_edit extends views_ha
 
   function option_definition() {
     $options = parent::option_definition();
-    $options['redhen_entity_type'] = reset(redhen_entity_types());
+    $entity_types = redhen_entity_types();
+    $options['redhen_entity_type'] = reset($entity_types);
     return $options;
   }
 
