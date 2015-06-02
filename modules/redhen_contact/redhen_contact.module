@@ -878,7 +878,8 @@ function redhen_contact_query_redhen_contact_label_alter(QueryAlterableInterface
   foreach ($where as $id => $condition) {
     // If we're trying to search for redhen_contact.label, alter the query to
     // search in both first and last name fields.
-    if ($condition['field'] == 'redhen_contact.label') {
+      if (isset($condition['field']) &&
+      $condition['field'] == 'redhen_contact.label') {
       unset($where[$id]);
       $or = db_or()
         ->condition('redhen_contact.first_name', $condition['value'], $condition['operator'])
