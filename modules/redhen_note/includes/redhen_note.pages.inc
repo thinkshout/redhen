@@ -8,16 +8,6 @@
 module_load_include('inc', 'redhen', 'includes/redhen.forms');
 
 /*
- * Create new Redhen note object and call note form
- */
-function redhen_note_add($entity, $entity_type) {
-  $redhen_note = entity_get_controller('redhen_note')->create(array('type' => 'redhen_note'));
-  $redhen_note->entity_type = $entity_type;
-  module_load_include('inc', 'redhen_note', 'includes/redhen_note.forms');
-  return drupal_get_form('redhen_note_form', $redhen_note, $entity);
-}
-
-/*
  * Show notes and actions
  */
 function redhen_note_notes_page($entity, $entity_type) {
