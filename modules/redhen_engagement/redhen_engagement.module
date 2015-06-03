@@ -343,7 +343,7 @@ function redhen_engagement_permission() {
  */
 function redhen_engagement_form_redhen_note_form_alter(&$form, &$form_state) {
   $note = $form_state['redhen_note'];
-  if ($note->entity_type != 'redhen_contact') {
+  if (isset($note->entity_type) && $note->entity_type != 'redhen_contact') {
     return;
   }
 
