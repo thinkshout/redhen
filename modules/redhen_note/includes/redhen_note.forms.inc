@@ -22,6 +22,7 @@ function redhen_note_form($form, &$form_state, $redhen_note, $entity = NULL) {
   // the "add note" callback.
   if (!$redhen_note) {
     $redhen_note = entity_get_controller('redhen_note')->create(array('type' => 'redhen_note'));
+    $redhen_note->entity_type = $entity->entityType();
   }
 
   $form_state['redhen_note'] = $redhen_note;
