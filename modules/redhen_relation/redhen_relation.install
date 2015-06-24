@@ -282,7 +282,10 @@ function redhen_relation_update_7101() {
     ),
   );
 
-  db_create_table('redhen_relation_role', $relation_role_schema);
+  // Ensure aren't trying to re-create an existing table.
+  if (!db_table_exists('redhen_relation_role')) {
+    db_create_table('redhen_relation_role', $relation_role_schema);
+  }
 
   // Remove old relation role field.
   $instance = field_info_instance(
