@@ -681,6 +681,10 @@ function redhen_activity_source_entity($message) {
         $ref_entity_type = 'redhen_org';
       }
       break;
+
+    default:
+      return;
+      break;
   }
   $source_entity = entity_load_single($ref_entity_type, $message->{$ref_field}[LANGUAGE_NONE][0]['target_id']);
   return $source_entity;
