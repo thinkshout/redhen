@@ -988,7 +988,10 @@ function redhen_contact_user_categories() {
  * Access callback for redhen_contact_user_categories().
  */
 function redhen_contact_user_category_access($account) {
-  if (user_access('edit own redhen contact') && redhen_contact_load_by_user($account)) {
+  global $user;
+  $contact = redhen_contact_load_by_user($account);
+  $this_contact = $contact ? ($contact->uid == $user->uid) : FALSE;
+  if (user_access('edit own redhen contact') && $this_contact) {
     return TRUE;
   }
   else {
