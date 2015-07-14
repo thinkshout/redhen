@@ -447,7 +447,7 @@ function redhen_contact_access($op, $contact = NULL, $account = NULL) {
   }
 
   // Handle revisions.
-  if (isset($contact) && !$contact->isDefaultRevision()) {
+  if (is_object($contact) && !$contact->isDefaultRevision()) {
     if ($op == 'view' && user_access('view redhen contact revisions', $account)) {
       return TRUE;
     }

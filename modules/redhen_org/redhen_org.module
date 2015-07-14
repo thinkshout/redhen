@@ -430,7 +430,7 @@ function redhen_org_access($op, $org = NULL, $account = NULL) {
     return TRUE;
   }
 
-  if (isset($org) && !$org->isDefaultRevision()) {
+  if (is_object($org) && !$org->isDefaultRevision()) {
     if ($op == 'view' && user_access('access redhen org revisions', $account)) {
       return TRUE;
     }
