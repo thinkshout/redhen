@@ -990,13 +990,23 @@ function redhen_contact_user_categories() {
 function redhen_contact_user_category_access($account) {
   global $user;
   $contact = redhen_contact_load_by_user($account);
-  $this_contact = $contact ? ($contact->uid == $user->uid) : FALSE;
-  if (user_access('edit own redhen contact') && $this_contact) {
-    return TRUE;
-  }
-  else {
+
+  // There is no contact linked to this user account.
+  if (!$contact) {
     return FALSE;
   }
+
+  // User is editing their own contact information.
+  if (($contact->uid == $user->uid) && user_access('edit own redhen contact')) {
+    return TRUE;
+  }
+
+  // Privileged user trying to edit contact information.
+  if (redhen_contact_access('edit', $contact, $user)) {
+    return TRUE;
+  }
+
+  return FALSE;
 }
 
 /**
