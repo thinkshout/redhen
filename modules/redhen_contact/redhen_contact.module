@@ -16,7 +16,9 @@ define('REDHEN_CONTACT_REG', 'redhen_contact_reg');
 define('REDHEN_CONTACT_REG_TYPE', 'redhen_contact_reg_type');
 define('REDHEN_CONTACT_REG_UPDATE', 'redhen_contact_reg_update');
 define('REDHEN_CONTACT_REG_UPDATE_FIELDS', 'redhen_contact_reg_update_fields');
-
+// View mode to render contact as on the user view page.
+// Not configurable via the UI.
+define('REDHEN_CONTACT_USER_VIEW_MODE', 'redhen_contact_user_view_mode');
 
 /**
  * Implements hook_entity_info().
@@ -876,7 +878,8 @@ function redhen_contact_query_redhen_contact_label_alter(QueryAlterableInterface
   foreach ($where as $id => $condition) {
     // If we're trying to search for redhen_contact.label, alter the query to
     // search in both first and last name fields.
-    if ($condition['field'] == 'redhen_contact.label') {
+      if (is_string($condition['field']) &&
+      $condition['field'] == 'redhen_contact.label') {
       unset($where[$id]);
       $or = db_or()
         ->condition('redhen_contact.first_name', $condition['value'], $condition['operator'])
@@ -899,7 +902,7 @@ function redhen_contact_query_redhen_contact_label_alter(QueryAlterableInterface
  */
 function redhen_contact_load_by_user($account, $state = REDHEN_STATE_ACTIVE) {
   $contact = &drupal_static(__FUNCTION__ . $account->uid, FALSE);
-  if (!$contact && isset($account->uid)) {
+  if (!$contact && !empty($account->uid)) {
     $contacts = redhen_contact_load_multiple(FALSE, array(
       'uid' => $account->uid,
       'redhen_state' => $state,
@@ -1181,6 +1184,7 @@ function redhen_contact_user_form_submit($form, &$form_state) {
 function redhen_contact_user_view($account, $view_mode, $langcode) {
   // Include contact view if access allowed.
   if (user_access('view own redhen contact') && $contact = redhen_contact_load_by_user($account)) {
+    $view_mode = variable_get('redhen_contact_view_mode', $view_mode);
     $account->content['redhen_contact'] = redhen_contact_view($contact, $view_mode);
   }
 }

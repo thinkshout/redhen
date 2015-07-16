@@ -135,7 +135,7 @@ function redhen_org_menu() {
       'page callback' => 'redhen_org_add_page',
       'page arguments' => array($key),
       'access callback' => 'redhen_org_access',
-      'access arguments' => array('create'),
+      'access arguments' => array('create', $key),
       'file' => 'includes/redhen_org.pages.inc',
     );
   }
@@ -198,7 +198,7 @@ function redhen_org_menu() {
     'page callback' => 'redhen_org_revision_list',
     'page arguments' => array(2),
     'access callback' => 'user_access',
-    'access arguments' => array('access redhen orgs'),
+    'access arguments' => array('access redhen org revisions'),
     'file' => 'includes/redhen_org.pages.inc',
     'weight' => 4,
   );
@@ -472,7 +472,7 @@ function redhen_org_access($op, $org = NULL, $account = NULL) {
  * Implements hook_permission().
  */
 function redhen_org_permission() {
-  return array(
+  $permissions = array(
     'administer redhen_org types' => array(
       'title' => t('Administer RedHen Organization Types'),
       'description' => t('Manage RedHen organization types and their structure.'),
@@ -498,6 +498,16 @@ function redhen_org_permission() {
       'description' => t('View for Redhen Organizations revisions'),
     ),
   );
+
+  foreach (redhen_org_get_types() as $type => $info) {
+    $create_org_of_type_permission = 'create ' . $type . ' orgs';
+    $permissions[$create_org_of_type_permission] = array(
+      'title' => t('Create @organization_type Organizations', array('@organization_type' => $info->label)),
+      'description' => t('Create an organization of the type @organization_type.', array('@organization_type' => $info->label)),
+    );
+  }
+
+  return $permissions;
 }
 
 /**
