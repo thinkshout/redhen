@@ -12,6 +12,7 @@ define('REDHEN_CONTACT_ALTER_USERNAME', 'redhen_contact_alter_username');
 define('REDHEN_CONTACT_CONNECT_USERS', 'redhen_contact_connect_users');
 define('REDHEN_CONTACT_MIRROR_EMAIL', 'redhen_contact_mirror_email');
 define('REDHEN_CONTACT_REQUIRE_EMAIL', 'redhen_contact_require_email');
+define('REDHEN_CONTACT_REQUIRE_FIRST_NAME', 'redhen_contact_require_first_name');
 define('REDHEN_CONTACT_REG', 'redhen_contact_reg');
 define('REDHEN_CONTACT_REG_TYPE', 'redhen_contact_reg_type');
 define('REDHEN_CONTACT_REG_UPDATE', 'redhen_contact_reg_update');
@@ -823,6 +824,13 @@ function redhen_contact_redhen_settings() {
               ':input[name="redhen_contact_reg_update"]' => array('checked' => FALSE),
             ),
           ),
+        ),
+        REDHEN_CONTACT_REQUIRE_FIRST_NAME => array(
+          '#type' => 'checkbox',
+          '#options' => array(1,1),
+          '#title' => t('Require contacts to have non-empty first name'),
+          '#description' => t('Uncheck this if contact first name field should be optional.'),
+          '#default_value' => variable_get(REDHEN_CONTACT_REQUIRE_FIRST_NAME, TRUE),
         ),
       ),
     ),

@@ -23,7 +23,7 @@ function redhen_contact_contact_form($form, &$form_state, $contact) {
     '#title' => t('First name'),
     '#default_value' => $contact->first_name,
     '#maxlength' => 255,
-    '#required' => TRUE,
+    '#required' => variable_get(REDHEN_CONTACT_REQUIRE_FIRST_NAME, TRUE),
     '#weight' => -6,
   );
   $form['name']['middle_name'] = array(
