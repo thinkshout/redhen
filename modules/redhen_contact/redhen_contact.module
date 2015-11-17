@@ -434,6 +434,9 @@ function redhen_contact_save(RedhenContact $contact) {
  *   The user to check for. Leave it to NULL to check for the current user.
  */
 function redhen_contact_access($op, $contact = NULL, $account = NULL) {
+  // Map 'update' to 'edit' which is used internally below.
+  $op = ($op == 'update') ? 'edit' : $op;
+
   global $user;
   $account = isset($account) ? $account : $user;
 

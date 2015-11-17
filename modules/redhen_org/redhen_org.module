@@ -414,6 +414,9 @@ function redhen_org_save(RedhenOrg $org) {
  *   The user to check for. Leave it to NULL to check for the current user.
  */
 function redhen_org_access($op, $org = NULL, $account = NULL) {
+  // Map 'update' to 'edit' which is used internally below.
+  $op = ($op == 'update') ? 'edit' : $op;
+
   global $user;
   $account = isset($account) ? $account : $user;
 
