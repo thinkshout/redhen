@@ -825,14 +825,14 @@ function redhen_contact_redhen_settings() {
             ),
           ),
         ),
-        REDHEN_CONTACT_REQUIRE_FIRST_NAME => array(
-          '#type' => 'checkbox',
-          '#options' => array(1,1),
-          '#title' => t('Require contacts to have non-empty first name'),
-          '#description' => t('Uncheck this if contact first name field should be optional.'),
-          '#default_value' => variable_get(REDHEN_CONTACT_REQUIRE_FIRST_NAME, TRUE),
-        ),
       ),
+    ),
+    REDHEN_CONTACT_REQUIRE_FIRST_NAME => array(
+      '#type' => 'checkbox',
+      '#options' => array(1, 1),
+      '#title' => t('Require contacts to have non-empty first name'),
+      '#description' => t('Uncheck this if contact first name field should be optional.'),
+      '#default_value' => variable_get(REDHEN_CONTACT_REQUIRE_FIRST_NAME, TRUE),
     ),
   );
 }
