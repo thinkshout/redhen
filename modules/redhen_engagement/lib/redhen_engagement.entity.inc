@@ -69,6 +69,8 @@ class RedhenEngagement extends Entity {
         throw $e;
       }
     }
+
+    return $ret;
   }
 
 }
