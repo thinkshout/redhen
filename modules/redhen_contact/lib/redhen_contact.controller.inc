@@ -25,7 +25,7 @@ class RedhenContactEntityController extends EntityAPIController {
       $contact->updated = REQUEST_TIME;
 
       // New contact, set created prop.
-      if (isset($contact->is_new) && $contact->is_new) {
+      if (isset($contact->is_new) && $contact->is_new && !isset($contact->created)) {
         $contact->created = REQUEST_TIME;
       }
       // Set revision flags. By default, save a new revision and set it as
