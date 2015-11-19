@@ -227,6 +227,11 @@ class RedhenContact extends Entity {
       }
     }
 
+    // When there is only one email set, make sure it's marked 'default'.
+    if (!empty($this->{REDHEN_CONTACT_EMAIL_FIELD}) && count($this->{REDHEN_CONTACT_EMAIL_FIELD}[LANGUAGE_NONE]) === 1) {
+      $this->{REDHEN_CONTACT_EMAIL_FIELD}[LANGUAGE_NONE][0]['default'] = 1;
+    }
+
     $ret = parent::save();
 
     if ($ret && variable_get('redhen_contact_mirror_email', FALSE)) {
