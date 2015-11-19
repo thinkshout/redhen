@@ -174,8 +174,8 @@ function theme_redhen_property_field($variables) {
  *   Entity type to filter by,
  * @param array $header
  *   Header array for sorting. Should match the table header used in output.
- * @param string $bundle
- *   Entity bundle.
+ * @param string|array $bundle
+ *   A single entity bundle or an array of multiple bundles.
  * @param array $properties
  *   Associative array of key/value pairs.
  * @param array $fields
@@ -186,7 +186,7 @@ function theme_redhen_property_field($variables) {
  * @return array
  *   Executed query object.
  */
-function redhen_filter_query($entity_type, $header, $bundle = '', $properties = array(), $fields = array()) {
+function redhen_filter_query($entity_type, $header, $bundle = NULL, $properties = array(), $fields = array()) {
   $query = new EntityFieldQuery();
 
   $query
@@ -195,7 +195,8 @@ function redhen_filter_query($entity_type, $header, $bundle = '', $properties = 
     ->pager(variable_get(REDHEN_ITEMS_PAGE, 10));
 
   if (!empty($bundle)) {
-    $query->entityCondition('bundle', $bundle, '=');
+    $operator = is_array($bundle) ? 'in' : '=';
+    $query->entityCondition('bundle', $bundle, $operator);
   }
 
   // Add property filters.
