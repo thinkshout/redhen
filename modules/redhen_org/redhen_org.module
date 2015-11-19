@@ -20,6 +20,9 @@ function redhen_org_entity_info() {
       'rules controller class' => 'EntityDefaultRulesController',
       'metadata controller class' => 'RedhenOrgMetadataController',
       'entity class' => 'RedhenOrg',
+      'inline entity form' => array(
+        'controller' => 'RedHenOrgInlineEntityFormController',
+      ),
       'base table' => 'redhen_org',
       'revision table' => 'redhen_org_revision',
       'fieldable' => TRUE,
