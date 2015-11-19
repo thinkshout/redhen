@@ -125,7 +125,11 @@ function redhen_contact_contact_form_submit($form, &$form_state) {
 
   $wrapper = entity_metadata_wrapper('redhen_contact', $contact);
 
-  drupal_set_message(t('Contact %name saved.', array('%name' => $wrapper->full_name->value())));
+  // Only show a message if creating a contact using RedHen's forms.
+  $menu_item = menu_get_item();
+  if (strpos($menu_item['path'], 'redhen/contact') === 0) {
+    drupal_set_message(t('Contact %name saved.', array('%name' => $wrapper->full_name->value())));
+  }
   $form_state['redirect'] = 'redhen/contact/' . $contact->contact_id;
 }
 
