@@ -46,6 +46,11 @@ function redhen_contact_contact_form($form, &$form_state, $contact) {
   $form_state['redhen_contact'] = $contact;
   field_attach_form('redhen_contact', $contact, $form, $form_state);
 
+  // Display asterisk if the field is required.
+  if (isset($form['redhen_contact_email'])) {
+    $form['redhen_contact_email'][$form['redhen_contact_email']['#language']]['#required'] = redhen_contact_email_required();
+  }
+
   $form['actions'] = array(
     '#type' => 'container',
     '#attributes' => array('class' => array('form-actions')),
