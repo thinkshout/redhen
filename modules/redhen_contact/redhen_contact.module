@@ -1335,3 +1335,17 @@ function redhen_contact_preprocess_comment(&$variables) {
     }
   }
 }
+
+/**
+ * Implements hook_query_TAG_alter() for tag redhen_contact_generic_selection.
+ */
+function redhen_contact_query_redhen_contact_generic_selection_alter(QueryAlterableInterface $query) {
+  // Add an OR condition for first_name and last_name properties.
+  $search_string = $query->alterMetaData['search_string'];
+  $tables = $query->getTables();
+  $table = $tables['redhen_contact']['alias'];
+  $or = db_or()
+    ->condition("$table.first_name", "%$search_string%", 'LIKE')
+    ->condition("$table.last_name", "%$search_string%", 'LIKE');
+  $query->condition($or);
+}
