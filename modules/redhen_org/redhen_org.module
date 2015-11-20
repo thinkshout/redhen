@@ -410,10 +410,10 @@ function redhen_org_save(RedhenOrg $org) {
  * @param string $op
  *   The operation being performed. One of 'view', 'update', 'create' or
  *   'delete'.
- * @param RedhenOrg $org
+ * @param RedhenOrg|string $org
  *   Optionally a org to check access for or for the create operation the
  *   org type. If nothing is given access permissions for all orgs are returned.
- * @param stdClass $account
+ * @param object $account
  *   The user to check for. Leave it to NULL to check for the current user.
  */
 function redhen_org_access($op, $org = NULL, $account = NULL) {

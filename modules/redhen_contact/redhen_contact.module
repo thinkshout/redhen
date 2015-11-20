@@ -428,7 +428,7 @@ function redhen_contact_save(RedhenContact $contact) {
  * @param string $op
  *   The operation being performed. One of 'view', 'update', 'create' or
  *   'delete'.
- * @param RedhenContact $contact
+ * @param RedhenContact|string $contact
  *   Contact to check access for, or for the create operation, the contact type.
  *   If nothing is given access permissions for all contacts are returned.
  * @param object $account
