@@ -11,16 +11,16 @@ class RedhenContact extends Entity {
 
   // @codingStandardsIgnoreStart
   public
-    $first_name = '',
-    $middle_name = '',
-    $last_name = '',
-    $contact_id = NULL,
-    $uid = NULL,
-    $author_uid = NULL,
+    $first_name,
+    $middle_name,
+    $last_name,
+    $contact_id,
+    $uid,
+    $author_uid,
     $redhen_state = REDHEN_STATE_ACTIVE,
-    $type = '',
-    $created = '',
-    $updated = '';
+    $type,
+    $created,
+    $updated;
   // @codingStandardsIgnoreEnd
 
   /**
