@@ -79,6 +79,14 @@ function redhen_contact_contact_form($form, &$form_state, $contact) {
 }
 
 /**
+ * A version of the RedHen Contact form displayed as a tab on Users.
+ */
+function redhen_contact_user_contact_form($form, &$form_state, $user) {
+  $contact = redhen_contact_load_by_user($user);
+  return redhen_contact_contact_form($form, $form_state, $contact);
+}
+
+/**
  * Validation callback for redhen_contact_contact_form().
  */
 function redhen_contact_contact_form_validate($form, &$form_state) {
@@ -130,12 +138,18 @@ function redhen_contact_contact_form_submit($form, &$form_state) {
 
   $wrapper = entity_metadata_wrapper('redhen_contact', $contact);
 
-  // Only show a message if creating a contact using RedHen's forms.
-  $menu_item = menu_get_item();
-  if (strpos($menu_item['path'], 'redhen/contact') === 0) {
-    drupal_set_message(t('Contact %name saved.', array('%name' => $wrapper->full_name->value())));
+  if ($form_state['build_info']['form_id'] == 'redhen_contact_user_contact_form') {
+    drupal_set_message(t('Contact information saved.'));
+    $form_state['redirect'] = $wrapper->user->url->value();
   }
-  $form_state['redirect'] = 'redhen/contact/' . $contact->contact_id;
+  else {
+    // Only show a message if creating a contact using RedHen's forms.
+    $menu_item = menu_get_item();
+    if (strpos($menu_item['path'], 'redhen/contact') === 0) {
+      drupal_set_message(t('Contact %name saved.', array('%name' => $wrapper->full_name->value())));
+    }
+    $form_state['redirect'] = $wrapper->url->value();
+  }
 }
 
 /**

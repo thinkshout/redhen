@@ -276,18 +276,26 @@ function redhen_contact_menu() {
     'file' => 'includes/redhen_contact.forms.inc',
     'weight' => 5,
   );
-
   $items['redhen/contact/%redhen_contact/view/unarchive'] = array(
-      'title' => 'Unarchive',
-      'page callback' => 'drupal_get_form',
-      'page arguments' => array('redhen_contact_contact_unarchive_form', 2),
-      'access callback' => 'redhen_contact_access',
-      'access arguments' => array('unarchive', 2),
-      'type' => MENU_LOCAL_TASK,
-      'file' => 'includes/redhen_contact.forms.inc',
-      'weight' => 4,
+    'title' => 'Unarchive',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('redhen_contact_contact_unarchive_form', 2),
+    'access callback' => 'redhen_contact_access',
+    'access arguments' => array('unarchive', 2),
+    'type' => MENU_LOCAL_TASK,
+    'file' => 'includes/redhen_contact.forms.inc',
+    'weight' => 4,
   );
-
+  $items['user/%user/redhen_contact'] = array(
+    'title' => 'RedHen Contact',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('redhen_contact_user_contact_form', 1),
+    'access callback' => 'redhen_contact_user_contact_access',
+    'access arguments' => array(1),
+    'type' => MENU_LOCAL_TASK,
+    'file' => 'includes/redhen_contact.forms.inc',
+    'weight' => 5,
+  );
   if (module_exists('devel')) {
     $items['redhen/contact/%redhen_contact/devel'] = array(
       'title' => 'Devel',
@@ -991,24 +999,9 @@ function redhen_contact_create(array $values = array()) {
 }
 
 /**
- * Implements hook_user_categories().
- */
-function redhen_contact_user_categories() {
-  return array(
-    array(
-      'name' => 'redhen_contact',
-      'title' => t('RedHen Contact'),
-      'weight' => 1,
-      'access callback' => 'redhen_contact_user_category_access',
-      'access arguments' => array(1),
-    ),
-  );
-}
-
-/**
  * Access callback for redhen_contact_user_categories().
  */
-function redhen_contact_user_category_access($account) {
+function redhen_contact_user_contact_access($account) {
   $contact = redhen_contact_load_by_user($account);
   global $user;
 
@@ -1034,21 +1027,8 @@ function redhen_contact_user_category_access($account) {
  * Implements hook_form_FORM_ID_alter().
  */
 function redhen_contact_form_user_profile_form_alter(&$form, &$form_state) {
-  $category = $form['#user_category'];
-  if ($category == 'redhen_contact') {
-    $contact = redhen_contact_load_by_user($form['#user']);
-    module_load_include('inc', 'redhen_contact', 'includes/redhen_contact.forms');
-
-    // Add a submit handler to redirect back to user profile.
-    $contact_form = array('#submit' => array('redhen_contact_user_form_submit'));
-    $form['redhen_contact'] = redhen_contact_contact_form($contact_form, $form_state, $contact);
-
-    // Unset the profile save button, let the contact form handle it.
-    unset($form['actions']);
-  }
-
   // If we're mirroring the contact's email address - disable the field.
-  if ($category == 'account' && variable_get('redhen_contact_mirror_email', FALSE)) {
+  if ($form['#user_category'] == 'account' && variable_get('redhen_contact_mirror_email', FALSE)) {
     $contact = redhen_contact_load_by_user($form['#user']);
     if ($contact) {
       $form['account']['mail']['#disabled'] = TRUE;
