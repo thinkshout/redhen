@@ -370,8 +370,6 @@ function redhen_contact_load($contact_id) {
 /**
  * Loads multiple contacts by ID or based on a set of matching conditions.
  *
- * @see entity_load()
- *
  * @param array $contact_ids
  *   An array of contact IDs.
  * @param array $conditions
@@ -379,6 +377,8 @@ function redhen_contact_load($contact_id) {
  *     'field' => $value.
  * @param bool $reset
  *   Whether to reset the internal contact loading cache.
+ *
+ * @see entity_load()
  *
  * @return array
  *   An array of contact objects indexed by contact_id.
@@ -808,7 +808,7 @@ function redhen_contact_redhen_settings() {
       'settings' => array(
         REDHEN_CONTACT_REG => array(
           '#type' => 'checkbox',
-          '#options' => array(1,1),
+          '#options' => array(1, 1),
           '#title' => t('Create a contact during user registration'),
           '#default_value' => variable_get(REDHEN_CONTACT_REG, FALSE),
         ),
@@ -826,14 +826,14 @@ function redhen_contact_redhen_settings() {
         ),
         REDHEN_CONTACT_REG_UPDATE => array(
           '#type' => 'checkbox',
-          '#options' => array(1,1),
+          '#options' => array(1, 1),
           '#title' => t('Update and link existing contacts'),
           '#description' => t('If a contact is found with the same email as the new Drupal user, it will be updated and linked to the new account.'),
           '#default_value' => variable_get(REDHEN_CONTACT_REG_UPDATE, FALSE),
         ),
         REDHEN_CONTACT_REG_UPDATE_FIELDS => array(
           '#type' => 'checkbox',
-          '#options' => array(1,1),
+          '#options' => array(1, 1),
           '#title' => t('Update contact fields'),
           '#description' => t('Should the contact fields be updated?'),
           '#default_value' => variable_get(REDHEN_CONTACT_REG_UPDATE_FIELDS, FALSE),
@@ -904,7 +904,7 @@ function redhen_contact_query_redhen_contact_label_alter(QueryAlterableInterface
   foreach ($where as $id => $condition) {
     // If we're trying to search for redhen_contact.label, alter the query to
     // search in both first and last name fields.
-      if (is_string($condition['field']) &&
+    if (is_string($condition['field']) &&
       $condition['field'] == 'redhen_contact.label') {
       unset($where[$id]);
       $or = db_or()
@@ -959,7 +959,7 @@ function redhen_contact_load_by_mail($mail, $state = REDHEN_STATE_ACTIVE) {
     $query = new EntityFieldQuery();
     $query
       ->entityCondition('entity_type', 'redhen_contact')
-     ->fieldCondition('redhen_contact_email', 'value', $mail, '=');
+      ->fieldCondition('redhen_contact_email', 'value', $mail, '=');
     if (!is_null($state)) {
       $query->propertyCondition('redhen_state', $state);
     }
@@ -989,7 +989,7 @@ function redhen_contact_username_alter(&$name, $account) {
  * Create a new contact object.
  *
  * @param array $values
- *   Associative array of values. At least include array('type' => $type)
+ *   Associative array of values. At least include array('type' => $type).
  *
  * @return RedhenContact
  *   New contact entity.
@@ -1255,20 +1255,19 @@ function redhen_contact_property_email_set(RedhenContact $contact, $name, $value
   // Now set the new email as default.
   $contact->{REDHEN_CONTACT_EMAIL_FIELD}[LANGUAGE_NONE][$key] = array(
     'value' => $value,
-    'default' => 1
+    'default' => 1,
   );
 }
 
 /**
- * Return the form_state that includes just the values from the visible form
- * elements.
+ * Return form_state that includes the values from the visible form elements.
  *
- * @param $form
+ * @param array $form
  *   The RedHen contact form.
- * @param $form_state
+ * @param array $form_state
  *   The RedHen contact form state.
  *
- * @return
+ * @return array
  *   The modified form_state array.
  */
 function redhen_contact_user_registration_form_state($form, $form_state) {
@@ -1317,7 +1316,9 @@ function redhen_contact_preprocess_comment(&$variables) {
 }
 
 /**
- * Implements hook_query_TAG_alter() for tag redhen_contact_generic_selection.
+ * Implements hook_query_TAG_alter().
+ *
+ * For tag redhen_contact_generic_selection.
  */
 function redhen_contact_query_redhen_contact_generic_selection_alter(QueryAlterableInterface $query) {
   // Add an OR condition for first_name and last_name properties.

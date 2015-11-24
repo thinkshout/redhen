@@ -1,4 +1,8 @@
 <?php
+/**
+ * @file
+ * Defines the EntityDefaultUIController for RedHen contacts.
+ */
 
 /**
  * Redhen Contact Type UI controller.

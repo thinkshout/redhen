@@ -2,7 +2,7 @@
 
 /**
  * @file
- *
+ * RedHen page callbacks.
  */
 
 /**

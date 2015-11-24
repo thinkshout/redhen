@@ -276,10 +276,8 @@ function redhen_note_delete_multiple($note_ids) {
 /**
  * Display a note.
  *
- * @param  $note
+ * @param  RedhenNote $note
  *   A Fully loaded note object.
- *
- * @return void
  */
 function redhen_note_view($entity, $entity_type, RedhenNote $note) {
   return $note->view();
@@ -288,10 +286,8 @@ function redhen_note_view($entity, $entity_type, RedhenNote $note) {
 /**
  * Title callback for hook_menu().
  *
- * @param  $note
+ * @param RedhenNote $note
  *   A loaded note object.
- *
- * @return void
  */
 function redhen_note_title(RedhenNote $note) {
   return $note->label();

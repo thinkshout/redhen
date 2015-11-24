@@ -1,4 +1,8 @@
 <?php
+/**
+ * @file
+ * Views controller for RedHen Contacts.
+ */
 
 /**
  * RedhenContact Views Controller class.
@@ -83,4 +87,5 @@ class RedhenContactViewsController extends EntityDefaultViewsController {
 
     return $data;
   }
+
 }

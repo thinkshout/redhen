@@ -6,6 +6,8 @@
  */
 
 /**
+ * RedhenContactTypeController class.
+ *
  * The controller class for contact types contains methods for CRUD
  * operations. The load method is inherited from the default controller.
  */
@@ -39,7 +41,7 @@ class RedhenContactTypeController extends EntityAPIControllerExportable {
       }
       parent::delete($ids, $transaction);
     }
-    catch(Exception $e) {
+    catch (Exception $e) {
       $transaction->rollback();
       watchdog_exception($this->entityType, $e);
       throw $e;

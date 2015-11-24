@@ -171,7 +171,7 @@ function theme_redhen_property_field($variables) {
  * Used to filter Redhen entity list pages.
  *
  * @param string $entity_type
- *   Entity type to filter by,
+ *   Entity type to filter by.
  * @param array $header
  *   Header array for sorting. Should match the table header used in output.
  * @param string|array $bundle
@@ -180,8 +180,6 @@ function theme_redhen_property_field($variables) {
  *   Associative array of key/value pairs.
  * @param array $fields
  *   Entity fields to filter by.
- * @param int $items_page
- *   Results per page.
  *
  * @return array
  *   Executed query object.
@@ -328,7 +326,7 @@ function theme_redhen_home($variables) {
     ),
     '#attached' => array(
       'css' => array($path . '/misc/redhen.css'),
-    )
+    ),
   );
 
   return $render;
@@ -379,6 +377,7 @@ function redhen_format_date($timestamp, $type = 'short') {
  * Provide an alterable array of field types to exclude from RedHen filters.
  *
  * @return array
+ *   An array of field types to exclude from filters.
  */
 function redhen_filter_form_blacklist() {
   $black_list = array(

@@ -273,9 +273,6 @@ function redhen_filter_form_fields(&$form, &$form_state, $entity_type, $bundle) 
   // Show a message if there is more than one bundle and this one has no
   // applicable fields.
   if (!$filters_count && isset($form['filter_fieldset']['filters']['bundle'])) {
-    $form['filter_fieldset']['filters']['fields']['message'] = array(
-      '#markup' => t('There are no additional fields for %bundle.', array(
-        '%bundle' => $bundle,
-    )));
+    $form['filter_fieldset']['filters']['fields']['message'] = array('#markup' => t('There are no additional fields for %bundle.', array('%bundle' => $bundle)));
   }
 }
