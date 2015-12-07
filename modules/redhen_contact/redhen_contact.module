@@ -287,16 +287,18 @@ function redhen_contact_menu() {
     'file' => 'includes/redhen_contact.forms.inc',
     'weight' => 4,
   );
-  $items['user/%user/redhen_contact'] = array(
-    'title' => 'RedHen Contact',
-    'page callback' => 'drupal_get_form',
-    'page arguments' => array('redhen_contact_user_contact_form', 1),
-    'access callback' => 'redhen_contact_user_contact_access',
-    'access arguments' => array(1),
-    'type' => MENU_LOCAL_TASK,
-    'file' => 'includes/redhen_contact.forms.inc',
-    'weight' => 5,
-  );
+  if (!variable_get(REDHEN_CONTACT_EMBED_ON_USER_FORM, FALSE)) {
+    $items['user/%user/redhen_contact'] = array(
+      'title' => 'RedHen Contact',
+      'page callback' => 'drupal_get_form',
+      'page arguments' => array('redhen_contact_user_contact_form', 1),
+      'access callback' => 'redhen_contact_user_contact_access',
+      'access arguments' => array(1),
+      'type' => MENU_LOCAL_TASK,
+      'file' => 'includes/redhen_contact.forms.inc',
+      'weight' => 5,
+    );
+  }
   if (module_exists('devel')) {
     $items['redhen/contact/%redhen_contact/devel'] = array(
       'title' => 'Devel',
