@@ -1015,9 +1015,12 @@ function redhen_contact_create(array $values = array()) {
 /**
  * Access callback for redhen_contact_user_categories().
  */
-function redhen_contact_user_contact_access($account) {
-  $contact = redhen_contact_load_by_user($account);
+function redhen_contact_user_contact_access($account = NULL) {
   global $user;
+  if (!$account) {
+    $account = $user;
+  }
+  $contact = redhen_contact_load_by_user($account);
 
   // There is no contact linked to this user account.
   if (!$contact) {
