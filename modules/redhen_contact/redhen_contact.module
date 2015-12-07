@@ -13,6 +13,7 @@ define('REDHEN_CONTACT_ALTER_COMMENT_AUTHOR', 'redhen_contact_alter_comments');
 define('REDHEN_CONTACT_CONNECT_USERS', 'redhen_contact_connect_users');
 define('REDHEN_CONTACT_MIRROR_EMAIL', 'redhen_contact_mirror_email');
 define('REDHEN_CONTACT_REQUIRE_EMAIL', 'redhen_contact_require_email');
+define('REDHEN_CONTACT_EMBED_ON_USER_FORM', 'redhen_contact_embed_on_user_form');
 define('REDHEN_CONTACT_REQUIRE_FIRST_NAME', 'redhen_contact_require_first_name');
 define('REDHEN_CONTACT_REG', 'redhen_contact_reg');
 define('REDHEN_CONTACT_REG_TYPE', 'redhen_contact_reg_type');
@@ -782,6 +783,17 @@ function redhen_contact_redhen_settings() {
           '#title' => t('Mirror RedHen Contact email to Drupal user'),
           '#description' => t('If checked, RedHen will mirror the primary email of a RedHen Contact with the email of the linked user account. The email field on the Drupal user form will also be disabled.'),
           '#default_value' => variable_get(REDHEN_CONTACT_MIRROR_EMAIL, FALSE),
+          '#states' => array(
+            'enabled' => array(
+              ':input[name="' . REDHEN_CONTACT_CONNECT_USERS . '"]' => array('checked' => TRUE),
+            ),
+          ),
+        ),
+        REDHEN_CONTACT_EMBED_ON_USER_FORM => array(
+          '#type' => 'checkbox',
+          '#title' => t('Embed Redhen Contact Fields on the User edit form'),
+          '#description' => t('If checked, the RedHen Contact tab on users will be removed, and the Contact edit fields will instead be attached to the bottom of the User Edit form.'),
+          '#default_value' => variable_get(REDHEN_CONTACT_EMBED_ON_USER_FORM, FALSE),
           '#states' => array(
             'enabled' => array(
               ':input[name="' . REDHEN_CONTACT_CONNECT_USERS . '"]' => array('checked' => TRUE),
