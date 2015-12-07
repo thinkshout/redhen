@@ -1147,6 +1147,27 @@ function redhen_contact_user_registration_validate($form, &$form_state) {
 }
 
 /**
+ * Update form RedHen contact submit handler.
+ *
+ * Updates a related Contact on user update.
+ *
+ * @param array $form
+ *   Form array.
+ * @param array $form_state
+ *   Form state array.
+ */
+function redhen_contact_user_update_submit($form, &$form_state) {
+  $contact = $form_state['redhen_contact'];
+  $message = _redhen_contact_user_submission_apply($form, $form_state, $contact);
+  redhen_contact_save($contact);
+
+  // Only display this message to CRM users to avoid confusion.
+  if (user_access('access redhen contacts')) {
+    drupal_set_message($message);
+  }
+}
+
+/**
  * Registration form RedHen contact submit handler.
  *
  * Creates a Contact on user registration.
