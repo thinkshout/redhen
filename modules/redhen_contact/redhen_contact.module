@@ -1046,14 +1046,18 @@ function redhen_contact_user_contact_access($account = NULL) {
 function redhen_contact_form_user_profile_form_alter(&$form, &$form_state) {
   $contact = redhen_contact_load_by_user($form['#user']);
   if ($contact) {
-    // If we're mirroring the contact's email address - disable the field.
-    if ($form['#user_category'] == 'account' && variable_get('redhen_contact_mirror_email', FALSE)) {
+    if ($form['#user_category'] == 'account' && variable_get(REDHEN_CONTACT_MIRROR_EMAIL, FALSE)) {
       $form['account']['mail']['#disabled'] = TRUE;
       $form['account']['mail']['#description'] .= ' ' . t('The email address for this account is managed by RedHen.');
     }
     if ($form['#user_category'] == 'account' && variable_get(REDHEN_CONTACT_EMBED_ON_USER_FORM, FALSE) && redhen_contact_user_contact_access()) {
+      if ($form['account']['mail']['#disabled']) {
+        // Just hide the email field since it will display on the contact form:
+        $form['account']['mail']['#access'] = FALSE;
+      }
       _redhen_contact_user_embed_contact_form($form, $form_state, $contact, 'redhen_contact_user_update_submit');
     }
+
   }
 }
 
@@ -1078,6 +1082,8 @@ function redhen_contact_form_user_register_form_alter(&$form, &$form_state) {
     if (array_key_exists($contact_type, redhen_contact_get_types())) {
       $contact_object = redhen_contact_create(array('type' => $contact_type));
       _redhen_contact_user_embed_contact_form($form, $form_state, $contact_object, 'redhen_contact_user_registration_submit');
+      // Hide the Contact email field, we will use the user mail field.
+      $form['redhen_contact']['form']['redhen_contact_email']['#access'] = FALSE;
       $form['#validate'][] = 'redhen_contact_user_registration_validate';
     }
     else {
@@ -1110,8 +1116,6 @@ function _redhen_contact_user_embed_contact_form(&$form, &$form_state, RedhenCon
 
   // Unset the contact forms action, we will use the registration form.
   unset($form['redhen_contact']['form']['actions']);
-  // Hide the Contact email field, we will use the user mail field.
-  $form['redhen_contact']['form']['redhen_contact_email']['#access'] = FALSE;
   // Add a submit handler for handling the contact form data.
   $form['#submit'][] = $submit_handler;
 }
@@ -1190,6 +1194,8 @@ function redhen_contact_user_registration_submit($form, &$form_state) {
   if (variable_get(REDHEN_CONTACT_REG_UPDATE_FIELDS, FALSE) == TRUE || !empty($contact->is_new)) {
     $contact->author_uid = $uid;
     $message_update = _redhen_contact_user_submission_apply($form, $form_state, $contact, TRUE);
+    // Set email address.
+    redhen_contact_property_email_set($contact, NULL, $form_state['values']['mail']);
   }
 
   redhen_contact_save($contact);
@@ -1229,7 +1235,7 @@ function redhen_contact_user_registration_submit($form, &$form_state) {
  * @return string
  *   Status message.
  */
-function _redhen_contact_user_submission_apply($form, $form_state, $contact, $limit_values = FALSE) {
+function _redhen_contact_user_submission_apply($form, $form_state, RedhenContact $contact, $limit_values = FALSE) {
   if ($limit_values) {
     $value_state = redhen_contact_user_registration_form_state($form['redhen_contact']['form'], $form_state);
   }
@@ -1244,9 +1250,6 @@ function _redhen_contact_user_submission_apply($form, $form_state, $contact, $li
 
   // Notify field widgets using the limited state variable.
   field_attach_submit('redhen_contact', $contact, $form['redhen_contact']['form'], $value_state);
-
-  // Set email address.
-  redhen_contact_property_email_set($contact, NULL, $form_state['values']['mail']);
 
   return t('The contact was updated with the information provided.');
 }
