@@ -13,6 +13,7 @@ define('REDHEN_CONTACT_ALTER_COMMENT_AUTHOR', 'redhen_contact_alter_comments');
 define('REDHEN_CONTACT_CONNECT_USERS', 'redhen_contact_connect_users');
 define('REDHEN_CONTACT_MIRROR_EMAIL', 'redhen_contact_mirror_email');
 define('REDHEN_CONTACT_REQUIRE_EMAIL', 'redhen_contact_require_email');
+define('REDHEN_CONTACT_EMBED_ON_USER_FORM', 'redhen_contact_embed_on_user_form');
 define('REDHEN_CONTACT_REQUIRE_FIRST_NAME', 'redhen_contact_require_first_name');
 define('REDHEN_CONTACT_REG', 'redhen_contact_reg');
 define('REDHEN_CONTACT_REG_TYPE', 'redhen_contact_reg_type');
@@ -286,16 +287,18 @@ function redhen_contact_menu() {
     'file' => 'includes/redhen_contact.forms.inc',
     'weight' => 4,
   );
-  $items['user/%user/redhen_contact'] = array(
-    'title' => 'RedHen Contact',
-    'page callback' => 'drupal_get_form',
-    'page arguments' => array('redhen_contact_user_contact_form', 1),
-    'access callback' => 'redhen_contact_user_contact_access',
-    'access arguments' => array(1),
-    'type' => MENU_LOCAL_TASK,
-    'file' => 'includes/redhen_contact.forms.inc',
-    'weight' => 5,
-  );
+  if (!variable_get(REDHEN_CONTACT_EMBED_ON_USER_FORM, FALSE)) {
+    $items['user/%user/redhen_contact'] = array(
+      'title' => 'RedHen Contact',
+      'page callback' => 'drupal_get_form',
+      'page arguments' => array('redhen_contact_user_contact_form', 1),
+      'access callback' => 'redhen_contact_user_contact_access',
+      'access arguments' => array(1),
+      'type' => MENU_LOCAL_TASK,
+      'file' => 'includes/redhen_contact.forms.inc',
+      'weight' => 5,
+    );
+  }
   if (module_exists('devel')) {
     $items['redhen/contact/%redhen_contact/devel'] = array(
       'title' => 'Devel',
@@ -788,6 +791,17 @@ function redhen_contact_redhen_settings() {
             ),
           ),
         ),
+        REDHEN_CONTACT_EMBED_ON_USER_FORM => array(
+          '#type' => 'checkbox',
+          '#title' => t('Embed Redhen Contact Fields on the User edit form'),
+          '#description' => t('If checked, the RedHen Contact tab on users will be removed, and the Contact edit fields will instead be attached to the bottom of the User Edit form.'),
+          '#default_value' => variable_get(REDHEN_CONTACT_EMBED_ON_USER_FORM, FALSE),
+          '#states' => array(
+            'enabled' => array(
+              ':input[name="' . REDHEN_CONTACT_CONNECT_USERS . '"]' => array('checked' => TRUE),
+            ),
+          ),
+        ),
       ),
     ),
     REDHEN_CONTACT_ALTER_USERNAME => array(
@@ -1001,9 +1015,12 @@ function redhen_contact_create(array $values = array()) {
 /**
  * Access callback for redhen_contact_user_categories().
  */
-function redhen_contact_user_contact_access($account) {
-  $contact = redhen_contact_load_by_user($account);
+function redhen_contact_user_contact_access($account = NULL) {
   global $user;
+  if (!$account) {
+    $account = $user;
+  }
+  $contact = redhen_contact_load_by_user($account);
 
   // There is no contact linked to this user account.
   if (!$contact) {
@@ -1027,13 +1044,22 @@ function redhen_contact_user_contact_access($account) {
  * Implements hook_form_FORM_ID_alter().
  */
 function redhen_contact_form_user_profile_form_alter(&$form, &$form_state) {
-  // If we're mirroring the contact's email address - disable the field.
-  if ($form['#user_category'] == 'account' && variable_get('redhen_contact_mirror_email', FALSE)) {
-    $contact = redhen_contact_load_by_user($form['#user']);
-    if ($contact) {
+  $contact = redhen_contact_load_by_user($form['#user']);
+  if ($contact) {
+    if ($form['#user_category'] == 'account' && variable_get(REDHEN_CONTACT_MIRROR_EMAIL, FALSE)) {
       $form['account']['mail']['#disabled'] = TRUE;
       $form['account']['mail']['#description'] .= ' ' . t('The email address for this account is managed by RedHen.');
     }
+    if ($form['#user_category'] == 'account' && variable_get(REDHEN_CONTACT_EMBED_ON_USER_FORM, FALSE) && redhen_contact_user_contact_access()) {
+      if ($form['account']['mail']['#disabled']) {
+        // Just hide the email field since it will display on the contact form:
+        $form['account']['mail']['#access'] = FALSE;
+      }
+      _redhen_contact_user_embed_contact_form($form, $form_state, $contact);
+      // Add a submit handler for handling the contact form data.
+      $form['#submit'][] = 'redhen_contact_user_update_submit';
+    }
+
   }
 }
 
@@ -1057,27 +1083,44 @@ function redhen_contact_form_user_register_form_alter(&$form, &$form_state) {
     // If a valid contact type was found.
     if (array_key_exists($contact_type, redhen_contact_get_types())) {
       $contact_object = redhen_contact_create(array('type' => $contact_type));
-      module_load_include('inc', 'redhen_contact', 'includes/redhen_contact.forms');
-
-      // Get contact type form.
-      $form['redhen_contact'] = array(
-        '#type' => 'fieldset',
-        '#title' => t('%type Contact information', array('%type' => ucfirst($contact_type))),
-        'form' => redhen_contact_contact_form(array(), $form_state, $contact_object),
-      );
-
-      // Unset the contact forms action, we will use the registration form.
-      unset($form['redhen_contact']['form']['actions']);
+      _redhen_contact_user_embed_contact_form($form, $form_state, $contact_object);
+      // Add a submit handler for handling the contact form data.
+      $form['#submit'][] = 'redhen_contact_user_registration_submit';
       // Hide the Contact email field, we will use the user mail field.
       $form['redhen_contact']['form']['redhen_contact_email']['#access'] = FALSE;
-      // Add a submit handler for creating the contact.
-      $form['#submit'][] = 'redhen_contact_user_registration_submit';
       $form['#validate'][] = 'redhen_contact_user_registration_validate';
     }
     else {
       drupal_set_message(t('Invalid RedHen contact type parameter.'));
     }
   }
+}
+
+/**
+ * Helper function to embed a contact form on a user form.
+ *
+ * Usage note: make sure to add a submit handler, otherwise this form data will
+ * just be ignored.
+ *
+ * @param array $form
+ *   Form array.
+ * @param array $form_state
+ *   Form state array.
+ * @param RedhenContact $contact
+ *   The contact to build the form on.
+ */
+function _redhen_contact_user_embed_contact_form(&$form, &$form_state, RedhenContact $contact) {
+  module_load_include('inc', 'redhen_contact', 'includes/redhen_contact.forms');
+
+  // Get contact type form.
+  $form['redhen_contact'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('%type Contact information', array('%type' => ucfirst($contact->bundle()))),
+    'form' => redhen_contact_contact_form(array(), $form_state, $contact),
+  );
+
+  // Unset the contact forms action, we will use the parent form's actions.
+  unset($form['redhen_contact']['form']['actions']);
 }
 
 /**
@@ -1111,6 +1154,27 @@ function redhen_contact_user_registration_validate($form, &$form_state) {
 }
 
 /**
+ * Update form RedHen contact submit handler.
+ *
+ * Updates a related Contact on user update.
+ *
+ * @param array $form
+ *   Form array.
+ * @param array $form_state
+ *   Form state array.
+ */
+function redhen_contact_user_update_submit($form, &$form_state) {
+  $contact = $form_state['redhen_contact'];
+  $message = _redhen_contact_user_submission_apply($form, $form_state, $contact);
+  redhen_contact_save($contact);
+
+  // Only display this message to CRM users to avoid confusion.
+  if (user_access('access redhen contacts')) {
+    drupal_set_message($message);
+  }
+}
+
+/**
  * Registration form RedHen contact submit handler.
  *
  * Creates a Contact on user registration.
@@ -1131,23 +1195,10 @@ function redhen_contact_user_registration_submit($form, &$form_state) {
   $contact->uid = $uid;
   // If set to update fields, do so.
   if (variable_get(REDHEN_CONTACT_REG_UPDATE_FIELDS, FALSE) == TRUE || !empty($contact->is_new)) {
-    // Save default parameters back into the $contact object.
-    $contact->first_name = $form_state['values']['first_name'];
-    $contact->middle_name = $form_state['values']['middle_name'];
-    $contact->last_name = $form_state['values']['last_name'];
     $contact->author_uid = $uid;
-
-    // If a contact already exists, we only want to update fields that have
-    // values from the registration form. This avoids overwriting Contact
-    // field values that are not exposed on the registration form.
-    $limited_state = redhen_contact_user_registration_form_state($form['redhen_contact']['form'], $form_state);
-
-    // Notify field widgets using the limited state variable.
-    field_attach_submit('redhen_contact', $contact, $form['redhen_contact']['form'], $limited_state);
-
+    $message_update = _redhen_contact_user_submission_apply($form, $form_state, $contact, TRUE);
     // Set email address.
     redhen_contact_property_email_set($contact, NULL, $form_state['values']['mail']);
-    $message_update = t('The contact was updated with the information provided.');
   }
 
   redhen_contact_save($contact);
@@ -1166,6 +1217,44 @@ function redhen_contact_user_registration_submit($form, &$form_state) {
   if (user_access('access redhen contacts')) {
     drupal_set_message($message);
   }
+}
+
+/**
+ * Helper function for handling Contact Form values submitted via User forms.
+ *
+ * This happens when a RedHen Contact form is embedded in a User form via a form
+ * alter hook, then the from is submitted. Note that this function updates the
+ * $contact, but does not save the changes.
+ *
+ * @param array $form
+ *   Form array.
+ * @param array $form_state
+ *   Form state array.
+ * @param RedhenContact $contact
+ *   RedhenContact to update.
+ * @param bool $limit_values
+ *   Whether to limit updated values to non-null fields.
+ *
+ * @return string
+ *   Status message.
+ */
+function _redhen_contact_user_submission_apply($form, $form_state, RedhenContact $contact, $limit_values = FALSE) {
+  if ($limit_values) {
+    $value_state = redhen_contact_user_registration_form_state($form['redhen_contact']['form'], $form_state);
+  }
+  else {
+    $value_state = $form_state;
+  }
+
+  // Save default parameters back into the $contact object.
+  $contact->first_name = $form_state['values']['first_name'];
+  $contact->middle_name = $form_state['values']['middle_name'];
+  $contact->last_name = $form_state['values']['last_name'];
+
+  // Notify field widgets using the limited state variable.
+  field_attach_submit('redhen_contact', $contact, $form['redhen_contact']['form'], $value_state);
+
+  return t('The contact was updated with the information provided.');
 }
 
 /**
