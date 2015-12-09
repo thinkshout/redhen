@@ -1099,6 +1099,9 @@ function redhen_contact_form_user_register_form_alter(&$form, &$form_state) {
 /**
  * Helper function to embed a contact form on a user form.
  *
+ * Usage note: make sure to add a submit handler, otherwise this form data will
+ * just be ignored.
+ *
  * @param array $form
  *   Form array.
  * @param array $form_state
@@ -1116,7 +1119,7 @@ function _redhen_contact_user_embed_contact_form(&$form, &$form_state, RedhenCon
     'form' => redhen_contact_contact_form(array(), $form_state, $contact),
   );
 
-  // Unset the contact forms action, we will use the registration form.
+  // Unset the contact forms action, we will use the parent form's actions.
   unset($form['redhen_contact']['form']['actions']);
 }
 
