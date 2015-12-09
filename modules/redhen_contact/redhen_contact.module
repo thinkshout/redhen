@@ -1055,7 +1055,9 @@ function redhen_contact_form_user_profile_form_alter(&$form, &$form_state) {
         // Just hide the email field since it will display on the contact form:
         $form['account']['mail']['#access'] = FALSE;
       }
-      _redhen_contact_user_embed_contact_form($form, $form_state, $contact, 'redhen_contact_user_update_submit');
+      _redhen_contact_user_embed_contact_form($form, $form_state, $contact);
+      // Add a submit handler for handling the contact form data.
+      $form['#submit'][] = 'redhen_contact_user_update_submit';
     }
 
   }
@@ -1081,7 +1083,9 @@ function redhen_contact_form_user_register_form_alter(&$form, &$form_state) {
     // If a valid contact type was found.
     if (array_key_exists($contact_type, redhen_contact_get_types())) {
       $contact_object = redhen_contact_create(array('type' => $contact_type));
-      _redhen_contact_user_embed_contact_form($form, $form_state, $contact_object, 'redhen_contact_user_registration_submit');
+      _redhen_contact_user_embed_contact_form($form, $form_state, $contact_object);
+      // Add a submit handler for handling the contact form data.
+      $form['#submit'][] = 'redhen_contact_user_registration_submit';
       // Hide the Contact email field, we will use the user mail field.
       $form['redhen_contact']['form']['redhen_contact_email']['#access'] = FALSE;
       $form['#validate'][] = 'redhen_contact_user_registration_validate';
@@ -1101,10 +1105,8 @@ function redhen_contact_form_user_register_form_alter(&$form, &$form_state) {
  *   Form state array.
  * @param RedhenContact $contact
  *   The contact to build the form on.
- * @param string $submit_handler
- *   Function name of the submit handler to add to the form.
  */
-function _redhen_contact_user_embed_contact_form(&$form, &$form_state, RedhenContact $contact, $submit_handler) {
+function _redhen_contact_user_embed_contact_form(&$form, &$form_state, RedhenContact $contact) {
   module_load_include('inc', 'redhen_contact', 'includes/redhen_contact.forms');
 
   // Get contact type form.
@@ -1116,8 +1118,6 @@ function _redhen_contact_user_embed_contact_form(&$form, &$form_state, RedhenCon
 
   // Unset the contact forms action, we will use the registration form.
   unset($form['redhen_contact']['form']['actions']);
-  // Add a submit handler for handling the contact form data.
-  $form['#submit'][] = $submit_handler;
 }
 
 /**
