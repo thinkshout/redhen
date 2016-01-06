@@ -315,8 +315,8 @@ function redhen_relation_connections_page($entity) {
  * Return entities related to a given entity excluding self and duplicates.
  *
  * @param object $entity
- * @param string $relation_type
- *   Filter on a given relation type if provided.
+ * @param string $relation_types
+ *   Filter to given relation types if provided.
  * @param bool $active
  *   Optionally limit relations to those that are active.
  *
@@ -327,7 +327,7 @@ function redhen_relation_connections_page($entity) {
  *     3 => array($entity3, $entity4)
  *   )
  */
-function redhen_relation_relations($entity, $relation_type = NULL, $active = FALSE) {
+function redhen_relation_relations($entity, $relation_types = NULL, $active = FALSE) {
   $related_entities = &drupal_static(__FUNCTION__ . $entity->entityType() . $entity->internalIdentifier() . $relation_type . $active, array());
 
   if ($related_entities) {
@@ -335,8 +335,12 @@ function redhen_relation_relations($entity, $relation_type = NULL, $active = FAL
   }
 
   $query = relation_query($entity->entityType(), $entity->internalIdentifier());
-  if ($relation_type) {
-    $query->propertyCondition('relation_type', $relation_type);
+  if ($relation_types) {
+    // Backwards compatibility:
+    if (!is_array($relation_types)) {
+      $relation_types = array($relation_types);
+    }
+    $query->propertyCondition('relation_type', $relation_types, 'IN');
   }
 
   // Optionally limit to only active relations.
