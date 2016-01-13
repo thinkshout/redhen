@@ -1181,9 +1181,12 @@ function redhen_contact_user_form_submit($form, &$form_state) {
  */
 function redhen_contact_user_view($account, $view_mode, $langcode) {
   // Include contact view if access allowed.
-  if (user_access('view own redhen contact') && $contact = redhen_contact_load_by_user($account)) {
-    $view_mode = variable_get('redhen_contact_view_mode', $view_mode);
-    $account->content['redhen_contact'] = redhen_contact_view($contact, $view_mode);
+  if ($contact = redhen_contact_load_by_user($account)) {
+    // A Contact exists for this account. Does the current user have access?
+    if (redhen_contact_access('view', $contact)) {
+      $view_mode = variable_get('redhen_contact_view_mode', $view_mode);
+      $account->content['redhen_contact'] = redhen_contact_view($contact, $view_mode);
+    }
   }
 }
 
