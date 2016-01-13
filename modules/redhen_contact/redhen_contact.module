@@ -1307,7 +1307,7 @@ function redhen_contact_rules_file_info() {
  * Use the RedHen Contact as the comment author.
  */
 function redhen_contact_preprocess_comment(&$variables) {
-  if (variable_get(REDHEN_CONTACT_ALTER_COMMENT_AUTHOR, FALSE) && $contact = redhen_contact_load_by_user($variables['user'])) {
+  if (variable_get(REDHEN_CONTACT_ALTER_COMMENT_AUTHOR, FALSE) && $contact = redhen_contact_load_by_user(user_load($variables['comment']->uid))) {
     if (entity_access('view', 'redhen_contact', $contact)) {
       $contact_uri = $contact->uri();
       $variables['author'] = l($contact->label(), $contact_uri['path'], array('attributes' => array('title' => 'View profile', 'class' => 'username')));
