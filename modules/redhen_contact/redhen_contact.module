@@ -1051,6 +1051,16 @@ function redhen_contact_form_user_profile_form_alter(&$form, &$form_state) {
       $form['account']['mail']['#disabled'] = TRUE;
       $form['account']['mail']['#description'] .= ' ' . t('The email address for this account is managed by RedHen.');
     }
+    if ($form['#user_category'] == 'account' && variable_get(REDHEN_CONTACT_EMBED_ON_USER_FORM, FALSE) && redhen_contact_user_contact_access()) {
+      if ($form['account']['mail']['#disabled']) {
+        // Just hide the email field since it will display on the contact form:
+        $form['account']['mail']['#access'] = FALSE;
+      }
+      _redhen_contact_user_embed_contact_form($form, $form_state, $contact);
+      // Add a submit handler for handling the contact form data.
+      $form['#submit'][] = 'redhen_contact_user_update_submit';
+    }
+
   }
 }
 
@@ -1141,6 +1151,27 @@ function redhen_contact_user_registration_validate($form, &$form_state) {
   // Existing contact is already linked to a user.
   if ($existing_contact && !is_null($contact->uid) && $update_existing) {
     form_set_error('mail', t('A contact with that email address is already linked to a Drupal user.'));
+  }
+}
+
+/**
+ * Update form RedHen contact submit handler.
+ *
+ * Updates a related Contact on user update.
+ *
+ * @param array $form
+ *   Form array.
+ * @param array $form_state
+ *   Form state array.
+ */
+function redhen_contact_user_update_submit($form, &$form_state) {
+  $contact = $form_state['redhen_contact'];
+  $message = _redhen_contact_user_submission_apply($form, $form_state, $contact);
+  redhen_contact_save($contact);
+
+  // Only display this message to CRM users to avoid confusion.
+  if (user_access('access redhen contacts')) {
+    drupal_set_message($message);
   }
 }
 
