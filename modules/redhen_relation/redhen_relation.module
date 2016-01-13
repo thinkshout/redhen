@@ -328,7 +328,11 @@ function redhen_relation_connections_page($entity) {
  *   )
  */
 function redhen_relation_relations($entity, $relation_types = NULL, $active = FALSE) {
-  $related_entities = &drupal_static(__FUNCTION__ . $entity->entityType() . $entity->internalIdentifier() . $relation_type . $active, array());
+  // Backwards compatibility:
+  if ($relation_types && !is_array($relation_types)) {
+    $relation_types = array($relation_types);
+  }
+  $related_entities = &drupal_static(__FUNCTION__ . $entity->entityType() . $entity->internalIdentifier() . implode('-', $relation_types) . $active, array());
 
   if ($related_entities) {
     return $related_entities;
@@ -336,10 +340,6 @@ function redhen_relation_relations($entity, $relation_types = NULL, $active = FA
 
   $query = relation_query($entity->entityType(), $entity->internalIdentifier());
   if ($relation_types) {
-    // Backwards compatibility:
-    if (!is_array($relation_types)) {
-      $relation_types = array($relation_types);
-    }
     $query->propertyCondition('relation_type', $relation_types, 'IN');
   }
 
