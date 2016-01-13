@@ -1045,9 +1045,9 @@ function redhen_contact_user_contact_access($account = NULL) {
  */
 function redhen_contact_form_user_profile_form_alter(&$form, &$form_state) {
   // If we're mirroring the contact's email address - disable the field.
-  if ($form['#user_category'] == 'account' && variable_get('redhen_contact_mirror_email', FALSE)) {
-    $contact = redhen_contact_load_by_user($form['#user']);
-    if ($contact) {
+  $contact = redhen_contact_load_by_user($form['#user']);
+  if ($contact) {
+    if ($form['#user_category'] == 'account' && variable_get(REDHEN_CONTACT_MIRROR_EMAIL, FALSE)) {
       $form['account']['mail']['#disabled'] = TRUE;
       $form['account']['mail']['#description'] .= ' ' . t('The email address for this account is managed by RedHen.');
     }
