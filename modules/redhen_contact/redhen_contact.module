@@ -1165,23 +1165,10 @@ function redhen_contact_user_registration_submit($form, &$form_state) {
   $contact->uid = $uid;
   // If set to update fields, do so.
   if (variable_get(REDHEN_CONTACT_REG_UPDATE_FIELDS, FALSE) == TRUE || !empty($contact->is_new)) {
-    // Save default parameters back into the $contact object.
-    $contact->first_name = $form_state['values']['first_name'];
-    $contact->middle_name = $form_state['values']['middle_name'];
-    $contact->last_name = $form_state['values']['last_name'];
     $contact->author_uid = $uid;
-
-    // If a contact already exists, we only want to update fields that have
-    // values from the registration form. This avoids overwriting Contact
-    // field values that are not exposed on the registration form.
-    $limited_state = redhen_contact_user_registration_form_state($form['redhen_contact']['form'], $form_state);
-
-    // Notify field widgets using the limited state variable.
-    field_attach_submit('redhen_contact', $contact, $form['redhen_contact']['form'], $limited_state);
-
+    $message_update = _redhen_contact_user_submission_apply($form, $form_state, $contact, TRUE);
     // Set email address.
     redhen_contact_property_email_set($contact, NULL, $form_state['values']['mail']);
-    $message_update = t('The contact was updated with the information provided.');
   }
 
   redhen_contact_save($contact);
@@ -1200,6 +1187,44 @@ function redhen_contact_user_registration_submit($form, &$form_state) {
   if (user_access('access redhen contacts')) {
     drupal_set_message($message);
   }
+}
+
+/**
+ * Helper function for handling Contact Form values submitted via User forms.
+ *
+ * This happens when a RedHen Contact form is embedded in a User form via a form
+ * alter hook, then the from is submitted. Note that this function updates the
+ * $contact, but does not save the changes.
+ *
+ * @param array $form
+ *   Form array.
+ * @param array $form_state
+ *   Form state array.
+ * @param RedhenContact $contact
+ *   RedhenContact to update.
+ * @param bool $limit_values
+ *   Whether to limit updated values to non-null fields.
+ *
+ * @return string
+ *   Status message.
+ */
+function _redhen_contact_user_submission_apply($form, $form_state, RedhenContact $contact, $limit_values = FALSE) {
+  if ($limit_values) {
+    $value_state = redhen_contact_user_registration_form_state($form['redhen_contact']['form'], $form_state);
+  }
+  else {
+    $value_state = $form_state;
+  }
+
+  // Save default parameters back into the $contact object.
+  $contact->first_name = $form_state['values']['first_name'];
+  $contact->middle_name = $form_state['values']['middle_name'];
+  $contact->last_name = $form_state['values']['last_name'];
+
+  // Notify field widgets using the limited state variable.
+  field_attach_submit('redhen_contact', $contact, $form['redhen_contact']['form'], $value_state);
+
+  return t('The contact was updated with the information provided.');
 }
 
 /**
