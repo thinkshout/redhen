@@ -65,7 +65,7 @@ function redhen_note_notes_page($entity, $entity_type) {
       ));
       $note_type = NULL;
       if ($note_type_object = $wrapper->redhen_note_type->value()) {
-        $note_type = $note_type_object->name;
+        $note_type = check_plain($note_type_object->name);
       }
       $rows[$note->note_id] = array(
         'data' => array(

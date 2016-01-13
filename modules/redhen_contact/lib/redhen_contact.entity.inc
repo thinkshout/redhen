@@ -40,7 +40,7 @@ class RedhenContact extends Entity {
 
     $wrapper = entity_metadata_wrapper('redhen_contact', $this);
     $user = $wrapper->user->value();
-    $name = $wrapper->full_name->value();
+    $name = check_plain($wrapper->full_name->value());
 
     $content['redhen_state'] = array(
       '#theme' => 'redhen_property_field',
@@ -59,7 +59,7 @@ class RedhenContact extends Entity {
         '#label' => t('Name'),
         '#items' => array(
           array(
-            '#markup' => $wrapper->full_name->value(),
+            '#markup' => $name,
           ),
         ),
         '#classes' => 'field field-label-inline clearfix',

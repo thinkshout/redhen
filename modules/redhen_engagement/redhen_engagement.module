@@ -133,7 +133,7 @@ function redhen_engagements_page(RedhenContact $contact) {
         $engagement_totals_rows[] = array(
           'data' => array(
             'score' => ($record->count * $engagement_score->score),
-            'type' => $engagement_score->label(),
+            'type' => check_plain($engagement_score->label()),
           ),
         );
       }
@@ -201,7 +201,7 @@ function redhen_engagements_page(RedhenContact $contact) {
       $engagements_rows[] = array(
         'data' => array(
           'score' => $engagement_wrapper->engagement_score->score->value(),
-          'type' => entity_label('redhen_engagement_score', $engagement_wrapper->engagement_score->value()),
+          'type' => check_plain(entity_label('redhen_engagement_score', $engagement_wrapper->engagement_score->value())),
           'created' => redhen_format_date($engagement->created, 'short'),
           'description' => $engagement->description,
           'source' => $source_link,
