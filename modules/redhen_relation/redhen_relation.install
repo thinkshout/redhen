@@ -125,6 +125,8 @@ function redhen_relation_uninstall() {
 
   // delete status field
   field_delete_field('redhen_relation_status');
+  // Delete Roles field:
+  field_delete_field('redhen_relation_roles');
 
   entity_info_cache_clear();
 }
