@@ -21,6 +21,9 @@ function redhen_org_entity_info() {
       'metadata controller class' => 'RedhenOrgMetadataController',
       'views controller class' => 'RedhenOrgViewsController',
       'entity class' => 'RedhenOrg',
+      'inline entity form' => array(
+        'controller' => 'RedHenOrgInlineEntityFormController',
+      ),
       'base table' => 'redhen_org',
       'revision table' => 'redhen_org_revision',
       'fieldable' => TRUE,
@@ -136,7 +139,7 @@ function redhen_org_menu() {
       'page callback' => 'redhen_org_add_page',
       'page arguments' => array($key),
       'access callback' => 'redhen_org_access',
-      'access arguments' => array('create'),
+      'access arguments' => array('create', $key),
       'file' => 'includes/redhen_org.pages.inc',
     );
   }
@@ -188,6 +191,14 @@ function redhen_org_menu() {
     'access callback' => 'redhen_org_access',
     'access arguments' => array('archive', 2),
     'type' => MENU_LOCAL_TASK,
+  );
+  $items['redhen/org/%redhen_org/view/unarchive'] = array(
+    'title' => 'Unarchive',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('redhen_org_org_unarchive_form', 2),
+    'access callback' => 'redhen_org_access',
+    'access arguments' => array('unarchive', 2),
+    'type' => MENU_LOCAL_TASK,
     'weight' => 4,
   );
   $items['redhen/org/%redhen_org/revisions'] = array(
@@ -196,7 +207,7 @@ function redhen_org_menu() {
     'page callback' => 'redhen_org_revision_list',
     'page arguments' => array(2),
     'access callback' => 'user_access',
-    'access arguments' => array('access redhen orgs'),
+    'access arguments' => array('access redhen org revisions'),
     'file' => 'includes/redhen_org.pages.inc',
     'weight' => 4,
   );
@@ -405,13 +416,16 @@ function redhen_org_save(RedhenOrg $org) {
  * @param string $op
  *   The operation being performed. One of 'view', 'update', 'create' or
  *   'delete'.
- * @param RedhenOrg $org
+ * @param RedhenOrg|string $org
  *   Optionally a org to check access for or for the create operation the
  *   org type. If nothing is given access permissions for all orgs are returned.
- * @param stdClass $account
+ * @param object $account
  *   The user to check for. Leave it to NULL to check for the current user.
  */
 function redhen_org_access($op, $org = NULL, $account = NULL) {
+  // Map 'update' to 'edit' which is used internally below.
+  $op = ($op == 'update') ? 'edit' : $op;
+
   global $user;
 
   $account = isset($account) ? $account : $user;
@@ -425,6 +439,10 @@ function redhen_org_access($op, $org = NULL, $account = NULL) {
     return FALSE;
   }
 
+  if ($op == 'unarchive' && $org->redhen_state == REDHEN_STATE_ACTIVE) {
+    return FALSE;
+  }
+
   // If user has 'administer redhen orgs', all actions are allowed.
   if (user_access('administer redhen orgs', $account)) {
     return TRUE;
@@ -432,7 +450,7 @@ function redhen_org_access($op, $org = NULL, $account = NULL) {
 
   // Set $default_revision as a shortcut variable to check, because relation
   // role permissions do not currently support revisions.
-  if (isset($org) && $org->isDefaultRevision()) {
+  if (is_object($org) && !$org->isDefaultRevision()) {
     $default_revision = TRUE;
   }
   else {
@@ -460,9 +478,16 @@ function redhen_org_access($op, $org = NULL, $account = NULL) {
       }
       break;
 
-    // The same permission is used for both 'edit' and 'archive' actions.
-    case 'edit':
     case 'archive':
+    case 'unarchive':
+      // We have already checked the op against the current state. Just check
+      // the permissions.
+      if (user_access('manage redhen orgs', $account)) {
+        return TRUE;
+      }
+      break;
+
+    case 'edit':
       if ($default_revision) {
         // Regular and relation role checks.
         if (user_access('manage redhen orgs', $account) && $org->redhen_state != REDHEN_STATE_ARCHIVED) {
@@ -541,7 +566,7 @@ function redhen_org_page_access() {
  * Implements hook_permission().
  */
 function redhen_org_permission() {
-  return array(
+  $permissions = array(
     'administer redhen_org types' => array(
       'title' => t('Administer RedHen Organization Types'),
       'description' => t('Manage RedHen organization types and their structure.'),
@@ -567,6 +592,16 @@ function redhen_org_permission() {
       'description' => t('View for Redhen Organizations revisions'),
     ),
   );
+
+  foreach (redhen_org_get_types() as $type => $info) {
+    $create_org_of_type_permission = 'create ' . $type . ' orgs';
+    $permissions[$create_org_of_type_permission] = array(
+      'title' => t('Create @organization_type Organizations', array('@organization_type' => $info->label)),
+      'description' => t('Create an organization of the type @organization_type.', array('@organization_type' => $info->label)),
+    );
+  }
+
+  return $permissions;
 }
 
 /**

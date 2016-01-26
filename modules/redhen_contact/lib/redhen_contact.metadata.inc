@@ -1,12 +1,18 @@
 <?php
 
 /**
- * Controls metadata for Redhen contacts
+ * @file
+ * Metadata controller for RedHen Contacts.
+ */
+
+/**
+ * Class RedhenContactMetadataController.
  *
  * Redhen utilizes custom property attributes to determine if a property
  * should be available as a filter on the listing page. These attributes are
  *   filter: TRUE to add as a filter.
- *   filter_operator: EFQ supported operators. Defaults to = or IN depending on value submitted
+ *   filter_operator: EFQ supported operators.
+ *     Defaults to = or IN depending on value submitted
  *   field_type: textfield, select, etc.
  *   options list: callback that returns the options for this field.
  */
@@ -14,8 +20,6 @@ class RedhenContactMetadataController extends EntityDefaultMetadataController {
 
   /**
    * Overrides entityPropertyInfo().
-   *
-   * @return array
    */
   public function entityPropertyInfo() {
     $info = parent::entityPropertyInfo();

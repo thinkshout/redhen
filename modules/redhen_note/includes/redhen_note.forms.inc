@@ -17,6 +17,14 @@
  * @return array
  */
 function redhen_note_form($form, &$form_state, $redhen_note, $entity = NULL) {
+
+  // Check to ensure we have a note - we won't if form is being loaded via
+  // the "add note" callback.
+  if (!$redhen_note) {
+    $redhen_note = entity_get_controller('redhen_note')->create(array('type' => 'redhen_note'));
+    $redhen_note->entity_type = $entity->entityType();
+  }
+
   $form_state['redhen_note'] = $redhen_note;
   $form_state['entity'] = $entity;
 

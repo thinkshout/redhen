@@ -5,6 +5,9 @@
  * Defines the inline entity form controller for RedHen Orgs.
  */
 
+/**
+ * Class RedHenOrgInlineEntityFormController.
+ */
 class RedHenOrgInlineEntityFormController extends EntityInlineEntityFormController {
 
   /**

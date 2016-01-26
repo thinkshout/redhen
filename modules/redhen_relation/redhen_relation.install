@@ -213,6 +213,8 @@ function redhen_relation_uninstall() {
 
   // Delete status field.
   field_delete_field('redhen_relation_status');
+  // Delete Roles field:
+  field_delete_field('redhen_relation_roles');
 
   // Delete relation role field.
   field_delete_field(REDHEN_RELATION_ROLES_FIELD);

@@ -1,7 +1,7 @@
 <?php
 /**
  * @file
- * Redhen Contact entity classses
+ * Redhen Contact entity classses.
  */
 
 /**
@@ -11,16 +11,16 @@ class RedhenContact extends Entity {
 
   // @codingStandardsIgnoreStart
   public
-    $first_name = '',
-    $middle_name = '',
-    $last_name = '',
-    $contact_id = NULL,
-    $uid = NULL,
-    $author_uid = NULL,
+    $first_name,
+    $middle_name,
+    $last_name,
+    $contact_id,
+    $uid,
+    $author_uid,
     $redhen_state = REDHEN_STATE_ACTIVE,
-    $type = '',
-    $created = '',
-    $updated = '';
+    $type,
+    $created,
+    $updated;
   // @codingStandardsIgnoreEnd
 
   /**
@@ -40,7 +40,7 @@ class RedhenContact extends Entity {
 
     $wrapper = entity_metadata_wrapper('redhen_contact', $this);
     $user = $wrapper->user->value();
-    $name = $wrapper->full_name->value();
+    $name = check_plain($wrapper->full_name->value());
 
     $content['redhen_state'] = array(
       '#theme' => 'redhen_property_field',
@@ -59,7 +59,7 @@ class RedhenContact extends Entity {
         '#label' => t('Name'),
         '#items' => array(
           array(
-            '#markup' => $wrapper->full_name->value(),
+            '#markup' => $name,
           ),
         ),
         '#classes' => 'field field-label-inline clearfix',
@@ -227,6 +227,11 @@ class RedhenContact extends Entity {
       }
     }
 
+    // When there is only one email set, make sure it's marked 'default'.
+    if (count($this->allEmail()) === 1) {
+      $this->{REDHEN_CONTACT_EMAIL_FIELD}[LANGUAGE_NONE][0]['default'] = 1;
+    }
+
     $ret = parent::save();
 
     if ($ret && variable_get('redhen_contact_mirror_email', FALSE)) {
@@ -240,6 +245,43 @@ class RedhenContact extends Entity {
     }
 
     return $ret;
+  }
+
+  /**
+   * Saves a new contact unless a matching contact is found to update.
+   *
+   * Updates are performed if a single contact is found matching the email
+   * address and bundle of the one being saved.
+   */
+  public function upsert() {
+    if (isset($this->is_new) && $this->is_new && !isset($this->created)) {
+      $this->updated = REQUEST_TIME;
+      $contact_wrapper = entity_metadata_wrapper('redhen_contact', $this);
+
+      $query = new EntityFieldQuery();
+      $query
+        ->entityCondition('entity_type', 'redhen_contact')
+        ->entityCondition('bundle', $contact_wrapper->getBundle())
+        ->fieldCondition('redhen_contact_email', 'value', $contact_wrapper->email->value(), '=');
+      $result = $query->execute();
+
+      if (!empty($result) && (count($result) === 1)) {
+        $existing_contact = redhen_contact_load(key($result['redhen_contact'][0]));
+        $existing_wrapper = entity_metadata_wrapper('redhen_contact', $existing_contact);
+        foreach ($existing_wrapper->getPropertyInfo() as $property => $info) {
+          if (isset($info['setter callback']) && ($existing_wrapper->{$property}->value() !== NULL) && $contact_wrapper->{$property}->value() === NULL) {
+            // @todo consider a flag to avoid overriding with new values.
+            $contact_wrapper->{$property}->set($existing_wrapper->{$property}->value());
+          }
+        }
+        // We aren't creating a new contact, we are updating an old one, so:
+        $this->contact_id = $existing_contact->contact_id;
+        unset($this->is_new);
+        $this->is_new_revision = TRUE;
+        $this->default_revision = TRUE;
+      }
+    }
+    return $this->save();
   }
 
 }

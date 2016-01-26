@@ -5,6 +5,9 @@
  * Defines the inline entity form controller for RedHen contacts.
  */
 
+/**
+ * Class RedHenContactInlineEntityFormController.
+ */
 class RedHenContactInlineEntityFormController extends EntityInlineEntityFormController {
 
   /**
@@ -85,4 +88,5 @@ class RedHenContactInlineEntityFormController extends EntityInlineEntityFormCont
     // Save the contact.
     $contact = redhen_contact_save($contact);
   }
+
 }

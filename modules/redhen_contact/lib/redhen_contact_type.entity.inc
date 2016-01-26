@@ -5,9 +5,8 @@
  * Redhen Contact type classes.
  */
 
-
 /**
- * The class used for model type entities
+ * RedhenContactType class.
  */
 class RedhenContactType extends Entity {
 

@@ -79,9 +79,9 @@ function redhen_note_menu() {
     );
     $items['redhen/' . $path . '/%' . $note_entity_type . '/notes/add'] = array(
       'title' => 'Add Note',
-      'page callback' => 'redhen_note_add',
-      'page arguments' => array(2, $note_entity_type),
-      'file' => 'includes/redhen_note.pages.inc',
+      'page callback' => 'drupal_get_form',
+      'page arguments' => array('redhen_note_form', NULL, 2),
+      'file' => 'includes/redhen_note.forms.inc',
       'access callback' => 'redhen_note_access',
       'access arguments' => array('edit', 2),
       'type' => MENU_LOCAL_ACTION,
@@ -276,10 +276,8 @@ function redhen_note_delete_multiple($note_ids) {
 /**
  * Display a note.
  *
- * @param  $note
+ * @param  RedhenNote $note
  *   A Fully loaded note object.
- *
- * @return void
  */
 function redhen_note_view($entity, $entity_type, RedhenNote $note) {
   return $note->view();
@@ -288,10 +286,8 @@ function redhen_note_view($entity, $entity_type, RedhenNote $note) {
 /**
  * Title callback for hook_menu().
  *
- * @param  $note
+ * @param RedhenNote $note
  *   A loaded note object.
- *
- * @return void
  */
 function redhen_note_title(RedhenNote $note) {
   return $note->label();

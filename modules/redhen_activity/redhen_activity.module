@@ -551,7 +551,7 @@ function redhen_activity_activity_page($entity = NULL, $entity_type = NULL) {
       );
     }
 
-    $bundle = isset($_GET['bundle']) ? $_GET['bundle'] : '';
+    $bundle = isset($_GET['bundle']) ? $_GET['bundle'] : redhen_activity_message_types();
     $properties = isset($_GET['properties']) ? $_GET['properties'] : array();
     $fields += isset($_GET['fields']) ? $_GET['fields'] : array();
     $result = redhen_filter_query('message', $header, $bundle, $properties, $fields);
@@ -601,6 +601,14 @@ function redhen_activity_activity_page($entity = NULL, $entity_type = NULL) {
       '#rows' => $rows,
     ),
   );
+}
+
+function redhen_activity_message_types() {
+  $message_types = array_keys(message_type_load());
+  $filtered = array_filter($message_types, function($var) {
+    return strpos($var, 'redhen_') !== FALSE;
+  });
+  return $filtered;
 }
 
 /**

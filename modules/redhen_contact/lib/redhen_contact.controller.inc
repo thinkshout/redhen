@@ -5,8 +5,10 @@
  */
 
 /**
- * The controller class for contacts contains methods for the contact CRUD
- * operations. The load method is inherited from the default controller.
+ * The controller class for contacts.
+ *
+ * Contains methods for the contact CRUD operations. The load method is
+ * inherited from the default controller.
  */
 class RedhenContactEntityController extends EntityAPIController {
 
@@ -25,7 +27,7 @@ class RedhenContactEntityController extends EntityAPIController {
       $contact->updated = REQUEST_TIME;
 
       // New contact, set created prop.
-      if (isset($contact->is_new) && $contact->is_new) {
+      if (isset($contact->is_new) && $contact->is_new && !isset($contact->created)) {
         $contact->created = REQUEST_TIME;
       }
       // Set revision flags. By default, save a new revision and set it as
@@ -144,7 +146,7 @@ class RedhenContactEntityController extends EntityAPIController {
    * @return bool
    *   TRUE if contact is successfully linked to user.
    */
-  public function setUser($contact, DatabaseTransaction $transaction = NULL) {
+  public function setUser(RedhenContact $contact, DatabaseTransaction $transaction = NULL) {
     $user_result = db_select('redhen_contact_user', 'cu')
       ->fields('cu')
       ->condition('uid', $contact->uid, '=')
@@ -237,7 +239,7 @@ class RedhenContactEntityController extends EntityAPIController {
    * @return bool
    *   TRUE if user is successfully deleted or unlinked from contact.
    */
-  public function deleteUser($contact, $delete = FALSE, DatabaseTransaction $transaction = NULL) {
+  public function deleteUser(RedhenContact $contact, $delete = FALSE, DatabaseTransaction $transaction = NULL) {
     try {
       $wrapper = entity_metadata_wrapper('redhen_contact', $contact);
       $user = $wrapper->user->value();
@@ -269,4 +271,5 @@ class RedhenContactEntityController extends EntityAPIController {
       throw $e;
     }
   }
+
 }

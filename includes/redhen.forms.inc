@@ -219,6 +219,12 @@ function redhen_filter_form_fields(&$form, &$form_state, $entity_type, $bundle) 
       $instance['description'] = '';
       $field_info['cardinality'] = 1;
 
+      // Filter out field types we know break the filter form.
+      $black_list = redhen_filter_form_blacklist();
+      if (in_array($field_info['type'], $black_list)) {
+        continue;
+      }
+
       // Set up specific field types.
       switch ($field_info['type']) {
         // Set up date fields.
@@ -267,9 +273,6 @@ function redhen_filter_form_fields(&$form, &$form_state, $entity_type, $bundle) 
   // Show a message if there is more than one bundle and this one has no
   // applicable fields.
   if (!$filters_count && isset($form['filter_fieldset']['filters']['bundle'])) {
-    $form['filter_fieldset']['filters']['fields']['message'] = array(
-      '#markup' => t('There are no additional fields for %bundle.', array(
-        '%bundle' => $bundle,
-    )));
+    $form['filter_fieldset']['filters']['fields']['message'] = array('#markup' => t('There are no additional fields for %bundle.', array('%bundle' => $bundle)));
   }
 }
