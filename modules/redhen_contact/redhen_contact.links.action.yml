@@ -1,0 +1,11 @@
+entity.redhen_contact.add_form:
+  route_name: 'redhen_contact.add_page'
+  title: 'Add Contact'
+  appears_on:
+    - entity.redhen_contact.collection
+entity.redhen_contact_type.add_form:
+  route_name: 'entity.redhen_contact_type.add_form'
+  title: 'Add Contact type'
+  appears_on:
+    - entity.redhen_contact_type.collection
+

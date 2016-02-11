@@ -1,0 +1,42 @@
+<?php
+
+/**
+ * @file
+ * Contains redhen_contact.module..
+ */
+
+use Drupal\Core\Routing\RouteMatchInterface;
+
+/**
+ * Implements hook_help().
+ */
+function redhen_contact_help($route_name, RouteMatchInterface $route_match) {
+  switch ($route_name) {
+    // Main module help for the redhen_contact module.
+    case 'help.page.redhen_contact':
+      $output = '';
+      $output .= '<h3>' . t('About') . '</h3>';
+      $output .= '<p>' . t('Defines the base contact entity and features.') . '</p>';
+      return $output;
+
+    default:
+  }
+}
+
+/**
+ * Implements hook_theme().
+ */
+function redhen_contact_theme() {
+  $theme = [];
+  $theme['redhen_contact'] = [
+    'render element' => 'elements',
+    'file' => 'redhen_contact.page.inc',
+    'template' => 'redhen_contact',
+  ];
+  $theme['redhen_contact_content_add_list'] = [
+    'render element' => 'content',
+    'variables' => ['content' => NULL],
+    'file' => 'redhen_contact.page.inc',
+  ];
+  return $theme;
+}

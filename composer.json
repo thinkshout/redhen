@@ -1,0 +1,14 @@
+{
+  "name": "drupal/redhen",
+  "type": "drupal-module",
+  "description": "RedHen CRM",
+  "keywords": ["Drupal"],
+  "license": "GPL-2.0+",
+  "homepage": "https://www.drupal.org/project/redhen",
+  "minimum-stability": "dev",
+  "support": {
+    "issues": "http://drupal.org/project/issues/redhen",
+    "source": "http://cgit.drupalcode.org/redhen"
+  },
+  "require": { }
+}

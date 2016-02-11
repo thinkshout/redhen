@@ -1,0 +1,5 @@
+name: RedHen
+type: module
+description: RedHen CRM
+core: 8.x
+package: RedHen
