@@ -52,11 +52,11 @@ use Drupal\user\UserInterface;
  *     "status" = "status",
  *   },
  *   links = {
- *     "canonical" = "/admin/structure/redhen/redhen_contact/{redhen_contact}",
- *     "add-form" = "/admin/structure/redhen/redhen_contact/add/{redhen_contact_type}",
- *     "edit-form" = "/admin/structure/redhen/redhen_contact/{redhen_contact}/edit",
- *     "delete-form" = "/admin/structure/redhen/redhen_contact/{redhen_contact}/delete",
- *     "collection" = "/admin/structure/redhen/redhen_contact",
+ *     "canonical" = "/redhen/contact/{redhen_contact}",
+ *     "add-form" = "/redhen/contact/add/{redhen_contact_type}",
+ *     "edit-form" = "/redhen/contact/{redhen_contact}/edit",
+ *     "delete-form" = "/redhen/contact/{redhen_contact}/delete",
+ *     "collection" = "/redhen/contact",
  *   },
  *   bundle_entity_type = "redhen_contact_type",
  *   field_ui_base_route = "entity.redhen_contact_type.edit_form"
