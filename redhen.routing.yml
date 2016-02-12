@@ -1,7 +1,7 @@
 redhen.dashboard:
   path: '/redhen'
   defaults:
-    _controller: '\Drupal\redhen\Controller\RedhenController::dashboard'
+    _controller: '\Drupal\system\Controller\SystemController::systemAdminMenuBlockPage'
     _title: 'CRM Dashboard'
   requirements:
     _permission: 'access redhen'
