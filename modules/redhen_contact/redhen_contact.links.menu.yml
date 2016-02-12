@@ -1,9 +1,9 @@
 # Contact menu items definition
 entity.redhen_contact.collection:
-  title: 'Contact list'
+  title: 'Contacts'
   route_name: entity.redhen_contact.collection
   description: 'List Contact entities'
-  parent: system.admin_structure
+  parent: redhen.dashboard
   weight: 100
 
 # Contact type menu items definition
@@ -11,6 +11,6 @@ entity.redhen_contact_type.collection:
   title: 'Contact types'
   route_name: entity.redhen_contact_type.collection
   description: 'List Contact type (bundles)'
-  parent: system.admin_structure
+  parent: redhen.structure
   weight: 99
 
