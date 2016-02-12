@@ -1,0 +1,5 @@
+redhen.dashboard:
+  title: 'RedHen CRM'
+  description: 'RedHen CRM Dashboard'
+  route_name: redhen.dashboard
+  parent: system.admin

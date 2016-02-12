@@ -8,7 +8,7 @@ entity.redhen_contact.collection:
 
 # Contact type menu items definition
 entity.redhen_contact_type.collection:
-  title: 'Contact type'
+  title: 'Contact types'
   route_name: entity.redhen_contact_type.collection
   description: 'List Contact type (bundles)'
   parent: system.admin_structure

@@ -1,5 +1,5 @@
 name: RedHen
 type: module
-description: RedHen CRM
+description: 'Defines basic functionality common to all parts of the RedHen CRM.'
 core: 8.x
 package: RedHen
