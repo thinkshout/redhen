@@ -5,3 +5,27 @@ redhen.dashboard:
     _title: 'CRM Dashboard'
   requirements:
     _permission: 'access redhen'
+
+redhen.structure:
+  path: '/admin/structure/redhen'
+  defaults:
+    _controller: '\Drupal\system\Controller\SystemController::systemAdminMenuBlockPage'
+    _title: 'RedHen CRM'
+  requirements:
+    _permission: 'administer redhen'
+
+redhen.config:
+  path: '/admin/config/redhen'
+  defaults:
+    _controller: '\Drupal\system\Controller\SystemController::systemAdminMenuBlockPage'
+    _title: 'RedHen CRM'
+  requirements:
+    _permission: 'administer redhen'
+
+redhen.config.admin_form:
+  path: '/admin/config/redhen/crm'
+  defaults:
+    _form: '\Drupal\redhen\Form\RedhenAdminSettingsForm'
+    _title: 'RedHen CRM settings'
+  requirements:
+    _permission: 'administer redhen'

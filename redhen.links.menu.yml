@@ -3,3 +3,21 @@ redhen.dashboard:
   description: 'RedHen CRM Dashboard'
   route_name: redhen.dashboard
   parent: system.admin
+
+redhen.structure:
+   title: 'RedHen CRM'
+   description: 'Administer RedHen CRM items, such as contacts, organizations, memberships, etc.'
+   route_name: redhen.structure
+   parent: system.admin_structure
+
+redhen.config:
+  title: 'RedHen CRM'
+  description: 'Settings for RedHen modules.'
+  route_name: redhen.config
+  parent: system.admin_config
+
+redhen.config.admin_form:
+  title: 'RedHen CRM'
+  description: 'Configure RedHen CRM.'
+  route_name: redhen.config.admin_form
+  parent: redhen.config
