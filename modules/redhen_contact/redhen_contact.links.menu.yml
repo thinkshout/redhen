@@ -2,7 +2,7 @@
 entity.redhen_contact.collection:
   title: 'Contacts'
   route_name: entity.redhen_contact.collection
-  description: 'List Contact entities'
+  description: 'View RedHen CRM contacts.'
   parent: redhen.dashboard
   weight: 100
 
@@ -10,7 +10,7 @@ entity.redhen_contact.collection:
 entity.redhen_contact_type.collection:
   title: 'Contact types'
   route_name: entity.redhen_contact_type.collection
-  description: 'List Contact type (bundles)'
+  description: 'List Contact types'
   parent: redhen.structure
   weight: 99
 

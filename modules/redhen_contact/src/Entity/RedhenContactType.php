@@ -36,11 +36,11 @@ use Drupal\redhen_contact\RedhenContactTypeInterface;
  *     "uuid" = "uuid"
  *   },
  *   links = {
- *     "canonical" = "/admin/structure/redhen/redhen_contact_type/{redhen_contact_type}",
- *     "add-form" = "/admin/structure/redhen/redhen_contact_type/add",
- *     "edit-form" = "/admin/structure/redhen/redhen_contact_type/{redhen_contact_type}/edit",
- *     "delete-form" = "/admin/structure/redhen/redhen_contact_type/{redhen_contact_type}/delete",
- *     "collection" = "/admin/structure/redhen/redhen_contact_type"
+ *     "canonical" = "/admin/structure/redhen/contact_type/{redhen_contact_type}",
+ *     "add-form" = "/admin/structure/redhen/contact_type/add",
+ *     "edit-form" = "/admin/structure/redhen/contact_type/{redhen_contact_type}/edit",
+ *     "delete-form" = "/admin/structure/redhen/contact_type/{redhen_contact_type}/delete",
+ *     "collection" = "/admin/structure/redhen/contact_type"
  *   }
  * )
  */
