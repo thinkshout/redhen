@@ -1,0 +1,7 @@
+redhen.settings:
+  type: mapping
+  label: 'RedHen Settings'
+  mapping:
+    redhen_admin_path:
+      type: boolean
+      label: 'Treat RedHen paths as administrative'
