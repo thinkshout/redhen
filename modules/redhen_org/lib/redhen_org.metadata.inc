@@ -65,6 +65,7 @@ class RedhenOrgMetadataController extends EntityDefaultMetadataController {
       'type' => 'redhen_contact',
       'description' => t("The primary contact for the organization."),
       'schema field' => 'primary_contact_id',
+      'setter callback' => 'entity_property_verbatim_set',
     );
     $properties['author'] = array(
       'label' => t("Author"),
