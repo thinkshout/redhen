@@ -22,7 +22,7 @@ class RedhenContactViewsData extends EntityViewsData implements EntityViewsDataI
 
     $data['redhen_contact']['table']['base'] = array(
       'field' => 'id',
-      'title' => $this->t('Contact'),
+      'title' => $this->t('Contact ID'),
       'help' => $this->t('The Contact ID.'),
     );
 

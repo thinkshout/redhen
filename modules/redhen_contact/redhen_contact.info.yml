@@ -6,3 +6,7 @@ package: RedHen
 configure: entity.redhen_contact_type.collection
 dependencies:
   - redhen
+  - user
+  - entity
+  - field
+  - views

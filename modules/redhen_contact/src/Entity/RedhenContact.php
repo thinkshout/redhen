@@ -13,6 +13,7 @@ use Drupal\Core\Entity\ContentEntityBase;
 use Drupal\Core\Entity\EntityChangedTrait;
 use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\redhen_contact\RedhenContactInterface;
+use Drupal\entity\EntityKeysFieldsTrait;
 use Drupal\user\UserInterface;
 
 /**
@@ -41,9 +42,11 @@ use Drupal\user\UserInterface;
  *     },
  *   },
  *   base_table = "redhen_contact",
+ *   revision_table = "redhen_contact_revision",
  *   admin_permission = "administer contact entities",
  *   entity_keys = {
  *     "id" = "id",
+ *     "revision" = "revision_id",
  *     "bundle" = "type",
  *     "label" = "name",
  *     "uuid" = "uuid",
@@ -63,7 +66,7 @@ use Drupal\user\UserInterface;
  * )
  */
 class RedhenContact extends ContentEntityBase implements RedhenContactInterface {
-  use EntityChangedTrait;
+  use EntityChangedTrait, EntityKeysFieldsTrait;
   /**
    * {@inheritdoc}
    */
@@ -108,6 +111,36 @@ class RedhenContact extends ContentEntityBase implements RedhenContactInterface 
    */
   public function setCreatedTime($timestamp) {
     $this->set('created', $timestamp);
+    return $this;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getRevisionCreationTime() {
+    return $this->get('revision_timestamp')->value;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setRevisionCreationTime($timestamp) {
+    $this->set('revision_timestamp', $timestamp);
+    return $this;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getRevisionAuthor() {
+    return $this->get('revision_uid')->entity;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setRevisionAuthorId($uid) {
+    $this->set('revision_uid', $uid);
     return $this;
   }
 
@@ -160,23 +193,11 @@ class RedhenContact extends ContentEntityBase implements RedhenContactInterface 
    * {@inheritdoc}
    */
   public static function baseFieldDefinitions(EntityTypeInterface $entity_type) {
-    $fields['id'] = BaseFieldDefinition::create('integer')
-      ->setLabel(t('ID'))
-      ->setDescription(t('The ID of the Contact entity.'))
-      ->setReadOnly(TRUE);
-    $fields['type'] = BaseFieldDefinition::create('entity_reference')
-      ->setLabel(t('Type'))
-      ->setDescription(t('The Contact type/bundle.'))
-      ->setSetting('target_type', 'redhen_contact_type')
-      ->setRequired(TRUE);
-    $fields['uuid'] = BaseFieldDefinition::create('uuid')
-      ->setLabel(t('UUID'))
-      ->setDescription(t('The UUID of the Contact entity.'))
-      ->setReadOnly(TRUE);
+    $fields = self::entityKeysBaseFieldDefinitions($entity_type);
 
     $fields['user_id'] = BaseFieldDefinition::create('entity_reference')
-      ->setLabel(t('Authored by'))
-      ->setDescription(t('The user ID of author of the Contact entity.'))
+      ->setLabel(t('User'))
+      ->setDescription(t('The user ID this contact is linked to.'))
       ->setRevisionable(TRUE)
       ->setSetting('target_type', 'user')
       ->setSetting('handler', 'default')
@@ -202,7 +223,7 @@ class RedhenContact extends ContentEntityBase implements RedhenContactInterface 
 
     $fields['name'] = BaseFieldDefinition::create('string')
       ->setLabel(t('Name'))
-      ->setDescription(t('The name of the Contact entity.'))
+      ->setDescription(t('The name of the Contact.'))
       ->setSettings(array(
         'max_length' => 50,
         'text_processing' => 0,
@@ -218,29 +239,24 @@ class RedhenContact extends ContentEntityBase implements RedhenContactInterface 
         'weight' => -4,
       ))
       ->setDisplayConfigurable('form', TRUE)
-      ->setDisplayConfigurable('view', TRUE);
+      ->setDisplayConfigurable('view', TRUE)
+      ->setRevisionable(TRUE);
 
     $fields['status'] = BaseFieldDefinition::create('boolean')
-      ->setLabel(t('Publishing status'))
-      ->setDescription(t('A boolean indicating whether the Contact is published.'))
-      ->setDefaultValue(TRUE);
-
-    $fields['langcode'] = BaseFieldDefinition::create('language')
-      ->setLabel(t('Language code'))
-      ->setDescription(t('The language code for the Contact entity.'))
-      ->setDisplayOptions('form', array(
-        'type' => 'language_select',
-        'weight' => 10,
-      ))
-      ->setDisplayConfigurable('form', TRUE);
+      ->setLabel(t('Active status'))
+      ->setDescription(t('A boolean indicating whether the Contact is active.'))
+      ->setDefaultValue(TRUE)
+      ->setRevisionable(TRUE);
 
     $fields['created'] = BaseFieldDefinition::create('created')
       ->setLabel(t('Created'))
-      ->setDescription(t('The time that the entity was created.'));
+      ->setDescription(t('The time that the contact was created.'))
+      ->setRevisionable(TRUE);
 
     $fields['changed'] = BaseFieldDefinition::create('changed')
       ->setLabel(t('Changed'))
-      ->setDescription(t('The time that the entity was last edited.'));
+      ->setDescription(t('The time that the contact was last edited.'))
+      ->setRevisionable(TRUE);
 
     return $fields;
   }
