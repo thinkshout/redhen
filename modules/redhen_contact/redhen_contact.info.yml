@@ -3,5 +3,6 @@ type: module
 description: Defines the base contact entity and features.
 core: 8.x
 package: RedHen
+configure: entity.redhen_contact_type.collection
 dependencies:
   - redhen
