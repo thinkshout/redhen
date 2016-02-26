@@ -212,23 +212,25 @@ class RedhenContact extends Entity {
   public function save() {
     $wrapper = entity_metadata_wrapper('redhen_contact', $this);
     $user = $wrapper->user->value();
+    $emails = $this->allEmail();
 
     if (variable_get('redhen_contact_connect_users', FALSE) && !$user) {
-      $emails = $this->allEmail();
       foreach ($emails as $email) {
         // Ensure email value is not set to empty string because that matches
         // Drupal's anonymous user (uid=0). This can happen when creating a
         // contact programmatically where the email field is not guaranteed to
         // be populated.
-        if (!empty($email['value']) && $user = user_load_by_mail($email['value'])) {
-          $wrapper->user->set($user);
+        $user_by_mail = empty($email['value']) ? NULL : user_load_by_mail($email['value']);
+        if ($user_by_mail) {
+          $user = $user_by_mail;
+          $wrapper->user->set($user_by_mail);
           break;
         }
       }
     }
 
     // When there is only one email set, make sure it's marked 'default'.
-    if (count($this->allEmail()) === 1) {
+    if (count($emails) === 1) {
       $this->{REDHEN_CONTACT_EMAIL_FIELD}[LANGUAGE_NONE][0]['default'] = 1;
     }
 
