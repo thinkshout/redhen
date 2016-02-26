@@ -48,7 +48,7 @@ function redhen_contact_contact_form($form, &$form_state, $contact) {
 
   // Display asterisk if the field is required.
   if (isset($form['redhen_contact_email'])) {
-    $form['redhen_contact_email'][$form['redhen_contact_email']['#language']]['#required'] = redhen_contact_email_required();
+    $form['redhen_contact_email'][$form['redhen_contact_email']['#language']]['#required'] = redhen_contact_user_email_setting(REDHEN_CONTACT_REQUIRE_EMAIL, $contact);
   }
 
   $form['actions'] = array(
@@ -97,7 +97,7 @@ function redhen_contact_contact_form_validate($form, &$form_state) {
 
   // If mirroring a connected and contact email's, ensure the email is not used
   // by anther Drupal user.
-  if (variable_get('redhen_contact_mirror_email', FALSE) && $contact->uid) {
+  if (redhen_contact_user_email_setting(REDHEN_CONTACT_MIRROR_EMAIL, $contact) && $contact->uid) {
     foreach ($form_state['values'][REDHEN_CONTACT_EMAIL_FIELD][LANGUAGE_NONE] as $email) {
       if (is_array($email) && !empty($email['value']) && $email['default']) {
         $user = user_load_by_mail($email['value']);

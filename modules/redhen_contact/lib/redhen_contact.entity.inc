@@ -214,7 +214,7 @@ class RedhenContact extends Entity {
     $user = $wrapper->user->value();
     $emails = $this->allEmail();
 
-    if (variable_get('redhen_contact_connect_users', FALSE) && !$user) {
+    if (redhen_contact_user_email_setting(REDHEN_CONTACT_CONNECT_USERS, $this) && !$user) {
       foreach ($emails as $email) {
         // Ensure email value is not set to empty string because that matches
         // Drupal's anonymous user (uid=0). This can happen when creating a
@@ -236,7 +236,7 @@ class RedhenContact extends Entity {
 
     $ret = parent::save();
 
-    if ($ret && variable_get('redhen_contact_mirror_email', FALSE)) {
+    if ($ret && redhen_contact_user_email_setting(REDHEN_CONTACT_MIRROR_EMAIL, $this)) {
       $email = $wrapper->email->value();
 
       // If we have a linked user and primary email, but they don't match, set

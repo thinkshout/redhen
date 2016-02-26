@@ -14,6 +14,7 @@ define('REDHEN_CONTACT_CONNECT_USERS', 'redhen_contact_connect_users');
 define('REDHEN_CONTACT_MIRROR_EMAIL', 'redhen_contact_mirror_email');
 define('REDHEN_CONTACT_REQUIRE_EMAIL', 'redhen_contact_require_email');
 define('REDHEN_CONTACT_EMBED_ON_USER_FORM', 'redhen_contact_embed_on_user_form');
+define('REDHEN_CONTACT_USER_EMAIL_TYPE', 'redhen_contact_user_email_type');
 define('REDHEN_CONTACT_REQUIRE_FIRST_NAME', 'redhen_contact_require_first_name');
 define('REDHEN_CONTACT_REG', 'redhen_contact_reg');
 define('REDHEN_CONTACT_REG_TYPE', 'redhen_contact_reg_type');
@@ -757,6 +758,7 @@ function theme_redhen_contact_list($variables) {
  * Implements hook_redhen_settings().
  */
 function redhen_contact_redhen_settings() {
+  $contact_type_options = redhen_contact_type_options_list();
   return array(
     'redhen_contact_email' => array(
       '#type' => 'fieldset',
@@ -767,7 +769,7 @@ function redhen_contact_redhen_settings() {
           '#type' => 'checkbox',
           '#title' => t('Require contacts to have a valid email address'),
           '#description' => t('Controls the contact form validation. Must be true to enable Drupal user connections keyed on email and contact email mirroring.'),
-          '#default_value' => redhen_contact_email_required(),
+          '#default_value' => variable_get(REDHEN_CONTACT_REQUIRE_EMAIL, TRUE),
         ),
         REDHEN_CONTACT_CONNECT_USERS => array(
           '#type' => 'checkbox',
@@ -802,6 +804,20 @@ function redhen_contact_redhen_settings() {
             ),
           ),
         ),
+        REDHEN_CONTACT_USER_EMAIL_TYPE => array(
+          '#type' => 'select',
+          '#multiple' => TRUE,
+          '#options' => $contact_type_options,
+          '#title' => t('User email contact types'),
+          '#description' => t('Restrict which contact types will connect to Drupal user accounts by email address. Leave blank to allow ANY contact type (default).'),
+          '#default_value' => variable_get(REDHEN_CONTACT_USER_EMAIL_TYPE, array()),
+          '#states' => array(
+            'enabled' => array(
+              ':input[name="' . REDHEN_CONTACT_CONNECT_USERS . '"]' => array('checked' => TRUE),
+            ),
+          ),
+          '#access' => (count($contact_type_options) > 1),
+        ),
       ),
     ),
     REDHEN_CONTACT_ALTER_USERNAME => array(
@@ -828,7 +844,7 @@ function redhen_contact_redhen_settings() {
         ),
         REDHEN_CONTACT_REG_TYPE => array(
           '#type' => 'select',
-          '#options' => redhen_contact_type_options_list(),
+          '#options' => $contact_type_options,
           '#title' => t('Default contact type'),
           '#description' => t('Select the default contact type to create during registration. This can be overriden by appending the contact type machine name in the registration url.'),
           '#default_value' => variable_get(REDHEN_CONTACT_REG_TYPE, FALSE),
@@ -870,13 +886,28 @@ function redhen_contact_redhen_settings() {
 }
 
 /**
- * Setting which determines if contact are required to have an email address.
+ * Utility function for checking settings related to contact->user connections.
+ *
+ * @param string $setting
+ *   Setting string - should be a REDHEN_CONTACT_* setting constant.
+ * @param object $contact
+ *   Contact object.
  *
  * @return bool
- *   True if required, else false.
+ *   True if setting is enabled for connecting the contact to user, else false.
  */
-function redhen_contact_email_required() {
-  return variable_get(REDHEN_CONTACT_REQUIRE_EMAIL, TRUE);
+function redhen_contact_user_email_setting($setting, $contact) {
+  $user_email_type = variable_get(REDHEN_CONTACT_USER_EMAIL_TYPE, array());
+  if ($user_email_type && isset($contact->type) && !in_array($contact->type, $user_email_type)) {
+    return FALSE;
+  }
+
+  switch ($setting) {
+    case REDHEN_CONTACT_REQUIRE_EMAIL:
+      return variable_get($setting, TRUE);
+  }
+
+  return variable_get($setting, FALSE);
 }
 
 /**
@@ -1047,11 +1078,11 @@ function redhen_contact_form_user_profile_form_alter(&$form, &$form_state) {
   // If we're mirroring the contact's email address - disable the field.
   $contact = redhen_contact_load_by_user($form['#user']);
   if ($contact) {
-    if ($form['#user_category'] == 'account' && variable_get(REDHEN_CONTACT_MIRROR_EMAIL, FALSE)) {
+    if ($form['#user_category'] == 'account' && redhen_contact_user_email_setting(REDHEN_CONTACT_MIRROR_EMAIL, $contact)) {
       $form['account']['mail']['#disabled'] = TRUE;
       $form['account']['mail']['#description'] .= ' ' . t('The email address for this account is managed by RedHen.');
     }
-    if ($form['#user_category'] == 'account' && variable_get(REDHEN_CONTACT_EMBED_ON_USER_FORM, FALSE) && redhen_contact_user_contact_access()) {
+    if ($form['#user_category'] == 'account' && redhen_contact_user_email_setting(REDHEN_CONTACT_EMBED_ON_USER_FORM, $contact) && redhen_contact_user_contact_access()) {
       if ($form['account']['mail']['#disabled']) {
         // Just hide the email field since it will display on the contact form:
         $form['account']['mail']['#access'] = FALSE;
