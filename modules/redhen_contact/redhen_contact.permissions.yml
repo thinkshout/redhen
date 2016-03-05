@@ -12,8 +12,8 @@ delete contact entities:
 edit contact entities:
   title: 'Edit Contact entities'
 
-view published contact entities:
-  title: 'View published Contact entities'
+view active contact entities:
+  title: 'View active Contact entities'
 
-view unpublished contact entities:
-  title: 'View unpublished Contact entities'
+view inactive contact entities:
+  title: 'View inactive Contact entities'

@@ -26,6 +26,7 @@ class RedhenContactListBuilder extends EntityListBuilder {
     $header['type'] = $this->t('Type');
     $header['name'] = $this->t('Name');
     $header['email'] = $this->t('Email');
+    $header['status'] = $this->t('Status');
     return $header + parent::buildHeader();
   }
 
@@ -44,6 +45,7 @@ class RedhenContactListBuilder extends EntityListBuilder {
       )
     );
     $row['email'] = $entity->getEmail();
+    $row['status'] = $entity->isActive() ? $this->t('Active') : $this->t('Inactive');
     return $row + parent::buildRow($entity);
   }
 

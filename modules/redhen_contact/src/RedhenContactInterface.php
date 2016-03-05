@@ -10,14 +10,13 @@ namespace Drupal\redhen_contact;
 use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Entity\EntityChangedInterface;
 use Drupal\Core\Entity\EntityTypeInterface;
-use Drupal\user\EntityOwnerInterface;
 
 /**
  * Provides an interface for defining Contact entities.
  *
  * @ingroup redhen_contact
  */
-interface RedhenContactInterface extends ContentEntityInterface, EntityChangedInterface, EntityOwnerInterface {
+interface RedhenContactInterface extends ContentEntityInterface, EntityChangedInterface {
   // Add get/set methods for your configuration properties here.
 
   /**
@@ -67,24 +66,22 @@ interface RedhenContactInterface extends ContentEntityInterface, EntityChangedIn
   public function setCreatedTime($timestamp);
 
   /**
-   * Returns the Contact published status indicator.
-   *
-   * Unpublished Contact are only visible to restricted users.
+   * Returns the Contact active status indicator.
    *
    * @return bool
-   *   TRUE if the Contact is published.
+   *   TRUE if the Contact is active.
    */
-  public function isPublished();
+  public function isActive();
 
   /**
-   * Sets the published status of a Contact.
+   * Sets the active status of a Contact.
    *
-   * @param bool $published
-   *   TRUE to set this Contact to published, FALSE to set it to unpublished.
+   * @param bool $active
+   *   TRUE to set this Contact to active, FALSE to set it to inactive.
    *
    * @return \Drupal\redhen_contact\RedhenContactInterface
    *   The called Contact entity.
    */
-  public function setPublished($published);
+  public function setActive($active);
 
 }

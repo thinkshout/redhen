@@ -25,10 +25,10 @@ class RedhenContactAccessControlHandler extends EntityAccessControlHandler {
     /** @var \Drupal\redhen_contact\RedhenContactInterface $entity */
     switch ($operation) {
       case 'view':
-        if (!$entity->isPublished()) {
-          return AccessResult::allowedIfHasPermission($account, 'view unpublished contact entities');
+        if (!$entity->isActive()) {
+          return AccessResult::allowedIfHasPermission($account, 'view inactive contact entities');
         }
-        return AccessResult::allowedIfHasPermission($account, 'view published contact entities');
+        return AccessResult::allowedIfHasPermission($account, 'view active contact entities');
 
       case 'update':
         return AccessResult::allowedIfHasPermission($account, 'edit contact entities');

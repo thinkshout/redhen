@@ -8,6 +8,16 @@
 use Drupal\Core\Routing\RouteMatchInterface;
 
 /**
+ * Denotes that the contact is not active.
+ */
+const REDHEN_CONTACT_INACTIVE = 0;
+
+/**
+ * Denotes that the node is active.
+ */
+const REDHEN_CONTACT_ACTIVE = 1;
+
+/**
  * Implements hook_help().
  */
 function redhen_contact_help($route_name, RouteMatchInterface $route_match) {

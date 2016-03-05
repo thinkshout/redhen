@@ -162,21 +162,21 @@ class RedhenContact extends ContentEntityBase implements RedhenContactInterface 
   /**
    * {@inheritdoc}
    */
-  public function getOwner() {
+  public function getUser() {
     return $this->get('user_id')->entity;
   }
 
   /**
    * {@inheritdoc}
    */
-  public function getOwnerId() {
+  public function getUserId() {
     return $this->get('user_id')->target_id;
   }
 
   /**
    * {@inheritdoc}
    */
-  public function setOwnerId($uid) {
+  public function setUserId($uid) {
     $this->set('user_id', $uid);
     return $this;
   }
@@ -184,7 +184,7 @@ class RedhenContact extends ContentEntityBase implements RedhenContactInterface 
   /**
    * {@inheritdoc}
    */
-  public function setOwner(UserInterface $account) {
+  public function setUser(UserInterface $account) {
     $this->set('user_id', $account->id());
     return $this;
   }
@@ -192,15 +192,15 @@ class RedhenContact extends ContentEntityBase implements RedhenContactInterface 
   /**
    * {@inheritdoc}
    */
-  public function isPublished() {
+  public function isActive() {
     return (bool) $this->getEntityKey('status');
   }
 
   /**
    * {@inheritdoc}
    */
-  public function setPublished($published) {
-    $this->set('status', $published ? NODE_PUBLISHED : NODE_NOT_PUBLISHED);
+  public function setActive($active) {
+    $this->set('status', $active ? REDHEN_CONTACT_INACTIVE : REDHEN_CONTACT_ACTIVE);
     return $this;
   }
 
