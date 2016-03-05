@@ -17,3 +17,6 @@ view active contact entities:
 
 view inactive contact entities:
   title: 'View inactive Contact entities'
+
+permission_callbacks:
+  - \Drupal\redhen_contact\RedhenContactPermissions::redhenContactTypePermissions
