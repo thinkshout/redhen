@@ -36,13 +36,13 @@ class RedhenContactForm extends ContentEntityForm {
 
     switch ($status) {
       case SAVED_NEW:
-        drupal_set_message($this->t('Created the %label Contact.', [
+        drupal_set_message($this->t('Created %label.', [
           '%label' => $entity->label(),
         ]));
         break;
 
       default:
-        drupal_set_message($this->t('Saved the %label Contact.', [
+        drupal_set_message($this->t('Saved %label.', [
           '%label' => $entity->label(),
         ]));
     }

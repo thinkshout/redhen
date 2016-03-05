@@ -29,7 +29,7 @@ class RedhenContactTypeForm extends EntityForm {
       '#title' => $this->t('Label'),
       '#maxlength' => 255,
       '#default_value' => $redhen_contact_type->label(),
-      '#description' => $this->t("Label for the Contact type."),
+      '#description' => $this->t("Label for the contact type."),
       '#required' => TRUE,
     );
 
