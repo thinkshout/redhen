@@ -48,7 +48,6 @@ use Drupal\user\UserInterface;
  *     "id" = "id",
  *     "revision" = "revision_id",
  *     "bundle" = "type",
- *     "label" = "name",
  *     "uuid" = "uuid",
  *     "uid" = "user_id",
  *     "langcode" = "langcode",
@@ -80,6 +79,13 @@ class RedhenContact extends ContentEntityBase implements RedhenContactInterface 
   /**
    * {@inheritdoc}
    */
+  public function label() {
+    return $this->getFullName();
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function getType() {
     return $this->bundle();
   }
@@ -87,8 +93,14 @@ class RedhenContact extends ContentEntityBase implements RedhenContactInterface 
   /**
    * {@inheritdoc}
    */
-  public function getName() {
-    return $this->get('name')->value;
+  public function getFullName() {
+    $first_name = $this->get('first_name')->value;
+    $middle_name = $this->get('middle_name')->value;
+    $last_name = $this->get('last_name')->value;
+    $name = $first_name . (empty($middle_name) ? '' : ' ') . $middle_name . (empty($first_name) ? '' : ' ') . $last_name;
+    // Allow other modules to alter the full name of the contact.
+    \Drupal::moduleHandler()->alter('redhen_contact_name', $name, $this);
+    return $name;
   }
 
   /**
@@ -210,19 +222,14 @@ class RedhenContact extends ContentEntityBase implements RedhenContactInterface 
   public static function baseFieldDefinitions(EntityTypeInterface $entity_type) {
     $fields = self::entityKeysBaseFieldDefinitions($entity_type);
 
-    $fields['name'] = BaseFieldDefinition::create('string')
-      ->setLabel(t('Name'))
-      ->setDescription(t('The name of the Contact.'))
+    $fields['first_name'] = BaseFieldDefinition::create('string')
+      ->setLabel(t('First name'))
+      ->setDescription(t('The first name of the contact.'))
       ->setSettings(array(
         'max_length' => 50,
         'text_processing' => 0,
       ))
       ->setDefaultValue('')
-      ->setDisplayOptions('view', array(
-        'label' => 'hidden',
-        'type' => 'string',
-        'weight' => -10,
-      ))
       ->setDisplayOptions('form', array(
         'type' => 'string_textfield',
         'weight' => -10,
@@ -230,6 +237,39 @@ class RedhenContact extends ContentEntityBase implements RedhenContactInterface 
       ->setDisplayConfigurable('form', TRUE)
       ->setDisplayConfigurable('view', TRUE)
       ->setRevisionable(TRUE);
+
+    $fields['middle_name'] = BaseFieldDefinition::create('string')
+      ->setLabel(t('Middle Name'))
+      ->setDescription(t('The middle name of the contact.'))
+      ->setSettings(array(
+        'max_length' => 50,
+        'text_processing' => 0,
+      ))
+      ->setDefaultValue('')
+      ->setDisplayOptions('form', array(
+        'type' => 'string_textfield',
+        'weight' => -9,
+      ))
+      ->setDisplayConfigurable('form', TRUE)
+      ->setDisplayConfigurable('view', TRUE)
+      ->setRevisionable(TRUE);
+
+    $fields['last_name'] = BaseFieldDefinition::create('string')
+      ->setLabel(t('Last Name'))
+      ->setDescription(t('The last name of the contact.'))
+      ->setSettings(array(
+        'max_length' => 50,
+        'text_processing' => 0,
+      ))
+      ->setDefaultValue('')
+      ->setDisplayOptions('form', array(
+        'type' => 'string_textfield',
+        'weight' => -8,
+      ))
+      ->setDisplayConfigurable('form', TRUE)
+      ->setDisplayConfigurable('view', TRUE)
+      ->setRevisionable(TRUE);
+
 
     $fields['email'] = BaseFieldDefinition::create('email')
       ->setLabel(t('Email'))

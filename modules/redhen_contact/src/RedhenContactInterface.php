@@ -17,8 +17,6 @@ use Drupal\Core\Entity\EntityTypeInterface;
  * @ingroup redhen_contact
  */
 interface RedhenContactInterface extends ContentEntityInterface, EntityChangedInterface {
-  // Add get/set methods for your configuration properties here.
-
   /**
    * Gets the Contact type.
    *
@@ -28,12 +26,12 @@ interface RedhenContactInterface extends ContentEntityInterface, EntityChangedIn
   public function getType();
 
   /**
-   * Gets the Contact name.
+   * Gets the full Contact name.
    *
    * @return string
    *   Name of the Contact.
    */
-  public function getName();
+  public function getFullName();
 
   /**
    * Sets the Contact name.
@@ -64,6 +62,11 @@ interface RedhenContactInterface extends ContentEntityInterface, EntityChangedIn
    *   The called Contact entity.
    */
   public function setCreatedTime($timestamp);
+
+  /**
+   * Returns a label for the contact.
+   */
+  public function label();
 
   /**
    * Returns the Contact active status indicator.
