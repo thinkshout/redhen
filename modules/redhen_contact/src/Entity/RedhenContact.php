@@ -102,6 +102,21 @@ class RedhenContact extends ContentEntityBase implements RedhenContactInterface 
   /**
    * {@inheritdoc}
    */
+  public function getEmail() {
+    return $this->get('email')->value;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setEmail($email) {
+    $this->set('email', $email);
+    return $this;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function getCreatedTime() {
     return $this->get('created')->value;
   }
@@ -197,15 +212,18 @@ class RedhenContact extends ContentEntityBase implements RedhenContactInterface 
 
     $fields['user_id'] = BaseFieldDefinition::create('entity_reference')
       ->setLabel(t('User'))
-      ->setDescription(t('The user ID this contact is linked to.'))
+      ->setDescription(t('The Drupal user this contact is linked to.'))
       ->setRevisionable(TRUE)
       ->setSetting('target_type', 'user')
       ->setSetting('handler', 'default')
       ->setDefaultValueCallback('Drupal\node\Entity\Node::getCurrentUserId')
       ->setTranslatable(TRUE)
       ->setDisplayOptions('view', array(
-        'label' => 'hidden',
-        'type' => 'author',
+        'label' => 'inline',
+        'type' => 'entity_reference_label',
+        'settings' => array(
+          'link' => TRUE,
+        ),
         'weight' => 0,
       ))
       ->setDisplayOptions('form', array(
@@ -230,8 +248,25 @@ class RedhenContact extends ContentEntityBase implements RedhenContactInterface 
       ))
       ->setDefaultValue('')
       ->setDisplayOptions('view', array(
-        'label' => 'above',
+        'label' => 'hidden',
         'type' => 'string',
+        'weight' => -10,
+      ))
+      ->setDisplayOptions('form', array(
+        'type' => 'string_textfield',
+        'weight' => -10,
+      ))
+      ->setDisplayConfigurable('form', TRUE)
+      ->setDisplayConfigurable('view', TRUE)
+      ->setRevisionable(TRUE);
+
+    $fields['email'] = BaseFieldDefinition::create('email')
+      ->setLabel(t('Email'))
+      ->setDescription(t('The email of this contact.'))
+      ->setDefaultValue('')
+      ->setDisplayOptions('view', array(
+        'label' => 'inline',
+        'type' => 'email_mailto',
         'weight' => -4,
       ))
       ->setDisplayOptions('form', array(
@@ -243,9 +278,17 @@ class RedhenContact extends ContentEntityBase implements RedhenContactInterface 
       ->setRevisionable(TRUE);
 
     $fields['status'] = BaseFieldDefinition::create('boolean')
-      ->setLabel(t('Active status'))
+      ->setLabel(t('Active'))
       ->setDescription(t('A boolean indicating whether the Contact is active.'))
       ->setDefaultValue(TRUE)
+      ->setDisplayOptions('form', array(
+        'type' => 'boolean_checkbox',
+        'settings' => array(
+          'display_label' => TRUE,
+        ),
+        'weight' => 16,
+      ))
+      ->setDisplayConfigurable('form', TRUE)
       ->setRevisionable(TRUE);
 
     $fields['created'] = BaseFieldDefinition::create('created')
