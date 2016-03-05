@@ -210,35 +210,6 @@ class RedhenContact extends ContentEntityBase implements RedhenContactInterface 
   public static function baseFieldDefinitions(EntityTypeInterface $entity_type) {
     $fields = self::entityKeysBaseFieldDefinitions($entity_type);
 
-    $fields['user_id'] = BaseFieldDefinition::create('entity_reference')
-      ->setLabel(t('User'))
-      ->setDescription(t('The Drupal user this contact is linked to.'))
-      ->setRevisionable(TRUE)
-      ->setSetting('target_type', 'user')
-      ->setSetting('handler', 'default')
-      ->setDefaultValueCallback('Drupal\node\Entity\Node::getCurrentUserId')
-      ->setTranslatable(TRUE)
-      ->setDisplayOptions('view', array(
-        'label' => 'inline',
-        'type' => 'entity_reference_label',
-        'settings' => array(
-          'link' => TRUE,
-        ),
-        'weight' => 0,
-      ))
-      ->setDisplayOptions('form', array(
-        'type' => 'entity_reference_autocomplete',
-        'weight' => 5,
-        'settings' => array(
-          'match_operator' => 'CONTAINS',
-          'size' => '60',
-          'autocomplete_type' => 'tags',
-          'placeholder' => '',
-        ),
-      ))
-      ->setDisplayConfigurable('form', TRUE)
-      ->setDisplayConfigurable('view', TRUE);
-
     $fields['name'] = BaseFieldDefinition::create('string')
       ->setLabel(t('Name'))
       ->setDescription(t('The name of the Contact.'))
@@ -276,6 +247,35 @@ class RedhenContact extends ContentEntityBase implements RedhenContactInterface 
       ->setDisplayConfigurable('form', TRUE)
       ->setDisplayConfigurable('view', TRUE)
       ->setRevisionable(TRUE);
+
+    $fields['user_id'] = BaseFieldDefinition::create('entity_reference')
+      ->setLabel(t('User'))
+      ->setDescription(t('The Drupal user this contact is linked to.'))
+      ->setRevisionable(TRUE)
+      ->setSetting('target_type', 'user')
+      ->setSetting('handler', 'default')
+      ->setDefaultValueCallback('Drupal\node\Entity\Node::getCurrentUserId')
+      ->setTranslatable(TRUE)
+      ->setDisplayOptions('view', array(
+        'label' => 'inline',
+        'type' => 'entity_reference_label',
+        'settings' => array(
+          'link' => TRUE,
+        ),
+        'weight' => 0,
+      ))
+      ->setDisplayOptions('form', array(
+        'type' => 'entity_reference_autocomplete',
+        'weight' => 5,
+        'settings' => array(
+          'match_operator' => 'CONTAINS',
+          'size' => '60',
+          'autocomplete_type' => 'tags',
+          'placeholder' => '',
+        ),
+      ))
+      ->setDisplayConfigurable('form', TRUE)
+      ->setDisplayConfigurable('view', TRUE);
 
     $fields['status'] = BaseFieldDefinition::create('boolean')
       ->setLabel(t('Active'))
