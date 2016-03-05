@@ -21,7 +21,7 @@
  * @return string
  */
 function hook_redhen_contact_name_alter(&$name, Drupal\redhen_contact\RedhenContactInterface $contact) {
-  return $contact->get('last_name') . ', ' . $contact->get('first_name')->value;
+  return $contact->get('last_name')->value . ', ' . $contact->get('first_name')->value;
 }
 
 /**
