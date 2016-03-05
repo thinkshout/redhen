@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Contains \Drupal\redhen_contact\RedhenContactTypeListBuilder.
+ * Contains \Drupal\redhen_contact\ContactTypeListBuilder.
  */
 
 namespace Drupal\redhen_contact;
@@ -13,7 +13,7 @@ use Drupal\Core\Entity\EntityInterface;
 /**
  * Provides a listing of Contact type entities.
  */
-class RedhenContactTypeListBuilder extends ConfigEntityListBuilder {
+class ContactTypeListBuilder extends ConfigEntityListBuilder {
   /**
    * {@inheritdoc}
    */

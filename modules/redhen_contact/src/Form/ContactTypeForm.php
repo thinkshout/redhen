@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Contains \Drupal\redhen_contact\Form\RedhenContactTypeForm.
+ * Contains \Drupal\redhen_contact\Form\ContactTypeForm.
  */
 
 namespace Drupal\redhen_contact\Form;
@@ -12,11 +12,11 @@ use Drupal\Core\Entity\EntityForm;
 use Drupal\Core\Form\FormStateInterface;
 
 /**
- * Class RedhenContactTypeForm.
+ * Class ContactTypeForm.
  *
  * @package Drupal\redhen_contact\Form
  */
-class RedhenContactTypeForm extends EntityForm {
+class ContactTypeForm extends EntityForm {
   /**
    * {@inheritdoc}
    */
@@ -37,7 +37,7 @@ class RedhenContactTypeForm extends EntityForm {
       '#type' => 'machine_name',
       '#default_value' => $redhen_contact_type->id(),
       '#machine_name' => array(
-        'exists' => '\Drupal\redhen_contact\Entity\RedhenContactType::load',
+        'exists' => '\Drupal\redhen_contact\Entity\ContactType::load',
       ),
       '#disabled' => !$redhen_contact_type->isNew(),
     );

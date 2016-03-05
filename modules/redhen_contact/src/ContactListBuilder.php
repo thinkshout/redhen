@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Contains \Drupal\redhen_contact\RedhenContactListBuilder.
+ * Contains \Drupal\redhen_contact\ContactListBuilder.
  */
 
 namespace Drupal\redhen_contact;
@@ -17,7 +17,7 @@ use Drupal\Core\Url;
  *
  * @ingroup redhen_contact
  */
-class RedhenContactListBuilder extends EntityListBuilder {
+class ContactListBuilder extends EntityListBuilder {
   use LinkGeneratorTrait;
   /**
    * {@inheritdoc}
@@ -34,7 +34,7 @@ class RedhenContactListBuilder extends EntityListBuilder {
    * {@inheritdoc}
    */
   public function buildRow(EntityInterface $entity) {
-    /* @var $entity \Drupal\redhen_contact\Entity\RedhenContact */
+    /* @var $entity \Drupal\redhen_contact\Entity\Contact */
     $row['type'] = $entity->getType();
     $row['name'] = $entity->link();
     $row['email'] = $entity->getEmail();

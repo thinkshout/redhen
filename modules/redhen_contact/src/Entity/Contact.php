@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Contains \Drupal\redhen_contact\Entity\RedhenContact.
+ * Contains \Drupal\redhen_contact\Entity\Contact.
  */
 
 namespace Drupal\redhen_contact\Entity;
@@ -12,7 +12,7 @@ use Drupal\Core\Field\BaseFieldDefinition;
 use Drupal\Core\Entity\ContentEntityBase;
 use Drupal\Core\Entity\EntityChangedTrait;
 use Drupal\Core\Entity\EntityTypeInterface;
-use Drupal\redhen_contact\RedhenContactInterface;
+use Drupal\redhen_contact\ContactInterface;
 use Drupal\entity\EntityKeysFieldsTrait;
 use Drupal\user\UserInterface;
 
@@ -27,18 +27,18 @@ use Drupal\user\UserInterface;
  *   bundle_label = @Translation("Contact type"),
  *   handlers = {
  *     "view_builder" = "Drupal\Core\Entity\EntityViewBuilder",
- *     "list_builder" = "Drupal\redhen_contact\RedhenContactListBuilder",
- *     "views_data" = "Drupal\redhen_contact\Entity\RedhenContactViewsData",
+ *     "list_builder" = "Drupal\redhen_contact\ContactListBuilder",
+ *     "views_data" = "Drupal\redhen_contact\Entity\ContactViewsData",
  *
  *     "form" = {
- *       "default" = "Drupal\redhen_contact\Form\RedhenContactForm",
- *       "add" = "Drupal\redhen_contact\Form\RedhenContactForm",
- *       "edit" = "Drupal\redhen_contact\Form\RedhenContactForm",
- *       "delete" = "Drupal\redhen_contact\Form\RedhenContactDeleteForm",
+ *       "default" = "Drupal\redhen_contact\Form\ContactForm",
+ *       "add" = "Drupal\redhen_contact\Form\ContactForm",
+ *       "edit" = "Drupal\redhen_contact\Form\ContactForm",
+ *       "delete" = "Drupal\redhen_contact\Form\ContactDeleteForm",
  *     },
- *     "access" = "Drupal\redhen_contact\RedhenContactAccessControlHandler",
+ *     "access" = "Drupal\redhen_contact\ContactAccessControlHandler",
  *     "route_provider" = {
- *       "html" = "Drupal\redhen_contact\RedhenContactHtmlRouteProvider",
+ *       "html" = "Drupal\redhen_contact\ContactHtmlRouteProvider",
  *     },
  *   },
  *   base_table = "redhen_contact",
@@ -64,7 +64,7 @@ use Drupal\user\UserInterface;
  *   field_ui_base_route = "entity.redhen_contact_type.edit_form"
  * )
  */
-class RedhenContact extends ContentEntityBase implements RedhenContactInterface {
+class Contact extends ContentEntityBase implements ContactInterface {
   use EntityChangedTrait, EntityKeysFieldsTrait;
   /**
    * {@inheritdoc}

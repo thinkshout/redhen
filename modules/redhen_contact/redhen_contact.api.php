@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Describes API functions for redhen contact module.
+ * Describes API functions for the RedHen Contact module.
  */
 
 /**
@@ -15,12 +15,12 @@
  *
  * @param string $name
  *   The generated name.
- * @param Drupal\redhen_contact\RedhenContactInterface $contact
+ * @param Drupal\redhen_contact\ContactInterface $contact
  *   The contact whose name is being generated.
  *
  * @return string
  */
-function hook_redhen_contact_name_alter(&$name, Drupal\redhen_contact\RedhenContactInterface $contact) {
+function hook_redhen_contact_name_alter(&$name, Drupal\redhen_contact\ContactInterface $contact) {
   return $contact->get('last_name')->value . ', ' . $contact->get('first_name')->value;
 }
 

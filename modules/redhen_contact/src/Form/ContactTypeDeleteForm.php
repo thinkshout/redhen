@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Contains \Drupal\redhen_contact\Form\RedhenContactTypeDeleteForm.
+ * Contains \Drupal\redhen_contact\Form\ContactTypeDeleteForm.
  */
 
 namespace Drupal\redhen_contact\Form;
@@ -14,7 +14,7 @@ use Drupal\Core\Url;
 /**
  * Builds the form to delete Contact type entities.
  */
-class RedhenContactTypeDeleteForm extends EntityConfirmFormBase {
+class ContactTypeDeleteForm extends EntityConfirmFormBase {
   /**
    * {@inheritdoc}
    */

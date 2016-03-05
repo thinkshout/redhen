@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Contains \Drupal\redhen_contact\RedhenContactHtmlRouteProvider.
+ * Contains \Drupal\redhen_contact\ContactHtmlRouteProvider.
  */
 
 namespace Drupal\redhen_contact;
@@ -17,7 +17,7 @@ use Symfony\Component\Routing\Route;
  * @see Drupal\Core\Entity\Routing\AdminHtmlRouteProvider
  * @see Drupal\Core\Entity\Routing\DefaultHtmlRouteProvider
  */
-class RedhenContactHtmlRouteProvider extends AdminHtmlRouteProvider {
+class ContactHtmlRouteProvider extends AdminHtmlRouteProvider {
   /**
    * {@inheritdoc}
    */
@@ -90,8 +90,8 @@ class RedhenContactHtmlRouteProvider extends AdminHtmlRouteProvider {
       // Content entities with bundles are added via a dedicated controller.
       $route
         ->setDefaults([
-          '_controller' => 'Drupal\redhen_contact\Controller\RedhenContactAddController::addForm',
-          '_title_callback' => 'Drupal\redhen_contact\Controller\RedhenContactAddController::getAddFormTitle',
+          '_controller' => 'Drupal\redhen_contact\Controller\ContactAddController::addForm',
+          '_title_callback' => 'Drupal\redhen_contact\Controller\ContactAddController::getAddFormTitle',
         ])
         ->setRequirement('_entity_create_access', $entity_type_id . ':{' . $bundle_entity_type_id . '}');
       $parameters[$bundle_entity_type_id] = ['type' => 'entity:' . $bundle_entity_type_id];
@@ -117,7 +117,7 @@ class RedhenContactHtmlRouteProvider extends AdminHtmlRouteProvider {
     $route = new Route("/admin/structure/{$entity_type->id()}/add");
     $route
       ->setDefaults([
-        '_controller' => 'Drupal\redhen_contact\Controller\RedhenContactAddController::add',
+        '_controller' => 'Drupal\redhen_contact\Controller\ContactAddController::add',
         '_title' => "Add {$entity_type->getLabel()}",
       ])
       ->setRequirement('_entity_create_access', $entity_type->id())
@@ -140,7 +140,7 @@ class RedhenContactHtmlRouteProvider extends AdminHtmlRouteProvider {
       $route = new Route("/admin/structure/{$entity_type->id()}/settings");
       $route
         ->setDefaults([
-          '_form' => 'Drupal\redhen_contact\Form\RedhenContactSettingsForm',
+          '_form' => 'Drupal\redhen_contact\Form\ContactSettingsForm',
           '_title' => "{$entity_type->getLabel()} settings",
         ])
         ->setRequirement('_permission', $entity_type->getAdminPermission())

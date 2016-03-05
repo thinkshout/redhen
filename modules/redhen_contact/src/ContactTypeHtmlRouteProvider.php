@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Contains \Drupal\redhen_contact\RedhenContactTypeHtmlRouteProvider.
+ * Contains \Drupal\redhen_contact\ContactTypeHtmlRouteProvider.
  */
 
 namespace Drupal\redhen_contact;
@@ -17,7 +17,7 @@ use Symfony\Component\Routing\Route;
  * @see Drupal\Core\Entity\Routing\AdminHtmlRouteProvider
  * @see Drupal\Core\Entity\Routing\DefaultHtmlRouteProvider
  */
-class RedhenContactTypeHtmlRouteProvider extends AdminHtmlRouteProvider {
+class ContactTypeHtmlRouteProvider extends AdminHtmlRouteProvider {
   /**
    * {@inheritdoc}
    */

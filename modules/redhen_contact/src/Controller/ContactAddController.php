@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Contains Drupal\redhen_contact\Controller\RedhenContactAddController.
+ * Contains Drupal\redhen_contact\Controller\ContactAddController.
  */
 
 namespace Drupal\redhen_contact\Controller;
@@ -17,11 +17,11 @@ use Symfony\Component\HttpFoundation\Request;
 
 
 /**
- * Class RedhenContactAddController.
+ * Class ContactAddController.
  *
  * @package Drupal\redhen_contact\Controller
  */
-class RedhenContactAddController extends ControllerBase {
+class ContactAddController extends ControllerBase {
     public function __construct(EntityStorageInterface $storage, EntityStorageInterface $type_storage) {
       $this->storage = $storage;
       $this->typeStorage = $type_storage;

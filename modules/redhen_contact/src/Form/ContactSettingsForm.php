@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Contains \Drupal\redhen_contact\Form\RedhenContactSettingsForm.
+ * Contains \Drupal\redhen_contact\Form\ContactSettingsForm.
  */
 
 namespace Drupal\redhen_contact\Form;
@@ -11,13 +11,13 @@ use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 
 /**
- * Class RedhenContactSettingsForm.
+ * Class ContactSettingsForm.
  *
  * @package Drupal\redhen_contact\Form
  *
  * @ingroup redhen_contact
  */
-class RedhenContactSettingsForm extends FormBase {
+class ContactSettingsForm extends FormBase {
   /**
    * Returns a unique string identifying the form.
    *
@@ -25,7 +25,7 @@ class RedhenContactSettingsForm extends FormBase {
    *   The unique string identifying the form.
    */
   public function getFormId() {
-    return 'RedhenContact_settings';
+    return 'Contact_settings';
   }
 
   /**
@@ -53,7 +53,7 @@ class RedhenContactSettingsForm extends FormBase {
    *   Form definition array.
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
-    $form['RedhenContact_settings']['#markup'] = 'Settings form for Contact entities. Manage field settings here.';
+    $form['Contact_settings']['#markup'] = 'Settings form for Contact entities. Manage field settings here.';
     return $form;
   }
 

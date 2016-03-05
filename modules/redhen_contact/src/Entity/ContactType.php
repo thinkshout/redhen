@@ -2,13 +2,13 @@
 
 /**
  * @file
- * Contains \Drupal\redhen_contact\Entity\RedhenContactType.
+ * Contains \Drupal\redhen_contact\Entity\ContactType.
  */
 
 namespace Drupal\redhen_contact\Entity;
 
 use Drupal\Core\Config\Entity\ConfigEntityBundleBase;
-use Drupal\redhen_contact\RedhenContactTypeInterface;
+use Drupal\redhen_contact\ContactTypeInterface;
 
 /**
  * Defines the Contact type entity.
@@ -17,14 +17,14 @@ use Drupal\redhen_contact\RedhenContactTypeInterface;
  *   id = "redhen_contact_type",
  *   label = @Translation("Contact type"),
  *   handlers = {
- *     "list_builder" = "Drupal\redhen_contact\RedhenContactTypeListBuilder",
+ *     "list_builder" = "Drupal\redhen_contact\ContactTypeListBuilder",
  *     "form" = {
- *       "add" = "Drupal\redhen_contact\Form\RedhenContactTypeForm",
- *       "edit" = "Drupal\redhen_contact\Form\RedhenContactTypeForm",
- *       "delete" = "Drupal\redhen_contact\Form\RedhenContactTypeDeleteForm"
+ *       "add" = "Drupal\redhen_contact\Form\ContactTypeForm",
+ *       "edit" = "Drupal\redhen_contact\Form\ContactTypeForm",
+ *       "delete" = "Drupal\redhen_contact\Form\ContactTypeDeleteForm"
  *     },
  *     "route_provider" = {
- *       "html" = "Drupal\redhen_contact\RedhenContactTypeHtmlRouteProvider",
+ *       "html" = "Drupal\redhen_contact\ContactTypeHtmlRouteProvider",
  *     },
  *   },
  *   config_prefix = "redhen_contact_type",
@@ -44,7 +44,7 @@ use Drupal\redhen_contact\RedhenContactTypeInterface;
  *   }
  * )
  */
-class RedhenContactType extends ConfigEntityBundleBase implements RedhenContactTypeInterface {
+class ContactType extends ConfigEntityBundleBase implements ContactTypeInterface {
   /**
    * The Contact type ID.
    *

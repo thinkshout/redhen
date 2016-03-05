@@ -1,16 +1,16 @@
 <?php
 /**
  * @file
- * Contains \Drupal\redhen_contact\RedhenContactPermissions.
+ * Contains \Drupal\redhen_contact\ContactPermissions.
  */
 
 
 namespace Drupal\redhen_contact;
 
 use Drupal\Core\StringTranslation\StringTranslationTrait;
-use Drupal\redhen_contact\Entity\RedhenContactType;
+use Drupal\redhen_contact\Entity\ContactType;
 
-class RedhenContactPermissions {
+class ContactPermissions {
   
   use StringTranslationTrait;
 
@@ -20,10 +20,10 @@ class RedhenContactPermissions {
    * @return array
    *    Returns an array of permissions.
    */
-  public function redhenContactTypePermissions() {
+  public function ContactTypePermissions() {
     $perms = [];
     // Generate contact permissions for all contact types.
-    foreach (RedhenContactType::loadMultiple() as $type) {
+    foreach (ContactType::loadMultiple() as $type) {
       $perms += $this->buildPermissions($type);
     }
 
@@ -33,13 +33,13 @@ class RedhenContactPermissions {
   /**
    * Builds a standard list of permissions for a given contact type.
    *
-   * @param \Drupal\redhen_contact\Entity\RedhenContactType $contact_type
+   * @param \Drupal\redhen_contact\Entity\ContactType $contact_type
    *   The machine name of the contact type.
    *
    * @return array
    *   An array of permission names and descriptions.
    */
-  protected function buildPermissions(RedhenContactType $contact_type) {
+  protected function buildPermissions(ContactType $contact_type) {
     $type_id = $contact_type->id();
     $type_params = ['%type' => $contact_type->label()];
 

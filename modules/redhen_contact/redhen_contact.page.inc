@@ -22,7 +22,7 @@ use Drupal\Core\Url;
  *   - attributes: HTML attributes for the containing element.
  */
 function template_preprocess_redhen_contact(array &$variables) {
-  // Fetch RedhenContact Entity Object.
+  // Fetch Contact Entity Object.
   $redhen_contact = $variables['elements']['#redhen_contact'];
 
   // Helpful $content variable for templates.

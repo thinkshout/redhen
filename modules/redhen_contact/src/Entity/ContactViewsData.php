@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Contains \Drupal\redhen_contact\Entity\RedhenContact.
+ * Contains \Drupal\redhen_contact\Entity\Contact.
  */
 
 namespace Drupal\redhen_contact\Entity;
@@ -13,7 +13,7 @@ use Drupal\views\EntityViewsDataInterface;
 /**
  * Provides Views data for Contact entities.
  */
-class RedhenContactViewsData extends EntityViewsData implements EntityViewsDataInterface {
+class ContactViewsData extends EntityViewsData implements EntityViewsDataInterface {
   /**
    * {@inheritdoc}
    */

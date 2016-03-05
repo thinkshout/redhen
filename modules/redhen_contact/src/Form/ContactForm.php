@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Contains \Drupal\redhen_contact\Form\RedhenContactForm.
+ * Contains \Drupal\redhen_contact\Form\ContactForm.
  */
 
 namespace Drupal\redhen_contact\Form;
@@ -15,12 +15,12 @@ use Drupal\Core\Form\FormStateInterface;
  *
  * @ingroup redhen_contact
  */
-class RedhenContactForm extends ContentEntityForm {
+class ContactForm extends ContentEntityForm {
   /**
    * {@inheritdoc}
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
-    /* @var $entity \Drupal\redhen_contact\Entity\RedhenContact */
+    /* @var $entity \Drupal\redhen_contact\Entity\Contact */
     $form = parent::buildForm($form, $form_state);
     $entity = $this->entity;
 

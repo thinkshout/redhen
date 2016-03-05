@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Contains \Drupal\redhen_contact\RedhenContactAccessControlHandler.
+ * Contains \Drupal\redhen_contact\ContactAccessControlHandler.
  */
 
 namespace Drupal\redhen_contact;
@@ -15,14 +15,14 @@ use Drupal\Core\Access\AccessResult;
 /**
  * Access controller for the Contact entity.
  *
- * @see \Drupal\redhen_contact\Entity\RedhenContact.
+ * @see \Drupal\redhen_contact\Entity\Contact.
  */
-class RedhenContactAccessControlHandler extends EntityAccessControlHandler {
+class ContactAccessControlHandler extends EntityAccessControlHandler {
   /**
    * {@inheritdoc}
    */
   protected function checkAccess(EntityInterface $entity, $operation, AccountInterface $account) {
-    /** @var \Drupal\redhen_contact\RedhenContactInterface $entity */
+    /** @var \Drupal\redhen_contact\ContactInterface $entity */
     switch ($operation) {
       case 'view':
         if (!$entity->isActive()) {

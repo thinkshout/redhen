@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Contains \Drupal\redhen_contact\RedhenContactInterface.
+ * Contains \Drupal\redhen_contact\ContactInterface.
  */
 
 namespace Drupal\redhen_contact;
@@ -16,7 +16,7 @@ use Drupal\Core\Entity\EntityTypeInterface;
  *
  * @ingroup redhen_contact
  */
-interface RedhenContactInterface extends ContentEntityInterface, EntityChangedInterface {
+interface ContactInterface extends ContentEntityInterface, EntityChangedInterface {
   /**
    * Gets the Contact type.
    *
@@ -39,7 +39,7 @@ interface RedhenContactInterface extends ContentEntityInterface, EntityChangedIn
    * @param string $name
    *   The Contact name.
    *
-   * @return \Drupal\redhen_contact\RedhenContactInterface
+   * @return \Drupal\redhen_contact\ContactInterface
    *   The called Contact entity.
    */
   public function setName($name);
@@ -58,7 +58,7 @@ interface RedhenContactInterface extends ContentEntityInterface, EntityChangedIn
    * @param int $timestamp
    *   The Contact creation timestamp.
    *
-   * @return \Drupal\redhen_contact\RedhenContactInterface
+   * @return \Drupal\redhen_contact\ContactInterface
    *   The called Contact entity.
    */
   public function setCreatedTime($timestamp);
@@ -82,7 +82,7 @@ interface RedhenContactInterface extends ContentEntityInterface, EntityChangedIn
    * @param bool $active
    *   TRUE to set this Contact to active, FALSE to set it to inactive.
    *
-   * @return \Drupal\redhen_contact\RedhenContactInterface
+   * @return \Drupal\redhen_contact\ContactInterface
    *   The called Contact entity.
    */
   public function setActive($active);
