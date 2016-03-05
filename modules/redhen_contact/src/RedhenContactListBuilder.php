@@ -36,14 +36,7 @@ class RedhenContactListBuilder extends EntityListBuilder {
   public function buildRow(EntityInterface $entity) {
     /* @var $entity \Drupal\redhen_contact\Entity\RedhenContact */
     $row['type'] = $entity->getType();
-    $row['name'] = $this->l(
-      $entity->label(),
-      new Url(
-        'entity.redhen_contact.edit_form', array(
-          'redhen_contact' => $entity->id(),
-        )
-      )
-    );
+    $row['name'] = $entity->link();
     $row['email'] = $entity->getEmail();
     $row['status'] = $entity->isActive() ? $this->t('Active') : $this->t('Inactive');
     return $row + parent::buildRow($entity);
