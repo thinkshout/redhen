@@ -23,8 +23,9 @@ class RedhenContactListBuilder extends EntityListBuilder {
    * {@inheritdoc}
    */
   public function buildHeader() {
-    $header['id'] = $this->t('Contact ID');
+    $header['type'] = $this->t('Type');
     $header['name'] = $this->t('Name');
+    $header['email'] = $this->t('Email');
     return $header + parent::buildHeader();
   }
 
@@ -33,7 +34,7 @@ class RedhenContactListBuilder extends EntityListBuilder {
    */
   public function buildRow(EntityInterface $entity) {
     /* @var $entity \Drupal\redhen_contact\Entity\RedhenContact */
-    $row['id'] = $entity->id();
+    $row['type'] = $entity->getType();
     $row['name'] = $this->l(
       $entity->label(),
       new Url(
@@ -42,6 +43,7 @@ class RedhenContactListBuilder extends EntityListBuilder {
         )
       )
     );
+    $row['email'] = $entity->getEmail();
     return $row + parent::buildRow($entity);
   }
 
