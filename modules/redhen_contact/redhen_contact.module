@@ -805,7 +805,7 @@ function redhen_contact_redhen_settings() {
           ),
         ),
         REDHEN_CONTACT_USER_EMAIL_TYPE => array(
-          '#type' => 'select',
+          '#type' => 'checkboxes',
           '#multiple' => TRUE,
           '#options' => $contact_type_options,
           '#title' => t('User email contact types'),

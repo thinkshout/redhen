@@ -355,7 +355,12 @@ function redhen_fields_field_validate($entity_type, $entity, $field, $instance, 
  */
 function redhen_fields_email_in_use($field, $entity_type, $entity, $value) {
   if ($value) {
-    list($entity_id, ,) = entity_extract_ids($entity_type, $entity);
+    list($entity_id, , $bundle) = entity_extract_ids($entity_type, $entity);
+    $user_email_type = variable_get(REDHEN_CONTACT_USER_EMAIL_TYPE, array());
+    if ($user_email_type && !in_array($bundle, $user_email_type)) {
+      return FALSE;
+    }
+
     $query = new EntityFieldQuery();
     $query->entityCondition('entity_type', $entity_type, '=');
     if ($entity_id) {
@@ -363,7 +368,6 @@ function redhen_fields_email_in_use($field, $entity_type, $entity, $value) {
     }
     $query->fieldCondition($field['field_name'], 'value', $value);
     $query->range(0, 1);
-    $user_email_type = variable_get(REDHEN_CONTACT_USER_EMAIL_TYPE, array());
     if ($user_email_type) {
       $query->entityCondition('bundle', $user_email_type);
     }
