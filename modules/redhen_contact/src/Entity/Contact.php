@@ -13,7 +13,6 @@ use Drupal\Core\Entity\ContentEntityBase;
 use Drupal\Core\Entity\EntityChangedTrait;
 use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\redhen_contact\ContactInterface;
-use Drupal\entity\EntityKeysFieldsTrait;
 use Drupal\user\UserInterface;
 
 /**
@@ -220,7 +219,7 @@ class Contact extends ContentEntityBase implements ContactInterface {
    * {@inheritdoc}
    */
   public static function baseFieldDefinitions(EntityTypeInterface $entity_type) {
-    $fields = self::entityKeysBaseFieldDefinitions($entity_type);
+    $fields = parent::baseFieldDefinitions($entity_type);
 
     $fields['first_name'] = BaseFieldDefinition::create('string')
       ->setLabel(t('First name'))
