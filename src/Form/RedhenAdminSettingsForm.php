@@ -32,9 +32,6 @@ class RedhenAdminSettingsForm extends ConfigFormBase {
       '#default_value' => $config->get('redhen_admin_path'),
     );
 
-    // Allow other modules to inject their own settings.
-    $form += \Drupal::moduleHandler()->invokeAll('redhen_settings', $config);
-
     return parent::buildForm($form, $form_state);
   }
   /**
@@ -49,8 +46,6 @@ class RedhenAdminSettingsForm extends ConfigFormBase {
   public function submitForm(array &$form, FormStateInterface $form_state) {
     $config = $this->config('redhen.settings');
 
-    // @FIXME
-    // Loop through other provided values and set them.
     $config
       ->set('redhen_admin_path', $form_state->getValue('redhen_admin_path'))
       ->save();
