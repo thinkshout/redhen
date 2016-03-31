@@ -33,7 +33,7 @@ class RedhenAdminSettingsForm extends ConfigFormBase {
     );
 
     // Allow other modules to inject their own settings.
-    $form += \Drupal::moduleHandler()->invokeAll('redhen_settings');
+    $form += \Drupal::moduleHandler()->invokeAll('redhen_settings', $config);
 
     return parent::buildForm($form, $form_state);
   }
