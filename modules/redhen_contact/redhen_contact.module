@@ -50,3 +50,13 @@ function redhen_contact_theme() {
   ];
   return $theme;
 }
+
+/**
+ * Setting which determines if contact are required to have a unique email.
+ *
+ * @return bool
+ *   True if unique is required, else false.
+ */
+function redhen_contact_email_unique() {
+  return \Drupal::config('redhen_contact.settings.unique_email');
+}
