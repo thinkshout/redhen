@@ -25,7 +25,7 @@ class ContactSettingsForm extends FormBase {
    *   The unique string identifying the form.
    */
   public function getFormId() {
-    return 'Contact_settings';
+    return 'contact_settings';
   }
 
   /**
@@ -53,7 +53,7 @@ class ContactSettingsForm extends FormBase {
    *   Form definition array.
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
-    $form['Contact_settings']['#markup'] = 'Settings form for Contact entities. Manage field settings here.';
+    $form['contact_settings']['#markup'] = 'Settings form for Contact entities. Manage field settings here.';
     return $form;
   }
 
