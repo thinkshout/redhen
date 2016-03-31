@@ -8,7 +8,7 @@
   "minimum-stability": "dev",
   "support": {
     "issues": "http://drupal.org/project/issues/redhen",
-    "source": "http://cgit.drupalcode.org/redhen"
+    "source": "https://github.com/thinkshout/redhen.git"
   },
   "require": { }
 }
