@@ -23,9 +23,9 @@ redhen.config:
     _permission: 'administer redhen'
 
 redhen.config.admin_form:
-  path: '/admin/config/redhen/crm'
+  path: '/admin/config/redhen/general'
   defaults:
     _form: '\Drupal\redhen\Form\RedhenAdminSettingsForm'
-    _title: 'RedHen CRM settings'
+    _title: 'General'
   requirements:
     _permission: 'administer redhen'

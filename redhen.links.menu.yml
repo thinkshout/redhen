@@ -17,7 +17,7 @@ redhen.config:
   parent: system.admin_config
 
 redhen.config.admin_form:
-  title: 'RedHen CRM'
-  description: 'Configure RedHen CRM.'
+  title: 'General'
+  description: 'General RedHen settings.'
   route_name: redhen.config.admin_form
   parent: redhen.config
