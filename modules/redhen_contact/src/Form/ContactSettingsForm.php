@@ -76,7 +76,7 @@ class ContactSettingsForm extends ConfigFormBase {
         '#default_value' => $config->get('connect_users'),
         '#states' => array(
           'enabled' => array(
-            ':input[name="contact_unique_email"]' => array('checked' => TRUE),
+            ':input[name="unique_email"]' => array('checked' => TRUE),
           ),
         ),
       ),
@@ -87,7 +87,7 @@ class ContactSettingsForm extends ConfigFormBase {
         '#default_value' => $config->get('embed_on_user_form'),
         '#states' => array(
           'enabled' => array(
-            ':input[name="contact_connect_users"]' => array('checked' => TRUE),
+            ':input[name="connect_users"]' => array('checked' => TRUE),
           ),
         ),
       ),
@@ -115,7 +115,7 @@ class ContactSettingsForm extends ConfigFormBase {
             '#default_value' => $config->get('registration_types'),
             '#states' => array(
               'invisible' => array(
-                ':input[name="contact_registration"]' => array('checked' => FALSE),
+                ':input[name="registration"]' => array('checked' => FALSE),
               ),
             ),
           ),
@@ -134,7 +134,7 @@ class ContactSettingsForm extends ConfigFormBase {
             '#default_value' => $config->get('registration_update'),
             '#states' => array(
               'invisible' => array(
-                ':input[name="redhen_contact_reg_link"]' => array('checked' => FALSE),
+                ':input[name="contact_reg_link"]' => array('checked' => FALSE),
               ),
             ),
           ),
