@@ -6,6 +6,7 @@
  */
 
 use Drupal\Core\Routing\RouteMatchInterface;
+use Drupal\redhen_contact\Entity\ContactType;
 
 /**
  * Denotes that the contact is not active.
@@ -58,5 +59,20 @@ function redhen_contact_theme() {
  *   True if unique is required, else false.
  */
 function redhen_contact_email_unique() {
-  return \Drupal::config('redhen_contact.settings.unique_email');
+  return \Drupal::config('redhen_contact.settings')->get('unique_email');
+}
+
+/**
+ * Return an associative array of contact types to be used as an options list.
+ *
+ * @return array
+ *   Keyed by name with a label value.
+ */
+function redhen_contact_type_options_list() {
+  $options = array();
+  foreach (ContactType::loadMultiple() as $type) {
+    $options[$type->id()] = $type->label();
+  }
+
+  return $options;
 }

@@ -29,3 +29,11 @@ redhen.config.admin_form:
     _title: 'General'
   requirements:
     _permission: 'administer redhen'
+
+redhen.config.contact_form:
+  path: '/admin/config/redhen/contact'
+  defaults:
+    _form: '\Drupal\redhen_contact\Form\ContactSettingsForm'
+    _title: 'Redhen Contact'
+  requirements:
+    _permission: 'administer contact entities'

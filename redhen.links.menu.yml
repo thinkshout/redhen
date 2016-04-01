@@ -21,3 +21,9 @@ redhen.config.admin_form:
   description: 'General RedHen settings.'
   route_name: redhen.config.admin_form
   parent: redhen.config
+
+redhen.config.contact_form:
+  title: 'Redhen Contact'
+  description: 'Global RedHen Contact settings.'
+  route_name: redhen.config.contact_form
+  parent: redhen.config
