@@ -7,7 +7,7 @@
   "homepage": "https://www.drupal.org/project/redhen",
   "minimum-stability": "dev",
   "support": {
-    "issues": "http://drupal.org/project/issues/redhen",
+    "issues": "https://drupal.org/project/issues/redhen",
     "source": "http://cgit.drupalcode.org/redhen"
   },
   "require": { }
