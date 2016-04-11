@@ -193,6 +193,11 @@ function redhen_contact_menu() {
     'weight' => -10,
     'context' => MENU_CONTEXT_PAGE | MENU_CONTEXT_INLINE,
   );
+  $items['redhen/contact/%redhen_contact/view/view'] = array(
+    'title' => 'View',
+    'type' => MENU_DEFAULT_LOCAL_TASK,
+    'weight' => 1,
+  );
   $items['redhen/contact/%redhen_contact/view/edit'] = array(
     'title' => 'Edit',
     'page callback' => 'drupal_get_form',
@@ -451,7 +456,12 @@ function redhen_contact_access($op, $contact = NULL, $account = NULL) {
   $op = ($op == 'update') ? 'edit' : $op;
 
   global $user;
+  $redhen_relation_role_permissions = module_exists('redhen_relation') ?
+    redhen_relation_role_get_permissions($user) : array();
   $account = isset($account) ? $account : $user;
+  $related_orgs = $contact && module_exists('redhen_relation') ?
+    redhen_relation_relations($contact, REDHEN_RELATION_AFFILIATION, TRUE) :
+    array();
 
   if ($op == 'archive' && $contact->redhen_state == REDHEN_STATE_ARCHIVED) {
     return FALSE;
@@ -465,45 +475,99 @@ function redhen_contact_access($op, $contact = NULL, $account = NULL) {
     return TRUE;
   }
 
-  // Handle revisions.
-  if (is_object($contact) && !$contact->isDefaultRevision()) {
-    if ($op == 'view' && user_access('view redhen contact revisions', $account)) {
-      return TRUE;
-    }
-
-    if ($op == 'edit' && user_access('edit redhen contact revisions', $account) && ($contact->redhen_state != REDHEN_STATE_ARCHIVED)) {
-      return TRUE;
-    }
-
-    if ($op == 'delete' && user_access('delete redhen contact revisions', $account)) {
-      return TRUE;
-    }
-    return FALSE;
+  // Set $default_revision as a shortcut variable to check, because relation
+  // role permissions do not currently support revisions.
+  if (!empty($contact) && $contact->isDefaultRevision()) {
+    $default_revision = TRUE;
+  }
+  else {
+    $default_revision = FALSE;
   }
 
-  if ($op == 'view') {
-    if (user_access('access redhen contacts', $account)) {
-      return TRUE;
-    }
-    // Check whether user can view own contact.
-    if (user_access('view own redhen contact', $account) && $contact->uid == $user->uid) {
-      return TRUE;
-    }
-  }
+  switch($op) {
+    case 'view':
+      if ($default_revision) {
+        // Regular and relation role checks.
+        if (user_access('access redhen contacts', $account)) {
+          return TRUE;
+        }
+        // Check whether user can view own contact.
+        if (user_access('view own redhen contact', $account) && $contact->uid == $user->uid) {
+          return TRUE;
+    	}
+        foreach($related_orgs as $org) {
+          if (isset($redhen_relation_role_permissions[$org[0]->org_id])) {
+            return TRUE;
+          }
+        }
+      }
+      else {
+        // Revision checks. Relation role permissions do not support revisions.
+        if (user_access('view redhen contact revisions', $account)) {
+          return TRUE;
+        }
+      }
+      break;
 
-  if ($op == 'unarchive' && user_access('manage redhen contacts', $account) && ($contact->redhen_state != REDHEN_STATE_ACTIVE)) {
-    return TRUE;
-  }
-  if (($op == 'edit' || $op == 'archive') && user_access('manage redhen contacts', $account) && ($contact->redhen_state != REDHEN_STATE_ARCHIVED)) {
-    return TRUE;
-  }
+    case 'archive':
+    case 'unarchive':
+      // We have already checked the op against the current state. Just check
+      // the permissions.
+      if (user_access('manage redhen contacts', $account)) {
+        return TRUE;
+      }
+      break;
 
-  if (($op == 'create' || $op == 'delete') && user_access('manage redhen contacts', $account)) {
-    return TRUE;
-  }
+    case 'edit':
+      if ($default_revision) {
+        // Regular and relations role checks.
+        if (user_access('manage redhen contacts', $account)) {
+          return TRUE;
+        }
+        foreach($related_orgs as $org) {
+          if (isset($redhen_relation_role_permissions[$org[0]->org_id]['edit_contact']) && $redhen_relation_role_permissions[$org[0]->org_id]['edit_contact'] !== 0) {
+            return TRUE;
+          }
+        }
+      }
+      else {
+        // Revision checks. Relation role permissions do not support revisions.
+        if (user_access('edit redhen contact revisions', $account)) {
+          return TRUE;
+        }
+      }
+      break;
 
-  if (isset($contact) && is_string($contact) && $op == 'create' && user_access('create ' . $contact . ' contacts', $account)) {
-    return TRUE;
+    case 'delete';
+      if ($default_revision) {
+        // Regular and relations role checks.
+        if (user_access('manage redhen contacts', $account)) {
+          return TRUE;
+        }
+        foreach($related_orgs as $org) {
+          if (isset($redhen_relation_role_permissions[$org[0]->org_id]['delete_contact']) && $redhen_relation_role_permissions[$org[0]->org_id]['delete_contact'] !== 0) {
+            return TRUE;
+          }
+        }
+      }
+      else {
+        // Revision checks. Relation role permissions do not support revisions.
+        if (user_access('manage redhen contacts', $account)) {
+          return TRUE;
+        }
+      }
+      break;
+
+    case 'create';
+      if (user_access('manage redhen contacts', $account)) {
+        return TRUE;
+      }
+      if (isset($contact) && is_string($contact)) {
+        if (user_access('create ' . $contact . ' contacts', $account)) {
+          return TRUE;
+        }
+      }
+      break;
   }
 
   return FALSE;
@@ -1453,4 +1517,19 @@ function redhen_contact_query_redhen_contact_generic_selection_alter(QueryAltera
     ->condition("$table.first_name", "%$search_string%", 'LIKE')
     ->condition("$table.last_name", "%$search_string%", 'LIKE');
   $query->condition($or);
+}
+
+/**
+ * Implements hook_redhen_relation_role_permissions().
+ */
+function redhen_contact_redhen_relation_role_permissions() {
+  $roles = array(
+    'edit_contact' => array(
+      'label' => 'Edit Contact',
+    ),
+    'delete_contact' => array(
+      'label' => 'Delete Contact',
+    ),
+  );
+  return $roles;
 }

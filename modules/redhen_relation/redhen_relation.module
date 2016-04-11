@@ -1,4 +1,8 @@
 <?php
+/**
+ * @file
+ * Redhen CRM Relation Module.
+ */
 
 define('REDHEN_RELATION_STATUS_FIELD', 'redhen_relation_status');
 define('REDHEN_RELATION_ROLES_FIELD', 'redhen_relation_roles');
@@ -28,6 +32,15 @@ function redhen_relation_menu() {
     'file' => 'includes/redhen_relation.forms.inc',
     'access callback' => 'redhen_relation_access',
     'access arguments' => array('edit', 2),
+    'type' => MENU_LOCAL_ACTION,
+  );
+  $items['redhen/contact/%redhen_contact/connections/%relation/edit'] = array(
+    'title' => 'Edit Connection',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('redhen_relation_connection_form', 2, 4),
+    'file' => 'includes/redhen_relation.forms.inc',
+    'access callback' => 'redhen_relation_entity_access',
+    'access arguments' => array('update', 4),
     'type' => MENU_LOCAL_ACTION,
   );
 
@@ -66,8 +79,89 @@ function redhen_relation_menu() {
  * Implements hook_menu_alter().
  */
 function redhen_relation_menu_alter(&$items) {
+  // Relation_ui menu overrides.
   // Use our own page title callback for relation/X pages.
   $items['relation/%relation']['title callback'] = 'redhen_relation_page_title';
+  $items['relation/%relation']['access callback'] = 'redhen_relation_entity_access';
+  $items['relation/%relation']['access arguments'] = array(
+    'view',
+    1,
+  );
+  $items['relation/%relation/edit']['access callback'] = 'redhen_relation_entity_access';
+  $items['relation/%relation/edit']['access arguments'] = array(
+    'update',
+    1,
+  );
+
+  $items['relation/%relation/delete']['access callback'] = 'redhen_relation_entity_access';
+  $items['relation/%relation/delete']['access arguments'] = array(
+    'delete',
+    1,
+  );
+}
+
+/**
+ * Relation entity access call back. Replaces the default relation entity
+ * access and menu access callbacks.
+ *
+ * @param string $op
+ *   Operation. One of view, update, create or delete.
+ * @param array $entity
+ *   Relation entity.
+ *
+ * @return bool
+ *   Access grant.
+ */
+function redhen_relation_entity_access($op, $entity) {
+  global $user;
+
+  // If admin, skip other checks.
+  if (user_access('administer relations')) {
+    return TRUE;
+  }
+
+  $permission = FALSE;
+
+  switch ($op) {
+    case 'view':
+      $permission = 'access relations';
+      $relation_permission = 'view_relation';
+      break;
+
+    case 'create':
+      $permission = 'create relations';
+      $relation_permission = 'edit_relation';
+      break;
+
+    case 'update':
+      $relation_permission = 'edit_relation';
+      $permission = 'edit relations';
+      break;
+
+    case 'delete':
+      $relation_permission = 'delete_relation';
+      $permission = 'delete relations';
+      break;
+  }
+
+  // Get the default access permission based on the $op.
+  $user_access = user_access($permission);
+
+  // Check that this is a relation we care about.
+  if (array_key_exists('relation_type', $entity) && $entity->relation_type == REDHEN_RELATION_AFFILIATION) {
+    // Check for Org relation permissions.
+    $permissions = redhen_relation_role_get_permissions($user);
+
+    $relation = relation_get_endpoints($entity, 'redhen_org');
+    $org = $relation ? current(current($relation)) : array();
+    if ($relation && isset($permissions[$org->org_id][$relation_permission]) &&
+      $permissions[$org->org_id][$relation_permission] !== 0
+    ) {
+      $user_access = TRUE;
+    }
+  }
+
+  return $user_access;
 }
 
 /**
@@ -121,28 +215,44 @@ function redhen_relation_permission() {
       'description' => t('Add and edit connections for a contact.'),
     ),
     'delete redhen org connections' => array(
-      'title' => t('Manage RedHen Org Connections'),
-      'description' => t('Delete edit connections for an organization.'),
+      'title' => t('Delete RedHen Org Connections'),
+      'description' => t('Delete connections for an organization.'),
     ),
     'delete redhen contact connections' => array(
-      'title' => t('Manage RedHen Contact Connections'),
+      'title' => t('Delete RedHen Contact Connections'),
       'description' => t('Delete connections for a contact.'),
     ),
   );
 }
 
 /**
- * Access callback for viewing and managing relations.
+ * Access callback for viewing and managing relations on the RedHen connection
+ * pages.
  *
- * @param $op
+ * @param string $op
+ *   Operation.
  * @param $entity
+ *   Entity.
+ * @param $account
+ *   User account to check permission for.
+ * @param $entity_type
+ *   The type of entity being checked.
  *
  * @return bool
+ *   Access grant.
  */
-function redhen_relation_access($op, $entity) {
-  $entity_type = $entity->entityType();
+function redhen_relation_access($op, $entity = NULL, $account = NULL, $entity_type = NULL) {
+  global $user;
+
+  $account = isset($account) ? $account : $user;
+  $permissions = redhen_relation_role_get_permissions($account);
+  $entity_type = ($entity_type) ? $entity_type : $entity->entityType();
   $type = ($entity_type == 'redhen_contact') ? 'contact' : 'org';
   if (entity_access($op, $entity_type, $entity) && user_access("$op redhen $type connections")) {
+    return TRUE;
+  }
+
+  if (($op == 'edit' || $op == 'view') && $entity_type == 'redhen_org' && isset($permissions[$entity->org_id]) && $permissions[$entity->org_id]['add_connection'] !== 0) {
     return TRUE;
   }
 
@@ -150,11 +260,84 @@ function redhen_relation_access($op, $entity) {
 }
 
 /**
+ * Access callback for viewing and managing relations roles.
+ *
+ * @param sring $op
+ *   Operation.
+ * @param null $entity
+ *   Entity.
+ * @param null $account
+ *   Account.
+ * @param null $entity_type
+ *   Entity type.
+ *
+ * @return bool
+ *   Access grant.
+ */
+function redhen_relation_role_access($op, $entity = NULL, $account = NULL, $entity_type = NULL) {
+  // TODO: Is this ever not true?
+  if ($op == 'view') {
+    return TRUE;
+  }
+  else {
+    return user_access('administer relation roles', $account);
+  }
+
+}
+
+/**
+ * Return relation role permission for a given account and permission.
+ *
+ * @param object $account
+ *   Account.
+ *
+ * @return array
+ *   Permissions array.
+ */
+function redhen_relation_role_get_permissions($account) {
+  $return = &drupal_static(__FUNCTION__);
+  if (!isset($return[$account->uid])) {
+    $return_permissions = array();
+    $contact = redhen_contact_load_by_user($account);
+    if ($contact) {
+      $related = redhen_relation_relations($contact, REDHEN_RELATION_AFFILIATION, TRUE);
+
+      $relations = relation_load_multiple(array_keys($related));
+      foreach ($relations as $relation_id => $relation) {
+        $relation_wrapper = entity_metadata_wrapper('relation', $relation);
+        // Loop through all roles on this relation.
+        $redhen_relation_roles = $relation_wrapper->redhen_relation_roles->value();
+        foreach ($redhen_relation_roles as $redhen_relation_role) {
+          // Role needs to exist.
+          if ($redhen_relation_role) {
+            $redhen_relation_role_wrapper = entity_metadata_wrapper('redhen_relation_role', $redhen_relation_role);
+            $org_id = $related[$relation_id][0]->org_id;
+            $permissions = $redhen_relation_role_wrapper->permissions->value();
+            // Add all permissions from all roles on this relation.
+            foreach ($permissions as $permission => $value) {
+              // Add permissions if set.
+              if ($value) {
+                $return_permissions[$org_id][$permission] = $value;
+              }
+            }
+          }
+        }
+      }
+      $return[$account->uid] = $return_permissions;
+    }
+  }
+
+  return $return[$account->uid];
+}
+
+/**
  * Page callback for listing connections.
  *
  * @param RedhenContact|RedhenOrg $entity
+ *   Entity.
  *
  * @return array|null|string
+ *   Connections list or message.
  */
 function redhen_relation_connections_page($entity) {
   $related = redhen_relation_relations($entity);
@@ -164,6 +347,7 @@ function redhen_relation_connections_page($entity) {
       'connection' => t('Connection'),
       'type' => t('Type'),
       'name' => t('Name'),
+      'role' => t('Roles'),
       'status' => t('Status'),
       'created' => t('Created'),
       'author' => t('Author'),
@@ -178,6 +362,7 @@ function redhen_relation_connections_page($entity) {
     $destination = drupal_get_destination();
     foreach ($related as $relation_id => $related_entities) {
       $relation = relation_load($relation_id);
+      $relation_wrapper = entity_metadata_wrapper('relation', $relation);
       $relation_uri = entity_uri('relation', $relation);
 
       $reversed = FALSE;
@@ -202,12 +387,21 @@ function redhen_relation_connections_page($entity) {
         }
         $related_entity_info = entity_get_info($related_entity->entityType());
 
+        // Get roles of the relation.
+        $relation_role_names = array();
+        $relation_roles = $relation_wrapper->redhen_relation_roles->value();
+        foreach ($relation_roles as $relation_role) {
+          if (!empty($relation_role)) {
+            $relation_role_names[] = $relation_role->label();
+          }
+        }
+        sort($relation_role_names);
+        $relation_role_names = implode(', ', $relation_role_names);
+
         $data = array(
           'connection' => array(
             'data' => array(
-              '#type' => 'link',
-              '#title' => relation_get_type_label($relation, $reversed),
-              '#href' => $relation_uri['path'],
+              '#markup' => relation_get_type_label($relation, $reversed),
             ),
           ),
           'type' => $related_entity_info['label'],
@@ -218,6 +412,7 @@ function redhen_relation_connections_page($entity) {
               '#href' => $object_uri['path'],
             ),
           ),
+          'role' => $relation_role_names,
           'active' => $active,
           'created' => date('m/d/Y', $relation->created),
           'author' => $author->name,
@@ -250,20 +445,21 @@ function redhen_relation_connections_page($entity) {
 
         // Build a list of all the accessible operations for the current relation.
         $ops = array();
+        if (redhen_relation_entity_access('view', $relation)) {
+          $ops['view'] = array(
+            'title' => t('view'),
+            'href' => $relation_uri['path'],
+          );
+        }
 
-        $ops['view'] = array(
-          'title' => t('view'),
-          'href' => $relation_uri['path'],
-        );
-
-        if (redhen_relation_access('edit', $entity)) {
+        if (redhen_relation_entity_access('update', $relation)) {
           $ops['edit'] = array(
             'title' => t('edit'),
             'href' => $relation_uri['path'] . '/edit',
             'query' => $destination,
           );
         }
-        if (redhen_relation_access('delete', $entity)) {
+        if (redhen_relation_entity_access('delete', $relation)) {
           $ops['delete'] = array(
             'title' => t('delete'),
             'href' => $relation_uri['path'] . '/delete',
@@ -288,7 +484,7 @@ function redhen_relation_connections_page($entity) {
               '#type' => 'link',
               '#title' => $link['title'],
               '#href' => $link['href'],
-              '#options' => array('query' => $link['query']),
+              '#options' => (isset($link['query'])) ? array('query' => $link['query']) : array(),
             ),
           );
         }
@@ -348,7 +544,7 @@ function redhen_relation_relations($entity, $relation_types = NULL, $active = FA
     $query->fieldCondition(REDHEN_RELATION_STATUS_FIELD, 'value', TRUE);
   }
 
-  // this hideous hack is to avoid triggering the node access system which we
+  // This hideous hack is to avoid triggering the node access system which we
   // need to to in order to avoid infinite recursion in
   // redhen_org_group:node_grants().
   // time came from http://drupal.stackexchange.com/questions/3927/how-to-bypass-node-access-when-using-entityfieldquery
@@ -387,18 +583,28 @@ function redhen_relation_relations($entity, $relation_types = NULL, $active = FA
 /**
  * Return a list of entities the given entity can be associated with.
  *
- * @param $entity
- * @param $entity_type_to_relate
- * @param $relation_type
- * @param $search
- * @param $limit
+ * @param object $entity
+ *   Entity.
+ * @param string $entity_type_to_relate
+ *   Entity type.
+ * @param string $relation_type
+ *   Relation type.
+ * @param string $search
+ *   Search string.
+ * @param int $limit
+ *   Limit.
  *
  * @return array
+ *   Available entities.
  */
 function redhen_relation_get_available_entities($entity, $entity_type_to_relate, $relation_type, $search = '', $limit = 0) {
   $entities = array();
 
-  if (!in_array($entity_type_to_relate, array('redhen_contact', 'redhen_org'))) {
+  if (!in_array($entity_type_to_relate, array(
+    'redhen_contact',
+    'redhen_org',
+  ))
+  ) {
     return $entities;
   }
 
@@ -443,32 +649,31 @@ function redhen_relation_get_available_entities($entity, $entity_type_to_relate,
 }
 
 /**
- * Autocomplete callback for listing available entities for a relation type
+ * Autocomplete callback for listing available entities for a relation type.
  */
 function redhen_relation_autocomplete($relation_type = '', $entity_type_to_relate = '', $entity_type = '', $entity_id = '', $search = '') {
-  if (empty($relation_type) || empty($entity_type_to_relate) || empty($entity_type) || empty($entity_id)) {
-    exit();
+  $options = array();
+
+  if (!empty($relation_type) && !empty($entity_type_to_relate) && !empty($entity_type) && !empty($entity_id)) {
+    $entity = entity_load_single($entity_type, $entity_id);
+
+    $available_entities = redhen_relation_get_available_entities($entity, $entity_type_to_relate, $relation_type, $search, 10);
+
+    foreach ($available_entities as $available_entity) {
+      $entity_id = $available_entity->internalIdentifier();
+      $entity_label = $available_entity->label();
+      $options[check_plain($entity_label) . ' (' . $entity_id . ')'] = check_plain($entity_label);
+    }
   }
 
-  $entity = entity_load_single($entity_type, $entity_id);
-
-  $available_entities = redhen_relation_get_available_entities($entity, $entity_type_to_relate, $relation_type, $search, 10);
-
-  foreach ($available_entities as $available_entity) {
-    $entity_id = $available_entity->internalIdentifier();
-    $entity_label = $available_entity->label();
-    $options[check_plain($entity_label) . ' (' . $entity_id . ')'] = check_plain($entity_label);
-  }
-  print drupal_json_encode($options);
-  exit();
+  drupal_json_output($options);
 }
 
 /**
  * Implements hook_entity_update().
- *
- * React to entity updates that require connection states to be changed
  */
 function redhen_relation_entity_update($entity, $entity_type) {
+  //React to entity updates that require connection states to be changed
   if ($entity_type == 'redhen_contact' || $entity_type == 'redhen_org') {
     // If the entity is archived, we want to archive their relations.
     if ($entity->redhen_state != REDHEN_STATE_ACTIVE) {
@@ -496,6 +701,45 @@ function redhen_relation_entity_update($entity, $entity_type) {
   }
 }
 
+
+/**
+ * Implements hook_entity_info().
+ */
+function redhen_relation_entity_info() {
+  $entities = array(
+    'redhen_relation_role' => array(
+      'label' => t('RedHen Relation Role'),
+      'plural label' => t('RedHen Relation Roles'),
+      'controller class' => 'RedhenRelationRoleEntityController',
+      'entity class' => 'RedhenRelationRole',
+      'base table' => 'redhen_relation_role',
+      'fieldable' => FALSE,
+      'entity keys' => array(
+        'id' => 'redhen_relation_role_id',
+        'label' => 'label',
+        'name' => 'name',
+      ),
+      'bundles' => array(
+        'redhen_relation_role' => array(
+          'label' => 'RedHen Relation Role',
+        ),
+      ),
+      'admin ui' => array(
+        'path' => 'admin/structure/redhen/relation_roles',
+        'file' => 'redhen_relation_role.forms.inc',
+        'file path' => drupal_get_path('module', 'redhen_relation') . '/includes',
+        'controller class' => 'RedhenRelationRoleUIController',
+      ),
+      'token type' => 'redhen_relation_role',
+      'module' => 'redhen_relation',
+      'access callback' => 'redhen_relation_role_access',
+      'exportable' => TRUE,
+    ),
+  );
+
+  return $entities;
+}
+
 /**
  * Implements hook_entity_info_alter().
  */
@@ -505,6 +749,7 @@ function redhen_relation_entity_info_alter(&$entity_info) {
     'label' => t('Teaser'),
     'custom settings' => TRUE,
   );
+  $entity_info['relation']['access callback'] = 'redhen_relation_entity_access';
 }
 
 /**
@@ -522,11 +767,13 @@ function redhen_relation_views_api() {
  *
  * Wrapper around relation_get_available_types().
  *
- * @param $entity_type
+ * @param RedhenContact|RedhenOrg $entity_type
  *   redhen_contact or redhen_org
- * @param $bundle
+ * @param string $bundle
+ *   Bundle.
  *
  * @return array
+ *   Available types.
  */
 function redhen_relation_get_available_types($entity_type, $bundle) {
   $relation_types = relation_get_available_types($entity_type, $bundle, 'both');
@@ -552,4 +799,50 @@ function redhen_relation_get_available_types($entity_type, $bundle) {
   }
 
   return $relation_types;
+}
+
+/**
+ * Returns whether a relation roles name already exists.
+ */
+function redhen_relation_role_name_exists($name, $element, &$form_state) {
+  $relation_role = entity_load('redhen_relation_role', array($name));
+  $relation_role = current($relation_role);
+  if ($relation_role
+    && $relation_role->redhen_relation_role_id !=
+    $form_state['redhen_relation_role']->redhen_relation_role_id
+  ) {
+    return TRUE;
+  }
+}
+
+/**
+ * Returns permissions.
+ *
+ * @return array
+ *   Permissions array.
+ */
+function redhen_relation_role_permissions() {
+  $roles = module_invoke_all('redhen_relation_role_permissions');
+  return $roles;
+}
+
+/**
+ * Implements hook_redhen_relation_role_permissions().
+ */
+function redhen_relation_redhen_relation_role_permissions() {
+  $roles = array(
+    'add_connection' => array(
+      'label' => 'Add Connection',
+    ),
+    'view_relation' => array(
+      'label' => 'View Relation',
+    ),
+    'edit_relation' => array(
+      'label' => 'Edit Relation',
+    ),
+    'delete_relation' => array(
+      'label' => 'Delete Relation',
+    ),
+  );
+  return $roles;
 }

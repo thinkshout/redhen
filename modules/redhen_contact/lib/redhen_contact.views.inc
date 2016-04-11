@@ -85,6 +85,48 @@ class RedhenContactViewsController extends EntityDefaultViewsController {
       ),
     );
 
+    // View link.
+    $data['redhen_contact']['link'] = array(
+      'title' => t('Link'),
+      'help' => t('Provide a simple link to the RedHen Contact.'),
+      'field' => array(
+        'handler' => 'redhen_contact_views_handler_field_redhen_contact_link',
+        'click sortable' => TRUE,
+        'real field' => 'contact_id',
+        'additional fields' => array(
+          'contact_id',
+        ),
+      ),
+    );
+
+    // Edit link.
+    $data['redhen_contact']['edit'] = array(
+      'title' => t('Edit link'),
+      'help' => t('Provide a simple link to edit the RedHen Contact.'),
+      'field' => array(
+        'handler' => 'redhen_contact_views_handler_field_redhen_contact_link_edit',
+        'click sortable' => TRUE,
+        'real field' => 'contact_id',
+        'additional fields' => array(
+          'contact_id',
+        ),
+      ),
+    );
+
+    // Delete link.
+    $data['redhen_contact']['delete'] = array(
+      'title' => t('Delete link'),
+      'help' => t('Provide a simple link to delete the RedHen Contact.'),
+      'field' => array(
+        'handler' => 'redhen_contact_views_handler_field_redhen_contact_link_delete',
+        'click sortable' => TRUE,
+        'real field' => 'contact_id',
+        'additional fields' => array(
+          'contact_id',
+        ),
+      ),
+    );
+
     return $data;
   }
 

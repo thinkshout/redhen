@@ -19,6 +19,7 @@ function redhen_org_entity_info() {
       'controller class' => 'RedhenOrgEntityController',
       'rules controller class' => 'EntityDefaultRulesController',
       'metadata controller class' => 'RedhenOrgMetadataController',
+      'views controller class' => 'RedhenOrgViewsController',
       'entity class' => 'RedhenOrg',
       'inline entity form' => array(
         'controller' => 'RedHenOrgInlineEntityFormController',
@@ -115,7 +116,7 @@ function redhen_org_menu() {
     'description' => 'View RedHen CRM Organizations.',
     'page callback' => 'redhen_org_page',
     'file' => 'includes/redhen_org.pages.inc',
-    'access arguments' => array('access redhen orgs'),
+    'access callback' => 'redhen_org_page_access',
   );
 
   // Add a org.
@@ -150,13 +151,27 @@ function redhen_org_menu() {
     'page arguments' => array(2),
     'access callback' => 'redhen_org_access',
     'access arguments' => array('view', 2),
-    'weight' => -20,
   );
   $items['redhen/org/%redhen_org/view'] = array(
     'title' => 'Summary',
     'type' => MENU_DEFAULT_LOCAL_TASK,
     'weight' => -20,
     'context' => MENU_CONTEXT_PAGE | MENU_CONTEXT_INLINE,
+  );
+  $items['redhen/org/%redhen_org/view/view'] = array(
+    'title' => 'View',
+    'type' => MENU_DEFAULT_LOCAL_TASK,
+    'weight' => 1,
+  );
+
+  $items['redhen/org/%redhen_org/view/edit'] = array(
+    'title' => 'Edit',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('redhen_org_org_form', 2),
+    'access callback' => 'redhen_org_access',
+    'access arguments' => array('edit', 2),
+    'type' => MENU_LOCAL_TASK,
+    'weight' => 2,
   );
 
   $items['redhen/org/%redhen_org/view/delete'] = array(
@@ -166,15 +181,7 @@ function redhen_org_menu() {
     'access callback' => 'redhen_org_access',
     'access arguments' => array('delete', 2),
     'type' => MENU_LOCAL_TASK,
-    'weight' => 10,
-  );
-  $items['redhen/org/%redhen_org/view/edit'] = array(
-    'title' => 'Edit',
-    'page callback' => 'drupal_get_form',
-    'page arguments' => array('redhen_org_org_form', 2),
-    'access callback' => 'redhen_org_access',
-    'access arguments' => array('edit', 2),
-    'type' => MENU_LOCAL_TASK,
+    'weight' => 3,
   );
 
   $items['redhen/org/%redhen_org/view/archive'] = array(
@@ -184,7 +191,6 @@ function redhen_org_menu() {
     'access callback' => 'redhen_org_access',
     'access arguments' => array('archive', 2),
     'type' => MENU_LOCAL_TASK,
-    'weight' => 9,
   );
   $items['redhen/org/%redhen_org/view/unarchive'] = array(
     'title' => 'Unarchive',
@@ -421,10 +427,15 @@ function redhen_org_access($op, $org = NULL, $account = NULL) {
   $op = ($op == 'update') ? 'edit' : $op;
 
   global $user;
+
   $account = isset($account) ? $account : $user;
 
-  // If it's already archived, no one can archive it again.
-  if (($op == 'archive') && ($org->redhen_state == REDHEN_STATE_ARCHIVED)) {
+  $redhen_relation_role_permissions = module_exists('redhen_relation') ?
+    redhen_relation_role_get_permissions($user) : array();
+
+  // The 'archive' case is special because if it's already archived, it is not
+  // possible to archive it again.
+  if ($op == 'archive' && $org->redhen_state == REDHEN_STATE_ARCHIVED) {
     return FALSE;
   }
 
@@ -432,46 +443,123 @@ function redhen_org_access($op, $org = NULL, $account = NULL) {
     return FALSE;
   }
 
+  // If user has 'administer redhen orgs', all actions are allowed.
   if (user_access('administer redhen orgs', $account)) {
     return TRUE;
   }
 
+  // Set $default_revision as a shortcut variable to check, because relation
+  // role permissions do not currently support revisions.
   if (is_object($org) && !$org->isDefaultRevision()) {
-    if ($op == 'view' && user_access('access redhen org revisions', $account)) {
-      return TRUE;
-    }
-
-    if ($op == 'edit' && user_access('manage redhen org revisions', $account) && ($org->redhen_state != REDHEN_STATE_ARCHIVED)) {
-      return TRUE;
-    }
-
-    if ($op == 'delete' && user_access('manage redhen org revisions', $account)) {
-      return TRUE;
-    }
-    return FALSE;
+    $default_revision = TRUE;
+  }
+  else {
+    $default_revision = FALSE;
   }
 
-  if ($op == 'view' && user_access('access redhen orgs', $account)) {
-    return TRUE;
-  }
+  switch ($op) {
+    case 'view':
+      if ($default_revision) {
+        // Regular and relation role checks.
+        if (user_access('access redhen orgs', $account)) {
+          return TRUE;
+        }
+        // If the org id exists as a key in this user's relation role
+        // permissions, they have access to view it.
+        if (isset($redhen_relation_role_permissions[$org->org_id])) {
+          return TRUE;
+        }
+      }
+      else {
+        // Revision checks. Relation role permissions not currently supported.
+        if (user_access('access redhen org revisions', $account)) {
+          return TRUE;
+        }
+      }
+      break;
 
-  if (($op == 'edit' || $op == 'archive' || $op == 'unarchive') && user_access('manage redhen orgs', $account) && ($org->redhen_state != REDHEN_STATE_ARCHIVED)) {
-    return TRUE;
-  }
+    case 'archive':
+    case 'unarchive':
+      // We have already checked the op against the current state. Just check
+      // the permissions.
+      if (user_access('manage redhen orgs', $account)) {
+        return TRUE;
+      }
+      break;
 
-  if ($op == 'unarchive' && user_access('manage redhen orgs', $account) && ($org->redhen_state != REDHEN_STATE_ACTIVE)) {
-    return TRUE;
-  }
+    case 'edit':
+      if ($default_revision) {
+        // Regular and relation role checks.
+        if (user_access('manage redhen orgs', $account) && $org->redhen_state != REDHEN_STATE_ARCHIVED) {
+          return TRUE;
+        }
+        // Check 'edit_org' for the org_id of relation role permissions. It will
+        // usually be set to either 0 or 'edit_org', but we check for anything
+        // non null-ish.
+        if (!empty($redhen_relation_role_permissions[$org->org_id]['edit_org'])) {
+          return TRUE;
+        }
+      }
+      else {
+        // Revision checks. Relation role permissions not currently supported.
+        if (user_access('manage redhen org revisions', $account) && $org->redhen_state != REDHEN_STATE_ARCHIVED) {
+          return TRUE;
+        }
+      }
+      break;
 
-  if (($op == 'create' || $op == 'delete') && user_access('manage redhen orgs', $account)) {
-    return TRUE;
-  }
+    case 'delete':
+      if ($default_revision) {
+        // Regular and relation role checks.
+        if (user_access('manage redhen orgs', $account)) {
+          return TRUE;
+        }
+        // Check 'delete_org' for the org_id of relation role permissions. It will
+        // usually be set to either 0 or 'delete_org', but we check for anything
+        // non null-ish.
+        if (!empty($redhen_relation_role_permissions[$org->org_id]['delete_org'])) {
+          return TRUE;
+        }
+      }
+      else {
+        // Revision checks. Relation role permissions not currently supported.
+        if (user_access('manage redhen org revisions', $account)) {
+          return TRUE;
+        }
+      }
+      break;
 
-  if (isset($org) && is_string($org) && $op == 'create' && user_access('create ' . $org . ' orgs', $account)) {
-    return TRUE;
+    case 'create':
+      if (user_access('manage redhen orgs', $account)) {
+        return TRUE;
+      }
+      if (isset($org) && is_string($org)) {
+        if (user_access('create ' . $org . ' orgs', $account)) {
+          return TRUE;
+        }
+      }
+      break;
   }
 
   return FALSE;
+}
+
+/**
+ * Access callback for organization list page.
+ */
+function redhen_org_page_access() {
+  global $user;
+  $redhen_relation_role_permissions = module_exists('redhen_relation') ?
+    redhen_relation_role_get_permissions($user) : array();
+  // Regular and relation role checks.
+  if (user_access('access redhen orgs', $user)) {
+    return TRUE;
+  }
+  // If any relation role permissions are set, access is granted to see
+  // listing pages.
+  if (is_array($redhen_relation_role_permissions) && count($redhen_relation_role_permissions) > 0) {
+    return TRUE;
+  }
 }
 
 /**
@@ -686,4 +774,19 @@ function theme_redhen_org_list($variables) {
   );
 
   return render($render);
+}
+
+/**
+ * Implements hook_redhen_relation_role_permissions().
+ */
+function redhen_org_redhen_relation_role_permissions() {
+  $roles = array(
+    'edit_org' => array(
+      'label' => 'Edit Organization',
+    ),
+    'delete_org' => array(
+      'label' => 'Delete Organization',
+    ),
+  );
+  return $roles;
 }

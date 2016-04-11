@@ -5,11 +5,95 @@
  * Install, update and uninstall functions for the redhen relations module.
  */
 
+
+/**
+ * Implements hook_schema().
+ */
+function redhen_relation_schema() {
+  $schema['redhen_relation_role'] = array(
+    'description' => 'RedHen Relation Role.',
+    'fields' => array(
+      'redhen_relation_role_id' => array(
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'description' => 'The redhen relation role ID.',
+      ),
+      'name' => array(
+        'type' => 'varchar',
+        'length' => 128,
+        'not null' => TRUE,
+        'description' => 'The machine name of the redhen relation role.',
+      ),
+      'label' => array(
+        'type' => 'varchar',
+        'length' => 128,
+        'not null' => TRUE,
+        'description' => 'The human readable name of the redhen relation role.',
+      ),
+      'permissions' => array(
+        'type' => 'text',
+        'not null' => FALSE,
+        'size' => 'big',
+        'serialize' => TRUE,
+        'description' => 'A serialized array of permissions.',
+      ),
+      'status' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+        // Set the default to ENTITY_CUSTOM without using the constant as it is
+        // not safe to use it at this point.
+        'default' => 0x01,
+        'size' => 'tiny',
+        'description' => 'The exportable status of the entity.',
+      ),
+      'module' => array(
+        'description' => 'The name of the providing module if the entity has been defined in code.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => FALSE,
+      ),
+    ),
+    'indexes' => array(
+      'redhen_relation_role_name' => array('name'),
+    ),
+    'primary key' => array('redhen_relation_role_id'),
+    'unique keys' => array(
+      'name' => array('name'),
+    ),
+  );
+
+  return $schema;
+}
 /**
  * Implements hook_install().
  */
 function redhen_relation_install() {
-  // Add default relationships
+  // Create default Admin and Member roles.
+  $default_roles = array(
+    'admin' => array(
+      'name' => 'admin',
+      'label' => 'Admin',
+      'permissions' => array(
+        'add_relation' => 'add_relation',
+        'edit_relation' => 'edit_relation',
+        'delete_relation' => 'delete_relation',
+      ),
+      'default_role' => 0,
+    ),
+    'member' => array(
+      'name' => 'member',
+      'label' => 'Member',
+      'permissions' => array(),
+      'default_role' => 1,
+    ),
+  );
+  foreach ($default_roles as $default_role) {
+    $relation_role = entity_create('redhen_relation_role', $default_role);
+    $relation_role->save();
+  }
+
+  // Add default relationships.
   $relation_types_info = array(
     array(
       'relation_type' => REDHEN_RELATION_CONNECTION,
@@ -32,7 +116,7 @@ function redhen_relation_install() {
     relation_type_save($relation_type);
   }
 
-  // add relation status field
+  // Add relation status field.
   $status_field = array(
     'field_name' => REDHEN_RELATION_STATUS_FIELD,
     'type' => 'list_boolean',
@@ -45,8 +129,8 @@ function redhen_relation_install() {
   field_create_field($status_field);
 
   $bundles = array(
-    REDHEN_RELATION_AFFILIATION => 'Affiliation Status',
-    REDHEN_RELATION_CONNECTION => 'Connection Status'
+    REDHEN_RELATION_AFFILIATION => 'Active',
+    REDHEN_RELATION_CONNECTION => 'Active'
   );
   foreach ($bundles as $key => $label) {
     field_create_instance(array(
@@ -63,70 +147,226 @@ function redhen_relation_install() {
     ));
   }
 
-  // add relation role field
+  // Add relation role field.
   $role_field = array(
     'field_name' => REDHEN_RELATION_ROLES_FIELD,
-    'type' => 'list_text',
-    'locked' => TRUE,
-    'cardinality' => 1,
+    'type' => 'entityreference',
+    'cardinality' => FIELD_CARDINALITY_UNLIMITED,
     'settings' => array(
-      'allowed_values' => array('Admin', 'Member')
-    )
+      'target_type' => 'redhen_relation_role',
+      'target_bundles' => array('redhen_relation_role'),
+    ),
   );
   field_create_field($role_field);
+
+  // Get default value: ID of Member role.
+  $member_role_entity = entity_load('redhen_relation_role', FALSE, array('name' => 'member'));
+  $member_role_id = (int) array_shift($member_role_entity)->redhen_relation_role_id;
 
   field_create_instance(array(
     'field_name' => REDHEN_RELATION_ROLES_FIELD,
     'entity_type' => 'relation',
     'bundle' => REDHEN_RELATION_AFFILIATION,
     'label' => 'Organization Role',
-    'required' => 1,
-    'default_value' => array(array('value' => 1)),
+    'description' => 'Select the roles this contact has in this organization.',
+    'required' => 0,
+    'default_value' => array(array('target_id' => $member_role_id)),
     'widget' => array(
-      'type' => 'options_select',
+      'type' => 'options_buttons',
     ),
-    'description' => t('This is a placeholder field to control what actions a contact in an organization can perform. Access control to be implemented.')
   ));
 
   entity_info_cache_clear();
 }
 
 /**
- * Implements hook_uninstall()
+ * Implements hook_uninstall().
  */
 function redhen_relation_uninstall() {
 
-  // get all the relationship_types (bundles), find all fields
-  // delete them
-  $query = db_select('relation_bundles', 'rb')->
-    fields('rb', array('relation_type'))->
-    condition('rb.entity_type', 'redhen_contact')->
-    distinct()->
-    execute();
+  // Get all the relationship_types (bundles), find all fields
+  // delete them.
+  $query = db_select('relation_bundles', 'rb')
+    ->fields('rb', array('relation_type'))
+    ->condition('rb.entity_type', 'redhen_contact')
+    ->distinct()
+    ->execute();
 
   while ($record = $query->fetchAssoc()) {
     $relationship_type[] = $record['relation_type'];
   }
 
   foreach ($relationship_type as $type) {
-    // look into the database for each type
-    $relationship_query = db_select('relation', 'r')->
-      fields('r', array('rid'))->
-      condition('r.relation_type', $type)->
-      execute();
+    // Look into the database for each type.
+    $relationship_query = db_select('relation', 'r')
+      ->fields('r', array('rid'))
+      ->condition('r.relation_type', $type)
+      ->execute();
 
     while ($result = $relationship_query->fetchAssoc()) {
-      // delete all the relationships of that type
+      // Delete all the relationships of that type.
       relation_delete($result['rid']);
     }
-    // finally delete the relationshp_type
+    // Finally delete the relationshp_type.
     relation_type_delete($type);
   }
 
-  // delete status field
+  // Delete status field.
   field_delete_field('redhen_relation_status');
   // Delete Roles field:
   field_delete_field('redhen_relation_roles');
 
+  // Delete relation role field.
+  field_delete_field(REDHEN_RELATION_ROLES_FIELD);
+
   entity_info_cache_clear();
+}
+
+/**
+ * Remove old relation role field and add new.
+ */
+function redhen_relation_update_7101() {
+
+  // Make sure that new new entity classes are available.
+  registry_rebuild();
+
+  // Install redhen_relation_role schema.
+  $relation_role_schema = array(
+    'description' => 'RedHen Relation Role.',
+    'fields' => array(
+      'redhen_relation_role_id' => array(
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'description' => 'The redhen relation role ID.',
+      ),
+      'name' => array(
+        'type' => 'varchar',
+        'length' => 128,
+        'not null' => TRUE,
+        'description' => 'The machine name of the redhen relation role.',
+      ),
+      'label' => array(
+        'type' => 'varchar',
+        'length' => 128,
+        'not null' => TRUE,
+        'description' => 'The human readable name of the redhen relation role.',
+      ),
+      'permissions' => array(
+        'type' => 'text',
+        'not null' => FALSE,
+        'size' => 'big',
+        'serialize' => TRUE,
+        'description' => 'A serialized array of permissions.',
+      ),
+      'status' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+        // Set the default to ENTITY_CUSTOM without using the constant as it is
+        // not safe to use it at this point.
+        'default' => 0x01,
+        'size' => 'tiny',
+        'description' => 'The exportable status of the entity.',
+      ),
+      'module' => array(
+        'description' => 'The name of the providing module if the entity has been defined in code.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => FALSE,
+      ),
+    ),
+    'indexes' => array(
+      'redhen_relation_role_name' => array('name'),
+    ),
+    'primary key' => array('redhen_relation_role_id'),
+    'unique keys' => array(
+      'name' => array('name'),
+    ),
+  );
+
+  // Ensure aren't trying to re-create an existing table.
+  if (!db_table_exists('redhen_relation_role')) {
+    db_create_table('redhen_relation_role', $relation_role_schema);
+  }
+
+  // Remove old relation role field.
+  $instance = field_info_instance(
+    'relation',
+    REDHEN_RELATION_ROLES_FIELD,
+    REDHEN_RELATION_AFFILIATION
+  );
+  field_delete_instance($instance, $field_cleanup = TRUE);
+  field_delete_field(REDHEN_RELATION_ROLES_FIELD);
+  field_purge_batch(5);
+
+  // Create default Admin and Member roles.
+  $default_roles = array(
+    'admin' => array(
+      'name' => 'admin',
+      'label' => 'Admin',
+      'permissions' => array(
+        'add_relation' => 'add_relation',
+        'edit_relation' => 'edit_relation',
+        'delete_relation' => 'delete_relation',
+      ),
+      'default_role' => 0,
+    ),
+    'member' => array(
+      'name' => 'member',
+      'label' => 'Member',
+      'permissions' => array(),
+      'default_role' => 1,
+    ),
+  );
+  foreach ($default_roles as $default_role) {
+    $relation_role = entity_create('redhen_relation_role', $default_role);
+    $relation_role->save();
+  }
+
+  // Add new relation role field.
+  $field = array(
+    'field_name' => REDHEN_RELATION_ROLES_FIELD,
+    'type' => 'entityreference',
+    'cardinality' => FIELD_CARDINALITY_UNLIMITED,
+    'settings' => array(
+      'target_type' => 'redhen_relation_role',
+      'target_bundles' => array('redhen_relation_role'),
+    ),
+  );
+  field_create_field($field);
+
+  // Get default value: ID of Member role.
+  $member_role_entity = entity_load('redhen_relation_role', FALSE, array('name' => 'member'));
+  $member_role_id = (int) array_shift($member_role_entity)->redhen_relation_role_id;
+
+  $instance = array(
+    'field_name' => REDHEN_RELATION_ROLES_FIELD,
+    'entity_type' => 'relation',
+    'bundle' => REDHEN_RELATION_AFFILIATION,
+    'label' => 'Organization Role',
+    'description' => 'Select the roles this contact has in this organization.',
+    'required' => 0,
+    'default_value' => array(array('target_id' => $member_role_id)),
+    'widget' => array(
+      'type' => 'options_buttons',
+    ),
+  );
+  field_create_instance($instance);
+
+  entity_info_cache_clear();
+}
+
+/**
+ * Update affiliation and connection status field labels to Active
+ */
+function redhen_relation_update_7102(&$sandbox) {
+  $bundles = array(
+    REDHEN_RELATION_AFFILIATION,
+    REDHEN_RELATION_CONNECTION,
+  );
+  foreach ($bundles as $bundle) {
+    $instance = field_info_instance('relation', REDHEN_RELATION_STATUS_FIELD, $bundle);
+    $instance['label'] = 'Active';
+    field_update_instance($instance);
+  }
 }

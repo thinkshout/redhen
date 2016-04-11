@@ -15,7 +15,8 @@ function redhen_org_group_menu() {
     'title' => 'Content',
     'page callback' => 'redhen_org_group_content_page',
     'page arguments' => array(2),
-    'access arguments' => array('access redhen orgs'),
+    'access callback' => 'redhen_org_group_content_access',
+    'access arguments' => array(2),
     'type' => MENU_LOCAL_TASK,
   );
 
@@ -103,6 +104,24 @@ function redhen_org_group_redhen_org_type_update(RedhenOrgType $org_type) {
 
   // Create new field instances.
   redhen_org_group_create_instance($org_type);
+}
+
+/**
+ * Access callback for the group content page.
+ *
+ * @param $org
+ *  The organization that may have group content.
+ */
+function redhen_org_group_content_access($org) {
+  global $user;
+
+  $user_groups = redhen_org_group_contact_groups($user, FALSE, NULL, TRUE);
+
+  if (array_key_exists($org->org_id, $user_groups)) {
+    return TRUE;
+  }
+
+  return FALSE;
 }
 
 /**
