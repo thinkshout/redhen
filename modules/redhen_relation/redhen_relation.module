@@ -215,11 +215,11 @@ function redhen_relation_permission() {
       'description' => t('Add and edit connections for a contact.'),
     ),
     'delete redhen org connections' => array(
-      'title' => t('Manage RedHen Org Connections'),
-      'description' => t('Delete edit connections for an organization.'),
+      'title' => t('Delete RedHen Org Connections'),
+      'description' => t('Delete connections for an organization.'),
     ),
     'delete redhen contact connections' => array(
-      'title' => t('Manage RedHen Contact Connections'),
+      'title' => t('Delete RedHen Contact Connections'),
       'description' => t('Delete connections for a contact.'),
     ),
   );
