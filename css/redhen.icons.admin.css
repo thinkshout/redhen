@@ -1,0 +1,15 @@
+/**
+ * @file
+ * Styling for Redhen module icons.
+ */
+
+/**
+ * Toolbar tab icon.
+ */
+.toolbar-bar .toolbar-icon-redhen-dashboard:before {
+  background-image: url('../icons/787878_redhen.png');
+}
+.toolbar-bar .toolbar-icon-redhen-dashboard:active:before,
+.toolbar-bar .toolbar-icon-redhen-dashboard.is-active:before {
+  background-image: url('../icons/bf1b2a_redhen.png');
+}

@@ -22,3 +22,19 @@ function redhen_help($route_name, RouteMatchInterface $route_match) {
     default:
   }
 }
+
+/**
+ * Implements hook_toolbar().
+ */
+function redhen_toolbar() {
+  $items['redhen'] = [
+    '#type' => 'toolbar_item',
+    '#attached' => [
+      'library' => [
+        'redhen/drupal.redhen.toolbar',
+      ],
+    ],
+  ];
+
+  return $items;
+}
