@@ -23,6 +23,12 @@ use Drupal\user\UserInterface;
  * @ContentEntityType(
  *   id = "redhen_contact",
  *   label = @Translation("Contact"),
+ *   label_singular = @Translation("contact"),
+ *   label_plural = @Translation("contacts"),
+ *   label_count = @PluralTranslation(
+ *     singular = "@count contact",
+ *     plural = "@count contact",
+ *   ),
  *   bundle_label = @Translation("Contact type"),
  *   handlers = {
  *     "view_builder" = "Drupal\Core\Entity\EntityViewBuilder",
