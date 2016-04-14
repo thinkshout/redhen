@@ -294,12 +294,11 @@ class Contact extends ContentEntityBase implements ContactInterface {
       ->setRevisionable(TRUE);
 
     $fields['user_id'] = BaseFieldDefinition::create('entity_reference')
-      ->setLabel(t('User'))
+      ->setLabel(t('Linked user'))
       ->setDescription(t('The Drupal user this contact is linked to.'))
       ->setRevisionable(TRUE)
       ->setSetting('target_type', 'user')
       ->setSetting('handler', 'default')
-      ->setDefaultValueCallback('Drupal\node\Entity\Node::getCurrentUserId')
       ->setTranslatable(TRUE)
       ->setDisplayOptions('view', array(
         'label' => 'inline',
