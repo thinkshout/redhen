@@ -450,7 +450,7 @@ function redhen_org_access($op, $org = NULL, $account = NULL) {
 
   // Set $default_revision as a shortcut variable to check, because relation
   // role permissions do not currently support revisions.
-  if (is_object($org) && !$org->isDefaultRevision()) {
+  if (is_object($org) && $org->isDefaultRevision()) {
     $default_revision = TRUE;
   }
   else {

@@ -477,7 +477,7 @@ function redhen_contact_access($op, $contact = NULL, $account = NULL) {
 
   // Set $default_revision as a shortcut variable to check, because relation
   // role permissions do not currently support revisions.
-  if (!empty($contact) && $contact->isDefaultRevision()) {
+  if (is_object($contact) && $contact->isDefaultRevision()) {
     $default_revision = TRUE;
   }
   else {
