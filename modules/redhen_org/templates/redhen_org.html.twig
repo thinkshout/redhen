@@ -1,0 +1,22 @@
+{#
+/**
+ * @file redhen_org.html.twig
+ * Default theme implementation to present Org data.
+ *
+ * This template is used when viewing Org pages.
+ *
+ *
+ * Available variables:
+ * - content: A list of content items. Use 'content' to print all content, or
+ * - attributes: HTML attributes for the container element.
+ *
+ * @see template_preprocess_redhen_org()
+ *
+ * @ingroup themeable
+ */
+#}
+<div{{ attributes.addClass('redhen_org') }}>
+  {% if content %}
+    {{- content -}}
+  {% endif %}
+</div>
