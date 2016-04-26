@@ -9,7 +9,6 @@ namespace Drupal\redhen_org;
 
 use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Entity\EntityChangedInterface;
-use Drupal\Core\Entity\EntityTypeInterface;
 
 /**
  * Provides an interface for defining Org entities.

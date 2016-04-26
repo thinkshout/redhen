@@ -22,7 +22,6 @@ class OrgForm extends ContentEntityForm {
   public function buildForm(array $form, FormStateInterface $form_state) {
     /* @var $entity \Drupal\redhen_org\Entity\Org */
     $form = parent::buildForm($form, $form_state);
-    $entity = $this->entity;
 
     return $form;
   }

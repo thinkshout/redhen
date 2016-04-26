@@ -9,8 +9,6 @@ namespace Drupal\redhen_org;
 
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityListBuilder;
-use Drupal\Core\Routing\LinkGeneratorTrait;
-use Drupal\Core\Url;
 
 /**
  * Defines a class to build a listing of Org entities.
@@ -18,7 +16,6 @@ use Drupal\Core\Url;
  * @ingroup redhen_org
  */
 class OrgListBuilder extends EntityListBuilder {
-  use LinkGeneratorTrait;
   /**
    * {@inheritdoc}
    */
