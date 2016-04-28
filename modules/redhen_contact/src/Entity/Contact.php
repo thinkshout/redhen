@@ -238,7 +238,7 @@ class Contact extends ContentEntityBase implements ContactInterface {
       }
     }
 
-    return parent::save();;
+    return parent::save();
   }
 
   /**
