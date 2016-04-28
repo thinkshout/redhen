@@ -45,7 +45,15 @@ class ContactSettingsForm extends ConfigFormBase {
    *   The current state of the form.
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
-    // Empty implementation of the abstract submit class.
+    \Drupal::service('config.factory')
+      ->getEditable('redhen_contact.settings')
+      ->set('unique_email', $form_state->getValue('unique_email'))
+      ->set('connect_users', $form_state->getValue('connect_users'))
+      ->set('embed_on_user_form', $form_state->getValue('embed_on_user_form'))
+      ->set('alter_username', $form_state->getValue('alter_username'))
+      ->save();
+
+    parent::submitForm($form, $form_state);
   }
 
   /**
