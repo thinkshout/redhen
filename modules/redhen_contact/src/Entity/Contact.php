@@ -222,6 +222,26 @@ class Contact extends ContentEntityBase implements ContactInterface {
   }
 
   /**
+   * Override parent::save() to manage user association.
+   */
+  public function save() {
+
+    $user = $this->getUser();
+    $config = \Drupal::config('redhen_contact.settings');
+    $email = $this->getEmail();
+    // Ensure we want to connect Contact to a Drupal user, there is no user
+    // connected currently, and we have an email value.
+    if ($config->get('connect_users') && !$user && $email) {
+      $user = user_load_by_mail($email);
+      if ($user) {
+        $this->setUser($user);
+      }
+    }
+
+    return parent::save();;
+  }
+
+  /**
    * {@inheritdoc}
    */
   public static function baseFieldDefinitions(EntityTypeInterface $entity_type) {
