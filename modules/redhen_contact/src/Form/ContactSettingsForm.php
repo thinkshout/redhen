@@ -67,7 +67,7 @@ class ContactSettingsForm extends ConfigFormBase {
         '#type' => 'checkbox',
         '#title' => t('Require contacts to have a valid email address'),
         '#description' => t('Controls the contact form validation. Must be true to enable Drupal user connections keyed on email.'),
-        '#default_value' => redhen_contact_email_unique(),
+        '#default_value' => $config->get('unique_email'),
       ),
       'connect_users' => array(
         '#type' => 'checkbox',
