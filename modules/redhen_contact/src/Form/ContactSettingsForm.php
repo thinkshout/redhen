@@ -51,6 +51,10 @@ class ContactSettingsForm extends ConfigFormBase {
       ->set('connect_users', $form_state->getValue('connect_users'))
       ->set('embed_on_user_form', $form_state->getValue('embed_on_user_form'))
       ->set('alter_username', $form_state->getValue('alter_username'))
+      ->set('registration', $form_state->getValue('registration'))
+      ->set('registration_types', $form_state->getValue('registration_types'))
+      ->set('registration_link', $form_state->getValue('registration_link'))
+      ->set('registration_update', $form_state->getValue('registration_update'))
       ->save();
 
     parent::submitForm($form, $form_state);
