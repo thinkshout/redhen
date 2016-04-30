@@ -7,6 +7,7 @@
 
 use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\redhen_contact\Entity\ContactType;
+use Drupal\redhen_contact\Entity\Contact;
 
 /**
  * Denotes that the contact is not active.
@@ -66,3 +67,73 @@ function redhen_contact_type_options_list() {
 
   return $options;
 }
+
+/**
+ * Implements hook_form_FORM_ID_alter() on the user_register_form.
+ */
+function redhen_contact_form_user_register_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_state, $form_id) {
+
+  // Get Redhen Contact settings.
+  $config = \Drupal::config('redhen_contact.settings');
+  // Check whether we should create a Contact on User registration.
+  if ($config->get('connect_users')) {
+
+    // Get menu item to check for overridden Contact Type parameter, but only
+    // when a user is registering from user/register.
+    $url_exploded = array_slice(explode('/', \Drupal::request()->getRequestUri()), 1);
+    if ($url_exploded[0] == 'user' && $url_exploded[1] == 'register' && isset($url_exploded[2])) {
+      $contact_type = $url_exploded[2];
+    }
+    else {
+      // If a parameter was not passed, use the default contact type.
+      $contact_type = $config->get('registration_type');
+    }
+
+    // If a valid contact type was found, embed fields from the Contact Type on
+    // the user registration form.
+    $types = redhen_contact_type_options_list();
+    if (array_key_exists($contact_type, $types)) {
+      $contact_object = Contact::create(['type' => $contact_type]);
+      _redhen_contact_user_embed_contact_form($form, $form_state, $contact_object);
+      // Add a submit handler for handling the Contact form data.
+      $form['#submit'][] = 'redhen_contact_user_registration_submit';
+      // Hide the Contact email field, we will use the user mail field.
+      $form['redhen_contact']['form']['redhen_contact_email']['#access'] = FALSE;
+      $form['#validate'][] = 'redhen_contact_user_registration_validate';
+    }
+    else {
+      drupal_set_message(t('Invalid RedHen contact type parameter.'));
+    }
+  }
+}
+
+/**
+ * Helper function to embed a contact form on a user form.
+ *
+ * Usage note: make sure to add a submit handler, otherwise this form data will
+ * just be ignored.
+ *
+ * @param array $form
+ *   Form array.
+ * @param array $form_state
+ *   Form state array.
+ * @param Contact $contact
+ *   The Contact to build the form on.
+ */
+function _redhen_contact_user_embed_contact_form(&$form, &$form_state, Contact $contact) {
+
+  // Get Contact form.
+  $form['redhen_contact'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('%type Contact information', array('%type' => ucfirst($contact->bundle()))),
+//    'form' => redhen_contact_contact_form(array(), $form_state, $contact),
+//     // @todo - this should work to get the redhen contact form but does not.
+//    'form' => \Drupal::formBuilder()->getForm('Drupal\redhen_contact\Form\ContactForm'),
+    'form' => ['redhen_contact' => ['#type' => 'markup', '#markup' => '<p>Redhen Contact Form</p>']],
+  );
+
+  // Unset the contact forms action, we will use the parent form's actions.
+  unset($form['redhen_contact']['form']['actions']);
+}
+
+// @todo - add redhen_contact_user_registration_validate && redhen_contact_user_registration_submit functions
