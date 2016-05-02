@@ -126,10 +126,7 @@ function _redhen_contact_user_embed_contact_form(&$form, &$form_state, Contact $
   $form['redhen_contact'] = array(
     '#type' => 'fieldset',
     '#title' => t('%type Contact information', array('%type' => ucfirst($contact->bundle()))),
-//    'form' => redhen_contact_contact_form(array(), $form_state, $contact),
-//     // @todo - this should work to get the redhen contact form but does not.
-//    'form' => \Drupal::formBuilder()->getForm('Drupal\redhen_contact\Form\ContactForm'),
-    'form' => ['redhen_contact' => ['#type' => 'markup', '#markup' => '<p>Redhen Contact Form</p>']],
+    'form' => \Drupal::service('entity.form_builder')->getForm($contact, 'add'),
   );
 
   // Unset the contact forms action, we will use the parent form's actions.
