@@ -95,11 +95,12 @@ function redhen_contact_form_user_register_form_alter(&$form, \Drupal\Core\Form\
     if (array_key_exists($contact_type, $types)) {
       $contact_object = Contact::create(['type' => $contact_type]);
       _redhen_contact_user_embed_contact_form($form, $form_state, $contact_object);
-      // Add a submit handler for handling the Contact form data.
-      $form['#submit'][] = 'redhen_contact_user_registration_submit';
       // Hide the Contact email field, we will use the user mail field.
       $form['redhen_contact']['form']['redhen_contact_email']['#access'] = FALSE;
+      // Add a validation handler for validating the Contact form data.
       $form['#validate'][] = 'redhen_contact_user_registration_validate';
+      // Add a submit handler for handling the Contact form data.
+      $form['#submit'][] = 'redhen_contact_user_registration_submit';
     }
     else {
       drupal_set_message(t('Invalid RedHen contact type parameter.'));
