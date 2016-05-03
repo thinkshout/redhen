@@ -5,10 +5,10 @@
  * Contains redhen_contact.module..
  */
 
-use Drupal\Core\Routing\RouteMatchInterface;
-use Drupal\redhen_contact\Entity\ContactType;
-use Drupal\redhen_contact\Entity\Contact;
 use Drupal\Core\Entity\Entity\EntityFormDisplay;
+use Drupal\Core\Routing\RouteMatchInterface;
+use Drupal\redhen_contact\Entity\Contact;
+use Drupal\redhen_contact\Entity\ContactType;
 
 /**
  * Denotes that the contact is not active.
