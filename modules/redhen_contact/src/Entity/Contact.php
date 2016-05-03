@@ -242,6 +242,36 @@ class Contact extends ContentEntityBase implements ContactInterface {
   }
 
   /**
+   * Load all Contact entities for a given email address.
+   *
+   * @param string $email
+   *   Required: an email address.
+   * @param bool $status
+   *   RedHen state. Defaults to active.
+   *
+   * @return array|bool
+   *   An array of RedHen Contact entities or FALSE if no match found.
+   */
+  public static function loadByMail($email, $status = 1) {
+    $contacts = &drupal_static(__FUNCTION__ . $email, FALSE);
+
+    if (!$contacts) {
+      $query = \Drupal::entityQuery('redhen_contact');
+      $query
+        ->condition('email', $email, '=');
+      if (!is_null($status)) {
+        $query->condition('status', $status);
+      }
+      $results = $query->execute();
+      if (!empty($results)) {
+       $contacts = Contact::loadMultiple(array_keys($results));
+      }
+    }
+
+    return $contacts;
+  }
+
+  /**
    * {@inheritdoc}
    */
   public static function baseFieldDefinitions(EntityTypeInterface $entity_type) {
