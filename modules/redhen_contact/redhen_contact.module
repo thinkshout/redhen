@@ -8,6 +8,7 @@
 use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\redhen_contact\Entity\ContactType;
 use Drupal\redhen_contact\Entity\Contact;
+use Drupal\Core\Entity\Entity\EntityFormDisplay;
 
 /**
  * Denotes that the contact is not active.
@@ -96,7 +97,7 @@ function redhen_contact_form_user_register_form_alter(&$form, \Drupal\Core\Form\
       $contact_object = Contact::create(['type' => $contact_type]);
       _redhen_contact_user_embed_contact_form($form, $form_state, $contact_object);
       // Hide the Contact email field, we will use the user mail field.
-      $form['redhen_contact']['form']['redhen_contact_email']['#access'] = FALSE;
+      $form['redhen_contact']['email']['#access'] = FALSE;
       // Add a validation handler for validating the Contact form data.
       $form['#validate'][] = 'redhen_contact_user_registration_validate';
       // Add a submit handler for handling the Contact form data.
@@ -123,15 +124,58 @@ function redhen_contact_form_user_register_form_alter(&$form, \Drupal\Core\Form\
  */
 function _redhen_contact_user_embed_contact_form(&$form, &$form_state, Contact $contact) {
 
-  // Get Contact form.
-  $form['redhen_contact'] = array(
-    '#type' => 'fieldset',
-    '#title' => t('%type Contact information', array('%type' => ucfirst($contact->bundle()))),
-    'form' => \Drupal::service('entity.form_builder')->getForm($contact, 'add'),
-  );
+  // Create form element to hold Contact fields.
+  $form['redhen_contact'] = [
+    '#type' => 'details',
+    '#title' => str_replace('!type', ContactType::load($contact->getType())->label(), '!type Contact information'),
+    '#tree' => TRUE,
+    '#parents' => ['redhen_contact'],
+    '#open' => TRUE,
+  ];
+  // Add EntityFormDisplay object used to build an entity form.
+  $form_state->set('form_display_' . $contact->getType(), EntityFormDisplay::collectRenderDisplay($contact, 'default'));
+  // Build the entityform into the placeholder form element created above.
+  $form_state
+    ->get('form_display_' . $contact->getType())
+    // Add fields to the placeholder form element created above.
+    ->buildForm($contact, $form['redhen_contact'], $form_state);
 
-  // Unset the contact forms action, we will use the parent form's actions.
-  unset($form['redhen_contact']['form']['actions']);
+  // Add hidden form element to store type of Contact being created.
+  $form['redhen_contact']['contact_type'] = [
+    '#type' => 'hidden',
+    // Do not allow this value to be altered via JavaScript before the form is
+    // submitted - setting "#default_value" would allow for that.
+    '#value' => $contact->getType(),
+  ];
 }
 
-// @todo - add redhen_contact_user_registration_validate && redhen_contact_user_registration_submit functions
+/**
+ * Registration form RedHen contact validation handler.
+ */
+function redhen_contact_user_registration_validate($form, &$form_state) {
+
+  // Load existing Contact by email address if one exists.
+  $existing_contacts = Contact::loadByMail($form_state->getValue('mail'));
+  $contact = $existing_contacts ? current($existing_contacts) : [];
+  // Check whether we should update info of an existing Contact using info
+  // provided on user_registration form.
+  $update_existing = \Drupal::config('redhen_contact.settings')
+    ->get('registration_update');
+
+  // We have an existing contact, but it's of a different type.
+  if ($contact && $contact->getType() !== $form['redhen_contact']['contact_type']['#value']) {
+    $form_state->setError($form['account']['mail'], str_replace(['!type', '!email'], [$contact->getType(), $form_state->getValue('mail')], 'A Contact of type "!type" is already associated with the email address "!email".'));
+  }
+
+  // We don't want to update contacts, but found an existing match.
+  if ($contact && !$update_existing) {
+    $form_state->setError($form['account']['mail'], 'A contact already exists with that email address.');
+  }
+
+  // Existing contact is already linked to a user.
+  if ($contact && !is_null($contact->getUserId()) && $update_existing) {
+    $form_state->setError($form['account']['mail'], 'A contact with that email address is already linked to a Drupal user.');
+  }
+}
+
+// @todo - add redhen_contact_user_registration_submit function
