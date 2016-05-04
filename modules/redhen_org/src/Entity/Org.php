@@ -120,36 +120,6 @@ class Org extends ContentEntityBase implements OrgInterface {
   /**
    * {@inheritdoc}
    */
-  public function getRevisionCreationTime() {
-    return $this->get('revision_timestamp')->value;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function setRevisionCreationTime($timestamp) {
-    $this->set('revision_timestamp', $timestamp);
-    return $this;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function getRevisionAuthor() {
-    return $this->get('revision_uid')->entity;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function setRevisionAuthorId($uid) {
-    $this->set('revision_uid', $uid);
-    return $this;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
   public function isActive() {
     return (bool) $this->getEntityKey('status');
   }

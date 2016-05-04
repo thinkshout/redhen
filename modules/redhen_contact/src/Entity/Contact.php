@@ -149,36 +149,6 @@ class Contact extends ContentEntityBase implements ContactInterface {
   /**
    * {@inheritdoc}
    */
-  public function getRevisionCreationTime() {
-    return $this->get('revision_timestamp')->value;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function setRevisionCreationTime($timestamp) {
-    $this->set('revision_timestamp', $timestamp);
-    return $this;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function getRevisionAuthor() {
-    return $this->get('revision_uid')->entity;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function setRevisionAuthorId($uid) {
-    $this->set('revision_uid', $uid);
-    return $this;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
   public function getUser() {
     return $this->get('user_id')->entity;
   }
