@@ -1,0 +1,88 @@
+<?php
+
+/**
+ * @file
+ * Contains redhen_relation.module..
+ */
+
+use Drupal\Core\Routing\RouteMatchInterface;
+use Drupal\redhen_relation\Entity\RelationType;
+use Drupal\Core\Field\BaseFieldDefinition;
+use Drupal\Core\Entity\EntityTypeInterface;
+
+/**
+ * Denotes that the Relation is not active.
+ */
+const REDHEN_RELATION_INACTIVE = 0;
+
+/**
+ * Denotes that the Relation is active.
+ */
+const REDHEN_RELATION_ACTIVE = 1;
+
+/**
+ * Implements hook_help().
+ */
+function redhen_relation_help($route_name, RouteMatchInterface $route_match) {
+  switch ($route_name) {
+    // Main module help for the redhen_relation module.
+    case 'help.page.redhen_relation':
+      $output = '';
+      $output .= '<h3>' . t('About') . '</h3>';
+      $output .= '<p>' . t('Defines the base relation entity and features.') . '</p>';
+      return $output;
+
+    default:
+  }
+}
+
+/**
+ * Implements hook_theme().
+ */
+function redhen_relation_theme() {
+  $theme = [];
+  $theme['redhen_relation'] = [
+    'render element' => 'elements',
+    'file' => 'redhen_relation.page.inc',
+    'template' => 'redhen_relation',
+  ];
+  $theme['redhen_relation_content_add_list'] = [
+    'render element' => 'content',
+    'variables' => ['content' => NULL],
+    'file' => 'redhen_relation.page.inc',
+  ];
+  return $theme;
+}
+
+/**
+ * Return an associative array of Relation types to be used as an options list.
+ *
+ * @return array
+ *   Keyed by name with a label value.
+ */
+function redhen_relation_type_options_list() {
+  $options = array();
+  foreach (RelationType::loadMultiple() as $type) {
+    $options[$type->id()] = $type->label();
+  }
+
+  return $options;
+}
+
+/**
+ * Implements hook_entity_base_field_info().
+ */
+function redhen_relation_entity_base_field_info(EntityTypeInterface $entity_type) {
+  if ($entity_type->id() === 'redhen_relation') {
+
+    $fields['endpoints'] = BaseFieldDefinition::create('dynamic_entity_reference')
+      ->setLabel(t('Endpoints'))
+      ->setDescription(t('The entities that are related.'))
+      ->setCardinality(2)
+      ->setDisplayConfigurable('form', TRUE)
+      ->setDisplayConfigurable('view', TRUE)
+      ->setRevisionable(TRUE);
+
+    return $fields;
+  }
+}

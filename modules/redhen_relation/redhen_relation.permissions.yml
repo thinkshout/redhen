@@ -1,0 +1,22 @@
+add Relation entities:
+  title: 'Create new Relation entities'
+
+administer Relation entities:
+  title: 'Administer Relation entities'
+  description: 'Allow to access the administration form to configure Relation entities.'
+  restrict access: true
+
+delete Relation entities:
+  title: 'Delete Relation entities'
+
+edit Relation entities:
+  title: 'Edit Relation entities'
+
+view active Relation entities:
+  title: 'View active Relation entities'
+
+view inactive Relation entities:
+  title: 'View inactive Relation entities'
+
+permission_callbacks:
+  - \Drupal\redhen_relation\RelationPermissions::RelationTypePermissions

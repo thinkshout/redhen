@@ -1,0 +1,15 @@
+# Relation menu items definition
+entity.redhen_relation.collection:
+  title: 'Relations'
+  route_name: entity.redhen_relation.collection
+  description: 'View RedHen CRM Relations.'
+  parent: redhen.dashboard
+  weight: 100
+
+# Relation type menu items definition
+entity.redhen_relation_type.collection:
+  title: 'Relation types'
+  route_name: entity.redhen_relation_type.collection
+  description: 'List Relation types.'
+  parent: redhen.structure
+  weight: 99
