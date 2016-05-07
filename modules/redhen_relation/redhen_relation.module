@@ -68,21 +68,3 @@ function redhen_relation_type_options_list() {
 
   return $options;
 }
-
-/**
- * Implements hook_entity_base_field_info().
- */
-function redhen_relation_entity_base_field_info(EntityTypeInterface $entity_type) {
-  if ($entity_type->id() === 'redhen_relation') {
-
-    $fields['endpoints'] = BaseFieldDefinition::create('dynamic_entity_reference')
-      ->setLabel(t('Endpoints'))
-      ->setDescription(t('The entities that are related.'))
-      ->setCardinality(2)
-      ->setDisplayConfigurable('form', TRUE)
-      ->setDisplayConfigurable('view', TRUE)
-      ->setRevisionable(TRUE);
-
-    return $fields;
-  }
-}

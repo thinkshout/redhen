@@ -138,6 +138,14 @@ class Relation extends ContentEntityBase implements RelationInterface {
   public static function baseFieldDefinitions(EntityTypeInterface $entity_type) {
     $fields = parent::baseFieldDefinitions($entity_type);
 
+    $fields['endpoints'] = BaseFieldDefinition::create('dynamic_entity_reference')
+      ->setLabel(t('Endpoints'))
+      ->setDescription(t('The entities that are related.'))
+      ->setCardinality(2)
+      ->setDisplayConfigurable('form', TRUE)
+      ->setDisplayConfigurable('view', TRUE)
+      ->setRevisionable(TRUE);
+
     $fields['status'] = BaseFieldDefinition::create('boolean')
       ->setLabel(t('Active'))
       ->setDescription(t('A boolean indicating whether the relation is active.'))
