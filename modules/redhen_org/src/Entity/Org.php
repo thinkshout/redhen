@@ -14,20 +14,20 @@ use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\redhen_org\OrgInterface;
 
 /**
- * Defines the Org entity.
+ * Defines the Organization entity.
  *
  * @ingroup redhen_org
  *
  * @ContentEntityType(
  *   id = "redhen_org",
- *   label = @Translation("Org"),
- *   label_singular = @Translation("org"),
- *   label_plural = @Translation("orgs"),
+ *   label = @Translation("Organization"),
+ *   label_singular = @Translation("organiation"),
+ *   label_plural = @Translation("organizations"),
  *   label_count = @PluralTranslation(
- *     singular = "@count org",
- *     plural = "@count org",
+ *     singular = "@count organization",
+ *     plural = "@count organizations",
  *   ),
- *   bundle_label = @Translation("Org type"),
+ *   bundle_label = @Translation("Organization type"),
  *   handlers = {
  *     "view_builder" = "Drupal\Core\Entity\EntityViewBuilder",
  *     "list_builder" = "Drupal\redhen_org\OrgListBuilder",

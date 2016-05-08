@@ -11,11 +11,11 @@ use Drupal\Core\Config\Entity\ConfigEntityBundleBase;
 use Drupal\redhen_org\OrgTypeInterface;
 
 /**
- * Defines the Org type entity.
+ * Defines the Organization type entity.
  *
  * @ConfigEntityType(
  *   id = "redhen_org_type",
- *   label = @Translation("Org type"),
+ *   label = @Translation("Organization type"),
  *   handlers = {
  *     "list_builder" = "Drupal\redhen_org\OrgTypeListBuilder",
  *     "form" = {
