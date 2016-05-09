@@ -74,6 +74,7 @@ class Relation extends ContentEntityBase implements RelationInterface {
    * {@inheritdoc}
    */
   public function label() {
+    // @TODO make this smarter.
     return $this->get('entity1')->entity->label() . ' : ' . $this->get('entity2')->entity->label();
   }
   
