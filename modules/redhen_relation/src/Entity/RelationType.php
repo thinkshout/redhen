@@ -59,4 +59,34 @@ class RelationType extends ConfigEntityBundleBase implements RelationTypeInterfa
    */
   protected $label;
 
+  /**
+   * The first entity type ID.
+   *
+   * @var string
+   */
+  protected $entityType1;
+
+  /**
+   * The second entity type ID.
+   *
+   * @var string
+   */
+  protected $entityType2;
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getEndpointEntityTypeId($field) {
+    $field = 'entityType' . $field;
+    return $this->{$field};
+  }
+  /**
+   * {@inheritdoc}
+   */
+  public function setEndpointEntityTypeId($field, $entity_type_id) {
+    $field = 'entityType' . $field;
+    $this->{$field} = $entity_type_id;
+    return $this;
+  }
+
 }

@@ -74,25 +74,7 @@ class Relation extends ContentEntityBase implements RelationInterface {
    * {@inheritdoc}
    */
   public function label() {
-    return $this->getName();
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function getName() {
-    $name = $this->get('name')->value;
-    // Allow other modules to alter the name of the Relation.
-    \Drupal::moduleHandler()->alter('redhen_relation_name', $name, $this);
-    return $name;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function setName($name) {
-    $this->set('name', $name);
-    return $this;
+    return $this->get('entity1')->entity->label() . ' : ' . $this->get('entity2')->entity->label();
   }
   
   /**
@@ -128,7 +110,7 @@ class Relation extends ContentEntityBase implements RelationInterface {
    * {@inheritdoc}
    */
   public function setActive($active) {
-    $this->set('status', $active ? redhen_relation_INACTIVE : redhen_relation_ACTIVE);
+    $this->set('status', $active ? REDHEN_RELATION_INACTIVE : REDHEN_RELATION_ACTIVE);
     return $this;
   }
 
@@ -138,13 +120,37 @@ class Relation extends ContentEntityBase implements RelationInterface {
   public static function baseFieldDefinitions(EntityTypeInterface $entity_type) {
     $fields = parent::baseFieldDefinitions($entity_type);
 
-    $fields['endpoints'] = BaseFieldDefinition::create('dynamic_entity_reference')
-      ->setLabel(t('Endpoints'))
-      ->setDescription(t('The entities that are related.'))
-      ->setCardinality(2)
+    $fields['entity1'] = BaseFieldDefinition::create('entity_reference')
+      ->setLabel(t('Entity 1'))
+      ->setDescription(t('The first entity this relation connects.'))
+      ->setRequired(TRUE)
+      ->setDisplayOptions('form', [
+        'type' => 'entity_reference_autocomplete',
+        'weight' => -1,
+        'settings' => [
+          'match_operator' => 'CONTAINS',
+          'size' => '60',
+          'placeholder' => '',
+        ],
+      ])
       ->setDisplayConfigurable('form', TRUE)
-      ->setDisplayConfigurable('view', TRUE)
-      ->setRevisionable(TRUE);
+      ->setDisplayConfigurable('view', TRUE);
+
+    $fields['entity2'] = BaseFieldDefinition::create('entity_reference')
+      ->setLabel(t('Entity 2'))
+      ->setDescription(t('The second entity this relation connects.'))
+      ->setRequired(TRUE)
+      ->setDisplayOptions('form', [
+        'type' => 'entity_reference_autocomplete',
+        'weight' => -1,
+        'settings' => [
+          'match_operator' => 'CONTAINS',
+          'size' => '60',
+          'placeholder' => '',
+        ],
+      ])
+      ->setDisplayConfigurable('form', TRUE)
+      ->setDisplayConfigurable('view', TRUE);
 
     $fields['status'] = BaseFieldDefinition::create('boolean')
       ->setLabel(t('Active'))
@@ -173,4 +179,26 @@ class Relation extends ContentEntityBase implements RelationInterface {
     return $fields;
   }
 
+  /**
+   * {@inheritdoc}
+   */
+  public static function bundleFieldDefinitions(EntityTypeInterface $entity_type, $bundle, array $base_field_definitions) {
+    /** @var \Drupal\redhen_relation\RelationTypeInterface $relation_type */
+    $relation_type = RelationType::load($bundle);
+    $endpoints = [1, 2];
+    $fields = [];
+    foreach ($endpoints as $endpoint) {
+      $endpoint_type = $relation_type->getEndpointEntityTypeId($endpoint);
+      $field = 'entity' . $endpoint;
+      $fields[$field] = clone $base_field_definitions[$field];
+      if ($endpoint_type) {
+        $endpoint_entity = \Drupal::entityManager()->getDefinition($endpoint_type);
+        $label = $endpoint_entity->getLabel();
+        $fields[$field]->setSetting('target_type', $endpoint_type)
+          ->setLabel($label)
+          ->setDescription(t('The @type this relation connects.', array('@type' => $label)));
+      }
+    }
+    return $fields;
+  }
 }

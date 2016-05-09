@@ -22,6 +22,14 @@ class RelationTypeForm extends EntityForm {
   public function form(array $form, FormStateInterface $form_state) {
     $form = parent::form($form, $form_state);
 
+    // Prepare the list of relatable entity types.
+    $entity_types = $this->entityTypeManager->getDefinitions();
+    $endpoint_entity_types = array_map(function ($entity_type) {
+      return $entity_type->getLabel();
+    }, $entity_types);
+
+    $form['#tree'] = TRUE;
+    /** @var \Drupal\redhen_relation\Entity\RelationType $redhen_relation_type */
     $redhen_relation_type = $this->entity;
     $form['label'] = array(
       '#type' => 'textfield',
@@ -41,7 +49,23 @@ class RelationTypeForm extends EntityForm {
       '#disabled' => !$redhen_relation_type->isNew(),
     );
 
-    /* You will need additional form elements for your custom properties. */
+    $form['entityType1'] = [
+      '#type' => 'select',
+      '#title' => $this->t('Endpoint 1 entity type'),
+      '#default_value' => $redhen_relation_type->getEndpointEntityTypeId('1'),
+      '#options' => $endpoint_entity_types,
+      '#empty_value' => '',
+      '#disabled' => !$redhen_relation_type->isNew(),
+    ];
+
+    $form['entityType2'] = [
+      '#type' => 'select',
+      '#title' => $this->t('Endpoint 2 entity type'),
+      '#default_value' => $redhen_relation_type->getEndpointEntityTypeId('2'),
+      '#options' => $endpoint_entity_types,
+      '#empty_value' => '',
+      '#disabled' => !$redhen_relation_type->isNew(),
+    ];
 
     return $form;
   }

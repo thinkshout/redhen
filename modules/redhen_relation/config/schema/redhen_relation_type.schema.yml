@@ -10,3 +10,9 @@ redhen_relation.redhen_relation_type.*:
       label: 'Label'
     uuid:
       type: string
+    entityType1:
+      type: string
+      label: 'Endpoint Entity Type 1'
+    entityType2:
+      type: string
+      label: 'Endpoint Entity Type 2'
