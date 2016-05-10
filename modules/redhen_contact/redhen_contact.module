@@ -298,33 +298,38 @@ function _redhen_contact_user_submission_apply($form, $form_state, $form_display
  *   The modified form_state array.
  */
 function redhen_contact_user_registration_form_state($form, $form_state) {
-
   // Start with form_state as passed.
   $limited_state = clone $form_state;
   // Reset values element since we'll be rebuilding it below.
-  $limited_state->setValue('form_display_' . $form_state->get('redhen_contact')->getType(), []);
+  $field_parent_name = 'form_display_' . $form_state->get('redhen_contact')->getType();
+  $limited_state->setValue($field_parent_name, []);
 
-  // Loop over visible form elements.
-  foreach (\Drupal\Core\Render\Element::children($form) as $key) {
+  // Get Redhen Contact field definitions to determine default values.
+  $contact_fields = \Drupal::entityManager()->getFieldDefinitions('redhen_contact', 'team_member');
 
-    // Grab each form element.
-    $child = $form[$key];
+  // Get all Redhen contact field values.
+  $field_values = $form_state->getValue($field_parent_name);
+  $limited_field_values = array();
 
+  // Loop through all form fields values.
+  foreach ($field_values as $key => $value) {
     // Skip un-accessible children.
-    if (isset($child['#access']) && !$child['#access']) {
+    if (isset($form[$key]['#access']) && !$form[$key]['#access']) {
       continue;
     }
 
-    // Rebuild our form_state values element using only visible and accessible
-    // children of our form.
-    // @todo - can't figure out how to find if visible fields are set or not because we don't want to clobber values for submitted empty fields
-//    if (isset($form_state['input'][$key])) {
-//      $limited_state['values'][$key] = $form_state['values'][$key];
-//    }
+    // Skip any fields that still contain their default value.
+    if ($value === $contact_fields[$key]->getDefaultValueLiteral()) {
+      continue;
+    }
+
+    // Add fields with new values to limited field values.
+    $limited_field_values[$key] = $value;
   }
-    // This line should replace the next when the above todo is resolved.
-//  return $limited_state;
-  return $form_state;
+
+  // Rebuild form state with limited field values.
+  $limited_state->setValue($field_parent_name, $limited_field_values);
+  return $limited_state;
 }
 
 // @todo - add redhen_contact_user_registration_submit function
