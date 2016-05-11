@@ -311,15 +311,15 @@ function redhen_contact_user_registration_form_state($form, $form_state) {
   $field_values = $form_state->getValue($field_parent_name);
   $limited_field_values = array();
 
-  // Loop through all form fields values.
+  // Loop through all Redhen contact field values.
   foreach ($field_values as $key => $value) {
     // Skip un-accessible children.
     if (isset($form[$key]['#access']) && !$form[$key]['#access']) {
       continue;
     }
 
-    // Skip any fields that still contain their default value.
-    if ($value === $contact_fields[$key]->getDefaultValueLiteral()) {
+    // Skip any empty fields.
+    if (!redhen_contact_form_field_has_value($contact_fields[$key], $value)) {
       continue;
     }
 
@@ -330,6 +330,57 @@ function redhen_contact_user_registration_form_state($form, $form_state) {
   // Rebuild form state with limited field values.
   $limited_state->setValue($field_parent_name, $limited_field_values);
   return $limited_state;
+}
+
+/**
+ * Determines if a form field has been submitted with a value.
+ *
+ * @param object $definition
+ *   The field definition as returned by
+ *   \Drupal::entityManager()->getFieldDefinitions
+ * @param array $value
+ *   The field value in the submitted form state.
+ *
+ * @return boolean
+ *   TRUE if the field contains a value, FALSE otherwise.
+ */
+function redhen_contact_form_field_has_value($definition, $value) {
+  if ($definition instanceof \Drupal\Core\Field\BaseFieldDefinition) {
+    // Base fields can have their values compared against the field's
+    // default value. If the value matches the default, the field is empty.
+    if ($value === $definition->getDefaultValueLiteral()) {
+      return FALSE;
+    }
+  }
+  else if ($definition instanceof \Drupal\field\Entity\FieldConfig) {
+    // Some entity fields require special logic to determine if they are empty.
+    // Start with the field type.
+    $field_type = $definition->getType();
+
+    switch ($field_type) {
+      // Test an image field.
+      case 'image':
+        if (empty($value[0]['fids'])) {
+          return FALSE;
+        }
+        break;
+      default:
+        // Default to testing the field storage definition's first column for
+        // an empty value. This works for most fields.
+        // e.g. An entity_reference field would have a "target_id" column,
+        // which is an array key that can be tested for emptiness in the
+        // field value.
+        $columns = $definition->getFieldStorageDefinition()->getColumns();
+        reset($columns);
+        $column_name = key($columns);
+        if (array_key_exists($column_name, $value[0]) && empty($value[0][$column_name])) {
+          return FALSE;
+        }
+        break;
+    }
+  }
+
+  return TRUE;
 }
 
 // @todo - add redhen_contact_user_registration_submit function
