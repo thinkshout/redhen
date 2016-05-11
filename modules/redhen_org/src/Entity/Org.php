@@ -31,7 +31,7 @@ use Drupal\redhen_org\OrgInterface;
  *   handlers = {
  *     "view_builder" = "Drupal\Core\Entity\EntityViewBuilder",
  *     "list_builder" = "Drupal\redhen_org\OrgListBuilder",
- *     "views_data" = "Drupal\redhen_org\Entity\OrgViewsData",
+ *     "views_data" = "Drupal\views\EntityViewsData",
  *
  *     "form" = {
  *       "default" = "Drupal\redhen_org\Form\OrgForm",

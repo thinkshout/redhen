@@ -33,7 +33,7 @@ use Drupal\user\UserInterface;
  *   handlers = {
  *     "view_builder" = "Drupal\Core\Entity\EntityViewBuilder",
  *     "list_builder" = "Drupal\redhen_contact\ContactListBuilder",
- *     "views_data" = "Drupal\redhen_contact\Entity\ContactViewsData",
+ *     "views_data" = "Drupal\views\EntityViewsData",
  *
  *     "form" = {
  *       "default" = "Drupal\redhen_contact\Form\ContactForm",
