@@ -108,4 +108,18 @@ class ConnectionType extends ConfigEntityBundleBase implements ConnectionTypeInt
 
     return $description;
   }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getEndpointFields($entity_type) {
+    $fields = array();
+    foreach ($this->endpoints as $id => $endpoint) {
+      if ($endpoint['entity_type'] === $entity_type) {
+        $fields['endpoint_' . $id];
+      }
+    }
+
+    return $fields;
+  }
 }

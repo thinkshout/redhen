@@ -49,4 +49,14 @@ interface ConnectionTypeInterface extends ConfigEntityInterface {
    *   The description for endpoint $num.
    */
   public function getEndpointDescription($num);
+
+  /**
+   * Get all endpoint fields configured for $entity_type.
+   *
+   * @param string $entity_type
+   *
+   * @return array
+   *   The field names that reference $entity_type.
+   */
+  public function getEndpointFields($entity_type);
 }
