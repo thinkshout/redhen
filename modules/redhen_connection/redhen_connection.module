@@ -20,6 +20,12 @@ const REDHEN_CONNECTION_INACTIVE = 0;
  */
 const REDHEN_CONNECTION_ACTIVE = 1;
 
+
+/**
+ * Specifies the number of endpoint fields we ship with.
+ */
+const REDHEN_CONNECTION_ENDPOINTS = 2;
+
 /**
  * Implements hook_help().
  */
