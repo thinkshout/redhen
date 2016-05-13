@@ -93,7 +93,7 @@ class ConnectionAddController extends ControllerBase {
      *   The page title.
      */
     public function getAddFormTitle(EntityInterface $redhen_connection_type) {
-      return t('Create of bundle @label',
+      return t('Create connection of type @label',
         array('@label' => $redhen_connection_type->label())
       );
     }

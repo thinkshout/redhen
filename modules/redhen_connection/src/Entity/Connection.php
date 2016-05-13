@@ -11,6 +11,7 @@ use Drupal\Core\Field\BaseFieldDefinition;
 use Drupal\Core\Entity\ContentEntityBase;
 use Drupal\Core\Entity\EntityChangedTrait;
 use Drupal\Core\Entity\EntityTypeInterface;
+use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\redhen_connection\ConnectionInterface;
 
 /**
@@ -69,13 +70,17 @@ use Drupal\redhen_connection\ConnectionInterface;
  */
 class Connection extends ContentEntityBase implements ConnectionInterface {
   use EntityChangedTrait;
+  use StringTranslationTrait;
 
   /**
    * {@inheritdoc}
    */
   public function label() {
-    $label_pattern = $this->getType()->entity->get('connection_label_pattern');
-    return $this->get('entity1')->entity->label() . ' : ' . $this->get('entity2')->entity->label();
+    $label_pattern = $this->type->entity->get('connection_label_pattern');
+    return $this->t($label_pattern, array(
+      '@label1' => $this->get('endpoint_1')->entity->label(),
+      '@label2' => $this->get('endpoint_2')->entity->label(),
+    ));
   }
   
   /**
