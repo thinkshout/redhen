@@ -184,7 +184,7 @@ class Connection extends ContentEntityBase implements ConnectionInterface {
         $fields[$field]->setSetting('target_type', $endpoint_type)
           ->setLabel($label);
         if (!empty($connection_type->getEndpointDescription($x))) {
-          $connection_type->getEndpointDescription($x);
+          $fields[$field]->setDescription($connection_type->getEndpointDescription($x));
         }
       }
     }
