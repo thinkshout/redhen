@@ -184,16 +184,21 @@ class Connection extends ContentEntityBase implements ConnectionInterface {
     $fields = [];
     // Set bundle specific settings for each of our endpoint fields.
     for ($x = 1; $x <= REDHEN_CONNECTION_ENDPOINTS; $x++) {
+      /** @var BaseFieldDefinition $fields[$field] */
       $endpoint_type = $connection_type->getEndpointEntityTypeId($x);
       $field = 'endpoint_' . $x;
       $fields[$field] = clone $base_field_definitions[$field];
       if ($endpoint_type) {
+        $bundles = $connection_type->getEndpointBundles($x);
         $endpoint_entity = \Drupal::entityManager()->getDefinition($endpoint_type);
-        $label = (!empty($connection_type->getEndpointLabel($x))) ? $connection_type->getEndpointLabel($x) : $endpoint_type->getLabel();
+        $label = (!empty($connection_type->getEndpointLabel($x))) ? $connection_type->getEndpointLabel($x) : $endpoint_entity->getLabel();
         $fields[$field]->setSetting('target_type', $endpoint_type)
           ->setLabel($label);
         if (!empty($connection_type->getEndpointDescription($x))) {
           $fields[$field]->setDescription($connection_type->getEndpointDescription($x));
+        }
+        if (!empty($bundles)) {
+          $fields[$field]->setSetting('handler_settings', ['target_bundles' => $bundles]);
         }
       }
     }
