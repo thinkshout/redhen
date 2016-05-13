@@ -74,7 +74,7 @@ class Connection extends ContentEntityBase implements ConnectionInterface {
    * {@inheritdoc}
    */
   public function label() {
-    $label_pattern = $this->getType()->entity->get('label_pattern');
+    $label_pattern = $this->getType()->entity->get('connection_label_pattern');
     return $this->get('entity1')->entity->label() . ' : ' . $this->get('entity2')->entity->label();
   }
   
@@ -121,37 +121,23 @@ class Connection extends ContentEntityBase implements ConnectionInterface {
   public static function baseFieldDefinitions(EntityTypeInterface $entity_type) {
     $fields = parent::baseFieldDefinitions($entity_type);
 
-    $fields['entity1'] = BaseFieldDefinition::create('entity_reference')
-      ->setLabel(t('Entity 1'))
-      ->setDescription(t('The first entity this connection connects.'))
-      ->setRequired(TRUE)
-      ->setDisplayOptions('form', [
-        'type' => 'entity_reference_autocomplete',
-        'weight' => -1,
-        'settings' => [
-          'match_operator' => 'CONTAINS',
-          'size' => '60',
-          'placeholder' => '',
-        ],
-      ])
-      ->setDisplayConfigurable('form', TRUE)
-      ->setDisplayConfigurable('view', TRUE);
-
-    $fields['entity2'] = BaseFieldDefinition::create('entity_reference')
-      ->setLabel(t('Entity 2'))
-      ->setDescription(t('The second entity this connection connects.'))
-      ->setRequired(TRUE)
-      ->setDisplayOptions('form', [
-        'type' => 'entity_reference_autocomplete',
-        'weight' => -1,
-        'settings' => [
-          'match_operator' => 'CONTAINS',
-          'size' => '60',
-          'placeholder' => '',
-        ],
-      ])
-      ->setDisplayConfigurable('form', TRUE)
-      ->setDisplayConfigurable('view', TRUE);
+    // Define base fields "endpoint_X" for each our endpoints.
+    for ($x = 1; $x <= REDHEN_CONNECTION_ENDPOINTS; $x++) {
+      $fields["endpoint_$x"] = BaseFieldDefinition::create('entity_reference')
+        ->setLabel(t('Endpoint @x', array('@x' => $x)))
+        ->setRequired(TRUE)
+        ->setDisplayOptions('form', [
+          'type' => 'entity_reference_autocomplete',
+          'weight' => -1,
+          'settings' => [
+            'match_operator' => 'CONTAINS',
+            'size' => '60',
+            'placeholder' => '',
+          ],
+        ])
+        ->setDisplayConfigurable('form', TRUE)
+        ->setDisplayConfigurable('view', TRUE);
+    }
 
     $fields['status'] = BaseFieldDefinition::create('boolean')
       ->setLabel(t('Active'))
@@ -186,18 +172,20 @@ class Connection extends ContentEntityBase implements ConnectionInterface {
   public static function bundleFieldDefinitions(EntityTypeInterface $entity_type, $bundle, array $base_field_definitions) {
     /** @var \Drupal\redhen_connection\ConnectionTypeInterface $connection_type */
     $connection_type = ConnectionType::load($bundle);
-    $endpoints = [1, 2];
     $fields = [];
-    foreach ($endpoints as $endpoint) {
-      $endpoint_type = $connection_type->getEndpointEntityTypeId($endpoint);
-      $field = 'entity' . $endpoint;
+    // Set bundle specific settings for each of our endpoint fields.
+    for ($x = 1; $x <= REDHEN_CONNECTION_ENDPOINTS; $x++) {
+      $endpoint_type = $connection_type->getEndpointEntityTypeId($x);
+      $field = 'endpoint_' . $x;
       $fields[$field] = clone $base_field_definitions[$field];
       if ($endpoint_type) {
         $endpoint_entity = \Drupal::entityManager()->getDefinition($endpoint_type);
-        $label = $endpoint_entity->getLabel();
+        $label = (!empty($connection_type->getEndpointLabel($x))) ? $connection_type->getEndpointLabel($x) : $endpoint_type->getLabel();
         $fields[$field]->setSetting('target_type', $endpoint_type)
-          ->setLabel($label) // @TODO Configurable
-          ->setDescription(t('The @type this connection connects.', array('@type' => $label))); // @TODO Configurable
+          ->setLabel($label);
+        if (!empty($connection_type->getEndpointDescription($x))) {
+          $connection_type->getEndpointDescription($x);
+        }
       }
     }
     return $fields;
