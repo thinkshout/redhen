@@ -128,9 +128,13 @@ class Connection extends ContentEntityBase implements ConnectionInterface {
 
     // Define base fields "endpoint_X" for each our endpoints.
     for ($x = 1; $x <= REDHEN_CONNECTION_ENDPOINTS; $x++) {
+      // Set first endpoint to redhen_contact and second to redhen_org by default.
+      $default_type = ($x & 1) ? 'redhen_contact' : 'redhen_org';
+
       $fields["endpoint_$x"] = BaseFieldDefinition::create('entity_reference')
         ->setLabel(t('Endpoint @x', array('@x' => $x)))
         ->setRequired(TRUE)
+        ->setSetting('target_type', $default_type)
         ->setDisplayOptions('form', [
           'type' => 'entity_reference_autocomplete',
           'weight' => -1,

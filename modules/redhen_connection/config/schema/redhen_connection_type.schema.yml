@@ -29,3 +29,8 @@ redhen_connection.redhen_connection_type.*:
           description:
             type: text
             label: 'Endpoint description'
+          bundles:
+            type: sequence
+            sequence:
+              type: string
+              label: 'Bundle'

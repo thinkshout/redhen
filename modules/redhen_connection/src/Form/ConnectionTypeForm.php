@@ -57,37 +57,66 @@ class ConnectionTypeForm extends EntityForm {
       '#description' => $this->t("Label pattern to use for connections. Use @label1 for the first entity and @label2 for the second."),
       '#required' => TRUE,
     );
-    $endpoints = [1, 2];
-    foreach ($endpoints as $endpoint) {
-      $form['endpoints'][$endpoint] = [
+
+    // Set bundle specific settings for each of our endpoint fields.
+    for ($x = 1; $x <= REDHEN_CONNECTION_ENDPOINTS; $x++) {
+      $endpoint_type = $redhen_connection_type->getEndpointEntityTypeId($x);
+      $form['endpoints'][$x] = [
         '#type' => 'fieldset',
-        '#title' => $this->t('Endpoint @endpoint', array('@endpoint' => $endpoint)),
+        '#title' => $this->t('Endpoint @endpoint', array('@endpoint' => $x)),
       ];
-      $form['endpoints'][$endpoint]['entity_type'] = [
+      $form['endpoints'][$x]['entity_type'] = [
         '#type' => 'select',
         '#title' => $this->t('Entity type'),
         '#description' => $this->t('The entity type cannot be changes once created.'),
-        '#default_value' => $redhen_connection_type->getEndpointEntityTypeId($endpoint),
+        '#default_value' => $endpoint_type,
         '#options' => $endpoint_entity_types,
         '#empty_value' => '',
         '#disabled' => !$redhen_connection_type->isNew(),
+        '#ajax' => [
+          'callback' => '::updateBundleOptions',
+          'wrapper' => 'bundles-wrapper-' . $x,
+        ]
       ];
 
-      $form['endpoints'][$endpoint]['label'] = [
+      // Disable caching on this form.
+      $form_state->setCached(FALSE);
+
+      $form['endpoints'][$x]['label'] = [
         '#type' => 'textfield',
         '#title' => $this->t('Label'),
         '#description' => $this->t('If no label is provided, the entity type label will be used.'),
-        '#default_value' => $redhen_connection_type->getEndpointLabel($endpoint),
+        '#default_value' => $redhen_connection_type->getEndpointLabel($x),
         '#empty_value' => '',
       ];
 
-      $form['endpoints'][$endpoint]['description'] = [
+      $form['endpoints'][$x]['description'] = [
         '#type' => 'textarea',
         '#title' => $this->t('Description'),
         '#description' => $this->t('If no description is provided, the default field description will be used.'),
-        '#default_value' => $redhen_connection_type->getEndpointDescription($endpoint),
+        '#default_value' => $redhen_connection_type->getEndpointDescription($x),
         '#empty_value' => '',
       ];
+
+      $bundle_options = array();
+      $endpoint_entity = (!empty($endpoint_type)) ? \Drupal::entityManager()->getDefinition($endpoint_type) : FALSE;
+      if ($endpoint_entity && $endpoint_entity->hasKey('bundle')) {
+        $bundle_options = $this->getBundleOptions($endpoint_type);
+      }
+
+      $form['endpoints'][$x]['bundles'] = array(
+        '#type' => 'checkboxes',
+        '#title' => $this->t('Bundles'),
+        '#description' => $this->t('The allowed bundles for this endpoint.'),
+        '#options' => $bundle_options,
+        '#default_value' => (array) $redhen_connection_type->getEndpointBundles($x),
+        '#required' => TRUE,
+        '#size' => 6,
+        '#multiple' => TRUE,
+        '#prefix' => '<div id="bundles-wrapper-' . $x . '">',
+        '#suffix' => '</div>',
+        '#disabled' => !($endpoint_entity && $endpoint_entity->hasKey('bundle')),
+      );
     }
 
 
@@ -114,6 +143,39 @@ class ConnectionTypeForm extends EntityForm {
         ]));
     }
     $form_state->setRedirectUrl($redhen_connection_type->urlInfo('collection'));
+  }
+
+  /**
+   * Get the bundle options for a provided endpoint (entity) type.
+   *
+   * @param string $endpoint_type
+   *
+   * @return array
+   */
+  protected function getBundleOptions($endpoint_type) {
+    $bundles = $this->entityManager->getBundleInfo($endpoint_type);
+    $bundle_options = array();
+    foreach ($bundles as $bundle_name => $bundle_info) {
+      $bundle_options[$bundle_name] = $bundle_info['label'];
+    }
+    natsort($bundle_options);
+
+    return $bundle_options;
+  }
+
+  /**
+   * Ajax callback to update the bundle options.
+   *
+   * @param $form
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   * @return mixed
+   */
+  public function updateBundleOptions($form, FormStateInterface $form_state) {
+    $element = $form_state->getTriggeringElement();
+    $endpoint = $element['#array_parents'][1];
+    $endpoint_type = $element['#value'];
+    $form['endpoints'][$endpoint]['bundles']['#options'] = $this->getBundleOptions($endpoint_type);
+    return $form['endpoints'][$endpoint]['bundles'];
   }
 
 }
