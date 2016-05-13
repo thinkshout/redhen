@@ -49,23 +49,47 @@ class ConnectionTypeForm extends EntityForm {
       '#disabled' => !$redhen_connection_type->isNew(),
     );
 
-    $form['entityType1'] = [
-      '#type' => 'select',
-      '#title' => $this->t('Endpoint 1 entity type'),
-      '#default_value' => $redhen_connection_type->getEndpointEntityTypeId('1'),
-      '#options' => $endpoint_entity_types,
-      '#empty_value' => '',
-      '#disabled' => !$redhen_connection_type->isNew(),
-    ];
+    $form['connection_label_pattern'] = array(
+      '#type' => 'textfield',
+      '#title' => $this->t('Connection label pattern'),
+      '#maxlength' => 255,
+      '#default_value' => $redhen_connection_type->get('connection_label_pattern'),
+      '#description' => $this->t("Label pattern to use for connections. Use @label1 for the first entity and @label2 for the second."),
+      '#required' => TRUE,
+    );
+    $endpoints = [1, 2];
+    foreach ($endpoints as $endpoint) {
+      $form['endpoints'][$endpoint] = [
+        '#type' => 'fieldset',
+        '#title' => $this->t('Endpoint @endpoint', array('@endpoint' => $endpoint)),
+      ];
+      $form['endpoints'][$endpoint]['entity_type'] = [
+        '#type' => 'select',
+        '#title' => $this->t('Entity type'),
+        '#description' => $this->t('The entity type cannot be changes once created.'),
+        '#default_value' => $redhen_connection_type->getEndpointEntityTypeId($endpoint),
+        '#options' => $endpoint_entity_types,
+        '#empty_value' => '',
+        '#disabled' => !$redhen_connection_type->isNew(),
+      ];
 
-    $form['entityType2'] = [
-      '#type' => 'select',
-      '#title' => $this->t('Endpoint 2 entity type'),
-      '#default_value' => $redhen_connection_type->getEndpointEntityTypeId('2'),
-      '#options' => $endpoint_entity_types,
-      '#empty_value' => '',
-      '#disabled' => !$redhen_connection_type->isNew(),
-    ];
+      $form['endpoints'][$endpoint]['label'] = [
+        '#type' => 'textfield',
+        '#title' => $this->t('Label'),
+        '#description' => $this->t('If no label is provided, the entity type label will be used.'),
+        '#default_value' => $redhen_connection_type->getEndpointLabel($endpoint),
+        '#empty_value' => '',
+      ];
+
+      $form['endpoints'][$endpoint]['description'] = [
+        '#type' => 'textarea',
+        '#title' => $this->t('Description'),
+        '#description' => $this->t('If no description is provided, the default field description will be used.'),
+        '#default_value' => $redhen_connection_type->getEndpointDescription($endpoint),
+        '#empty_value' => '',
+      ];
+    }
+
 
     return $form;
   }

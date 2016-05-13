@@ -9,4 +9,3 @@ dependencies:
   - entity
   - field
   - views
-  - dynamic_entity_reference

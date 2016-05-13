@@ -60,33 +60,52 @@ class ConnectionType extends ConfigEntityBundleBase implements ConnectionTypeInt
   protected $label;
 
   /**
-   * The first entity type ID.
+   * The Connection label pattern.
    *
    * @var string
    */
-  protected $entityType1;
+  protected $connection_label_pattern;
 
   /**
-   * The second entity type ID.
+   * The endpoint definitions.
    *
-   * @var string
+   * @var array
    */
-  protected $entityType2;
+  protected $endpoints = array();
 
   /**
    * {@inheritdoc}
    */
-  public function getEndpointEntityTypeId($field) {
-    $field = 'entityType' . $field;
-    return $this->{$field};
+  public function getEndpointEntityTypeId($num) {
+    $entity_type = NULL;
+    if (isset($this->endpoints[$num]['entity_type'])) {
+      $entity_type = $this->endpoints[$num]['entity_type'];
+    }
+
+    return $entity_type;
   }
+
   /**
    * {@inheritdoc}
    */
-  public function setEndpointEntityTypeId($field, $entity_type_id) {
-    $field = 'entityType' . $field;
-    $this->{$field} = $entity_type_id;
-    return $this;
+  public function getEndpointLabel($num) {
+    $label = NULL;
+    if (isset($this->endpoints[$num]['label'])) {
+      $label = $this->endpoints[$num]['label'];
+    }
+
+    return $label;
   }
 
+  /**
+   * {@inheritdoc}
+   */
+  public function getEndpointDescription($num) {
+    $description = NULL;
+    if (isset($this->endpoints[$num]['description'])) {
+      $description = $this->endpoints[$num]['description'];
+    }
+
+    return $description;
+  }
 }

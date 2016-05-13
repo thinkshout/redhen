@@ -10,9 +10,22 @@ redhen_connection.redhen_connection_type.*:
       label: 'Label'
     uuid:
       type: string
-    entityType1:
-      type: string
-      label: 'Endpoint Entity Type 1'
-    entityType2:
-      type: string
-      label: 'Endpoint Entity Type 2'
+    connection_label_pattern:
+      type: label
+      label: 'Connection Label Pattern'
+    endpoints:
+      type: sequence
+      label: 'Endpoints'
+      sequence:
+        type: mapping
+        label: 'Endpoint'
+        mapping:
+          entity_type:
+            type: string
+            label: 'Endpoint type'
+          label:
+            type: label
+            label: 'Endpoint label'
+          description:
+            type: text
+            label: 'Endpoint description'

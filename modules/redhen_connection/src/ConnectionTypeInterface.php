@@ -14,30 +14,39 @@ use Drupal\Core\Config\Entity\ConfigEntityInterface;
  */
 interface ConnectionTypeInterface extends ConfigEntityInterface {
   /**
-   * Gets the connection type's entity type ID by field.
+   * Gets the connection type's entity type ID by endpoint.
    *
    * E.g, if connections of this type are configured to allow Contacts to
    * connect with other Contacts, this will return redhen_contact for both
-   * fields.
+   * endpoints.
    *
-   * @param string $field
-   *   The field to return the entity type for.
+   * @param int $num
+   *   The endpoint to return the entity type for.
    *
    * @return string
-   *   The entity type ID for $field.
+   *   The entity type ID for endpoint $num.
    */
-  public function getEndpointEntityTypeId($field);
+  public function getEndpointEntityTypeId($num);
+
   /**
-   * Sets the connection type's entity type ID by field.
+   * Gets the connection type's endpoint label.
    *
-   * @param string $field
-   *   The field to set the entity type for.
-
-   * @param string $entity_type_id
-   *   The purchasable entity type.
+   * @param int $num
+   *   The endpoint to return the label for.
    *
-   * @return $this
+   * @return string
+   *   The label for endpoint $num.
    */
-  public function setEndpointEntityTypeId($field, $entity_type_id);
+  public function getEndpointLabel($num);
 
+  /**
+   * Gets the connection type's endpoint description.
+   *
+   * @param int $num
+   *   The endpoint to return the description for.
+   *
+   * @return string
+   *   The description for endpoint $num.
+   */
+  public function getEndpointDescription($num);
 }

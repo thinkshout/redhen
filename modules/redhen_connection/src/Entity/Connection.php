@@ -74,7 +74,7 @@ class Connection extends ContentEntityBase implements ConnectionInterface {
    * {@inheritdoc}
    */
   public function label() {
-    // @TODO make this smarter.
+    $label_pattern = $this->getType()->entity->get('label_pattern');
     return $this->get('entity1')->entity->label() . ' : ' . $this->get('entity2')->entity->label();
   }
   
