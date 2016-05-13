@@ -1,0 +1,16 @@
+# Connection routing definition
+entity.redhen_connection.canonical:
+  route_name: entity.redhen_connection.canonical
+  base_route: entity.redhen_connection.canonical
+  title: 'View'
+
+entity.redhen_connection.edit_form:
+  route_name: entity.redhen_connection.edit_form
+  base_route: entity.redhen_connection.canonical
+  title: Edit
+
+entity.redhen_connection.delete_form:
+  route_name:  entity.redhen_connection.delete_form
+  base_route:  entity.redhen_connection.canonical
+  title: Delete
+  weight: 10

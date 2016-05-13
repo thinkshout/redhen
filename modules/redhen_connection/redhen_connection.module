@@ -1,0 +1,70 @@
+<?php
+
+/**
+ * @file
+ * Contains redhen_connection.module..
+ */
+
+use Drupal\Core\Routing\RouteMatchInterface;
+use Drupal\redhen_connection\Entity\ConnectionType;
+use Drupal\Core\Field\BaseFieldDefinition;
+use Drupal\Core\Entity\EntityTypeInterface;
+
+/**
+ * Denotes that the Connection is not active.
+ */
+const REDHEN_CONNECTION_INACTIVE = 0;
+
+/**
+ * Denotes that the Connection is active.
+ */
+const REDHEN_CONNECTION_ACTIVE = 1;
+
+/**
+ * Implements hook_help().
+ */
+function redhen_connection_help($route_name, RouteMatchInterface $route_match) {
+  switch ($route_name) {
+    // Main module help for the redhen_connection module.
+    case 'help.page.redhen_connection':
+      $output = '';
+      $output .= '<h3>' . t('About') . '</h3>';
+      $output .= '<p>' . t('Defines the base connection entity and features.') . '</p>';
+      return $output;
+
+    default:
+  }
+}
+
+/**
+ * Implements hook_theme().
+ */
+function redhen_connection_theme() {
+  $theme = [];
+  $theme['redhen_connection'] = [
+    'render element' => 'elements',
+    'file' => 'redhen_connection.page.inc',
+    'template' => 'redhen_connection',
+  ];
+  $theme['redhen_connection_content_add_list'] = [
+    'render element' => 'content',
+    'variables' => ['content' => NULL],
+    'file' => 'redhen_connection.page.inc',
+  ];
+  return $theme;
+}
+
+/**
+ * Return an associative array of Connection types to be used as an options list.
+ *
+ * @return array
+ *   Keyed by name with a label value.
+ */
+function redhen_connection_type_options_list() {
+  $options = array();
+  foreach (ConnectionType::loadMultiple() as $type) {
+    $options[$type->id()] = $type->label();
+  }
+
+  return $options;
+}

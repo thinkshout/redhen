@@ -1,0 +1,10 @@
+entity.redhen_connection.add_form:
+  route_name: 'redhen_connection.add_page'
+  title: 'Add Connection'
+  appears_on:
+    - entity.redhen_connection.collection
+entity.redhen_connection_type.add_form:
+  route_name: 'entity.redhen_connection_type.add_form'
+  title: 'Add Connection type'
+  appears_on:
+    - entity.redhen_connection_type.collection

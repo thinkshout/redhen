@@ -1,0 +1,18 @@
+redhen_connection.redhen_connection_type.*:
+  type: config_entity
+  label: 'Connection type config'
+  mapping:
+    id:
+      type: string
+      label: 'ID'
+    label:
+      type: label
+      label: 'Label'
+    uuid:
+      type: string
+    entityType1:
+      type: string
+      label: 'Endpoint Entity Type 1'
+    entityType2:
+      type: string
+      label: 'Endpoint Entity Type 2'
