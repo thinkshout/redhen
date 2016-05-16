@@ -215,9 +215,10 @@ function redhen_contact_user_registration_submit($form, &$form_state) {
   $contact = $form_state->get('redhen_contact');
 
   // Connect Drupal user to Redhen Contact.
-  // We know this should happen because we only embed redhen_contact fields on
-  // the user_registration form if redhen_contact.settings.connect_users is
-  // TRUE. See redhen_contact_form_user_register_form_alter().
+  // We know this should happen on submit without checking anything because
+  // we only embed redhen_contact fields on the user_registration form if
+  // redhen_contact.settings.connect_users is TRUE.
+  // See redhen_contact_form_user_register_form_alter().
   $contact->setUserId($form_state->getFormObject()->getEntity()->id());
 
   // If set to update fields, do so.
