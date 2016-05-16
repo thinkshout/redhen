@@ -54,7 +54,7 @@ use Drupal\user\UserInterface;
  *     "revision" = "revision_id",
  *     "bundle" = "type",
  *     "uuid" = "uuid",
- *     "uid" = "user_id",
+ *     "uid" = "uid",
  *     "langcode" = "langcode",
  *     "status" = "status",
  *   },
@@ -71,15 +71,6 @@ use Drupal\user\UserInterface;
  */
 class Contact extends ContentEntityBase implements ContactInterface {
   use EntityChangedTrait;
-  /**
-   * {@inheritdoc}
-   */
-  public static function preCreate(EntityStorageInterface $storage_controller, array &$values) {
-    parent::preCreate($storage_controller, $values);
-    $values += array(
-      'user_id' => \Drupal::currentUser()->id(),
-    );
-  }
 
   /**
    * {@inheritdoc}
@@ -150,21 +141,21 @@ class Contact extends ContentEntityBase implements ContactInterface {
    * {@inheritdoc}
    */
   public function getUser() {
-    return $this->get('user_id')->entity;
+    return $this->get('uid')->entity;
   }
 
   /**
    * {@inheritdoc}
    */
   public function getUserId() {
-    return $this->get('user_id')->target_id;
+    return $this->get('uid')->target_id;
   }
 
   /**
    * {@inheritdoc}
    */
   public function setUserId($uid) {
-    $this->set('user_id', $uid);
+    $this->set('uid', $uid);
     return $this;
   }
 
@@ -172,7 +163,7 @@ class Contact extends ContentEntityBase implements ContactInterface {
    * {@inheritdoc}
    */
   public function setUser(UserInterface $account) {
-    $this->set('user_id', $account->id());
+    $this->set('uid', $account->id());
     return $this;
   }
 
@@ -313,13 +304,13 @@ class Contact extends ContentEntityBase implements ContactInterface {
       ->setDisplayConfigurable('view', TRUE)
       ->setRevisionable(TRUE);
 
-    $fields['user_id'] = BaseFieldDefinition::create('entity_reference')
+    $fields['uid'] = BaseFieldDefinition::create('entity_reference')
       ->setLabel(t('Linked user'))
       ->setDescription(t('The Drupal user this contact is linked to.'))
       ->setRevisionable(TRUE)
       ->setSetting('target_type', 'user')
-      ->setSetting('handler', 'default')
-      ->setTranslatable(TRUE)
+      ->setTranslatable(FALSE)
+      ->setRequired(FALSE)
       ->setDisplayOptions('view', array(
         'label' => 'inline',
         'type' => 'entity_reference_label',
