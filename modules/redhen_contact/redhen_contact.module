@@ -115,7 +115,7 @@ function redhen_contact_form_user_register_form_alter(&$form, \Drupal\Core\Form\
  *
  * @param array $form
  *   Form array.
- * @param array $form_state
+ * @param \Drupal\Core\Form\FormStateInterface $form_state
  *   Form state array.
  * @param Contact $contact
  *   The Contact to build the form on.
