@@ -100,9 +100,48 @@ function redhen_contact_form_user_register_form_alter(&$form, \Drupal\Core\Form\
       $form['#validate'][] = 'redhen_contact_user_registration_validate';
       // Add a submit handler for handling the Contact form data.
       $form['actions']['submit']['#submit'][] = 'redhen_contact_user_registration_submit';
+      // Hide the Contact email field, we will use the user mail field.
+      $form['entity_' . $contact_type]['email']['#access'] = FALSE;
     }
     else {
       drupal_set_message(t('Invalid RedHen contact type parameter.'));
+    }
+  }
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter() on user_form.
+ */
+function redhen_contact_form_user_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_state, $form_id) {
+
+  // Load Contact using Drupal User.
+  $user = $form_state->getFormObject()->getEntity();
+  $contact = Contact::loadByUser($user);
+  // If we find a Contact linked to the current User, alter the form in
+  // accordance with our Redhen Contact admin settings.
+  if ($contact) {
+
+    // Get Redhen Contact settings.
+    $config = \Drupal::config('redhen_contact.settings');
+
+    // If we're mirroring the Contact's email address - disable the field.
+    if ($config->get('connect_users')) {
+      $form['account']['mail']['#disabled'] = TRUE;
+      $form['account']['mail']['#description'] .= ' ' . t('The email address for this account is managed by RedHen.');
+    }
+
+    // Embed Contact form on User edit form.
+    if ($config->get('embed_on_user_form')) {
+      // If the User email field is disabled, hide it since the Contact email
+      // field syncs to the User email field and is displayed on the embedded
+      // contact form.
+      // Having a disabled email field and an enabled one is confusing.
+      if ($form['account']['mail']['#disabled']) {
+        $form['account']['mail']['#access'] = FALSE;
+      }
+      _redhen_contact_user_embed_contact_form($form, $form_state, $contact);
+      // Add a submit handler for handling the contact form data.
+      $form['#submit'][] = 'redhen_contact_user_update_submit';
     }
   }
 }
@@ -140,9 +179,6 @@ function _redhen_contact_user_embed_contact_form(&$form, &$form_state, Contact $
     ->get('form_display_' . $contact->getType())
     // Add fields to the placeholder form element created above.
     ->buildForm($contact, $form['entity_' . $contact->getType()], $form_state);
-
-  // Hide the Contact email field, we will use the user mail field.
-  $form['entity_' . $contact->getType()]['email']['#access'] = FALSE;
 }
 
 /**
