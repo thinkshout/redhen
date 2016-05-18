@@ -158,7 +158,7 @@ function redhen_contact_form_user_form_alter(&$form, \Drupal\Core\Form\FormState
  *   Form array.
  * @param \Drupal\Core\Form\FormStateInterface $form_state
  *   Form state array.
- * @param Contact $contact
+ * @param \Drupal\redhen_contact\Entity\Contact $contact
  *   The Contact to build the form on.
  */
 function _redhen_contact_user_embed_contact_form(&$form, &$form_state, Contact $contact) {
@@ -321,7 +321,7 @@ function redhen_contact_user_update_submit($form, &$form_state) {
  *   Form state array.
  * @param EntityFormDisplay $form_display
  *   EntityFormDisplay to extract field values from.
- * @param Contact $contact
+ * @param \Drupal\redhen_contact\Entity\Contact $contact
  *   RedhenContact to update.
  * @param bool $limit_values
  *   Whether to limit updated values to non-null fields.
