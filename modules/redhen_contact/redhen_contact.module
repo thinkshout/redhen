@@ -212,7 +212,7 @@ function redhen_contact_user_registration_validate($form, &$form_state) {
     $form_state->setError($form['account']['mail'], 'A contact with that email address is already linked to a Drupal user.');
   }
 
-  // Run core EntityFormDisplay validation to check submitted widget values.
+  // Get submitted field values.
   /** @var $form_display \Drupal\core\Entity\Entity\EntityFormDisplay */
   $form_display = $form_state->get('form_display_' . $contact->getType());
 
@@ -232,7 +232,7 @@ function redhen_contact_user_registration_validate($form, &$form_state) {
 }
 
 /**
- * Registration form RedHen contact submit handler.
+ * Registration form RedHen Contact submit handler.
  *
  * Links a Contact to a Drupal user on user registration.
  * Contact will a pre-existing Contact if Redhen Contact admin setting to link
