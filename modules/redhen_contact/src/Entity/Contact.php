@@ -202,6 +202,40 @@ class Contact extends ContentEntityBase implements ContactInterface {
   }
 
   /**
+   * Load a contact record from a user account.
+   *
+   * @param object $account
+   *   User object.
+   * @param bool $status
+   *   Redhen status. Defaults to active.
+   *
+   * @return mixed
+   *   Contact or FALSE if not found.
+   */
+  public static function loadByUser($account, $status = TRUE) {
+    $contact = &drupal_static(__FUNCTION__ . $account->id(), FALSE);
+
+    // If we don't have a cached Contact and we have a uid to load the Contact
+    // by, proceed.
+    if (!$contact && !empty($account->id())) {
+
+      // Find Contacts linked to the current Drupal User.
+      $query = \Drupal::entityQuery('redhen_contact');
+      $query->condition('uid', $account->id(), '=');
+      $query->condition('status', $status);
+      $results = $query->execute();
+
+      // If we find a Contact, load and return it.
+      if (!empty($results)) {
+        // There should always be only a single active user linked to an account.
+        $contact = Contact::load(reset($results));
+      }
+    }
+
+    return $contact;
+  }
+
+  /**
    * Load all Contact entities for a given email address.
    *
    * @param string $email
