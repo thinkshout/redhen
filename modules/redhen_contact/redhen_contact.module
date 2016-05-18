@@ -214,23 +214,11 @@ function redhen_contact_user_registration_validate($form, &$form_state) {
     $form_state->setError($form['account']['mail'], 'A contact with that email address is already linked to a Drupal user.');
   }
 
-  // Get submitted field values.
-  /** @var $form_display \Drupal\core\Entity\Entity\EntityFormDisplay */
-  $form_display = $form_state->get('form_display_' . $contact->getType());
-
-  // Update Contact entity with values submitted on the form.
-  _redhen_contact_user_submission_apply($form, $form_state, $form_display, $contact, TRUE);
-
-  // Validated submitted field values.
-  $form_display->validateFormValues($contact, $form['entity_' . $contact->getType()], $form_state);
-  // Entity was validated in entityFormValidate(). This will prevent validation
-  // exception from being thrown.
-  $form_state->getFormObject()->getEntity()->validate();
-
-  // Update Contact stored in form_state to be our chosen Contact (i.e.
-  // pre-existing Contact with matching email address or new Contact) with its
-  // field values updated from the values supplied in the form.
-  $form_state->set('redhen_contact', $contact);
+  // Validated submitted field values and update Contact stored in form_state
+  // to be our chosen Contact (i.e. pre-existing Contact with matching email
+  // address or new Contact) with its field values updated from the values
+  // supplied in the form.
+  _redhen_contact_user_submission_validate($form, $form_state, $contact);
 }
 
 /**
@@ -306,6 +294,40 @@ function redhen_contact_user_update_submit($form, &$form_state) {
 
   // Save changes to Contact associated with User being updated.
   $contact->save();
+}
+
+/**
+ * Helper to
+ *
+ * @param array $form
+ * @param \Drupal\Core\Form\FormStateInterface $form_state
+ * @param \Drupal\redhen_contact\Entity\Contact $contact
+ */
+function _redhen_contact_user_submission_validate($form, &$form_state, Contact $contact) {
+
+  // Get submitted field values.
+  /** @var $form_display \Drupal\core\Entity\Entity\EntityFormDisplay */
+  $form_display = $form_state->get('form_display_' . $contact->getType());
+
+  // Update Contact entity with values submitted on the form.
+  $message = _redhen_contact_user_submission_apply($form, $form_state, $form_display, $contact, TRUE);
+
+  // Validated submitted field values.
+  $form_display->validateFormValues($contact, $form['entity_' . $contact->getType()], $form_state);
+  // Entity was validated in entityFormValidate(). This will prevent validation
+  // exception from being thrown.
+  $form_state->getFormObject()->getEntity()->validate();
+
+  // Update Contact stored in form_state to be our chosen Contact (i.e.
+  // pre-existing Contact with matching email address or new Contact) with its
+  // field values updated from the values supplied in the form.
+  $form_state->set('redhen_contact', $contact);
+
+  // Only display this message to CRM admins to avoid confusion.
+  $user = Drupal::currentUser();
+  if ($user->hasPermission('administer contact entities')) {
+    drupal_set_message($message);
+  }
 }
 
 /**
