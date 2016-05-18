@@ -207,14 +207,15 @@ class Contact extends ContentEntityBase implements ContactInterface {
    * @param string $email
    *   Required: an email address.
    * @param bool $status
-   *   RedHen state. Defaults to active.
+   *   RedHen status. Defaults to active.
    *
    * @return array|bool
    *   An array of RedHen Contact entities or FALSE if no match found.
    */
-  public static function loadByMail($email, $status = 1) {
+  public static function loadByMail($email, $status = TRUE) {
     $contacts = &drupal_static(__FUNCTION__ . $email, FALSE);
 
+    // If we don't have a cached Contact, try to find one with the given email.
     if (!$contacts) {
       $query = \Drupal::entityQuery('redhen_contact');
       $query
