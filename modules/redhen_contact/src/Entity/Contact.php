@@ -54,7 +54,6 @@ use Drupal\user\UserInterface;
  *     "revision" = "revision_id",
  *     "bundle" = "type",
  *     "uuid" = "uuid",
- *     "uid" = "uid",
  *     "langcode" = "langcode",
  *     "status" = "status",
  *   },
