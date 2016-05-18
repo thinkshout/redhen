@@ -140,8 +140,10 @@ function redhen_contact_form_user_form_alter(&$form, \Drupal\Core\Form\FormState
         $form['account']['mail']['#access'] = FALSE;
       }
       _redhen_contact_user_embed_contact_form($form, $form_state, $contact);
-      // Add a submit handler for handling the contact form data.
-      $form['#submit'][] = 'redhen_contact_user_update_submit';
+      // Add a validation handler for validating the Contact form data.
+      $form['#validate'][] = 'redhen_contact_user_registration_validate';
+      // Add a submit handler for handling the Contact form data.
+      $form['actions']['submit']['#submit'][] = 'redhen_contact_user_update_submit';
     }
   }
 }
@@ -281,6 +283,29 @@ function redhen_contact_user_registration_submit($form, &$form_state) {
 //  if (user_access('access redhen contacts')) {
 //    drupal_set_message($message);
 //  }
+}
+
+/**
+ * User update form RedHen Contact submit handler.
+ *
+ * Updates a connected Contact on User update.
+ *
+ * @param array $form
+ *   Form array.
+ * @param array $form_state
+ *   Form state array.
+ */
+function redhen_contact_user_update_submit($form, &$form_state) {
+
+  // Load Contact
+  $contact = $form_state->get('redhen_contact');
+
+  // Validate submitted field values and update Contact stored in form_state
+  // with field values from the submitted form.
+  _redhen_contact_user_submission_validate($form, $form_state, $contact);
+
+  // Save changes to Contact associated with User being updated.
+  $contact->save();
 }
 
 /**
