@@ -218,11 +218,8 @@ class Contact extends ContentEntityBase implements ContactInterface {
     // If we don't have a cached Contact, try to find one with the given email.
     if (!$contacts) {
       $query = \Drupal::entityQuery('redhen_contact');
-      $query
-        ->condition('email', $email, '=');
-      if (!is_null($status)) {
-        $query->condition('status', $status);
-      }
+      $query->condition('email', $email, '=');
+      $query->condition('status', $status);
       $results = $query->execute();
       if (!empty($results)) {
        $contacts = Contact::loadMultiple(array_keys($results));
