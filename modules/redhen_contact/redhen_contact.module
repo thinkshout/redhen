@@ -419,5 +419,3 @@ function redhen_contact_form_field_has_value($definition, $value) {
 
   return TRUE;
 }
-
-// @todo - add redhen_contact_user_registration_submit function
