@@ -141,7 +141,7 @@ function redhen_contact_form_user_form_alter(&$form, \Drupal\Core\Form\FormState
       }
       _redhen_contact_user_embed_contact_form($form, $form_state, $contact);
       // Add a validation handler for validating the Contact form data.
-      $form['#validate'][] = 'redhen_contact_user_registration_validate';
+      $form['#validate'][] = 'redhen_contact_user_update_validate';
       // Add a submit handler for handling the Contact form data.
       $form['actions']['submit']['#submit'][] = 'redhen_contact_user_update_submit';
     }
@@ -271,6 +271,22 @@ function redhen_contact_user_registration_submit($form, &$form_state) {
 }
 
 /**
+ * User edit form RedHen Contact validation handler.
+ *
+ * @param array $form
+ * @param \Drupal\Core\Form\FormStateInterface $form_state
+ */
+function redhen_contact_user_update_validate($form, &$form_state) {
+
+  // Load Contact
+  $contact = $form_state->get('redhen_contact');
+
+  // Validate submitted field values and update Contact stored in form_state
+  // with field values from the submitted form.
+  _redhen_contact_user_submission_validate($form, $form_state, $contact);
+}
+
+/**
  * User update form RedHen Contact submit handler.
  *
  * Updates a connected Contact on User update.
@@ -284,10 +300,6 @@ function redhen_contact_user_update_submit($form, &$form_state) {
 
   // Load Contact
   $contact = $form_state->get('redhen_contact');
-
-  // Validate submitted field values and update Contact stored in form_state
-  // with field values from the submitted form.
-  _redhen_contact_user_submission_validate($form, $form_state, $contact);
 
   // Save changes to Contact associated with User being updated.
   $contact->save();
