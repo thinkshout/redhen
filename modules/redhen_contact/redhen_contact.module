@@ -319,7 +319,19 @@ function _redhen_contact_user_submission_validate($form, &$form_state, Contact $
   $form_display = $form_state->get('form_display_' . $contact->getType());
 
   // Update Contact entity with values submitted on the form.
-  $message = _redhen_contact_user_submission_apply($form, $form_state, $form_display, $contact, TRUE);
+  // Do NOT overwrite fields with values with empty field values if the
+  // submitted form is user_register_form. Do overwrite fields with values with
+  // empty field values if the submitted form is the user_edit form.
+  // This allows the user registration form to remain simple (i.e. not all
+  // Contact fields shown) without clobbering existing field data for a Contact
+  // while allowing the User edit form to function as expected (i.e. you can
+  // delete field values).
+  if ($form['#form_id'] == 'user_register_form') {
+    $message = _redhen_contact_user_submission_apply($form, $form_state, $form_display, $contact, TRUE);
+  }
+  elseif ($form['#form_id'] == 'user_form') {
+    $message = _redhen_contact_user_submission_apply($form, $form_state, $form_display, $contact);
+  }
 
   // Validated submitted field values.
   $form_display->validateFormValues($contact, $form['entity_' . $contact->getType()], $form_state);
@@ -334,7 +346,7 @@ function _redhen_contact_user_submission_validate($form, &$form_state, Contact $
 
   // Only display this message to CRM admins to avoid confusion.
   $user = Drupal::currentUser();
-  if ($user->hasPermission('administer contact entities')) {
+  if (isset($message) && $user->hasPermission('administer contact entities')) {
     drupal_set_message($message);
   }
 }
