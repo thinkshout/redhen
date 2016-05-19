@@ -8,7 +8,7 @@
 namespace Drupal\redhen_connection;
 
 use Drupal\Core\Entity\EntityTypeInterface;
-use Drupal\Core\Entity\Routing\AdminHtmlRouteProvider;
+use Drupal\Core\Entity\Routing\DefaultHtmlRouteProvider;
 use Symfony\Component\Routing\Route;
 
 /**
@@ -17,7 +17,7 @@ use Symfony\Component\Routing\Route;
  * @see Drupal\Core\Entity\Routing\AdminHtmlRouteProvider
  * @see Drupal\Core\Entity\Routing\DefaultHtmlRouteProvider
  */
-class ConnectionHtmlRouteProvider extends AdminHtmlRouteProvider {
+class ConnectionHtmlRouteProvider extends DefaultHtmlRouteProvider {
   /**
    * {@inheritdoc}
    */
@@ -62,8 +62,7 @@ class ConnectionHtmlRouteProvider extends AdminHtmlRouteProvider {
           '_entity_list' => $entity_type_id,
           '_title' => "{$entity_type->getLabel()} list",
         ])
-        ->setRequirement('_permission', 'view Connection entities')
-        ->setOption('_admin_route', TRUE);
+        ->setRequirement('_permission', 'view Connection entities');
 
       return $route;
     }
@@ -83,6 +82,7 @@ class ConnectionHtmlRouteProvider extends AdminHtmlRouteProvider {
       $entity_type_id = $entity_type->id();
       $parameters = [
         $entity_type_id => ['type' => 'entity:' . $entity_type_id],
+        'entity' => ['type' => 'entity:{entity_type}'],
       ];
 
       $route = new Route($entity_type->getLinkTemplate('add-form'));
@@ -97,8 +97,7 @@ class ConnectionHtmlRouteProvider extends AdminHtmlRouteProvider {
       $parameters[$bundle_entity_type_id] = ['type' => 'entity:' . $bundle_entity_type_id];
 
       $route
-        ->setOption('parameters', $parameters)
-        ->setOption('_admin_route', TRUE);
+        ->setOption('parameters', $parameters);
 
       return $route;
     }
@@ -114,14 +113,13 @@ class ConnectionHtmlRouteProvider extends AdminHtmlRouteProvider {
    *   The generated route, if available.
    */
   protected function getAddPageRoute(EntityTypeInterface $entity_type) {
-    $route = new Route("/admin/structure/{$entity_type->id()}/add");
+    $route = new Route("/redhen/connection/add");
     $route
       ->setDefaults([
         '_controller' => 'Drupal\redhen_connection\Controller\ConnectionAddController::add',
         '_title' => "Add {$entity_type->getLabel()}",
       ])
-      ->setRequirement('_entity_create_access', $entity_type->id())
-      ->setOption('_admin_route', TRUE);
+      ->setRequirement('_entity_create_access', $entity_type->id());
 
     return $route;
   }

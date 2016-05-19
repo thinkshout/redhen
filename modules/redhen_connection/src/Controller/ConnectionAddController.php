@@ -68,15 +68,18 @@ class ConnectionAddController extends ControllerBase {
     /**
      * Presents the creation form for redhen_connection entities of given bundle/type.
      *
-     * @param EntityInterface $redhen_connection_type
-     *   The custom bundle to add.
      * @param \Symfony\Component\HttpFoundation\Request $request
      *   The current request object.
+     * @param EntityInterface $redhen_connection_type
+     *   The custom bundle to add.
+     * @param EntityInterface $entity
+     *   The entity for one of the endpoints.
      *
      * @return array
      *   A form array as expected by drupal_render().
      */
-    public function addForm(EntityInterface $redhen_connection_type, Request $request) {
+    public function addForm(Request $request, EntityInterface $redhen_connection_type, EntityInterface $entity) {
+      $a = 1;
       $entity = $this->storage->create(array(
         'type' => $redhen_connection_type->id()
       ));

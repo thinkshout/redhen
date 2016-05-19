@@ -59,7 +59,7 @@ use Drupal\redhen_connection\ConnectionInterface;
  *   },
  *   links = {
  *     "canonical" = "/redhen/connection/{redhen_connection}",
- *     "add-form" = "/redhen/connection/add/{redhen_connection_type}",
+ *     "add-form" = "/redhen/connection/add/{redhen_connection_type}/{entity_type}/{entity}",
  *     "edit-form" = "/redhen/connection/{redhen_connection}/edit",
  *     "delete-form" = "/redhen/connection/{redhen_connection}/delete",
  *     "collection" = "/redhen/connection",
