@@ -112,10 +112,12 @@ class ConnectionType extends ConfigEntityBundleBase implements ConnectionTypeInt
   /**
    * {@inheritdoc}
    */
-  public function getEndpointFields($entity_type) {
+  public function getEndpointFields($entity_type, $bundle = NULL) {
     $fields = array();
     foreach ($this->endpoints as $id => $endpoint) {
-      if ($endpoint['entity_type'] === $entity_type) {
+      if (($endpoint['entity_type'] === $entity_type) &&
+        (!$bundle || in_array($bundle, $endpoint['bundles'])))
+      {
         $fields[] = 'endpoint_' . $id;
       }
     }

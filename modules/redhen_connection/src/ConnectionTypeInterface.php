@@ -54,11 +54,13 @@ interface ConnectionTypeInterface extends ConfigEntityInterface {
    * Get all endpoint fields configured for $entity_type.
    *
    * @param string $entity_type
+   * @param string $bundle
+   *   (optional) Optional bundle to filter endpoints by.
    *
    * @return array
    *   The field names that reference $entity_type.
    */
-  public function getEndpointFields($entity_type);
+  public function getEndpointFields($entity_type, $bundle);
 
   /**
    * Gets the connection type's endpoint bundles.

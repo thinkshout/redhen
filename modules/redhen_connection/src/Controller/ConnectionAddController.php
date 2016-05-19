@@ -14,6 +14,7 @@ use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\Core\Url;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 
 /**
@@ -79,10 +80,12 @@ class ConnectionAddController extends ControllerBase {
      *   A form array as expected by drupal_render().
      */
     public function addForm(Request $request, EntityInterface $redhen_connection_type, EntityInterface $entity) {
-      $endpoint_type = $entity->getEntityTypeId();
-      $endpoint_fields = $redhen_connection_type->getEndpointFields($endpoint_type);
+      $endpoint_fields = $redhen_connection_type->getEndpointFields($entity->getEntityTypeId(), $entity->getType());
+
       if (empty($endpoint_fields)) {
-        // @TODO return 404 or validate the parameter elsewhere.
+        // No valid endpoint fields found for the provided connectiont type and
+        // entity.
+        throw new NotFoundHttpException();
       }
 
       $connection_entity = $this->storage->create(array(
