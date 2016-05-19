@@ -79,11 +79,23 @@ class ConnectionAddController extends ControllerBase {
      *   A form array as expected by drupal_render().
      */
     public function addForm(Request $request, EntityInterface $redhen_connection_type, EntityInterface $entity) {
-      $a = 1;
-      $entity = $this->storage->create(array(
+      $endpoint_type = $entity->getEntityTypeId();
+      $endpoint_fields = $redhen_connection_type->getEndpointFields($endpoint_type);
+      if (empty($endpoint_fields)) {
+        // @TODO return 404 or validate the parameter elsewhere.
+      }
+
+      $connection_entity = $this->storage->create(array(
         'type' => $redhen_connection_type->id()
       ));
-      return $this->entityFormBuilder()->getForm($entity);
+
+      // Grab the first field if we have more than one.
+      $field = reset($endpoint_fields);
+
+      // Set the value of the endpoint.
+      $connection_entity->set($field, $entity);
+
+      return $this->entityFormBuilder()->getForm($connection_entity, 'default', array('fixed_endpoint' => $field));
     }
 
     /**
@@ -91,13 +103,15 @@ class ConnectionAddController extends ControllerBase {
      *
      * @param EntityInterface $redhen_connection_type
      *   The custom bundle/type being added.
+     * @param EntityInterface $entity
+     *   The provided endpoint.
      *
      * @return string
      *   The page title.
      */
-    public function getAddFormTitle(EntityInterface $redhen_connection_type) {
-      return t('Create connection of type @label',
-        array('@label' => $redhen_connection_type->label())
+    public function getAddFormTitle(EntityInterface $redhen_connection_type, EntityInterface $entity) {
+      return t('Create @type connection for @entity',
+        array('@type' => $redhen_connection_type->label(), '@entity' => $entity->label())
       );
     }
 

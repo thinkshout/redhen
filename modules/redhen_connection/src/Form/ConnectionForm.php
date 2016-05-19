@@ -20,9 +20,16 @@ class ConnectionForm extends ContentEntityForm {
    * {@inheritdoc}
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
-    /* @var $entity \Drupal\redhen_connection\Entity\Connection */
     $form = parent::buildForm($form, $form_state);
 
+    // If we have a fixed endpoint, we replace the input widget with the
+    // rendered field.
+    if ($fixed_endpoint = $form_state->get('fixed_endpoint')) {
+      /* @var $connection \Drupal\redhen_connection\Entity\Connection */
+      $connection = $this->getEntity();
+      // @ TODO look into configuration of this display.
+      $form[$fixed_endpoint] = $connection->{$fixed_endpoint}->view();
+    }
     return $form;
   }
 
