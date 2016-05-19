@@ -214,7 +214,7 @@ function redhen_contact_user_registration_validate($form, &$form_state) {
     $form_state->setError($form['account']['mail'], 'A contact with that email address is already linked to a Drupal user.');
   }
 
-  // Validated submitted field values and update Contact stored in form_state
+  // Validate submitted field values and update Contact stored in form_state
   // to be our chosen Contact (i.e. pre-existing Contact with matching email
   // address or new Contact) with its field values updated from the values
   // supplied in the form.
@@ -251,23 +251,26 @@ function redhen_contact_user_registration_submit($form, &$form_state) {
   $contact->setEmail($form_state->getValue('mail'));
 
   // Save Contact associated with the user being created.
-  $new_contact = $contact->save();
+  $contact->save();
 
-//  $message = t('User has been linked to the contact %name.',
-//    array(
-//      '%name' => $contact->label(),
-//    )
-//  );
+  // Add message that new User was linked to a Contact.
+  $message = t('User has been linked to the contact %name.',
+    array(
+      '%name' => $contact->label(),
+    )
+  );
 //  if (isset($message_update)) {
 //    $message .= ' ' . $message_update;
 //  }
-//  // Update form_state contact for later processing.
-//  $form_state['redhen_contact'] = $contact;
-//
-//  // Only display this message to CRM users to avoid confusion.
-//  if (user_access('access redhen contacts')) {
-//    drupal_set_message($message);
-//  }
+  
+  // Update form_state Contact for later processing.
+  $form_state->set('redhen_contact', $contact);
+
+  // Only display this message to CRM admins to avoid confusion.
+  $user = Drupal::currentUser();
+  if ($user->hasPermission('administer contact entities')) {
+    drupal_set_message($message);
+  }
 }
 
 /**
