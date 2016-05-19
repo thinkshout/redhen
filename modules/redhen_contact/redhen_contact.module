@@ -184,7 +184,7 @@ function _redhen_contact_user_embed_contact_form(&$form, &$form_state, Contact $
 }
 
 /**
- * Registration form RedHen contact validation handler.
+ * User registration form RedHen Contact validation handler.
  */
 function redhen_contact_user_registration_validate($form, &$form_state) {
 
@@ -222,7 +222,7 @@ function redhen_contact_user_registration_validate($form, &$form_state) {
 }
 
 /**
- * Registration form RedHen Contact submit handler.
+ * User registration form RedHen Contact submit handler.
  *
  * Links a Contact to a Drupal user on user registration.
  * Contact will a pre-existing Contact if Redhen Contact admin setting to link
@@ -259,10 +259,7 @@ function redhen_contact_user_registration_submit($form, &$form_state) {
       '%name' => $contact->label(),
     )
   );
-//  if (isset($message_update)) {
-//    $message .= ' ' . $message_update;
-//  }
-  
+
   // Update form_state Contact for later processing.
   $form_state->set('redhen_contact', $contact);
 
