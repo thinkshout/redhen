@@ -499,8 +499,19 @@ function redhen_contact_form_field_has_value($definition, $value) {
         $columns = $definition->getFieldStorageDefinition()->getColumns();
         reset($columns);
         $column_name = key($columns);
-        if (array_key_exists($column_name, $value[0]) && empty($value[0][$column_name])) {
-          return FALSE;
+        // Some field types store their values in $value[0].
+        // Example: string, entity_reference, and telephone type fields.
+        if (isset($value[0])) {
+          if (array_key_exists($column_name, $value[0]) && empty($value[0][$column_name])) {
+            return FALSE;
+          }
+        }
+        // Other field types store their values in $value[$column_name].
+        // Example: boolean and list_string type fields.
+        else {
+          if (array_key_exists($column_name, $value) && empty($value[$column_name])) {
+            return FALSE;
+          }
         }
         break;
     }
