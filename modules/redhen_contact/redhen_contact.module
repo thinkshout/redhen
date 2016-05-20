@@ -184,6 +184,12 @@ function _redhen_contact_user_embed_contact_form(&$form, &$form_state, Contact $
     ->get('form_display_' . $contact->getType())
     // Add fields to the placeholder form element created above.
     ->buildForm($contact, $form['entity_' . $contact->getType()], $form_state);
+
+  // Check whether we should hide the Contact => User link field.
+  if (!\Drupal::currentUser()->hasPermission('link contact entities to users')) {
+    $form['entity_' . $contact->getType()]['uid']['#access'] = FALSE;
+  }
+
 }
 
 /**
