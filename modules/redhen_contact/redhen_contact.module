@@ -166,6 +166,7 @@ function _redhen_contact_user_embed_contact_form(&$form, &$form_state, Contact $
   // Place new Contact object in form_state - we use this if an existing Contact
   // is not found to link the user being created to.
   $form_state->set('redhen_contact', $contact);
+
   // Create form element to hold Contact fields.
   $form['entity_' . $contact->getType()] = [
     '#type' => 'details',
@@ -174,9 +175,11 @@ function _redhen_contact_user_embed_contact_form(&$form, &$form_state, Contact $
     '#parents' => ['form_display_' . $contact->getType()],
     '#open' => TRUE,
   ];
-  // Add EntityFormDisplay object used to build an entity form.
+
+  // Add EntityFormDisplay object used to build an entity's form.
   $form_state->set('form_display_' . $contact->getType(), EntityFormDisplay::collectRenderDisplay($contact, 'default'));
-  // Build the entityform into the placeholder form element created above.
+
+  // Build the entity's form into the placeholder form element created above.
   $form_state
     ->get('form_display_' . $contact->getType())
     // Add fields to the placeholder form element created above.
