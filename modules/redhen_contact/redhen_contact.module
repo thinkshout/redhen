@@ -118,7 +118,7 @@ function redhen_contact_form_user_form_alter(&$form, \Drupal\Core\Form\FormState
   $user = $form_state->getFormObject()->getEntity();
   $contact = Contact::loadByUser($user);
   // If we find a Contact linked to the current User, alter the form in
-  // accordance with our Redhen Contact admin settings.
+  // accordance with our RedHen Contact admin settings.
   if ($contact) {
 
     // Get Redhen Contact settings.
@@ -185,10 +185,8 @@ function _redhen_contact_user_embed_contact_form(&$form, &$form_state, Contact $
     // Add fields to the placeholder form element created above.
     ->buildForm($contact, $form['entity_' . $contact->getType()], $form_state);
 
-  // Check whether we should hide the Contact => User link field.
-  if (!\Drupal::currentUser()->hasPermission('link contact entities to users')) {
-    $form['entity_' . $contact->getType()]['uid']['#access'] = FALSE;
-  }
+  // Hide user linkage field when embedded.
+  $form['entity_' . $contact->getType()]['uid']['#access'] = FALSE;
 
 }
 
