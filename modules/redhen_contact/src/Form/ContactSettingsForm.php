@@ -105,7 +105,7 @@ class ContactSettingsForm extends ConfigFormBase {
       ),
       'alter_username' => array(
         '#type' => 'checkbox',
-        '#title' => t('Display username as contact label'),
+        '#title' => t('Use contact label as username'),
         '#description' => t("If checked, RedHen will alter the display of the Drupal username to match a linked contact's label."),
         '#default_value' => $config->get('alter_username'),
       ),
