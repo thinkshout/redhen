@@ -44,16 +44,18 @@ class ConnectionAddController extends ControllerBase {
      *
      * @param \Symfony\Component\HttpFoundation\Request $request
      *   The current request object.
+     * @param EntityInterface $entity
+     *   The entity for one of the endpoints.
      *
      * @return array
      *   A render array for a list of the redhen_connection bundles/types that can be added or
-     *   if there is only one type/bunlde defined for the site, the function returns the add page for that bundle/type.
+     *   if there is only one type/bundle defined for the site, the function returns the add page for that bundle/type.
      */
-    public function add(Request $request) {
+    public function add(Request $request, EntityInterface $entity) {
       $types = $this->typeStorage->loadMultiple();
       if ($types && count($types) == 1) {
         $type = reset($types);
-        return $this->addForm($type, $request);
+        return $this->addForm($request, $type, $entity);
       }
       if (count($types) === 0) {
         return array(
@@ -83,7 +85,7 @@ class ConnectionAddController extends ControllerBase {
       $endpoint_fields = $redhen_connection_type->getEndpointFields($entity->getEntityTypeId(), $entity->getType());
 
       if (empty($endpoint_fields)) {
-        // No valid endpoint fields found for the provided connectiont type and
+        // No valid endpoint fields found for the provided connection type and
         // entity.
         throw new NotFoundHttpException();
       }

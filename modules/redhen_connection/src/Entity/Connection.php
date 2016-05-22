@@ -59,7 +59,7 @@ use Drupal\redhen_connection\ConnectionInterface;
  *   },
  *   links = {
  *     "canonical" = "/redhen/connection/{redhen_connection}",
- *     "add-form" = "/redhen/connection/add/{redhen_connection_type}/{entity_type}/{entity}",
+ *     "add-form" = "/redhen/{redhen_type}/{entity}/connection/add/{redhen_connection_type}",
  *     "edit-form" = "/redhen/connection/{redhen_connection}/edit",
  *     "delete-form" = "/redhen/connection/{redhen_connection}/delete",
  *     "collection" = "/redhen/connection",
@@ -147,6 +147,19 @@ class Connection extends ContentEntityBase implements ConnectionInterface {
         ->setDisplayConfigurable('form', TRUE)
         ->setDisplayConfigurable('view', TRUE);
     }
+
+    $fields['role'] = BaseFieldDefinition::create('entity_reference')
+      ->setLabel(t('Role'))
+      ->setRequired(TRUE)
+      ->setRevisionable(TRUE)
+      ->setSetting('target_type', 'redhen_connection_role')
+      ->setDisplayOptions('form', [
+        'type' => 'options_select',
+        'weight' => -1,
+      ])
+      ->setDisplayConfigurable('form', TRUE)
+      ->setDisplayConfigurable('view', TRUE);
+
 
     $fields['status'] = BaseFieldDefinition::create('boolean')
       ->setLabel(t('Active'))

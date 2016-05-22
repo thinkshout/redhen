@@ -1,0 +1,5 @@
+services:
+  redhen_type:
+    class: Drupal\redhen\ParamConverter\RedhenParamConverter
+    tags:
+      - { name: paramconverter }

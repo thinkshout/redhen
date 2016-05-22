@@ -82,7 +82,8 @@ class ConnectionHtmlRouteProvider extends DefaultHtmlRouteProvider {
       $entity_type_id = $entity_type->id();
       $parameters = [
         $entity_type_id => ['type' => 'entity:' . $entity_type_id],
-        'entity' => ['type' => 'entity:{entity_type}'],
+        'redhen_type' => ['type' => 'redhen_type'],
+        'entity' => ['type' => 'entity:{redhen_type}'],
       ];
 
       $route = new Route($entity_type->getLinkTemplate('add-form'));
