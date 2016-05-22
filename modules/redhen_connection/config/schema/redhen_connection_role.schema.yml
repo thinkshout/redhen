@@ -1,0 +1,12 @@
+redhen_connection.redhen_connection_role.*:
+  type: config_entity
+  label: 'Connection Role config'
+  mapping:
+    id:
+      type: string
+      label: 'ID'
+    label:
+      type: label
+      label: 'Label'
+    uuid:
+      type: string
