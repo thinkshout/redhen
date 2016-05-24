@@ -140,8 +140,6 @@ function redhen_contact_form_user_form_alter(&$form, \Drupal\Core\Form\FormState
         $form['account']['mail']['#access'] = FALSE;
       }
       _redhen_contact_user_embed_contact_form($form, $form_state, $contact);
-      // Add a validation handler for validating the Contact form data.
-      $form['#validate'][] = 'redhen_contact_user_update_validate';
       // Add a submit handler for handling the Contact form data.
       $form['actions']['submit']['#submit'][] = 'redhen_contact_user_update_submit';
     }
@@ -174,6 +172,7 @@ function _redhen_contact_user_embed_contact_form(&$form, &$form_state, Contact $
     '#tree' => TRUE,
     '#parents' => ['form_display_' . $contact->getType()],
     '#open' => TRUE,
+    '#element_validate' => 'redhen_contact_user_update_validate'
   ];
 
   // Add EntityFormDisplay object used to build an entity's form.
