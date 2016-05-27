@@ -9,3 +9,5 @@ dependencies:
   - entity
   - field
   - views
+  - redhen_contact
+  - redhen_org
