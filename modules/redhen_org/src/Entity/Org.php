@@ -94,7 +94,7 @@ class Org extends ContentEntityBase implements OrgInterface {
     $this->set('name', $name);
     return $this;
   }
-  
+
   /**
    * {@inheritdoc}
    */
@@ -128,7 +128,7 @@ class Org extends ContentEntityBase implements OrgInterface {
    * {@inheritdoc}
    */
   public function setActive($active) {
-    $this->set('status', $active ? REDHEN_ORG_INACTIVE : REDHEN_ORG_ACTIVE);
+    $this->set('status', $active ? REDHEN_ORG_ACTIVE : REDHEN_ORG_INACTIVE);
     return $this;
   }
 
