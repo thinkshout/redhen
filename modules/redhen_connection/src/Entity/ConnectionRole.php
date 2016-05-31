@@ -30,11 +30,11 @@ use Drupal\redhen_connection\ConnectionRoleInterface;
  *     "uuid" = "uuid"
  *   },
  *   links = {
- *     "canonical" = "/admin/structure/redhen/connection-role/{redhen_connection_role}",
- *     "add-form" = "/admin/structure/redhen/connection-role/add",
- *     "edit-form" = "/admin/structure/redhen/connection-role/{redhen_connection_role}/edit",
- *     "delete-form" = "/admin/structure/redhen/connection-role/{redhen_connection_role}/delete",
- *     "collection" = "/admin/structure/redhen/connection-role"
+ *     "canonical" = "/admin/structure/redhen/connection_type/{redhen_connection_type}/role/{redhen_connection_role}",
+ *     "add-form" = "/admin/structure/redhen/connection_type/{redhen_connection_type}/role/add",
+ *     "edit-form" = "/admin/structure/redhen/connection_type/{redhen_connection_type}/role/{redhen_connection_role}/edit",
+ *     "delete-form" = "/admin/structure/redhen/connection_type/{redhen_connection_type}/role/{redhen_connection_role}/delete",
+ *     "collection" = "/admin/structure/redhen/connection_type/{redhen_connection_type}/role"
  *   }
  * )
  */
@@ -52,5 +52,12 @@ class ConnectionRole extends ConfigEntityBase implements ConnectionRoleInterface
    * @var string
    */
   protected $label;
+
+  /**
+   * The Connection type this role is associated with.
+   *
+   * @var string
+   */
+  protected $connection_type;
 
 }
