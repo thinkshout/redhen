@@ -13,11 +13,3 @@ entity.redhen_connection_type.collection:
   description: 'List Connection types.'
   parent: redhen.structure
   weight: 99
-# Connection Role menu items definition
-entity.redhen_connection_role.collection:
-  title: 'Connection roles'
-  route_name: entity.redhen_connection_role.collection
-  description: 'List connection roles.'
-  parent: redhen.structure
-  weight: 100
-
