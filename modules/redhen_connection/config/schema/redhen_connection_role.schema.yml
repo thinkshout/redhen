@@ -8,5 +8,8 @@ redhen_connection.redhen_connection_role.*:
     label:
       type: label
       label: 'Label'
+    connection_type:
+      type: string
+      label: 'Connection Type'
     uuid:
       type: string
