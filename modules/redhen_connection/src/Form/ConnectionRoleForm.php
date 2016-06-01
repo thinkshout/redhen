@@ -4,6 +4,7 @@ namespace Drupal\redhen_connection\Form;
 
 use Drupal\Core\Entity\EntityForm;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\redhen_connection\ConnectionTypeInterface;
 
 /**
  * Class ConnectionRoleForm.
@@ -11,6 +12,16 @@ use Drupal\Core\Form\FormStateInterface;
  * @package Drupal\redhen_connection\Form
  */
 class ConnectionRoleForm extends EntityForm {
+
+  /**
+   * {@inheritdoc}
+   */
+//  protected function prepareEntity() {
+//    parent::prepareEntity();
+//
+//    $this->entity->connection_type = '';
+//  }
+
   /**
    * {@inheritdoc}
    */
@@ -36,8 +47,6 @@ class ConnectionRoleForm extends EntityForm {
       '#disabled' => !$redhen_connection_role->isNew(),
     );
 
-    /* You will need additional form elements for your custom properties. */
-
     return $form;
   }
 
@@ -46,6 +55,10 @@ class ConnectionRoleForm extends EntityForm {
    */
   public function save(array $form, FormStateInterface $form_state) {
     $redhen_connection_role = $this->entity;
+    // Get connection type entity from the route.
+    $connection_type = $this->getEntityFromRouteMatch($this->getRouteMatch(), 'redhen_connection_type');
+    // Set connection type property based on the route param.
+    $redhen_connection_role->set('connection_type', $connection_type->id());
     $status = $redhen_connection_role->save();
 
     switch ($status) {
