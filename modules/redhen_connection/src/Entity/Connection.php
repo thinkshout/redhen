@@ -153,6 +153,7 @@ class Connection extends ContentEntityBase implements ConnectionInterface {
       ->setRequired(TRUE)
       ->setRevisionable(TRUE)
       ->setSetting('target_type', 'redhen_connection_role')
+      ->setSetting('handler', 'default')
       ->setDisplayOptions('form', [
         'type' => 'options_select',
         'weight' => -1,
