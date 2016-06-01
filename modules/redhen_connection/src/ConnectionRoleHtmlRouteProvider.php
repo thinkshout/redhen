@@ -53,6 +53,9 @@ class ConnectionRoleHtmlRouteProvider extends AdminHtmlRouteProvider {
           '_title' => (string) $entity_type->getLabel(),
         ])
         ->setRequirement('_permission', $entity_type->getAdminPermission())
+        ->setOption('parameters', [
+          'redhen_connection_type' => ['type' => 'entity:redhen_connection_type'],
+        ])
         ->setOption('_admin_route', TRUE);
 
       return $route;
@@ -85,6 +88,7 @@ class ConnectionRoleHtmlRouteProvider extends AdminHtmlRouteProvider {
         ->setRequirement('_entity_create_access', $entity_type_id)
         ->setOption('parameters', [
           $entity_type_id => ['type' => 'entity:' . $entity_type_id],
+          'redhen_connection_type' => ['type' => 'entity:redhen_connection_type'],
         ])
         ->setOption('_admin_route', TRUE);
 

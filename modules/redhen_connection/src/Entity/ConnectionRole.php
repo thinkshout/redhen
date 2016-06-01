@@ -60,4 +60,23 @@ class ConnectionRole extends ConfigEntityBase implements ConnectionRoleInterface
    */
   protected $connection_type;
 
+  /**
+   * Gets an array of placeholders for this entity.
+   *
+   * @todo Figure out what caching needs to be done here.
+   *
+   * @param string $rel
+   *   The link relationship type, for example: canonical or edit-form.
+   *
+   * @return array
+   *   An array of URI placeholders.
+   */
+  protected function urlRouteParameters($rel) {
+    $uri_route_parameters = parent::urlRouteParameters($rel);
+
+    $uri_route_parameters['redhen_connection_type'] = $this->get('connection_type');
+
+    return $uri_route_parameters;
+  }
+
 }
