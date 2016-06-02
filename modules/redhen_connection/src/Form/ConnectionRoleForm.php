@@ -17,15 +17,6 @@ class ConnectionRoleForm extends EntityForm {
   /**
    * {@inheritdoc}
    */
-//  protected function prepareEntity() {
-//    parent::prepareEntity();
-//
-//    $this->entity->connection_type = '';
-//  }
-
-  /**
-   * {@inheritdoc}
-   */
   public function form(array $form, FormStateInterface $form_state) {
     $form = parent::form($form, $form_state);
 
@@ -64,27 +55,38 @@ class ConnectionRoleForm extends EntityForm {
         '#type' => 'fieldset',
         '#title' => $this->t('Permissions'),
       );
-      $operations = ['view', 'view label', 'update', 'delete', 'create'];
-      // Connection permissions.
+
+      // Standard permissions.
+      $operations = ['view' => $this->t('View'), 'view label' => $this->t('View label'), 'update' => $this->t('Update'), 'delete' => $this->t('Delete'), 'create' => $this->t('Create')];
+
+      // User's connection plus other connections.
+      // @todo consider using this for connected connections and extend "own connection" to include user's own connections.
       $form['permissions']['connection'] = array(
         '#type' => 'checkboxes',
         '#options' => $operations,
         '#title' => $this->t('Connection'),
+        '#default_value' => $redhen_connection_role->get('permissions')['connection'],
         '#description' => $this->t('Applies to both the current user\'s connection and secondary connections. Sitewide permissions will override this setting.'),
       );
+
+      // The non-contact endpoint entity type, if there is one.
+      $entity_type = array_diff($endpoints, ['redhen_contact']);
+
       // Other endpoint permissions.
-      // @todo hard coded, but shouldn't be.
-      $form['permissions']['redhen_org'] = array(
+      $form['permissions']['entity'] = array(
         '#type' => 'checkboxes',
         '#options' => $operations,
         '#title' => $this->t('Entity'),
+        '#default_value' => $redhen_connection_role->get('permissions')['entity'],
         '#description' => $this->t('Sitewide permissions will override this setting.'),
+        '#access' => !empty($entity_type),
       );
       // Connected Contact permissions.
-      $form['permissions']['redhen_contact'] = array(
+      $form['permissions']['contact'] = array(
         '#type' => 'checkboxes',
         '#options' => $operations,
         '#title' => $this->t('Secondary Contact'),
+        '#default_value' => $redhen_connection_role->get('permissions')['contact'],
         '#description' => $this->t('A contact connected to the same entity via connection of the same type. Sitewide permissions will override this setting.'),
       );
 
@@ -102,7 +104,16 @@ class ConnectionRoleForm extends EntityForm {
     // Get connection type entity from the route.
     $connection_type = $this->getEntityFromRouteMatch($this->getRouteMatch(), 'redhen_connection_type');
     // Set connection type property based on the route param.
-    $redhen_connection_role->set('connection_type', $connection_type->id());
+    $redhen_connection_role->set('connection_type', $connection_type);
+
+    $permissions = [
+      'connection' => array_filter(array_values($form_state->getValue('connection'))),
+      'entity' => array_filter(array_values($form_state->getValue('entity'))),
+      'contact' => array_filter(array_values($form_state->getValue('contact'))),
+    ];
+
+    $redhen_connection_role->set('permissions', $permissions);
+
     $status = $redhen_connection_role->save();
 
     switch ($status) {

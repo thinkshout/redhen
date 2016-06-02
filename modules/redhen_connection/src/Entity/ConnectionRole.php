@@ -61,6 +61,13 @@ class ConnectionRole extends ConfigEntityBase implements ConnectionRoleInterface
   protected $connection_type;
 
   /**
+   * The permissions defined for this role.
+   *
+   * @var array
+   */
+  protected $permissions;
+
+  /**
    * Gets an array of placeholders for this entity.
    *
    * @todo Figure out what caching needs to be done here.
