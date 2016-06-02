@@ -54,7 +54,7 @@ function redhen_connection_theme() {
   ];
   $theme['redhen_connection_content_add_list'] = [
     'render element' => 'content',
-    'variables' => ['content' => NULL],
+    'variables' => ['content' => NULL, 'entity' => NULL],
     'file' => 'redhen_connection.page.inc',
   ];
   return $theme;

@@ -65,7 +65,7 @@ class ConnectionAddController extends ControllerBase {
           ]),
         );
       }
-      return array('#theme' => 'redhen_connection_content_add_list', '#content' => $types);
+      return array('#theme' => 'redhen_connection_content_add_list', '#content' => $types, '#entity' => $entity);
     }
 
     /**
