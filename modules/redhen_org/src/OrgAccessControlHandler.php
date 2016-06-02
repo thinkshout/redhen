@@ -9,8 +9,11 @@ namespace Drupal\redhen_org;
 
 use Drupal\Core\Entity\EntityAccessControlHandler;
 use Drupal\Core\Entity\EntityInterface;
+use Drupal\Core\Entity\ContentEntityTypeInterface;
 use Drupal\Core\Session\AccountInterface;
 use Drupal\Core\Access\AccessResult;
+use Drupal\redhen_connection\ConnectionServiceInterface;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Access controller for the Org entity.
@@ -18,6 +21,38 @@ use Drupal\Core\Access\AccessResult;
  * @see \Drupal\redhen_org\Entity\Org.
  */
 class OrgAccessControlHandler extends EntityAccessControlHandler {
+
+
+  /**
+   * The Connection service.
+   *
+   * @var \Drupal\redhen_connection\ConnectionServiceInterface
+   */
+  protected $connectionService;
+
+  /**
+   * Constructs a OrgAccessControlHandler object.
+   *
+   * @param \Drupal\Core\Entity\ContentEntityTypeInterface $entity_type
+   *   The entity type definition.
+   * @param \Drupal\redhen_connection\ConnectionServiceInterface $connectionService
+   *   The node grant storage.
+   */
+  public function __construct(ContentEntityTypeInterface $entity_type, ConnectionServiceInterface $connectionService) {
+    parent::__construct($entity_type);
+    $this->connectionService = $connectionService;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function createInstance(ContainerInterface $container, ContentEntityTypeInterface $entity_type) {
+    return new static(
+      $entity_type,
+      $container->get('redhen_connection')
+    );
+  }
+
   /**
    * {@inheritdoc}
    */
