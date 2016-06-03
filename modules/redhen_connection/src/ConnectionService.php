@@ -7,8 +7,10 @@ use Drupal\Core\Access\AccessResultNeutral;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Entity\Query\QueryFactory;
+use Drupal\Core\Entity\Query\QueryInterface;
 use Drupal\Core\Session\AccountInterface;
 use Drupal\redhen_connection\ConnectionTypeInterface;
+use Drupal\redhen_connection\Entity\Connection;
 
 /**
  * Provides an interface for getting connections between entities.
@@ -61,7 +63,27 @@ class ConnectionService implements ConnectionServiceInterface {
    * {@inheritdoc}
    */
   public function getConnections(EntityInterface $entity, $connection_type = NULL) {
+    /** @var QueryInterface $query */
+    $query = \Drupal::entityQuery('redhen_connection');
 
+    $endpoints = $query->orConditionGroup()
+      ->condition('endpoint_1', $entity->id())
+      ->condition('endpoint_2', $entity->id());
+
+    $query
+      ->condition('type', $connection_type)
+      ->condition('status', 1)
+      ->condition($endpoints);
+
+    $results = $query->execute();
+
+    $connections = array();
+    if (!empty($results))
+    {
+      $connections = Connection::loadMultiple(array_keys($results));
+    }
+
+    return $connections;
   }
 
   /**
