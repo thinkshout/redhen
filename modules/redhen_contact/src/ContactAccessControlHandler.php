@@ -45,7 +45,20 @@ class ContactAccessControlHandler extends EntityAccessControlHandler {
    * {@inheritdoc}
    */
   protected function checkCreateAccess(AccountInterface $account, array $context, $entity_bundle = NULL) {
-    return AccessResult::allowedIfHasPermission($account, 'add contact entities');
+
+    // If there is only one redhen_contact bundle, set $entity_bundle to it
+    // since ContactAddController::add returns the add form for the solitary
+    // bundle instead of a bundle select form if there is only one.
+    if (!$entity_bundle) {
+      $types = \Drupal::entityTypeManager()->getStorage('redhen_contact_type')->loadMultiple();
+      if ($types && count($types) == 1) {
+        $entity_bundle = array_keys($types)[0];
+      }
+    }
+    return AccessResult::allowedIfHasPermissions($account, [
+      'add contact entities',
+      'add ' . $entity_bundle . ' contact',
+    ], 'OR');
   }
 
 }
