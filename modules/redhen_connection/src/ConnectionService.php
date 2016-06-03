@@ -62,7 +62,7 @@ class ConnectionService implements ConnectionServiceInterface {
   /**
    * {@inheritdoc}
    */
-  public function getConnections(EntityInterface $entity, $connection_type = NULL) {
+  public function getConnections(EntityInterface $entity, $connection_type = NULL, $sort = array()) {
     /** @var QueryInterface $query */
     $query = \Drupal::entityQuery('redhen_connection');
 
@@ -74,6 +74,10 @@ class ConnectionService implements ConnectionServiceInterface {
       ->condition('type', $connection_type)
       ->condition('status', 1)
       ->condition($endpoints);
+
+    foreach ($sort as $field => $direction) {
+      $query->sort($field, $direction);
+    }
 
     $results = $query->execute();
 

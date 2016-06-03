@@ -29,11 +29,14 @@ interface ConnectionServiceInterface {
    *   The entity we're querying against.
    * @param string $connection_type
    *   (optional) Limit returned connections to this type.
+   * @param array $sort
+   *   (optional) Associative array of field to sort by and direction:
+   *   e.g. ['field_name'] => 'DESC'
    *
    * @return array
    *   The Connection entities connected to this entity.
    */
-  public function getConnections(EntityInterface $entity, $connection_type = NULL);
+  public function getConnections(EntityInterface $entity, $connection_type = NULL, $sort = array());
 
   /**
    * Returns the other entities that are connected to this entity.
