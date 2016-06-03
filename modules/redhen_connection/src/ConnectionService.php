@@ -53,6 +53,8 @@ class ConnectionService implements ConnectionServiceInterface {
     $query->condition('endpoints.1.entity_type', $entity_type);
     $query->condition('endpoints.2.entity_type', $entity_type);
     $results = $query->execute();
+
+    return (!empty($results)) ? array_keys($results) : array();
   }
 
   /**
