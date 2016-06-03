@@ -71,9 +71,12 @@ class ConnectionService implements ConnectionServiceInterface {
       ->condition('endpoint_2', $entity->id());
 
     $query
-      ->condition('type', $connection_type)
       ->condition('status', 1)
       ->condition($endpoints);
+
+    if ($connection_type != NULL) {
+      $query->condition('type', $connection_type);
+    }
 
     foreach ($sort as $field => $direction) {
       $query->sort($field, $direction);
