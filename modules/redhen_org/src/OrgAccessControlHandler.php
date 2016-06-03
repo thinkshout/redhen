@@ -9,18 +9,19 @@ namespace Drupal\redhen_org;
 
 use Drupal\Core\Entity\EntityAccessControlHandler;
 use Drupal\Core\Entity\EntityInterface;
-use Drupal\Core\Entity\ContentEntityTypeInterface;
+use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Session\AccountInterface;
 use Drupal\Core\Access\AccessResult;
 use Drupal\redhen_connection\ConnectionServiceInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Drupal\Core\Entity\EntityHandlerInterface;
 
 /**
  * Access controller for the Org entity.
  *
  * @see \Drupal\redhen_org\Entity\Org.
  */
-class OrgAccessControlHandler extends EntityAccessControlHandler {
+class OrgAccessControlHandler extends EntityAccessControlHandler implements EntityHandlerInterface {
 
 
   /**
@@ -28,28 +29,28 @@ class OrgAccessControlHandler extends EntityAccessControlHandler {
    *
    * @var \Drupal\redhen_connection\ConnectionServiceInterface
    */
-  protected $connectionService;
+  protected $connections;
 
   /**
    * Constructs a OrgAccessControlHandler object.
    *
-   * @param \Drupal\Core\Entity\ContentEntityTypeInterface $entity_type
+   * @param \Drupal\Core\Entity\EntityTypeInterface $entity_type
    *   The entity type definition.
-   * @param \Drupal\redhen_connection\ConnectionServiceInterface $connectionService
+   * @param \Drupal\redhen_connection\ConnectionServiceInterface $connections
    *   The node grant storage.
    */
-  public function __construct(ContentEntityTypeInterface $entity_type, ConnectionServiceInterface $connectionService) {
+  public function __construct(EntityTypeInterface $entity_type, ConnectionServiceInterface $connections) {
     parent::__construct($entity_type);
-    $this->connectionService = $connectionService;
+    $this->connections = $connections;
   }
 
   /**
    * {@inheritdoc}
    */
-  public static function createInstance(ContainerInterface $container, ContentEntityTypeInterface $entity_type) {
+  public static function createInstance(ContainerInterface $container, EntityTypeInterface $entity_type) {
     return new static(
       $entity_type,
-      $container->get('redhen_connection')
+      $container->get('redhen_connection.connections')
     );
   }
 
