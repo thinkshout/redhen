@@ -56,11 +56,8 @@ class OrgPermissions {
       "edit $type_id org" => [
         'title' => $this->t('%type: Edit orgs', $type_params),
       ],
-      "delete own $type_id org" => [
-        'title' => $this->t('%type: Delete own org', $type_params),
-      ],
-      "delete any $type_id org" => [
-        'title' => $this->t('%type: Delete any org', $type_params),
+      "delete $type_id org" => [
+        'title' => $this->t('%type: Delete orgs', $type_params),
       ],
     ];
   }
