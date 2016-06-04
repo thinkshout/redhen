@@ -32,11 +32,15 @@ interface ConnectionServiceInterface {
    * @param array $sort
    *   (optional) Associative array of field to sort by and direction:
    *   e.g. ['field_name'] => 'DESC'
+   * @param int $offset
+   *   The number of records to offset results by.
+   * @param int $limit
+   *   The number of records to limit results to.
    *
    * @return array
    *   The Connection entities connected to this entity.
    */
-  public function getConnections(EntityInterface $entity, $connection_type = NULL, $sort = array());
+  public function getConnections(EntityInterface $entity, $connection_type = NULL, $sort = array(), $offset = 0, $limit = 0);
 
   /**
    * Returns the number of connections to this entity.
