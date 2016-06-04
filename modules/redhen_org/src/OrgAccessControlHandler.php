@@ -49,10 +49,24 @@ class OrgAccessControlHandler extends EntityAccessControlHandler {
         return $view_access;
 
       case 'update':
-        return AccessResult::allowedIfHasPermission($account, 'edit org entities');
+        // Check admin and bundle-specific edit permissions to determine
+        // edit access.
+        $edit_access = AccessResult::allowedIfHasPermissions($account, [
+          'edit org entities',
+          'edit any ' . $entity_bundle . ' org',
+        ], 'OR');
+
+        return $edit_access;
 
       case 'delete':
-        return AccessResult::allowedIfHasPermission($account, 'delete org entities');
+        // Check admin and bundle-specific delete permissions to determine
+        // delete access.
+        $delete_access = AccessResult::allowedIfHasPermissions($account, [
+          'delete org entities',
+          'delete any ' . $entity_bundle . ' org',
+        ], 'OR');
+
+        return $delete_access;
     }
 
     // Unknown operation, no opinion.
