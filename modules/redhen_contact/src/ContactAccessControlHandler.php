@@ -23,12 +23,42 @@ class ContactAccessControlHandler extends EntityAccessControlHandler {
    */
   protected function checkAccess(EntityInterface $entity, $operation, AccountInterface $account) {
     /** @var \Drupal\redhen_contact\ContactInterface $entity */
+
+    // Get Contact bundle.
+    $entity_bundle = $entity->getType();
+
+    // Check if Contact being accessed is user's own.
+    $own = $entity->getUserId() == $account->id();
+
     switch ($operation) {
       case 'view':
-        if (!$entity->isActive()) {
-          return AccessResult::allowedIfHasPermission($account, 'view inactive contact entities');
+        // If Contact is active, check "access own" and/or "access active"
+        // permissions to determine access.
+        if ($entity->isActive()) {
+          // If Contact is user's own, either "access active" or "access own"
+          // permission is sufficient to grant access.
+          if ($own) {
+            $view_access = AccessResult::allowedIfHasPermissions($account, [
+              $operation . ' active ' . $entity_bundle . ' contact',
+              $operation . ' own ' . $entity_bundle . ' contact',
+            ], 'OR');
+          }
+          // If Contact is not user's own, user needs "access any" permission to
+          // have access.
+          else {
+            $view_access = AccessResult::allowedIfHasPermission($account,
+              $operation . ' active ' . $entity_bundle . ' contact'
+            );
+          }
         }
-        return AccessResult::allowedIfHasPermission($account, 'view active contact entities');
+        else {
+          $view_access = AccessResult::allowedIfHasPermissions($account, [
+            'view inactive contact entities',
+            'view inactive ' . $entity_bundle . ' contact',
+          ], 'OR');
+        }
+
+        return $view_access;
 
       case 'update':
         return AccessResult::allowedIfHasPermission($account, 'edit contact entities');
