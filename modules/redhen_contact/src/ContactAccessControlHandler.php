@@ -65,10 +65,54 @@ class ContactAccessControlHandler extends EntityAccessControlHandler {
         return $view_access;
 
       case 'update':
-        return AccessResult::allowedIfHasPermission($account, 'edit contact entities');
+        // If Contact is active, check "edit own" and/or "edit active"
+        // permissions to determine access.
+        if ($entity->isActive()) {
+          // If Contact is user's own, either "edit any" or "edit own"
+          // permission is sufficient to grant access.
+          if ($own) {
+            $edit_access = AccessResult::allowedIfHasPermissions($account, [
+              'edit contact entities',
+              'edit any ' . $entity_bundle . ' contact',
+              'edit own ' . $entity_bundle . ' contact',
+            ], 'OR');
+          }
+        }
+        // If Contact is inactive or not user's own, user needs "edit any"
+        // permission to have access.
+        if (!isset($edit_access)) {
+          $edit_access = AccessResult::allowedIfHasPermissions($account, [
+            'edit contact entities',
+            'edit any ' . $entity_bundle . ' contact',
+          ], 'OR');
+        }
+
+        return $edit_access;
 
       case 'delete':
-        return AccessResult::allowedIfHasPermission($account, 'delete contact entities');
+        // If Contact is active, check "delete own" and/or "delete active"
+        // permissions to determine access.
+        if ($entity->isActive()) {
+          // If Contact is user's own, either "delete any" or "delete own"
+          // permission is sufficient to grant access.
+          if ($own) {
+            $delete_access = AccessResult::allowedIfHasPermissions($account, [
+              'delete contact entities',
+              'delete any ' . $entity_bundle . ' contact',
+              'delete own ' . $entity_bundle . ' contact',
+            ], 'OR');
+          }
+        }
+        // If Contact is inactive or not user's own, user needs "delete any"
+        // permission to have access.
+        if (!isset($delete_access)) {
+          $delete_access = AccessResult::allowedIfHasPermissions($account, [
+            'delete contact entities',
+            'delete any ' . $entity_bundle . ' contact',
+          ], 'OR');
+        }
+
+        return $delete_access;
     }
 
     // Unknown operation, no opinion.
