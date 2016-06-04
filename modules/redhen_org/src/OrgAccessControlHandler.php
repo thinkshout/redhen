@@ -45,7 +45,20 @@ class OrgAccessControlHandler extends EntityAccessControlHandler {
    * {@inheritdoc}
    */
   protected function checkCreateAccess(AccountInterface $account, array $context, $entity_bundle = NULL) {
-    return AccessResult::allowedIfHasPermission($account, 'add org entities');
+
+    // If there is only one redhen_org bundle, set $entity_bundle to it
+    // since OrgAddController::add returns the add form for the solitary
+    // bundle instead of a bundle select form if there is only one.
+    if (!$entity_bundle) {
+      $types = \Drupal::entityTypeManager()->getStorage('redhen_org_type')->loadMultiple();
+      if ($types && count($types) == 1) {
+        $entity_bundle = array_keys($types)[0];
+      }
+    }
+    return AccessResult::allowedIfHasPermissions($account, [
+      'add org entities',
+      'add ' . $entity_bundle . ' org',
+    ], 'OR');
   }
 
 }
