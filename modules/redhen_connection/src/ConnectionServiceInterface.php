@@ -39,6 +39,19 @@ interface ConnectionServiceInterface {
   public function getConnections(EntityInterface $entity, $connection_type = NULL, $sort = array());
 
   /**
+   * Returns the number of connections to this entity.
+   *
+   * @param EntityInterface $entity
+   *   The entity we're querying against.
+   * @param string $connection_type
+   *   (optional) Limit returned connections to this type.
+   *
+   * @return int
+   *   The number of Connection entities connected to this entity.
+   */
+  public function getConnectionCount(EntityInterface $entity, $connection_type = NULL);
+
+  /**
    * Returns the other entities that are connected to this entity.
    *
    * @param EntityInterface $entity

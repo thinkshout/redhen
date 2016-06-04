@@ -96,6 +96,28 @@ class ConnectionService implements ConnectionServiceInterface {
   /**
    * {@inheritdoc}
    */
+  public function getConnectionCount(EntityInterface $entity, $connection_type = NULL) {
+    /** @var QueryInterface $query */
+    $query = \Drupal::entityQuery('redhen_connection');
+
+    $endpoints = $query->orConditionGroup()
+      ->condition('endpoint_1', $entity->id())
+      ->condition('endpoint_2', $entity->id());
+
+    $query
+      ->condition('status', 1)
+      ->condition($endpoints);
+
+    if ($connection_type != NULL) {
+      $query->condition('type', $connection_type);
+    }
+
+    return $query->count()->execute();
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function getConnectedEntities(EntityInterface $entity, $connection_type = NULL) {
 
   }
