@@ -32,25 +32,29 @@ class ContactAccessControlHandler extends EntityAccessControlHandler {
 
     switch ($operation) {
       case 'view':
-        // If Contact is active, check "access own" and/or "access active"
+        // If Contact is active, check "view own" and/or "view active"
         // permissions to determine access.
         if ($entity->isActive()) {
-          // If Contact is user's own, either "access active" or "access own"
+          // If Contact is user's own, either "view active" or "view own"
           // permission is sufficient to grant access.
           if ($own) {
             $view_access = AccessResult::allowedIfHasPermissions($account, [
-              $operation . ' active ' . $entity_bundle . ' contact',
-              $operation . ' own ' . $entity_bundle . ' contact',
+              'view active contact entities',
+              'view active ' . $entity_bundle . ' contact',
+              'view own ' . $entity_bundle . ' contact',
             ], 'OR');
           }
-          // If Contact is not user's own, user needs "access any" permission to
-          // have access.
+          // If Contact is not user's own, user needs "view active" permission
+          // to view.
           else {
-            $view_access = AccessResult::allowedIfHasPermission($account,
-              $operation . ' active ' . $entity_bundle . ' contact'
-            );
+            $view_access = AccessResult::allowedIfHasPermissions($account, [
+              'view active contact entities',
+              'view active ' . $entity_bundle . ' contact',
+            ], 'OR');
           }
         }
+        // If Contact is inactive, user needs "view inactive" permission to
+        // view.
         else {
           $view_access = AccessResult::allowedIfHasPermissions($account, [
             'view inactive contact entities',

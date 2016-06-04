@@ -47,11 +47,14 @@ class ContactPermissions {
       "add $type_id contact" => [
         'title' => $this->t('%type: Add contact', $type_params),
       ],
-      "view own $type_id contact" => [
-        'title' => $this->t('%type: View own contact', $type_params),
+      "view active $type_id contact" => [
+        'title' => $this->t('%type: View active contacts', $type_params),
       ],
-      "view any $type_id contact" => [
-        'title' => $this->t('%type: View any contact', $type_params),
+      "view inactive $type_id contact" => [
+        'title' => $this->t('%type: View inactive contacts', $type_params),
+      ],
+      "view own $type_id contact" => [
+        'title' => $this->t('%type: View own (active) contact', $type_params),
       ],
       "edit own $type_id contact" => [
         'title' => $this->t('%type: Edit own contact', $type_params),
