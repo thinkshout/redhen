@@ -53,12 +53,8 @@ class OrgPermissions {
       "view inactive $type_id org" => [
         'title' => $this->t('%type: View inactive orgs', $type_params),
       ],
-      ],
-      "edit own $type_id org" => [
-        'title' => $this->t('%type: Edit own org', $type_params),
-      ],
-      "edit any $type_id org" => [
-        'title' => $this->t('%type: Edit any org', $type_params),
+      "edit $type_id org" => [
+        'title' => $this->t('%type: Edit orgs', $type_params),
       ],
       "delete own $type_id org" => [
         'title' => $this->t('%type: Delete own org', $type_params),
