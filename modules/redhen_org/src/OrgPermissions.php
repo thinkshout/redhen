@@ -44,11 +44,9 @@ class OrgPermissions {
     $type_params = ['%type' => $org_type->label()];
 
     return [
-      "add own $type_id org" => [
-        'title' => $this->t('%type: Add own org', $type_params),
+      "add $type_id org" => [
+        'title' => $this->t('%type: Add org', $type_params),
       ],
-      "add any $type_id org" => [
-        'title' => $this->t('%type: Add any org', $type_params),
       ],
       "view own $type_id org" => [
         'title' => $this->t('%type: View own org', $type_params),
