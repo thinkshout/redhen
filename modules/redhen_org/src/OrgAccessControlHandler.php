@@ -23,12 +23,30 @@ class OrgAccessControlHandler extends EntityAccessControlHandler {
    */
   protected function checkAccess(EntityInterface $entity, $operation, AccountInterface $account) {
     /** @var \Drupal\redhen_org\OrgInterface $entity */
+
+    // Get Org bundle.
+    $entity_bundle = $entity->getType();
+
     switch ($operation) {
       case 'view':
-        if (!$entity->isActive()) {
-          return AccessResult::allowedIfHasPermission($account, 'view inactive org entities');
+        // If Org is active, check "view active" permissions to determine
+        // access.
+        if ($entity->isActive()) {
+          $view_access = AccessResult::allowedIfHasPermissions($account, [
+            'view active org entities',
+            'view active ' . $entity_bundle . ' org',
+          ], 'OR');
         }
-        return AccessResult::allowedIfHasPermission($account, 'view active org entities');
+        // If Org is inactive, user needs "view inactive" permission to
+        // view.
+        else {
+          $view_access = AccessResult::allowedIfHasPermissions($account, [
+            'view inactive org entities',
+            'view inactive ' . $entity_bundle . ' org',
+          ], 'OR');
+        }
+
+        return $view_access;
 
       case 'update':
         return AccessResult::allowedIfHasPermission($account, 'edit org entities');
