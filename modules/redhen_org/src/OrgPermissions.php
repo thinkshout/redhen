@@ -44,29 +44,20 @@ class OrgPermissions {
     $type_params = ['%type' => $org_type->label()];
 
     return [
-      "add own $type_id org" => [
-        'title' => $this->t('%type: Add own org', $type_params),
+      "add $type_id org" => [
+        'title' => $this->t('%type: Add org', $type_params),
       ],
-      "add any $type_id org" => [
-        'title' => $this->t('%type: Add any org', $type_params),
+      "view active $type_id org" => [
+        'title' => $this->t('%type: View active orgs', $type_params),
       ],
-      "view own $type_id org" => [
-        'title' => $this->t('%type: View own org', $type_params),
+      "view inactive $type_id org" => [
+        'title' => $this->t('%type: View inactive orgs', $type_params),
       ],
-      "view any $type_id org" => [
-        'title' => $this->t('%type: View any org', $type_params),
+      "edit $type_id org" => [
+        'title' => $this->t('%type: Edit orgs', $type_params),
       ],
-      "edit own $type_id org" => [
-        'title' => $this->t('%type: Edit own org', $type_params),
-      ],
-      "edit any $type_id org" => [
-        'title' => $this->t('%type: Edit any org', $type_params),
-      ],
-      "delete own $type_id org" => [
-        'title' => $this->t('%type: Delete own org', $type_params),
-      ],
-      "delete any $type_id org" => [
-        'title' => $this->t('%type: Delete any org', $type_params),
+      "delete $type_id org" => [
+        'title' => $this->t('%type: Delete orgs', $type_params),
       ],
     ];
   }
