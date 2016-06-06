@@ -267,9 +267,9 @@ class RedhenContact extends Entity {
         ->fieldCondition('redhen_contact_email', 'value', $contact_wrapper->email->value(), '=');
       $result = $query->execute();
 
-      if (!empty($result) && (count($result) === 1)) {
-        $existing_contact = redhen_contact_load(key($result['redhen_contact'][0]));
-        $existing_wrapper = entity_metadata_wrapper('redhen_contact', $existing_contact);
+      if (isset($result['redhen_contact']) && (count($result['redhen_contact']) === 1)) {
+        list($contact_id) = array_keys($result['redhen_contact']);
+        $existing_wrapper = entity_metadata_wrapper('redhen_contact', $contact_id);
         foreach ($existing_wrapper->getPropertyInfo() as $property => $info) {
           if (isset($info['setter callback']) && ($existing_wrapper->{$property}->value() !== NULL) && $contact_wrapper->{$property}->value() === NULL) {
             // @todo consider a flag to avoid overriding with new values.
@@ -277,7 +277,7 @@ class RedhenContact extends Entity {
           }
         }
         // We aren't creating a new contact, we are updating an old one, so:
-        $this->contact_id = $existing_contact->contact_id;
+        $this->contact_id = $existing_wrapper->getIdentifier();
         unset($this->is_new);
         $this->is_new_revision = TRUE;
         $this->default_revision = TRUE;
