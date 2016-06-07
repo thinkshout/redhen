@@ -2,7 +2,6 @@
 
 namespace Drupal\redhen_connection;
 
-use Doctrine\Entity;
 use Drupal\Core\Access\AccessResultInterface;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Session\AccountInterface;
