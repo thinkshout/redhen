@@ -2,14 +2,13 @@
 
 namespace Drupal\redhen_connection;
 
-use Drupal\Core\Access\AccessResultInterface;
 use Drupal\Core\Access\AccessResultNeutral;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Entity\Query\QueryFactory;
 use Drupal\Core\Entity\Query\QueryInterface;
 use Drupal\Core\Session\AccountInterface;
-use Drupal\redhen_connection\ConnectionTypeInterface;
+use Drupal\redhen_connection\Entity\ConnectionType;
 use Drupal\redhen_connection\Entity\Connection;
 
 /**
@@ -52,11 +51,17 @@ class ConnectionService implements ConnectionServiceInterface {
   public function getConnectionTypes(EntityInterface $entity) {
     $entity_type = $entity->getEntityTypeId();
     $query = $this->entityQuery->get('redhen_connection_type', 'OR');
+    // @todo add conditions based on REDHEN_CONNECTION_ENDPOINTS constant.
     $query->condition('endpoints.1.entity_type', $entity_type);
     $query->condition('endpoints.2.entity_type', $entity_type);
     $results = $query->execute();
 
-    return (!empty($results)) ? array_keys($results) : array();
+    $connection_types = [];
+    if (!empty($results)) {
+      $connection_types = ConnectionType::loadMultiple(array_keys($results));
+    }
+
+    return $connection_types;
   }
 
   /**
