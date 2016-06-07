@@ -247,6 +247,8 @@ class Connection extends ContentEntityBase implements ConnectionInterface {
 
     // Secondary contact.
     if ($entity_type == 'redhen_contact') {
+      // @todo Additional connection check needed to ensure $entity is connected
+      // indirectly to $account.
       $permission_set = 'contact';
     }
 
