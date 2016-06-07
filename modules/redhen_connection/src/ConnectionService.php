@@ -11,6 +11,7 @@ use Drupal\Core\Entity\Query\QueryInterface;
 use Drupal\Core\Session\AccountInterface;
 use Drupal\redhen_connection\Entity\ConnectionType;
 use Drupal\redhen_connection\Entity\Connection;
+use Drupal\redhen_contact\Entity\Contact;
 
 /**
  * Provides an interface for getting connections between entities.
@@ -112,10 +113,13 @@ class ConnectionService implements ConnectionServiceInterface {
    */
   public function checkConnectionPermission(EntityInterface $entity, $operation, AccountInterface $account = NULL) {
     // Get connections and loop through checking for role permissions.
-    foreach ($this->getConnections($entity) as $connection) {
-      /** @var ConnectionInterface $connection */
-      if ($result = $connection->hasRolePermission($entity, $operation, $account)) {
-        return new AccessResultAllowed();
+    $contact = Contact::loadByUser($account);
+    if ($contact) {
+      foreach ($this->getConnections($entity) as $connection) {
+        /** @var ConnectionInterface $connection */
+        if ($result = $connection->hasRolePermission($entity, $operation, $contact)) {
+          return new AccessResultAllowed();
+        }
       }
     }
 

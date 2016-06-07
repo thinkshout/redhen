@@ -12,9 +12,10 @@ use Drupal\Core\Entity\ContentEntityBase;
 use Drupal\Core\Entity\EntityChangedTrait;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityTypeInterface;
-use Drupal\Core\Session\AccountInterface;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\redhen_connection\ConnectionInterface;
+use Drupal\redhen_contact\ContactInterface;
+use Drupal\redhen_contact\Entity\Contact;
 
 /**
  * Defines the Connection entity.
@@ -224,7 +225,14 @@ class Connection extends ContentEntityBase implements ConnectionInterface {
   /**
    * {@inheritdoc}
    */
-  public function hasRolePermission(EntityInterface $entity, $operation, AccountInterface $account = NULL) {
+  public function hasRolePermission(EntityInterface $entity, $operation, ContactInterface $contact = NULL) {
+    if (!$contact) {
+      $contact = Contact::loadByUser(\Drupal::currentUser());
+    }
+    if (!$contact) {
+      return FALSE;
+    }
+    // Get connections and loop through checking for role permissions.
     // Make sure we have a valid entity to check against.
     if (!($entity instanceof ConnectionInterface)) {
       $connection_type = ConnectionType::load($this->bundle());
@@ -234,7 +242,11 @@ class Connection extends ContentEntityBase implements ConnectionInterface {
       }
     }
     $role = $this->get('role')->entity;
+    if (!$role) {
+      return FALSE;
+    }
     $permissions = $role->get('permissions');
+
     $entity_type = $entity->getEntityTypeId();
     // Determine which permission set to check:
     // $entity can be: connection, connected entity or secondary contact.
