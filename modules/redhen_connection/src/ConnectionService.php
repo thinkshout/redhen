@@ -68,20 +68,8 @@ class ConnectionService implements ConnectionServiceInterface {
    * {@inheritdoc}
    */
   public function getConnections(EntityInterface $entity, $connection_type = NULL, $sort = array(), $offset = 0, $limit = 0) {
-    /** @var QueryInterface $query */
-    $query = $this->entityQuery->get('redhen_connection');
 
-    $endpoints = $query->orConditionGroup()
-      ->condition('endpoint_1', $entity->id())
-      ->condition('endpoint_2', $entity->id());
-
-    $query
-      ->condition('status', 1)
-      ->condition($endpoints);
-
-    if ($connection_type != NULL) {
-      $query->condition('type', $connection_type);
-    }
+    $query = $this->buildQuery($entity, $connection_type);
 
     foreach ($sort as $field => $direction) {
       $query->sort($field, $direction);
@@ -106,20 +94,7 @@ class ConnectionService implements ConnectionServiceInterface {
    * {@inheritdoc}
    */
   public function getConnectionCount(EntityInterface $entity, $connection_type = NULL) {
-    /** @var QueryInterface $query */
-    $query = $this->entityQuery->get('redhen_connection');
-
-    $endpoints = $query->orConditionGroup()
-      ->condition('endpoint_1', $entity->id())
-      ->condition('endpoint_2', $entity->id());
-
-    $query
-      ->condition('status', 1)
-      ->condition($endpoints);
-
-    if ($connection_type != NULL) {
-      $query->condition('type', $connection_type);
-    }
+    $query = $this->buildQuery($entity, $connection_type);
 
     return $query->count()->execute();
   }
@@ -137,6 +112,54 @@ class ConnectionService implements ConnectionServiceInterface {
   public function checkConnectionPermission(EntityInterface $entity, $operation, AccountInterface $account = NULL) {
 
     return new AccessResultNeutral();
+  }
+
+  /**
+   * @param \Drupal\Core\Entity\EntityInterface $entity
+   *   The entity we're querying against.
+   * @param null $connection_type
+   *
+   * @return QueryInterface
+   */
+  private function buildQuery(EntityInterface $entity, $connection_type = NULL) {
+    $types = ($connection_type) ? [$connection_type => ConnectionType::load($connection_type)] : $this->getConnectionTypes($entity);
+    $entity_type = $entity->getEntityType()->id();
+
+    /** @var QueryInterface $query */
+    $query = $this->entityQuery->get('redhen_connection');
+
+    // Add condition for the connection status.
+    // @todo Make configurable.
+    $query->condition('status', 1);
+
+    if ($connection_type != NULL) {
+      $query->condition('type', $connection_type);
+    }
+
+    // Endpoint conditions.
+
+    $conditions = [];
+    // Build endpoint query.
+    foreach ($types as $type => $connection_type) {
+      /** @var ConnectionTypeInterface $connection_type */
+      $fields = $connection_type->getEndpointFields($entity_type);
+      foreach ($fields as $field) {
+        $conditions[$field][] = $type;
+      }
+    }
+
+    // @todo Only want an OR group if there are more than one conditions.
+    $condition_group = $query->orConditionGroup();
+
+    foreach ($conditions as $endpoint => $condition_types) {
+      $and_group = $query->andConditionGroup()->condition($endpoint, $entity->id(), '=')
+        ->condition('type', $condition_types, 'IN');
+      $condition_group->condition($and_group);
+    }
+
+    $query->condition($condition_group);
+
+    return $query;
   }
 
 }
