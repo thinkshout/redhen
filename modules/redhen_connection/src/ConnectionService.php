@@ -2,6 +2,7 @@
 
 namespace Drupal\redhen_connection;
 
+use Drupal\Core\Access\AccessResultAllowed;
 use Drupal\Core\Access\AccessResultNeutral;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
@@ -113,7 +114,9 @@ class ConnectionService implements ConnectionServiceInterface {
     // Get connections and loop through checking for role permissions.
     foreach ($this->getConnections($entity) as $connection) {
       /** @var ConnectionInterface $connection */
-      $connection->hasRolePermission($entity, $operation, $account);
+      if ($result = $connection->hasRolePermission($entity, $operation, $account)) {
+        return new AccessResultAllowed();
+      }
     }
 
     return new AccessResultNeutral();
