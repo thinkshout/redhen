@@ -114,7 +114,13 @@ class ConnectionHtmlRouteProvider extends DefaultHtmlRouteProvider {
    *   The generated route, if available.
    */
   protected function getAddPageRoute(EntityTypeInterface $entity_type) {
-    $route = new Route("/redhen/connection/add");
+    $route = new Route("/redhen/{redhen_type}/{entity}/connection/add");
+    $parameters = [
+      'redhen_type' => ['type' => 'redhen_type'],
+      'entity' => ['type' => 'entity:{redhen_type}'],
+    ];
+    $route
+      ->setOption('parameters', $parameters);
     $route
       ->setDefaults([
         '_controller' => 'Drupal\redhen_connection\Controller\ConnectionAddController::add',

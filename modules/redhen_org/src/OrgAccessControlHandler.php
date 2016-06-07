@@ -13,6 +13,7 @@ use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Session\AccountInterface;
 use Drupal\Core\Access\AccessResult;
 use Drupal\redhen_connection\ConnectionServiceInterface;
+use Drupal\redhen_connection\Access\ConnectionAccessResult;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\Core\Entity\EntityHandlerInterface;
 
@@ -59,19 +60,53 @@ class OrgAccessControlHandler extends EntityAccessControlHandler implements Enti
    */
   protected function checkAccess(EntityInterface $entity, $operation, AccountInterface $account) {
     /** @var \Drupal\redhen_org\OrgInterface $entity */
+
+    // Get Org bundle.
+    $entity_bundle = $entity->getType();
+
     switch ($operation) {
       case 'view':
-        if (!$entity->isActive()) {
-          return AccessResult::allowedIfHasPermission($account, 'view inactive org entities');
+        // If Org is active, check "view active" permissions to determine
+        // access.
+        if ($entity->isActive()) {
+          $view_access = AccessResult::allowedIfHasPermissions($account, [
+            'view active org entities',
+            'view active ' . $entity_bundle . ' org',
+          ], 'OR');
         }
-        return AccessResult::allowedIfHasPermission($account, 'view active org entities');
+        // If Org is inactive, user needs "view inactive" permission to
+        // view.
+        else {
+          $view_access = AccessResult::allowedIfHasPermissions($account, [
+            'view inactive org entities',
+            'view inactive ' . $entity_bundle . ' org',
+          ], 'OR');
+        }
+
+        return $view_access;
 
       case 'update':
-        return AccessResult::allowedIfHasPermission($account, 'edit org entities');
+        // Check admin and bundle-specific edit permissions to determine
+        // edit access.
+        $edit_access = AccessResult::allowedIfHasPermissions($account, [
+          'edit org entities',
+          'edit any ' . $entity_bundle . ' org',
+        ], 'OR');
+
+        return $edit_access;
 
       case 'delete':
-        return AccessResult::allowedIfHasPermission($account, 'delete org entities');
+        // Check admin and bundle-specific delete permissions to determine
+        // delete access.
+        $delete_access = AccessResult::allowedIfHasPermissions($account, [
+          'delete org entities',
+          'delete any ' . $entity_bundle . ' org',
+        ], 'OR');
+
+        return $delete_access;
     }
+
+    return ConnectionAccessResult::allowedIfHasConnectionPermission($entity, $account, $operation);
 
     // Unknown operation, no opinion.
     return AccessResult::neutral();
@@ -81,7 +116,20 @@ class OrgAccessControlHandler extends EntityAccessControlHandler implements Enti
    * {@inheritdoc}
    */
   protected function checkCreateAccess(AccountInterface $account, array $context, $entity_bundle = NULL) {
-    return AccessResult::allowedIfHasPermission($account, 'add org entities');
+
+    // If there is only one redhen_org bundle, set $entity_bundle to it
+    // since OrgAddController::add returns the add form for the solitary
+    // bundle instead of a bundle select form if there is only one.
+    if (!$entity_bundle) {
+      $types = \Drupal::entityTypeManager()->getStorage('redhen_org_type')->loadMultiple();
+      if ($types && count($types) == 1) {
+        $entity_bundle = array_keys($types)[0];
+      }
+    }
+    return AccessResult::allowedIfHasPermissions($account, [
+      'add org entities',
+      'add ' . $entity_bundle . ' org',
+    ], 'OR');
   }
 
 }
