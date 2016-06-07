@@ -3,6 +3,7 @@
 namespace Drupal\redhen_connection;
 
 use Drupal\Core\Access\AccessResultNeutral;
+use Drupal\Core\Entity\Entity;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Entity\Query\QueryFactory;
@@ -103,7 +104,33 @@ class ConnectionService implements ConnectionServiceInterface {
    * {@inheritdoc}
    */
   public function getConnectedEntities(EntityInterface $entity, $connection_type = NULL) {
+    $connected_entities = array();
 
+    $type = ConnectionType::load($connection_type);
+
+    // Get all fields that reference endpoints on the connection type.
+    $fields = $type->getAllEndpointFields();
+
+    // Get connections.
+    $connections = $this->getConnections($entity, $connection_type);
+
+    // Loop through connections to find entities referenced by endpoint fields.
+    foreach ($connections as $connection) {
+      foreach ($fields as $field) {
+        $referenced_entities = $connection->get($field)->referencedEntities();
+
+        foreach ($referenced_entities as $referenced_entity) {
+          // Do not include the entity originally passed in function args.
+          if (($referenced_entity->getEntityType()->id() == $entity->getEntityType()->id()) && ($referenced_entity->id() == $entity->id())) {
+            continue;
+          }
+
+          $connected_entities[] = $referenced_entity;
+        }
+      }
+    }
+
+    return $connected_entities;
   }
 
   /**
@@ -142,6 +169,7 @@ class ConnectionService implements ConnectionServiceInterface {
 
     $conditions = [];
     // Build endpoint query.
+    // TODO: Rename this $connection_type to something else.
     foreach ($types as $type => $connection_type) {
       /** @var ConnectionTypeInterface $connection_type */
       $fields = $connection_type->getEndpointFields($entity_type);
