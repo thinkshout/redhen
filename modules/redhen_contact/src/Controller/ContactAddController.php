@@ -46,7 +46,7 @@ class ContactAddController extends ControllerBase {
      *
      * @return array
      *   A render array for a list of the redhen_contact bundles/types that can be added or
-     *   if there is only one type/bunlde defined for the site, the function returns the add page for that bundle/type.
+     *   if there is only one bundle/type defined for the site, the function returns the add page for that bundle/type.
      */
     public function add(Request $request) {
       $types = $this->typeStorage->loadMultiple();

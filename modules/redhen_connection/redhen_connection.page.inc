@@ -44,11 +44,17 @@ function template_preprocess_redhen_connection(array &$variables) {
 */
 function template_preprocess_redhen_connection_content_add_list(&$variables) {
   $variables['types'] = array();
+  $entity = $variables['entity'];
+  // @todo abstract deriving the {redhen_type} param from the entity itself.
+  $entity_type = explode('_', $entity->getEntityType()->id());
+  $redhen_type = array_pop($entity_type);
   $query = \Drupal::request()->query->all();
   foreach ($variables['content'] as $type) {
     $variables['types'][$type->id()] = array(
       'link' => Link::fromTextAndUrl($type->label(), new Url('entity.redhen_connection.add_form', array(
-        'redhen_connection_type' => $type->id()
+        'redhen_type' => $redhen_type,
+        'entity' => $entity->id(),
+        'redhen_connection_type' => $type->id(),
       ), array('query' => $query))),
       'description' => array(
       '#markup' => $type->label(),
