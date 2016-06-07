@@ -64,7 +64,7 @@ class ConnectionService implements ConnectionServiceInterface {
    */
   public function getConnections(EntityInterface $entity, $connection_type = NULL, $sort = array(), $offset = 0, $limit = 0) {
     /** @var QueryInterface $query */
-    $query = \Drupal::entityQuery('redhen_connection');
+    $query = $this->entityQuery->get('redhen_connection');
 
     $endpoints = $query->orConditionGroup()
       ->condition('endpoint_1', $entity->id())
@@ -102,7 +102,7 @@ class ConnectionService implements ConnectionServiceInterface {
    */
   public function getConnectionCount(EntityInterface $entity, $connection_type = NULL) {
     /** @var QueryInterface $query */
-    $query = \Drupal::entityQuery('redhen_connection');
+    $query = $this->entityQuery->get('redhen_connection');
 
     $endpoints = $query->orConditionGroup()
       ->condition('endpoint_1', $entity->id())
