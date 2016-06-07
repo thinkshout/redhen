@@ -225,7 +225,31 @@ class Connection extends ContentEntityBase implements ConnectionInterface {
    * {@inheritdoc}
    */
   public function hasRolePermission(EntityInterface $entity, $operation, AccountInterface $account = NULL) {
-    $a = 1;
-    return FALSE;
+    // Make sure we have a valid entity to check against.
+    if (!($entity instanceof ConnectionInterface)) {
+      $connection_type = ConnectionType::load($this->bundle());
+      $endpoints = $connection_type->getEndpointFields($entity->getEntityTypeId());
+      if (empty($endpoints)) {
+        return FALSE;
+      }
+    }
+    $role = $this->get('role')->entity;
+    $permissions = $role->get('permissions');
+    $entity_type = $entity->getEntityTypeId();
+    // Determine which permission set to check:
+    // $entity can be: connection, connected entity or secondary contact.
+    $permission_set = 'entity';
+
+    // Connection.
+    if ($entity instanceof ConnectionInterface) {
+      $permission_set = 'connection';
+    }
+
+    // Secondary contact.
+    if ($entity_type == 'redhen_contact') {
+      $permission_set = 'contact';
+    }
+
+    return (!empty($permissions[$permission_set][$operation]));
   }
 }
