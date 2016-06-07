@@ -110,9 +110,12 @@ class ConnectionService implements ConnectionServiceInterface {
    * {@inheritdoc}
    */
   public function checkConnectionPermission(EntityInterface $entity, $operation, AccountInterface $account = NULL) {
-    // Get connections.
+    // Get connections and loop through checking for role permissions.
+    foreach ($this->getConnections($entity) as $connection) {
+      /** @var ConnectionInterface $connection */
+      $connection->hasRolePermission($entity, $operation, $account);
+    }
 
-    // Loop through connections checking for permissions.
     return new AccessResultNeutral();
   }
 

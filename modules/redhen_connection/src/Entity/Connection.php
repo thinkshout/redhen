@@ -10,7 +10,9 @@ namespace Drupal\redhen_connection\Entity;
 use Drupal\Core\Field\BaseFieldDefinition;
 use Drupal\Core\Entity\ContentEntityBase;
 use Drupal\Core\Entity\EntityChangedTrait;
+use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityTypeInterface;
+use Drupal\Core\Session\AccountInterface;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\redhen_connection\ConnectionInterface;
 
@@ -217,5 +219,13 @@ class Connection extends ContentEntityBase implements ConnectionInterface {
       }
     }
     return $fields;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function hasRolePermission(EntityInterface $entity, $operation, AccountInterface $account = NULL) {
+    $a = 1;
+    return FALSE;
   }
 }
