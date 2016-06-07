@@ -13,6 +13,7 @@ use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Session\AccountInterface;
 use Drupal\Core\Access\AccessResult;
 use Drupal\redhen_connection\ConnectionServiceInterface;
+use Drupal\redhen_connection\Access\ConnectionAccessResult;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\Core\Entity\EntityHandlerInterface;
 
@@ -104,6 +105,8 @@ class OrgAccessControlHandler extends EntityAccessControlHandler implements Enti
 
         return $delete_access;
     }
+
+    return ConnectionAccessResult::allowedIfHasConnectionPermission($entity, $account, $operation);
 
     // Unknown operation, no opinion.
     return AccessResult::neutral();
