@@ -146,8 +146,6 @@ class ConnectionService implements ConnectionServiceInterface {
         }
       }
     }
-
-    return new AccessResultNeutral();
   }
 
   /**
@@ -184,6 +182,8 @@ class ConnectionService implements ConnectionServiceInterface {
 
     // Overall OR group of connection_type/endpoint groupings.
     $endpoints_group = $query->orConditionGroup();
+
+    // @todo Might instead be able to query against endpoint_1.entity.type, etc.
 
     // Build endpoint groups.
     foreach ($types as $type => $connection_type) {
