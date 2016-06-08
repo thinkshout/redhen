@@ -267,6 +267,6 @@ class Connection extends ContentEntityBase implements ConnectionInterface {
       $permission_set = 'contact';
     }
 
-    return (in_array($operation, $permissions[$permission_set]));
+    return (is_array($permissions[$permission_set]) && in_array($operation, $permissions[$permission_set]));
   }
 }
