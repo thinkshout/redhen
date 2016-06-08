@@ -23,11 +23,13 @@ class ConnectionRoleSelection extends DefaultSelection {
   protected function buildEntityQuery($match = NULL, $match_operator = 'CONTAINS') {
     $query = parent::buildEntityQuery($match, $match_operator);
 
-    $connection_type = $this->configuration['entity']->getType();
-    $query->condition('connection_type', $connection_type, '=');
-    // Add connection_type parameter to the query.
+    if (!empty($this->configuration['entity'])) {
+      // Add connection_type parameter to the query.
+      $connection_type = $this->configuration['entity']->getType();
+      $query->condition('connection_type', $connection_type, '=');
+    }
+
     return $query;
   }
-
 
 }
