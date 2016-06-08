@@ -90,3 +90,19 @@ function redhen_connection_entity_access(EntityInterface $entity, $operation, Ac
   }
   return ConnectionAccessResult::neutral();
 }
+
+/**
+ * Implements hook_entity_create_access().
+ *
+ * @param \Drupal\Core\Session\AccountInterface $account
+ * @param array $context
+ * @param $entity_bundle
+ * @return \Drupal\Core\Access\AccessResult
+ */
+function redhen_connection_entity_create_access(AccountInterface $account, array $context, $entity_bundle) {
+  // @todo make this actually work. We don't have an $entity to work with.
+  if (in_array($context['entity_type_id'], ['redhen_contact', 'redhen_org'])){
+    return ConnectionAccessResult::allowedIfHasConnectionPermission($entity, $account, 'create');
+  }
+  return ConnectionAccessResult::neutral();
+}
