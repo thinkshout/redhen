@@ -5,10 +5,11 @@
  * Contains redhen_connection.module..
  */
 
+use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Routing\RouteMatchInterface;
+use Drupal\Core\Session\AccountInterface;
 use Drupal\redhen_connection\Entity\ConnectionType;
-use Drupal\Core\Field\BaseFieldDefinition;
-use Drupal\Core\Entity\EntityTypeInterface;
+use Drupal\redhen_connection\Access\ConnectionAccessResult;
 
 /**
  * Denotes that the Connection is not active.
@@ -73,4 +74,19 @@ function redhen_connection_type_options_list() {
   }
 
   return $options;
+}
+
+/**
+ * Implements hook_entity_access().
+ *
+ * @param \Drupal\Core\Entity\EntityInterface $entity
+ * @param $operation
+ * @param \Drupal\Core\Session\AccountInterface $account
+ * @return mixed
+ */
+function redhen_connection_entity_access(EntityInterface $entity, $operation, AccountInterface $account) {
+  if (in_array($entity->getEntityTypeId(), ['redhen_contact', 'redhen_org'])){
+    return ConnectionAccessResult::allowedIfHasConnectionPermission($entity, $account, $operation);
+  }
+  return ConnectionAccessResult::neutral();
 }
