@@ -219,6 +219,10 @@ class Connection extends ContentEntityBase implements ConnectionInterface {
         }
       }
     }
+
+    $fields['role'] = clone $base_field_definitions['role'];
+    $fields['role']->setSetting('handler_settings', ['connection_type' => $connection_type->id()]);
+
     return $fields;
   }
 
