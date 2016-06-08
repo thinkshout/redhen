@@ -135,7 +135,7 @@ class ConnectionService implements ConnectionServiceInterface {
     // Get connections and loop through checking for role permissions.
     $contact = Contact::loadByUser($account);
     if ($contact) {
-      foreach ($this->getConnections($entity) as $connection) {
+      foreach ($this->getConnections($contact, $entity) as $connection) {
         /** @var ConnectionInterface $connection */
         if ($result = $connection->hasRolePermission($entity, $operation, $contact)) {
           return new AccessResultAllowed();
