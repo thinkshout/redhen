@@ -58,14 +58,14 @@ class ConnectionRoleForm extends EntityForm {
 
       // Standard permissions.
       $operations = ['view' => $this->t('View'), 'view label' => $this->t('View label'), 'update' => $this->t('Update'), 'delete' => $this->t('Delete'), 'create' => $this->t('Create')];
-
+      $existing_permissions = $redhen_connection_role->get('permissions');
       // User's connection plus other connections.
       // @todo consider using this for connected connections and extend "own connection" to include user's own connections.
       $form['permissions']['connection'] = array(
         '#type' => 'checkboxes',
         '#options' => $operations,
         '#title' => $this->t('Connection'),
-        '#default_value' => $redhen_connection_role->get('permissions')['connection'],
+        '#default_value' => (!empty($existing_permissions['connection'])) ? $existing_permissions['connection'] : [],
         '#description' => $this->t('Applies to both the current user\'s connection and secondary connections. Sitewide permissions will override this setting.'),
       );
 
@@ -77,7 +77,7 @@ class ConnectionRoleForm extends EntityForm {
         '#type' => 'checkboxes',
         '#options' => $operations,
         '#title' => $this->t('Entity'),
-        '#default_value' => $redhen_connection_role->get('permissions')['entity'],
+        '#default_value' => (!empty($existing_permissions['entity'])) ? $existing_permissions['entity'] : [],
         '#description' => $this->t('Sitewide permissions will override this setting.'),
         '#access' => !empty($entity_type),
       );
@@ -86,7 +86,7 @@ class ConnectionRoleForm extends EntityForm {
         '#type' => 'checkboxes',
         '#options' => $operations,
         '#title' => $this->t('Secondary Contact'),
-        '#default_value' => $redhen_connection_role->get('permissions')['contact'],
+        '#default_value' => (!empty($existing_permissions['contact'])) ? $existing_permissions['contact'] : [],
         '#description' => $this->t('A contact connected to the same entity via connection of the same type. Sitewide permissions will override this setting.'),
       );
 
