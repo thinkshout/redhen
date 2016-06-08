@@ -5,7 +5,7 @@ namespace Drupal\redhen_connection\Plugin\EntityReferenceSelection;
 use Drupal\Core\Entity\Plugin\EntityReferenceSelection\DefaultSelection;
 
 /**
- * Provides specific access control for the profile entity type.
+ * Limit connection roles to those associated with this connection_type.
  *
  * @EntityReferenceSelection(
  *   id = "default:redhen_connection_role",
