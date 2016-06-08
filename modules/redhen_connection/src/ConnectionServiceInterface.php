@@ -13,19 +13,23 @@ interface ConnectionServiceInterface {
 
 
   /**
-   * Returns the connection types that can be connected to this entity.
+   * Returns the connection types that can be connected to a single entity or two
+   * entities.
    *
    * @param \Drupal\Core\Entity\EntityInterface $entity
+   * @param \Drupal\Core\Entity\EntityInterface $entity2
    *
    * @return array
    */
-  public function getConnectionTypes(EntityInterface $entity);
+  public function getConnectionTypes(EntityInterface $entity, EntityInterface $entity2 = NULL);
 
   /**
    * Returns the connections to this entity.
    *
    * @param EntityInterface $entity
    *   The entity we're querying against.
+   * * @param EntityInterface $entity2
+   *   The second entity we're querying against.
    * @param string $connection_type
    *   (optional) Limit returned connections to this type.
    * @param array $sort
@@ -39,12 +43,14 @@ interface ConnectionServiceInterface {
    * @return array
    *   The Connection entities connected to this entity.
    */
-  public function getConnections(EntityInterface $entity, $connection_type = NULL, $sort = array(), $offset = 0, $limit = 0);
+  public function getConnections(EntityInterface $entity, EntityInterface $entity2 = NULL, $connection_type = NULL, $sort = array(), $offset = 0, $limit = 0);
 
   /**
    * Returns the number of connections to this entity.
    *
    * @param EntityInterface $entity
+   *   The entity we're querying against.
+   * @param EntityInterface $entity2
    *   The entity we're querying against.
    * @param string $connection_type
    *   (optional) Limit returned connections to this type.
@@ -52,7 +58,7 @@ interface ConnectionServiceInterface {
    * @return int
    *   The number of Connection entities connected to this entity.
    */
-  public function getConnectionCount(EntityInterface $entity, $connection_type = NULL);
+  public function getConnectionCount(EntityInterface $entity, EntityInterface $entity2 = NULL, $connection_type = NULL);
 
   /**
    * Returns the other entities that are connected to this entity.

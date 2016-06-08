@@ -50,12 +50,32 @@ class ConnectionService implements ConnectionServiceInterface {
   /**
    * {@inheritdoc}
    */
-  public function getConnectionTypes(EntityInterface $entity) {
+  public function getConnectionTypes(EntityInterface $entity, EntityInterface $entity2 = NULL) {
+    $query = $this->entityQuery->get('redhen_connection_type');
+    $or_group = $query->orConditionGroup();
     $entity_type = $entity->getEntityTypeId();
-    $query = $this->entityQuery->get('redhen_connection_type', 'OR');
-    // @todo add conditions based on REDHEN_CONNECTION_ENDPOINTS constant.
-    $query->condition('endpoints.1.entity_type', $entity_type);
-    $query->condition('endpoints.2.entity_type', $entity_type);
+
+    if (empty($entity2)) {
+      // Single entity provided
+      $or_group->condition('endpoints.1.entity_type', $entity_type);
+      $or_group->condition('endpoints.2.entity_type', $entity_type);
+    }
+    else {
+      // Two entities provided.
+      $entity_type2 = $entity2->getEntityTypeId();
+      $and_group = $query->andConditionGroup()
+        ->condition('endpoints.1.entity_type', $entity_type)
+        ->condition('endpoints.2.entity_type', $entity_type2);
+
+      $and_group2 = $query->andConditionGroup()
+        ->condition('endpoints.2.entity_type', $entity_type)
+        ->condition('endpoints.1.entity_type', $entity_type2);
+
+      $or_group->condition($and_group)
+        ->condition($and_group2);
+    }
+
+    $query->condition($or_group);
     $results = $query->execute();
 
     $connection_types = [];
@@ -69,9 +89,9 @@ class ConnectionService implements ConnectionServiceInterface {
   /**
    * {@inheritdoc}
    */
-  public function getConnections(EntityInterface $entity, $connection_type = NULL, $sort = array(), $offset = 0, $limit = 0) {
+  public function getConnections(EntityInterface $entity, EntityInterface $entity2 = NULL, $connection_type = NULL, $sort = array(), $offset = 0, $limit = 0) {
 
-    $query = $this->buildQuery($entity, $connection_type);
+    $query = $this->buildQuery($entity, $entity2, $connection_type);
 
     foreach ($sort as $field => $direction) {
       $query->sort($field, $direction);
@@ -95,8 +115,8 @@ class ConnectionService implements ConnectionServiceInterface {
   /**
    * {@inheritdoc}
    */
-  public function getConnectionCount(EntityInterface $entity, $connection_type = NULL) {
-    $query = $this->buildQuery($entity, $connection_type);
+  public function getConnectionCount(EntityInterface $entity, EntityInterface $entity2 = NULL, $connection_type = NULL) {
+    $query = $this->buildQuery($entity, $entity2, $connection_type);
 
     return $query->count()->execute();
   }
@@ -121,6 +141,7 @@ class ConnectionService implements ConnectionServiceInterface {
           return new AccessResultAllowed();
         }
       }
+      // $this->getIndirectConnections($contact, $entity)
     }
 
     return new AccessResultNeutral();
@@ -129,13 +150,14 @@ class ConnectionService implements ConnectionServiceInterface {
   /**
    * @param \Drupal\Core\Entity\EntityInterface $entity
    *   The entity we're querying against.
+   * * @param \Drupal\Core\Entity\EntityInterface $entity2
+   *   The second entity we're querying against.
    * @param null $connection_type
    *
    * @return QueryInterface
    */
-  private function buildQuery(EntityInterface $entity, $connection_type = NULL) {
-    $types = ($connection_type) ? [$connection_type => ConnectionType::load($connection_type)] : $this->getConnectionTypes($entity);
-    $entity_type = $entity->getEntityType()->id();
+  private function buildQuery(EntityInterface $entity, EntityInterface $entity2 = NULL, $connection_type = NULL) {
+    $types = ($connection_type) ? [$connection_type => ConnectionType::load($connection_type)] : $this->getConnectionTypes($entity, $entity2);
 
     /** @var QueryInterface $query */
     $query = $this->entityQuery->get('redhen_connection');
@@ -149,29 +171,68 @@ class ConnectionService implements ConnectionServiceInterface {
     }
 
     // Endpoint conditions.
+    $entities = [];
+    $entity_type = $entity->getEntityType()->id();
+    $entities[$entity_type][] = $entity;
+    $entity_type2 = ($entity2) ? $entity2->getEntityType()->id() : NULL;
+    if ($entity2) {
+      $entities[$entity_type2][] = $entity2;
+    }
 
-    $conditions = [];
-    // Build endpoint query.
+    // Overall OR group of connection_type/endpoint groupings.
+    $endpoints_group = $query->orConditionGroup();
+
+    // Build endpoint groups.
     foreach ($types as $type => $connection_type) {
       /** @var ConnectionTypeInterface $connection_type */
-      $fields = $connection_type->getEndpointFields($entity_type);
-      foreach ($fields as $field) {
-        $conditions[$field][] = $type;
+      $endpoints = [];
+      $endpoints[$entity_type] = $connection_type->getEndpointFields($entity_type);
+
+      // Add condition for the connection_type.
+      $condition_group = $query->andConditionGroup()
+        ->condition('type', $type);
+
+      // Working with 2 endpoints.
+      if ($entity_type2) {
+        $group = $query->andConditionGroup();
+        $endpoints[$entity_type2] = $connection_type->getEndpointFields($entity_type2);
+
+        foreach ($endpoints as $endpoint_type => $endpoint_fields) {
+          for ($x=0; $x < count($endpoint_fields); $x++) {
+            $group->condition($endpoint_fields[$x], $entities[$endpoint_type][$x]->id());
+          }
+          // Endpoints are of the same type so we need to add an additional
+          // condition for the reverse structure.
+          if ($x > 1) {
+            $group2 = $query->orConditionGroup();
+            for ($x=count($endpoint_fields); $x >= 0; $x--) {
+              $group2->condition($endpoint_fields[$x], $entities[$endpoint_type][$x]->id());
+            }
+            $group = $query->orConditionGroup()
+              ->condition($group)
+              ->condition($group2);
+          }
+        }
+
+        $condition_group->condition($group);
       }
+      else {
+        // Single entity.
+        $condition_group = $query->orConditionGroup();
+        foreach ($endpoints as $endpoint_type => $endpoint_fields) {
+          for ($x = 0; $x < count($endpoint_fields); $x++) {
+            $condition_group->condition($endpoint_fields[$x], $entity->id());
+          }
+        }
+      }
+      $endpoints_group->condition($condition_group);
+    }
+    if (!empty($types)) {
+      $query->condition($endpoints_group);
+      return $query;
     }
 
-    // @todo Only want an OR group if there are more than one conditions.
-    $condition_group = $query->orConditionGroup();
-
-    foreach ($conditions as $endpoint => $condition_types) {
-      $and_group = $query->andConditionGroup()->condition($endpoint, $entity->id(), '=')
-        ->condition('type', $condition_types, 'IN');
-      $condition_group->condition($and_group);
-    }
-
-    $query->condition($condition_group);
-
-    return $query;
+    return FALSE;
   }
 
 }
