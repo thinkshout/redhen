@@ -57,7 +57,7 @@ class ConnectionRoleForm extends EntityForm {
       );
 
       // Standard permissions.
-      $operations = ['view' => $this->t('View'), 'view label' => $this->t('View label'), 'update' => $this->t('Update'), 'delete' => $this->t('Delete'), 'create' => $this->t('Create')];
+      $operations = ['view' => $this->t('View'), 'view label' => $this->t('View label'), 'update' => $this->t('Update'), 'delete' => $this->t('Delete')];
       $existing_permissions = $redhen_connection_role->get('permissions');
       // User's connection plus other connections.
       // @todo consider using this for connected connections and extend "own connection" to include user's own connections.
