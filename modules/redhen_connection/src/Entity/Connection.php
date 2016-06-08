@@ -232,7 +232,6 @@ class Connection extends ContentEntityBase implements ConnectionInterface {
     if (!$contact) {
       return FALSE;
     }
-    // Get connections and loop through checking for role permissions.
     // Make sure we have a valid entity to check against.
     if (!($entity instanceof ConnectionInterface)) {
       $connection_type = ConnectionType::load($this->bundle());
