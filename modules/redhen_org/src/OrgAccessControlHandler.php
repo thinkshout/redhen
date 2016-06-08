@@ -106,7 +106,7 @@ class OrgAccessControlHandler extends EntityAccessControlHandler implements Enti
         return $delete_access;
     }
 
-    return ConnectionAccessResult::allowedIfHasConnectionPermission($entity, $account, $operation);
+
 
     // Unknown operation, no opinion.
     return AccessResult::neutral();
