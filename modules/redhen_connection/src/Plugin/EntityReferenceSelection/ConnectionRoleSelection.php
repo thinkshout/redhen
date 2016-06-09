@@ -25,7 +25,9 @@ class ConnectionRoleSelection extends DefaultSelection {
 
     $connection_type = $this->configuration['handler_settings']['connection_type'];
     // Add connection_type parameter to the query.
-    $query->condition('connection_type', $connection_type, '=');
+    if ($connection_type) {
+      $query->condition('connection_type', $connection_type, '=');
+    }
     return $query;
   }
 }
