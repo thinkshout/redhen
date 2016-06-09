@@ -99,23 +99,25 @@ class ConnectionService implements ConnectionServiceInterface {
    * {@inheritdoc}
    */
   public function getConnections(EntityInterface $entity, EntityInterface $entity2 = NULL, $connection_type = NULL, $sort = array(), $offset = 0, $limit = 0) {
+    $connections = [];
 
     $query = $this->buildQuery($entity, $entity2, $connection_type);
 
-    foreach ($sort as $field => $direction) {
-      $query->sort($field, $direction);
-    }
+    if ($query) {
 
-    if ($limit > 0) {
-      $query->range($offset, $limit);
-    }
+      foreach ($sort as $field => $direction) {
+        $query->sort($field, $direction);
+      }
 
-    $results = $query->execute();
+      if ($limit > 0) {
+        $query->range($offset, $limit);
+      }
 
-    $connections = array();
-    if (!empty($results))
-    {
-      $connections = Connection::loadMultiple($results);
+      $results = $query->execute();
+
+      if (!empty($results)) {
+        $connections = Connection::loadMultiple($results);
+      }
     }
 
     return $connections;
@@ -153,25 +155,26 @@ class ConnectionService implements ConnectionServiceInterface {
 
       // Get endpoints (usually 1, but two possible).
       $endpoints = $connection_type->getEndpointFields($entity->getEntityTypeId());
-      $join_query = $this->connection->select('redhen_connection', 'c2');
+      $join_query = $this->connection->select('redhen_connection', 'sub');
       // In case we have two endpoints.
       $join_group = $join_query->orConditionGroup();
       foreach ($endpoints as $endpoint) {
         // Add entity 1 condition.
         $base_group->condition($endpoint, $entity->id());
         // Add entity 2 condition.
-        $join_group->condition($endpoint, 99);
+        $join_group->condition($endpoint, $entity2->id());
       }
       $join_query->condition($join_group);
-      $join_query->addField('c2', 'id');
+      $join_query->addField('sub', 'id');
+      $join_query->addField('sub', 'type');
       $query->condition($base_group);
 
-      $query->innerJoin($join_query);
+      $query->innerJoin($join_query, 'c2', 'c.type = c2.type');
 
       $query->addField('c', 'id');
       $result = $query->execute();
 
-      $type_results = array_unique($result->fetchCol(0));
+      $type_results = $result->fetchCol(0);
       $results = array_merge($results, $type_results);
     }
 
@@ -192,7 +195,7 @@ class ConnectionService implements ConnectionServiceInterface {
     if ($contact) {
       $direct_connections = $this->getConnections($contact, $entity);
       $indirect_connections = $this->getIndirectConnections($contact, $entity);
-      $connections = array_merge($direct_connections, $indirect_connections);
+      $connections = $direct_connections + $indirect_connections;
       foreach ($connections as $connection) {
         /** @var ConnectionInterface $connection */
         if ($result = $connection->hasRolePermission($entity, $operation, $contact)) {
