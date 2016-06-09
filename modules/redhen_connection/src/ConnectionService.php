@@ -145,7 +145,7 @@ class ConnectionService implements ConnectionServiceInterface {
     $fields = $type->getAllEndpointFields();
 
     // Get connections.
-    $connections = $this->getConnections($entity, $connection_type);
+    $connections = $this->getConnections($entity, NULL, $connection_type);
 
     // Loop through connections to find entities referenced by endpoint fields.
     foreach ($connections as $connection) {
@@ -220,7 +220,7 @@ class ConnectionService implements ConnectionServiceInterface {
     // Get connections and loop through checking for role permissions.
     $contact = Contact::loadByUser($account);
     if ($contact) {
-      $direct_connections = $this->getConnections($contact, $entity);
+      $direct_connections = $this->getConnections($contact, NULL, $entity);
       // @todo Only get indirect connections if no direct connections allow access?
       $indirect_connections = $this->getIndirectConnections($contact, $entity);
       $connections = $direct_connections + $indirect_connections;
