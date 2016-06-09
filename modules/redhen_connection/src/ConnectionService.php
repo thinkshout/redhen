@@ -194,6 +194,7 @@ class ConnectionService implements ConnectionServiceInterface {
     $contact = Contact::loadByUser($account);
     if ($contact) {
       $direct_connections = $this->getConnections($contact, $entity);
+      // @todo Only get indirect connections if no direct connections allow access?
       $indirect_connections = $this->getIndirectConnections($contact, $entity);
       $connections = $direct_connections + $indirect_connections;
       foreach ($connections as $connection) {
