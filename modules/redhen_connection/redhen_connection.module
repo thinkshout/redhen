@@ -88,5 +88,12 @@ function redhen_connection_entity_access(EntityInterface $entity, $operation, Ac
   if (in_array($entity->getEntityTypeId(), ['redhen_contact', 'redhen_org'])){
     return ConnectionAccessResult::allowedIfHasConnectionPermission($entity, $account, $operation);
   }
+
+  if ($entity->getEntityTypeId() == 'redhen_connection') {
+    // @todo Turn this into actual.
+    // get endpoint from connection type for redhen_contact
+    // $entity = contact from connection
+    return ConnectionAccessResult::allowedIfHasConnectionPermission($entity, $account, $operation);
+  }
   return ConnectionAccessResult::neutral();
 }
