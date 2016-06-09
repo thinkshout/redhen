@@ -172,8 +172,10 @@ function _redhen_contact_user_embed_contact_form(&$form, &$form_state, Contact $
     '#tree' => TRUE,
     '#parents' => ['form_display_' . $contact->getType()],
     '#open' => TRUE,
-    '#element_validate' => 'redhen_contact_user_update_validate'
   ];
+
+  // Add user update validation to start of #validate array.
+  array_unshift($form['#validate'], 'redhen_contact_user_update_validate');
 
   // Add EntityFormDisplay object used to build an entity's form.
   $form_state->set('form_display_' . $contact->getType(), EntityFormDisplay::collectRenderDisplay($contact, 'default'));
