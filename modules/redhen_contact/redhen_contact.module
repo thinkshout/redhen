@@ -172,7 +172,7 @@ function _redhen_contact_user_embed_contact_form(&$form, &$form_state, Contact $
     '#tree' => TRUE,
     '#parents' => ['form_display_' . $contact->getType()],
     '#open' => TRUE,
-    '#element_validate' => 'redhen_contact_user_update_validate'
+    '#element_validate' => ['redhen_contact_user_update_validate']
   ];
 
   // Add EntityFormDisplay object used to build an entity's form.
@@ -332,10 +332,11 @@ function _redhen_contact_user_submission_validate($form, &$form_state, Contact $
   // Contact fields shown) without clobbering existing field data for a Contact
   // while allowing the User edit form to function as expected (i.e. you can
   // delete field values).
-  if ($form['#form_id'] == 'user_register_form') {
+  $form_id = $form_state->getBuildInfo()['form_id'];
+  if ($form_id == 'user_register_form') {
     $message = _redhen_contact_user_submission_apply($form, $form_state, $form_display, $contact, TRUE);
   }
-  elseif ($form['#form_id'] == 'user_form') {
+  elseif ($form_id == 'user_form') {
     $message = _redhen_contact_user_submission_apply($form, $form_state, $form_display, $contact);
   }
 
@@ -399,9 +400,10 @@ function _redhen_contact_user_submission_apply($form, $form_state, $form_display
   // Contact is new. To determine this, we check whether the submission came
   // from the user_register_form and if it did, we check the setting that
   // determines whether we update fields on User registration.
-  if ($form['#form_id'] == 'user_form' ||
+  $form_id = $form_state->getBuildInfo()['form_id'];
+  if ($form_id == 'user_form' ||
     (\Drupal::config('redhen_contact.settings')->get('registration_update') &&
-      $form['#form_id'] == 'user_register_form') ||
+      $form_id == 'user_register_form') ||
     $contact->isNew()) {
     $form_display->extractFormValues($contact, $form['entity_' . $contact->getType()], $value_state);
   }

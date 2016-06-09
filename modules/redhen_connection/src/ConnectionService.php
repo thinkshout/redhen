@@ -220,7 +220,7 @@ class ConnectionService implements ConnectionServiceInterface {
     // Get connections and loop through checking for role permissions.
     $contact = Contact::loadByUser($account);
     if ($contact) {
-      $direct_connections = $this->getConnections($contact, NULL, $entity);
+      $direct_connections = $this->getConnections($contact, $entity);
       // @todo Only get indirect connections if no direct connections allow access?
       $indirect_connections = $this->getIndirectConnections($contact, $entity);
       $connections = $direct_connections + $indirect_connections;
