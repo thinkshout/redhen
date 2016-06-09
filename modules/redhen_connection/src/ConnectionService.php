@@ -3,7 +3,7 @@
 namespace Drupal\redhen_connection;
 
 use Drupal\Core\Access\AccessResultAllowed;
-use Drupal\Core\Access\AccessResultNeutral;
+use Drupal\Core\Database\Connection as DBConnection;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Entity\Query\QueryFactory;
@@ -33,6 +33,12 @@ class ConnectionService implements ConnectionServiceInterface {
    */
   protected $entityQuery;
 
+  /**
+   * The database connection to use.
+   *
+   * @var \Drupal\Core\Database\Connection
+   */
+  protected $connection;
 
   /**
    * Constructs a EntityCreateAccessCheck object.
@@ -41,10 +47,13 @@ class ConnectionService implements ConnectionServiceInterface {
    *   The entity manager.
    * @param \Drupal\Core\Entity\Query\QueryFactory $entity_query
    *   The entity query.
+   * @param \Drupal\Core\Database\Connection $connection
+   *   The database connection.
    */
-  public function __construct(EntityTypeManagerInterface $entity_type_manager, QueryFactory $entity_query) {
+  public function __construct(EntityTypeManagerInterface $entity_type_manager, QueryFactory $entity_query, DBConnection $connection) {
     $this->entityTypeManager = $entity_type_manager;
     $this->entityQuery = $entity_query;
+    $this->connection = $connection;
   }
 
   /**
@@ -80,7 +89,7 @@ class ConnectionService implements ConnectionServiceInterface {
 
     $connection_types = [];
     if (!empty($results)) {
-      $connection_types = ConnectionType::loadMultiple(array_keys($results));
+      $connection_types = ConnectionType::loadMultiple($results);
     }
 
     return $connection_types;
@@ -106,7 +115,7 @@ class ConnectionService implements ConnectionServiceInterface {
     $connections = array();
     if (!empty($results))
     {
-      $connections = Connection::loadMultiple(array_keys($results));
+      $connections = Connection::loadMultiple($results);
     }
 
     return $connections;
@@ -131,13 +140,58 @@ class ConnectionService implements ConnectionServiceInterface {
   /**
    * {@inheritdoc}
    */
+  public function getIndirectConnections(EntityInterface $entity, EntityInterface $entity2, $connection_type = NULL, $sort = array(), $offset = 0, $limit = 0) {
+    $types = ($connection_type) ? [$connection_type => ConnectionType::load($connection_type)] : $this->getConnectionTypes($entity);
+
+    $results = [];
+    foreach ($types as $type_id => $connection_type) {
+      // Base table is filtered on the first entity's id.
+      $query = $this->connection->select('redhen_connection', 'c');
+
+      // In case we have two endpoints.
+      $base_group = $query->orConditionGroup();
+
+      // Get endpoints (usually 1, but two possible).
+      $endpoints = $connection_type->getEndpointFields($entity->getEntityTypeId());
+      $join_query = $this->connection->select('redhen_connection', 'c2');
+      // In case we have two endpoints.
+      $join_group = $join_query->orConditionGroup();
+      foreach ($endpoints as $endpoint) {
+        // Add entity 1 condition.
+        $base_group->condition($endpoint, $entity->id());
+        // Add entity 2 condition.
+        $join_group->condition($endpoint, 99);
+      }
+      $join_query->condition($join_group);
+      $join_query->addField('c2', 'id');
+      $query->condition($base_group);
+
+      $query->innerJoin($join_query);
+
+      $query->addField('c', 'id');
+      $result = $query->execute();
+
+      $type_results = array_unique($result->fetchCol(0));
+      $results = array_merge($results, $type_results);
+    }
+
+    $connections = [];
+    if (!empty($results)) {
+      $connections = Connection::loadMultiple($results);
+    }
+
+    return $connections;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function checkConnectionPermission(EntityInterface $entity, $operation, AccountInterface $account = NULL) {
     // Get connections and loop through checking for role permissions.
     $contact = Contact::loadByUser($account);
     if ($contact) {
       $direct_connections = $this->getConnections($contact, $entity);
-      $indirect_connections = [];
-      //$indirect_connections = $this->getIndirectConnections($contact, $entity);
+      $indirect_connections = $this->getIndirectConnections($contact, $entity);
       $connections = array_merge($direct_connections, $indirect_connections);
       foreach ($connections as $connection) {
         /** @var ConnectionInterface $connection */
