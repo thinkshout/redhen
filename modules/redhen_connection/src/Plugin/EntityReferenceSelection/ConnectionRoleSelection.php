@@ -5,7 +5,7 @@ namespace Drupal\redhen_connection\Plugin\EntityReferenceSelection;
 use Drupal\Core\Entity\Plugin\EntityReferenceSelection\DefaultSelection;
 
 /**
- * Provides specific access control for the profile entity type.
+ * Limit connection roles to those associated with this connection_type.
  *
  * @EntityReferenceSelection(
  *   id = "default:redhen_connection_role",
@@ -23,13 +23,9 @@ class ConnectionRoleSelection extends DefaultSelection {
   protected function buildEntityQuery($match = NULL, $match_operator = 'CONTAINS') {
     $query = parent::buildEntityQuery($match, $match_operator);
 
-    if (!empty($this->configuration['entity'])) {
-      // Add connection_type parameter to the query.
-      $connection_type = $this->configuration['entity']->getType();
-      $query->condition('connection_type', $connection_type, '=');
-    }
-
+    $connection_type = $this->configuration['handler_settings']['connection_type'];
+    // Add connection_type parameter to the query.
+    $query->condition('connection_type', $connection_type, '=');
     return $query;
   }
-
 }

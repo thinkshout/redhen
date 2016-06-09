@@ -5,6 +5,7 @@ namespace Drupal\redhen_connection\Form;
 use Drupal\Core\Entity\EntityForm;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\redhen_connection\ConnectionTypeInterface;
+use Drupal\redhen_connection\Entity\ConnectionType;
 
 /**
  * Class ConnectionRoleForm.
@@ -12,15 +13,6 @@ use Drupal\redhen_connection\ConnectionTypeInterface;
  * @package Drupal\redhen_connection\Form
  */
 class ConnectionRoleForm extends EntityForm {
-
-  /**
-   * {@inheritdoc}
-   */
-//  protected function prepareEntity() {
-//    parent::prepareEntity();
-//
-//    $this->entity->connection_type = '';
-//  }
 
   /**
    * {@inheritdoc}
@@ -47,6 +39,60 @@ class ConnectionRoleForm extends EntityForm {
       '#disabled' => !$redhen_connection_role->isNew(),
     );
 
+    // Permissions.
+    /** @var ConnectionTypeInterface $connection_type */
+    $connection_type_id = $this->getEntityFromRouteMatch($this->getRouteMatch(), 'redhen_connection_type');
+    $connection_type = ConnectionType::load($connection_type_id);
+
+    // @todo Change getEndpointEntityTypeId to Ids and take no argument to get all endpoints.
+    $endpoints = [];
+    $endpoints[] = $connection_type->getEndpointEntityTypeId(1);
+    $endpoints[] = $connection_type->getEndpointEntityTypeId(2);
+
+    // At least one endpoint is a contact so we can have permissions.
+    if (in_array('redhen_contact', $endpoints)) {
+      $form['permissions'] = array(
+        '#type' => 'fieldset',
+        '#title' => $this->t('Permissions'),
+      );
+
+      // Standard permissions.
+      $operations = ['view' => $this->t('View'), 'view label' => $this->t('View label'), 'update' => $this->t('Update'), 'delete' => $this->t('Delete')];
+      $existing_permissions = $redhen_connection_role->get('permissions');
+      // User's connection plus other connections.
+      // @todo consider using this for connected connections and extend "own connection" to include user's own connections.
+      $form['permissions']['connection'] = array(
+        '#type' => 'checkboxes',
+        '#options' => $operations,
+        '#title' => $this->t('Connection'),
+        '#default_value' => (!empty($existing_permissions['connection'])) ? $existing_permissions['connection'] : [],
+        '#description' => $this->t('Applies to both the current user\'s connection and secondary connections. Sitewide permissions will override this setting.'),
+      );
+
+      // The non-contact endpoint entity type, if there is one.
+      $entity_type = array_diff($endpoints, ['redhen_contact']);
+
+      // Other endpoint permissions.
+      $form['permissions']['entity'] = array(
+        '#type' => 'checkboxes',
+        '#options' => $operations,
+        '#title' => $this->t('Entity'),
+        '#default_value' => (!empty($existing_permissions['entity'])) ? $existing_permissions['entity'] : [],
+        '#description' => $this->t('Sitewide permissions will override this setting.'),
+        '#access' => !empty($entity_type),
+      );
+      // Connected Contact permissions.
+      $form['permissions']['contact'] = array(
+        '#type' => 'checkboxes',
+        '#options' => $operations,
+        '#title' => $this->t('Secondary Contact'),
+        '#default_value' => (!empty($existing_permissions['contact'])) ? $existing_permissions['contact'] : [],
+        '#description' => $this->t('A contact connected to the same entity via connection of the same type. Sitewide permissions will override this setting.'),
+      );
+
+    }
+
+
     return $form;
   }
 
@@ -58,7 +104,17 @@ class ConnectionRoleForm extends EntityForm {
     // Get connection type entity from the route.
     $connection_type = $this->getEntityFromRouteMatch($this->getRouteMatch(), 'redhen_connection_type');
     // Set connection type property based on the route param.
-    $redhen_connection_role->set('connection_type', $connection_type->id());
+    $redhen_connection_role->set('connection_type', $connection_type);
+
+    // Build array of permissions.
+    $permissions = [
+      'connection' => array_filter(array_values($form_state->getValue('connection'))),
+      'entity' => array_filter(array_values($form_state->getValue('entity'))),
+      'contact' => array_filter(array_values($form_state->getValue('contact'))),
+    ];
+
+    $redhen_connection_role->set('permissions', $permissions);
+
     $status = $redhen_connection_role->save();
 
     switch ($status) {

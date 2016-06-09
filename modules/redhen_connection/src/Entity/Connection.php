@@ -10,9 +10,12 @@ namespace Drupal\redhen_connection\Entity;
 use Drupal\Core\Field\BaseFieldDefinition;
 use Drupal\Core\Entity\ContentEntityBase;
 use Drupal\Core\Entity\EntityChangedTrait;
+use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\redhen_connection\ConnectionInterface;
+use Drupal\redhen_contact\ContactInterface;
+use Drupal\redhen_contact\Entity\Contact;
 
 /**
  * Defines the Connection entity.
@@ -216,6 +219,54 @@ class Connection extends ContentEntityBase implements ConnectionInterface {
         }
       }
     }
+
+    $fields['role'] = clone $base_field_definitions['role'];
+    $fields['role']->setSetting('handler_settings', ['connection_type' => $connection_type->id()]);
+
     return $fields;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function hasRolePermission(EntityInterface $entity, $operation, ContactInterface $contact = NULL) {
+    if (!$contact) {
+      $contact = Contact::loadByUser(\Drupal::currentUser());
+    }
+    if (!$contact) {
+      return FALSE;
+    }
+    // Make sure we have a valid entity to check against.
+    if (!($entity instanceof ConnectionInterface)) {
+      $connection_type = ConnectionType::load($this->bundle());
+      $endpoints = $connection_type->getEndpointFields($entity->getEntityTypeId());
+      if (empty($endpoints)) {
+        return FALSE;
+      }
+    }
+    $role = $this->get('role')->entity;
+    if (!$role) {
+      return FALSE;
+    }
+    $permissions = $role->get('permissions');
+
+    $entity_type = $entity->getEntityTypeId();
+    // Determine which permission set to check:
+    // $entity can be: connection, connected entity or secondary contact.
+    $permission_set = 'entity';
+
+    // Connection.
+    if ($entity instanceof ConnectionInterface) {
+      $permission_set = 'connection';
+    }
+
+    // Secondary contact.
+    if ($entity_type == 'redhen_contact') {
+      // @todo Additional connection check needed to ensure $entity is connected
+      // indirectly to $account? Currently happening in ConnectionService:getIndirectConnections().
+      $permission_set = 'contact';
+    }
+
+    return (is_array($permissions[$permission_set]) && in_array($operation, $permissions[$permission_set]));
   }
 }

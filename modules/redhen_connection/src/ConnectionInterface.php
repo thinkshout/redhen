@@ -9,6 +9,8 @@ namespace Drupal\redhen_connection;
 
 use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Entity\EntityChangedInterface;
+use Drupal\Core\Entity\EntityInterface;
+use Drupal\redhen_contact\ContactInterface;
 
 /**
  * Provides an interface for defining Connection entities.
@@ -66,5 +68,16 @@ interface ConnectionInterface extends ContentEntityInterface, EntityChangedInter
    *   The called Connection entity.
    */
   public function setActive($active);
+
+  /**
+   * Check an operation permission against a connection.
+   *
+   * @param \Drupal\Core\Entity\EntityInterface $entity
+   * @param string $operation
+   * @param \Drupal\redhen_contact\ContactInterface|NULL $contact
+   *
+   * @return bool
+   */
+  public function hasRolePermission(EntityInterface $entity, $operation, ContactInterface $contact = NULL);
 
 }
