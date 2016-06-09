@@ -227,6 +227,7 @@ class ConnectionService implements ConnectionServiceInterface {
       foreach ($connections as $connection) {
         /** @var ConnectionInterface $connection */
         if ($result = $connection->hasRolePermission($entity, $operation, $contact)) {
+          // @todo - we should be able to use a neutral result here - test again to see if we can
           return new AccessResultAllowed();
         }
       }
