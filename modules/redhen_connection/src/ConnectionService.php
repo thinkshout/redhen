@@ -12,6 +12,7 @@ use Drupal\Core\Entity\Query\QueryInterface;
 use Drupal\Core\Session\AccountInterface;
 use Drupal\redhen_connection\Entity\ConnectionType;
 use Drupal\redhen_connection\Entity\Connection;
+use Drupal\redhen_contact\ContactInterface;
 use Drupal\redhen_contact\Entity\Contact;
 
 /**
@@ -230,17 +231,27 @@ class ConnectionService implements ConnectionServiceInterface {
     $contact = Contact::loadByUser($account);
     if ($contact) {
       $direct_connections = $this->getConnections($contact, $entity);
-      // @todo Only get indirect connections if no direct connections allow access?
-      $indirect_connections = $this->getIndirectConnections($contact, $entity);
-      $connections = $direct_connections + $indirect_connections;
-      foreach ($connections as $connection) {
+      foreach ($direct_connections as $connection) {
         /** @var ConnectionInterface $connection */
         if ($result = $connection->hasRolePermission($entity, $operation, $contact)) {
-          // @todo - we should be able to use a neutral result here - test again to see if we can
           return new AccessResultAllowed();
         }
       }
+      // Separate from the direct connections check because we want to limit
+      // checking for indirect connections to only when no direct connection
+      // returned AccessResultAllowed. We also only want to check if the entity
+      // we're checking on is a Contact.
+      if ($entity->getEntityTypeId() == 'redhen_contact') {
+        $indirect_connections = $this->getIndirectConnections($contact, $entity);
+        foreach ($indirect_connections as $connection) {
+          /** @var ConnectionInterface $connection */
+          if ($result = $connection->hasRolePermission($entity, $operation, $contact)) {
+            return new AccessResultAllowed();
+          }
+        }
+      }
     }
+    // @todo - we should be able to return a neutral result here - test again to see if we can
   }
 
   /**
