@@ -175,40 +175,32 @@ class ConnectionService implements ConnectionServiceInterface {
 
     $results = [];
     foreach ($types as $type_id => $connection_type) {
-      // Base table is filtered on the first entity's id.
-      $query = $this->connection->select('redhen_connection', 'c');
-
-      // In case we have two endpoints.
-      $base_group = $query->orConditionGroup();
 
       // Get endpoints (usually 1, but two possible).
       $endpoints = $connection_type->getEndpointFields($entity->getEntityTypeId());
       // Use first endpoint only.
       $endpoint = current($endpoints);
 
+      // @todo Don't hardcode the endpoint names.
+      $shared_endpoint = ($endpoint == 'endpoint_1') ? 'endpoint_2' : 'endpoint_1';
+
+      // Build our subquery first.
       $join_query = $this->connection->select('redhen_connection', 'sub');
-      // In case we have two endpoints.
-//      $join_group = $join_query->orConditionGroup();
-//      foreach ($endpoints as $endpoint) {
-//        // Add entity 1 condition.
-//        $base_group->condition($endpoint, $entity->id());
-//        // Add entity 2 condition.
-//        $join_group->condition($endpoint, $entity2->id());
-//      }
-//      $join_query->condition($join_group);
-
-      $base_group->condition('c.' . $endpoint, $entity->id());
-
       $join_query->addField('sub', 'id');
       $join_query->addField('sub', 'type');
       $join_query->addField('sub', $endpoint);
-      $query->condition($base_group);
+      $join_query->addField('sub', $shared_endpoint);
+      $join_query->condition('sub.' . $endpoint, $entity2->id());
+
+      // Base table is filtered on the first entity's id.
+      $query = $this->connection->select('redhen_connection', 'c');
+      $query->addField('c', 'id');
+      $query->condition('c. '. $endpoint, $entity->id());
 
       // Join on type and endpoint match. Can't pass $endpoint as argument
       // because it will be automatically wrapped in quotes and break the SQL.
-      $query->innerJoin($join_query, 'c2', 'c.type = c2.type AND c.' . $endpoint . ' = c2.' . $endpoint);
+      $query->innerJoin($join_query, 'c2', 'c.type = c2.type AND c.' . $shared_endpoint . ' = c2.' . $shared_endpoint);
 
-      $query->addField('c', 'id');
       $result = $query->execute();
 
       $type_results = $result->fetchCol(0);
