@@ -103,7 +103,7 @@ class ConnectionRoleForm extends EntityForm {
     // Get connection type entity from the route.
     $connection_type = $this->getEntityFromRouteMatch($this->getRouteMatch(), 'redhen_connection_type');
     // Set connection type property based on the route param.
-    $redhen_connection_role->set('connection_type', $connection_type);
+    $redhen_connection_role->set('connection_type', $connection_type->id());
 
     // Build array of permissions.
     $permissions = [
