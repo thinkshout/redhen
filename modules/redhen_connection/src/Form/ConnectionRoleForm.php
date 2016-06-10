@@ -107,9 +107,9 @@ class ConnectionRoleForm extends EntityForm {
 
     // Build array of permissions.
     $permissions = [
-      'connection' => array_filter(array_values($form_state->getValue('connection'))),
-      'entity' => array_filter(array_values($form_state->getValue('entity'))),
-      'contact' => array_filter(array_values($form_state->getValue('contact'))),
+      'connection' => is_array($form_state->getValue('connection')) ? array_filter(array_values($form_state->getValue('connection'))) : NULL,
+      'entity' => is_array($form_state->getValue('entity')) ? array_filter(array_values($form_state->getValue('entity'))) : NULL,
+      'contact' => is_array($form_state->getValue('contact')) ? array_filter(array_values($form_state->getValue('contact'))) : NULL,
     ];
 
     $redhen_connection_role->set('permissions', $permissions);
