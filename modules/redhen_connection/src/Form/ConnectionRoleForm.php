@@ -41,8 +41,7 @@ class ConnectionRoleForm extends EntityForm {
 
     // Permissions.
     /** @var ConnectionTypeInterface $connection_type */
-    $connection_type_id = $this->getEntityFromRouteMatch($this->getRouteMatch(), 'redhen_connection_type');
-    $connection_type = ConnectionType::load($connection_type_id);
+    $connection_type = $this->getEntityFromRouteMatch($this->getRouteMatch(), 'redhen_connection_type');
 
     // @todo Change getEndpointEntityTypeId to Ids and take no argument to get all endpoints.
     $endpoints = [];
