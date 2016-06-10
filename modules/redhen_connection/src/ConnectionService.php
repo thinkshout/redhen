@@ -182,21 +182,30 @@ class ConnectionService implements ConnectionServiceInterface {
 
       // Get endpoints (usually 1, but two possible).
       $endpoints = $connection_type->getEndpointFields($entity->getEntityTypeId());
+      // Use first endpoint only.
+      $endpoint = current($endpoints);
+
       $join_query = $this->connection->select('redhen_connection', 'sub');
       // In case we have two endpoints.
-      $join_group = $join_query->orConditionGroup();
-      foreach ($endpoints as $endpoint) {
-        // Add entity 1 condition.
-        $base_group->condition($endpoint, $entity->id());
-        // Add entity 2 condition.
-        $join_group->condition($endpoint, $entity2->id());
-      }
-      $join_query->condition($join_group);
+//      $join_group = $join_query->orConditionGroup();
+//      foreach ($endpoints as $endpoint) {
+//        // Add entity 1 condition.
+//        $base_group->condition($endpoint, $entity->id());
+//        // Add entity 2 condition.
+//        $join_group->condition($endpoint, $entity2->id());
+//      }
+//      $join_query->condition($join_group);
+
+      $base_group->condition('c.' . $endpoint, $entity->id());
+
       $join_query->addField('sub', 'id');
       $join_query->addField('sub', 'type');
+      $join_query->addField('sub', $endpoint);
       $query->condition($base_group);
 
-      $query->innerJoin($join_query, 'c2', 'c.type = c2.type');
+      // Join on type and endpoint match. Can't pass $endpoint as argument
+      // because it will be automatically wrapped in quotes and break the SQL.
+      $query->innerJoin($join_query, 'c2', 'c.type = c2.type AND c.' . $endpoint . ' = c2.' . $endpoint);
 
       $query->addField('c', 'id');
       $result = $query->execute();
