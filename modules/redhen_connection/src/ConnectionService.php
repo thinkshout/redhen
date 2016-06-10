@@ -198,6 +198,7 @@ class ConnectionService implements ConnectionServiceInterface {
 //      $join_query->condition($join_group);
 
       $base_group->condition('c.' . $endpoint, $entity->id());
+      $base_group->condition('c2.' . $endpoint, $entity2->id());
 
       $join_query->addField('sub', 'id');
       $join_query->addField('sub', 'type');
