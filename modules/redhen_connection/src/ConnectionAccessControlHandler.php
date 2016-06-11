@@ -18,12 +18,21 @@ use Drupal\Core\Access\AccessResult;
  * @see \Drupal\redhen_connection\Entity\Connection.
  */
 class ConnectionAccessControlHandler extends EntityAccessControlHandler {
+
+  /**
+   * {@inheritdoc}
+   */
+  protected $viewLabelOperation = TRUE;
+
   /**
    * {@inheritdoc}
    */
   protected function checkAccess(EntityInterface $entity, $operation, AccountInterface $account) {
     /** @var \Drupal\redhen_connection\ConnectionInterface $entity */
+
     switch ($operation) {
+      // @todo split out view label into its own permission.
+      case 'view label':
       case 'view':
         if (!$entity->isActive()) {
           return AccessResult::allowedIfHasPermission($account, 'view inactive Connection entities');

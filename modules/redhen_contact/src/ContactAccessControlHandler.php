@@ -18,6 +18,12 @@ use Drupal\Core\Access\AccessResult;
  * @see \Drupal\redhen_contact\Entity\Contact.
  */
 class ContactAccessControlHandler extends EntityAccessControlHandler {
+
+  /**
+   * {@inheritdoc}
+   */
+  protected $viewLabelOperation = TRUE;
+
   /**
    * {@inheritdoc}
    */
@@ -31,6 +37,8 @@ class ContactAccessControlHandler extends EntityAccessControlHandler {
     $own = $entity->getUserId() == $account->id();
 
     switch ($operation) {
+      // @todo split out view label into its own permission.
+      case 'view label':
       case 'view':
         // If Contact is active, check "view own" and/or "view active"
         // permissions to determine access.

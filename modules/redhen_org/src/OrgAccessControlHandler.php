@@ -1,59 +1,23 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\redhen_org\OrgAccessControlHandler.
- */
-
 namespace Drupal\redhen_org;
 
 use Drupal\Core\Entity\EntityAccessControlHandler;
 use Drupal\Core\Entity\EntityInterface;
-use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Session\AccountInterface;
 use Drupal\Core\Access\AccessResult;
-use Drupal\redhen_connection\ConnectionServiceInterface;
-use Drupal\redhen_connection\Access\ConnectionAccessResult;
-use Symfony\Component\DependencyInjection\ContainerInterface;
-use Drupal\Core\Entity\EntityHandlerInterface;
 
 /**
  * Access controller for the Org entity.
  *
  * @see \Drupal\redhen_org\Entity\Org.
  */
-class OrgAccessControlHandler extends EntityAccessControlHandler implements EntityHandlerInterface {
-
-
-  /**
-   * The Connection service.
-   *
-   * @var \Drupal\redhen_connection\ConnectionServiceInterface
-   */
-  protected $connections;
-
-  /**
-   * Constructs a OrgAccessControlHandler object.
-   *
-   * @param \Drupal\Core\Entity\EntityTypeInterface $entity_type
-   *   The entity type definition.
-   * @param \Drupal\redhen_connection\ConnectionServiceInterface $connections
-   *   The node grant storage.
-   */
-  public function __construct(EntityTypeInterface $entity_type, ConnectionServiceInterface $connections) {
-    parent::__construct($entity_type);
-    $this->connections = $connections;
-  }
+class OrgAccessControlHandler extends EntityAccessControlHandler {
 
   /**
    * {@inheritdoc}
    */
-  public static function createInstance(ContainerInterface $container, EntityTypeInterface $entity_type) {
-    return new static(
-      $entity_type,
-      $container->get('redhen_connection.connections')
-    );
-  }
+  protected $viewLabelOperation = TRUE;
 
   /**
    * {@inheritdoc}
@@ -65,6 +29,8 @@ class OrgAccessControlHandler extends EntityAccessControlHandler implements Enti
     $entity_bundle = $entity->getType();
 
     switch ($operation) {
+      // @todo split out view label into its own permission.
+      case 'view label':
       case 'view':
         // If Org is active, check "view active" permissions to determine
         // access.
@@ -105,8 +71,6 @@ class OrgAccessControlHandler extends EntityAccessControlHandler implements Enti
 
         return $delete_access;
     }
-
-
 
     // Unknown operation, no opinion.
     return AccessResult::neutral();

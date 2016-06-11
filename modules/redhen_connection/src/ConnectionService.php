@@ -175,7 +175,7 @@ class ConnectionService implements ConnectionServiceInterface {
 
     $results = [];
     foreach ($types as $type_id => $connection_type) {
-
+      /** @var ConnectionType $connection_type */
       // Get endpoints (usually 1, but two possible).
       $endpoints = $connection_type->getEndpointFields($entity->getEntityTypeId());
       // Use first endpoint only.
