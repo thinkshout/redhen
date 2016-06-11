@@ -71,18 +71,13 @@ interface ConnectionServiceInterface {
    *   The second entity we're querying against.
    * @param string $connection_type
    *   (optional) Limit returned connections to this type.
-   * @param array $sort
-   *   (optional) Associative array of field to sort by and direction:
-   *   e.g. ['field_name'] => 'DESC'
-   * @param int $offset
-   *   The number of records to offset results by.
-   * @param int $limit
-   *   The number of records to limit results to.
+   * @param bool $active
+   *   (optional) Limit to active connections.
    *
    * @return array
    *   The Connection entities connected to this entity.
    */
-  public function getIndirectConnections(EntityInterface $entity, EntityInterface $entity2, $connection_type = NULL, $sort = array(), $offset = 0, $limit = 0);
+  public function getIndirectConnections(EntityInterface $entity, EntityInterface $entity2, $connection_type = NULL, $active = TRUE);
 
   /**
    * Returns the other entities that are connected to this entity.

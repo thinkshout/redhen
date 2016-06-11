@@ -170,7 +170,7 @@ class ConnectionService implements ConnectionServiceInterface {
   /**
    * {@inheritdoc}
    */
-  public function getIndirectConnections(EntityInterface $entity, EntityInterface $entity2, $connection_type = NULL, $sort = array(), $offset = 0, $limit = 0) {
+  public function getIndirectConnections(EntityInterface $entity, EntityInterface $entity2, $connection_type = NULL, $active = TRUE) {
     $types = ($connection_type) ? [$connection_type => ConnectionType::load($connection_type)] : $this->getConnectionTypes($entity);
 
     $results = [];
@@ -196,6 +196,12 @@ class ConnectionService implements ConnectionServiceInterface {
       $query = $this->connection->select('redhen_connection', 'c');
       $query->addField('c', 'id');
       $query->condition('c. '. $endpoint, $entity->id());
+
+      // If we're filtering on active connections (default) limit status.
+      if ($active) {
+        $join_query->condition('sub.status', 1);
+        $query->condition('c.status', 1);
+      }
 
       // Join on type and endpoint match. Can't pass $endpoint as argument
       // because it will be automatically wrapped in quotes and break the SQL.
