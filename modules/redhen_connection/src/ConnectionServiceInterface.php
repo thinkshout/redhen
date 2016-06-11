@@ -32,6 +32,8 @@ interface ConnectionServiceInterface {
    *   The second entity we're querying against.
    * @param string $connection_type
    *   (optional) Limit returned connections to this type.
+   * @param bool $active
+   *   (optional) Return only active connections.
    * @param array $sort
    *   (optional) Associative array of field to sort by and direction:
    *   e.g. ['field_name'] => 'DESC'
@@ -43,7 +45,7 @@ interface ConnectionServiceInterface {
    * @return array
    *   The Connection entities connected to this entity.
    */
-  public function getConnections(EntityInterface $entity, EntityInterface $entity2 = NULL, $connection_type = NULL, $sort = array(), $offset = 0, $limit = 0);
+  public function getConnections(EntityInterface $entity, EntityInterface $entity2 = NULL, $connection_type = NULL, $active = TRUE, $sort = array(), $offset = 0, $limit = 0);
 
   /**
    * Returns the number of connections to this entity.

@@ -100,10 +100,10 @@ class ConnectionService implements ConnectionServiceInterface {
   /**
    * {@inheritdoc}
    */
-  public function getConnections(EntityInterface $entity, EntityInterface $entity2 = NULL, $connection_type = NULL, $sort = array(), $offset = 0, $limit = 0) {
+  public function getConnections(EntityInterface $entity, EntityInterface $entity2 = NULL, $connection_type = NULL, $active = TRUE, $sort = array(), $offset = 0, $limit = 0) {
     $connections = [];
 
-    $query = $this->buildQuery($entity, $entity2, $connection_type);
+    $query = $this->buildQuery($entity, $entity2, $connection_type, $active);
 
     if ($query) {
 
@@ -249,21 +249,25 @@ class ConnectionService implements ConnectionServiceInterface {
   /**
    * @param \Drupal\Core\Entity\EntityInterface $entity
    *   The entity we're querying against.
-   * * @param \Drupal\Core\Entity\EntityInterface $entity2
+   * @param \Drupal\Core\Entity\EntityInterface $entity2
    *   The second entity we're querying against.
    * @param null $connection_type
+   *   Limit query to this connection type.
+   * @param bool $active
+   *   Only active connections.
    *
    * @return QueryInterface
    */
-  private function buildQuery(EntityInterface $entity, EntityInterface $entity2 = NULL, $connection_type = NULL) {
+  private function buildQuery(EntityInterface $entity, EntityInterface $entity2 = NULL, $connection_type = NULL, $active = TRUE) {
     $types = ($connection_type) ? [$connection_type => ConnectionType::load($connection_type)] : $this->getConnectionTypes($entity, $entity2);
 
     /** @var QueryInterface $query */
     $query = $this->entityQuery->get('redhen_connection');
 
     // Add condition for the connection status.
-    // @todo Make configurable.
-    $query->condition('status', 1);
+    if ($active) {
+      $query->condition('status', 1);
+    }
 
     if ($connection_type != NULL) {
       $query->condition('type', $connection_type);
