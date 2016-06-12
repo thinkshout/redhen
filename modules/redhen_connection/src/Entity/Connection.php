@@ -119,7 +119,7 @@ class Connection extends ContentEntityBase implements ConnectionInterface {
    * {@inheritdoc}
    */
   public function setActive($active) {
-    $this->set('status', $active ? REDHEN_CONNECTION_INACTIVE : REDHEN_CONNECTION_ACTIVE);
+    $this->set('status', $active ? REDHEN_CONNECTION_ACTIVE : REDHEN_CONNECTION_INACTIVE);
     return $this;
   }
 
