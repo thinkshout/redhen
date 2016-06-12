@@ -182,10 +182,10 @@ class Contact extends ContentEntityBase implements ContactInterface {
   }
 
   /**
-   * Override parent::save() to manage user association.
+   * {@inheritdoc}
    */
-  public function save() {
-
+  public function preSave(EntityStorageInterface $storage) {
+    parent::preSave($storage);
     $user = $this->getUser();
     $config = \Drupal::config('redhen_contact.settings');
     $email = $this->getEmail();
@@ -197,8 +197,6 @@ class Contact extends ContentEntityBase implements ContactInterface {
         $this->setUser($user);
       }
     }
-
-    return parent::save();
   }
 
   /**
