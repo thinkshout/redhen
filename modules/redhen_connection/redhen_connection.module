@@ -8,9 +8,9 @@
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\Core\Session\AccountInterface;
+use Drupal\redhen_connection\ConnectionInterface;
 use Drupal\redhen_connection\Entity\ConnectionType;
 use Drupal\redhen_connection\Access\ConnectionAccessResult;
-use Drupal\redhen_contact\Entity\Contact;
 
 /**
  * Denotes that the Connection is not active.
@@ -112,4 +112,28 @@ function redhen_connection_entity_access(EntityInterface $entity, $operation, Ac
     }
   }
   return ConnectionAccessResult::neutral();
+}
+
+/**
+ * Implements hook_entity_update().
+ * @todo replace with event dispatcher/subscribers.
+ *
+ * @param \Drupal\Core\Entity\EntityInterface $entity
+ */
+function redhen_connection_entity_update(EntityInterface $entity) {
+
+  // When updating contacts and orgs, check if they've been made inactive and
+  // set their associated connections to inactive.
+  if (in_array($entity->getEntityTypeId(), ['redhen_contact', 'redhen_org'])) {
+    $original = $entity->original;
+    if (!$entity->isActive() && $original->isActive()) {
+      // Get active connections for this entity.
+      $connections = \Drupal::service('redhen_connection.connections')->getConnections($entity, NULL, NULL, TRUE);
+      foreach ($connections as $connection) {
+        /** @var ConnectionInterface $connection */
+        $connection->setActive(FALSE);
+        $connection->save();
+      }
+    }
+  }
 }
