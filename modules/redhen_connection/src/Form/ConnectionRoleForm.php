@@ -5,6 +5,7 @@ namespace Drupal\redhen_connection\Form;
 use Drupal\Core\Entity\EntityForm;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\redhen_connection\ConnectionTypeInterface;
+use Drupal\redhen_connection\Entity\ConnectionType;
 
 /**
  * Class ConnectionRoleForm.
@@ -41,6 +42,9 @@ class ConnectionRoleForm extends EntityForm {
     // Permissions.
     /** @var ConnectionTypeInterface $connection_type */
     $connection_type = $this->getEntityFromRouteMatch($this->getRouteMatch(), 'redhen_connection_type');
+    if (!is_object($connection_type)) {
+      $connection_type = ConnectionType::load($connection_type);
+    }
 
     // @todo Change getEndpointEntityTypeId to Ids and take no argument to get all endpoints.
     $endpoints = [];
