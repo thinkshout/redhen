@@ -341,7 +341,7 @@ function _redhen_contact_user_submission_validate($form, &$form_state, Contact $
   }
 
   // Validated submitted field values.
-  $form_display->validateFormValues($contact, $form['entity_' . $contact->getType()], $form_state);
+  $form_display->validateFormValues($contact, $form, $form_state);
   // Entity was validated in entityFormValidate(). This will prevent validation
   // exception from being thrown.
   $form_state->getFormObject()->getEntity()->validate();
@@ -405,7 +405,7 @@ function _redhen_contact_user_submission_apply($form, $form_state, $form_display
     (\Drupal::config('redhen_contact.settings')->get('registration_update') &&
       $form_id == 'user_register_form') ||
     $contact->isNew()) {
-    $form_display->extractFormValues($contact, $form['entity_' . $contact->getType()], $value_state);
+    $form_display->extractFormValues($contact, $form, $value_state);
   }
 
   return t('The contact was updated with the information provided.');
