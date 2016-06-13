@@ -5,7 +5,6 @@ namespace Drupal\redhen_connection\Form;
 use Drupal\Core\Entity\EntityForm;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\redhen_connection\ConnectionTypeInterface;
-use Drupal\redhen_connection\Entity\ConnectionType;
 
 /**
  * Class ConnectionRoleForm.
