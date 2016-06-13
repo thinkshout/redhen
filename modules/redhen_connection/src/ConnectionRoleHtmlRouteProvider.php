@@ -96,4 +96,42 @@ class ConnectionRoleHtmlRouteProvider extends AdminHtmlRouteProvider {
     }
   }
 
+  /**
+   * Gets the edit-form route.
+   *
+   * @param \Drupal\Core\Entity\EntityTypeInterface $entity_type
+   *   The entity type.
+   *
+   * @return \Symfony\Component\Routing\Route|null
+   *   The generated route, if available.
+   */
+  protected function getEditFormRoute(EntityTypeInterface $entity_type) {
+    if ($entity_type->hasLinkTemplate('edit-form')) {
+      $entity_type_id = $entity_type->id();
+      $route = new Route($entity_type->getLinkTemplate('edit-form'));
+      // Use the edit form handler, if available, otherwise default.
+      $operation = 'default';
+      if ($entity_type->getFormClass('edit')) {
+        $operation = 'edit';
+      }
+      $route
+        ->setDefaults([
+          '_entity_form' => "{$entity_type_id}.{$operation}",
+          '_title_callback' => '\Drupal\Core\Entity\Controller\EntityController::editTitle'
+        ])
+        ->setRequirement('_entity_access', "{$entity_type_id}.update")
+        ->setOption('parameters', [
+          $entity_type_id => ['type' => 'entity:' . $entity_type_id],
+          'redhen_connection_type' => ['type' => 'entity:redhen_connection_type'],
+        ]);
+
+      // Entity types with serial IDs can specify this in their route
+      // requirements, improving the matching process.
+      if ($this->getEntityTypeIdKeyType($entity_type) === 'integer') {
+        $route->setRequirement($entity_type_id, '\d+');
+      }
+      return $route;
+    }
+  }
+
 }
