@@ -44,29 +44,20 @@ class ConnectionPermissions {
     $type_params = ['%type' => $connection_type->label()];
 
     return [
-      "add own $type_id Connection" => [
-        'title' => $this->t('%type: Add own Connection', $type_params),
+      "add $type_id connection" => [
+        'title' => $this->t('%type: Add connection', $type_params),
       ],
-      "add any $type_id Connection" => [
-        'title' => $this->t('%type: Add any Connection', $type_params),
+      "view active $type_id connection" => [
+        'title' => $this->t('%type: View active connections', $type_params),
       ],
-      "view own $type_id Connection" => [
-        'title' => $this->t('%type: View own Connection', $type_params),
+      "view inactive $type_id connection" => [
+        'title' => $this->t('%type: View inactive connections', $type_params),
       ],
-      "view any $type_id Connection" => [
-        'title' => $this->t('%type: View any Connection', $type_params),
+      "edit $type_id connection" => [
+        'title' => $this->t('%type: Edit connections', $type_params),
       ],
-      "edit own $type_id Connection" => [
-        'title' => $this->t('%type: Edit own Connection', $type_params),
-      ],
-      "edit any $type_id Connection" => [
-        'title' => $this->t('%type: Edit any Connection', $type_params),
-      ],
-      "delete own $type_id Connection" => [
-        'title' => $this->t('%type: Delete own Connection', $type_params),
-      ],
-      "delete any $type_id Connection" => [
-        'title' => $this->t('%type: Delete any Connection', $type_params),
+      "delete $type_id connection" => [
+        'title' => $this->t('%type: Delete connections', $type_params),
       ],
     ];
   }
