@@ -1,21 +1,21 @@
-add Connection entities:
+add connection entities:
   title: 'Create new Connection entities'
 
-administer Connection entities:
+administer connection entities:
   title: 'Administer Connection entities'
   description: 'Allow to access the administration form to configure Connection entities.'
   restrict access: true
 
-delete Connection entities:
+delete connection entities:
   title: 'Delete Connection entities'
 
-edit Connection entities:
+edit connection entities:
   title: 'Edit Connection entities'
 
-view active Connection entities:
+view active connection entities:
   title: 'View active Connection entities'
 
-view inactive Connection entities:
+view inactive connection entities:
   title: 'View inactive Connection entities'
 
 permission_callbacks:
