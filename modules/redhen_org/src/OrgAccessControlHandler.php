@@ -56,7 +56,7 @@ class OrgAccessControlHandler extends EntityAccessControlHandler {
         // edit access.
         $edit_access = AccessResult::allowedIfHasPermissions($account, [
           'edit org entities',
-          'edit any ' . $entity_bundle . ' org',
+          'edit ' . $entity_bundle . ' org',
         ], 'OR');
 
         return $edit_access;
@@ -66,7 +66,7 @@ class OrgAccessControlHandler extends EntityAccessControlHandler {
         // delete access.
         $delete_access = AccessResult::allowedIfHasPermissions($account, [
           'delete org entities',
-          'delete any ' . $entity_bundle . ' org',
+          'delete ' . $entity_bundle . ' org',
         ], 'OR');
 
         return $delete_access;
