@@ -385,7 +385,7 @@ function _redhen_contact_user_submission_apply($form, $form_state, $form_display
   // values from the submitted form. Use this option if you don't want to
   // clobber pre-existing field values with empty field values from the form.
   if ($limit_values) {
-    $value_state = redhen_contact_user_registration_form_state($form['entity_' . $contact->getType()], $form_state);
+    $value_state = redhen_contact_user_registration_form_state($form, $form_state);
   }
   // If we're not limiting values, update all Contact field values for all
   // visible fields on the form by making $value_state == $form_state.
