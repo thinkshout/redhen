@@ -407,12 +407,6 @@ function _redhen_contact_user_submission_apply($form, $form_state, $form_display
     $contact->isNew()) {
     $form_display->extractFormValues($contact, $form, $value_state);
   }
-  if ($form_id == 'user_form') {
-    // Apply email value from embedded contact form to user.
-    // Note: user form's mail element is hidden if the contact form is embedded.
-    $contact_email = $contact->getEmail();
-    $form_state->setValue('mail', $contact_email);
-  }
 
   return t('The contact was updated with the information provided.');
 }
@@ -523,4 +517,21 @@ function redhen_contact_form_field_has_value($definition, $value) {
   }
 
   return TRUE;
+}
+
+/**
+ * Implements hook_ENTITY_TYPE_update() for the redhen_contact type entity.
+ */
+function redhen_contact_redhen_contact_update(Drupal\Core\Entity\EntityInterface $entity) {
+
+  // Get Redhen Contact settings.
+  $config = \Drupal::config('redhen_contact.settings');
+
+  // If we're mirroring the Contact's email address - set user's email address
+  // to that of the Contact.
+  if ($config->get('connect_users')) {
+    $user = $entity->getUser();
+    $user->setEmail($entity->getEmail());
+    $user->save();
+  }
 }
