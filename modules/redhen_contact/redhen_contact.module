@@ -312,7 +312,7 @@ function redhen_contact_user_update_submit($form, &$form_state) {
 }
 
 /**
- * Helper to
+ * Helper function for validating Contact Form values submitted via User forms.
  *
  * @param array $form
  * @param \Drupal\Core\Form\FormStateInterface $form_state
