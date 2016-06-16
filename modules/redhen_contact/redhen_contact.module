@@ -407,6 +407,12 @@ function _redhen_contact_user_submission_apply($form, $form_state, $form_display
     $contact->isNew()) {
     $form_display->extractFormValues($contact, $form, $value_state);
   }
+  if ($form_id == 'user_form') {
+    // Apply email value from embedded contact form to user.
+    // Note: user form's mail element is hidden if the contact form is embedded.
+    $contact_email = $contact->getEmail();
+    $form_state->setValue('mail', $contact_email);
+  }
 
   return t('The contact was updated with the information provided.');
 }
