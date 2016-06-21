@@ -518,3 +518,19 @@ function redhen_contact_form_field_has_value($definition, $value) {
 
   return TRUE;
 }
+
+/**
+ * Implements hook_user_format_name_alter().
+ *
+ * @param $name
+ * @param $account
+ */
+function redhen_contact_user_format_name_alter(&$name, $account) {
+  // If RedHen is configured to alter the username of users linked with Contacts.
+  if (\Drupal::config('redhen_contact.settings')->get('alter_username') == TRUE) {
+    $contact = Contact::loadByUser($account);
+    if ($contact) {
+      $name = $contact->label();
+    }
+  }
+}
