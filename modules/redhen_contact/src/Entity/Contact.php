@@ -186,8 +186,8 @@ class Contact extends ContentEntityBase implements ContactInterface {
    */
   public function preSave(EntityStorageInterface $storage) {
     parent::preSave($storage);
-    $user = $this->getUser();
     $config = \Drupal::config('redhen_contact.settings');
+    $user = $this->getUser();
     $email = $this->getEmail();
     // Ensure we want to connect Contact to a Drupal user, there is no user
     // connected currently, and we have an email value.
@@ -196,6 +196,24 @@ class Contact extends ContentEntityBase implements ContactInterface {
       if ($user) {
         $this->setUser($user);
       }
+    }
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function postSave(EntityStorageInterface $storage, $update = TRUE) {
+    parent::postSave($storage, $update);
+
+    // Get RedHen Contact settings.
+    $config = \Drupal::config('redhen_contact.settings');
+    $user = $this->getUser();
+    $email = $this->getEmail();
+    // If we're mirroring the Contact's email address and we have a user and
+    // email - set user's email address to that of the Contact.
+    if ($config->get('connect_users') && $user && $email) {
+      $user->setEmail($email);
+      $user->save();
     }
   }
 
