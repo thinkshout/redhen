@@ -1,0 +1,7 @@
+redhen_contact.config.contact_form:
+  path: '/admin/config/redhen/contact'
+  defaults:
+    _form: '\Drupal\redhen_contact\Form\ContactSettingsForm'
+    _title: 'Contacts'
+  requirements:
+    _permission: 'administer contact entities'

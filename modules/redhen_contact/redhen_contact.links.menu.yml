@@ -14,3 +14,10 @@ entity.redhen_contact_type.collection:
   parent: redhen.structure
   weight: 99
 
+redhen_contact.config.contact_form:
+  title: 'Contacts'
+  description: 'Global RedHen Contact settings.'
+  route_name: redhen_contact.config.contact_form
+  parent: redhen.config
+  weight: 4
+
