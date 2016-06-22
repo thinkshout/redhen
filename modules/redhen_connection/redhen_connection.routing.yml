@@ -1,0 +1,7 @@
+redhen_connection.config.connection_form:
+  path: '/admin/config/redhen/connection'
+  defaults:
+    _form: '\Drupal\redhen_connection\Form\ConnectionSettingsForm'
+    _title: 'Connections'
+  requirements:
+    _permission: 'administer connection entities'
