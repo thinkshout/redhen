@@ -121,10 +121,10 @@ function redhen_connection_entity_access(EntityInterface $entity, $operation, Ac
  * @param \Drupal\Core\Entity\EntityInterface $entity
  */
 function redhen_connection_entity_update(EntityInterface $entity) {
-
   // When updating contacts and orgs, check if they've been made inactive and
   // set their associated connections to inactive.
-  if (in_array($entity->getEntityTypeId(), ['redhen_contact', 'redhen_org'])) {
+  if (in_array($entity->getEntityTypeId(), ['redhen_contact', 'redhen_org']) &&
+    (\Drupal::config('redhen_connection.settings')->get('auto_disable_connections') == TRUE)) {
     $original = $entity->original;
     if (!$entity->isActive() && $original->isActive()) {
       // Get active connections for this entity.
