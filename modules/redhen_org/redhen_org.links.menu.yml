@@ -1,0 +1,15 @@
+# Org menu items definition
+entity.redhen_org.collection:
+  title: 'Organizations'
+  route_name: entity.redhen_org.collection
+  description: 'View RedHen CRM Organizations.'
+  parent: redhen.dashboard
+  weight: 100
+
+# Org type menu items definition
+entity.redhen_org_type.collection:
+  title: 'Organization types'
+  route_name: entity.redhen_org_type.collection
+  description: 'List Organization types.'
+  parent: redhen.structure
+  weight: 99

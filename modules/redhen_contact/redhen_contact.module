@@ -5,7 +5,9 @@
  * Contains redhen_contact.module..
  */
 
+use Drupal\Core\Entity\Entity\EntityFormDisplay;
 use Drupal\Core\Routing\RouteMatchInterface;
+use Drupal\redhen_contact\Entity\Contact;
 use Drupal\redhen_contact\Entity\ContactType;
 
 /**
@@ -53,16 +55,6 @@ function redhen_contact_theme() {
 }
 
 /**
- * Setting which determines if contact are required to have a unique email.
- *
- * @return bool
- *   True if unique is required, else false.
- */
-function redhen_contact_email_unique() {
-  return \Drupal::config('redhen_contact.settings')->get('unique_email');
-}
-
-/**
  * Return an associative array of contact types to be used as an options list.
  *
  * @return array
@@ -75,4 +67,470 @@ function redhen_contact_type_options_list() {
   }
 
   return $options;
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter() on the user_register_form.
+ */
+function redhen_contact_form_user_register_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_state, $form_id) {
+
+  // Get Redhen Contact settings.
+  $config = \Drupal::config('redhen_contact.settings');
+  // Check whether we should create a Contact on User registration.
+  if ($config->get('connect_users')) {
+
+    // Get menu item to check for overridden Contact Type parameter, but only
+    // when a user is registering from user/register.
+    $url_exploded = array_slice(explode('/', \Drupal::request()->getRequestUri()), 1);
+    if ($url_exploded[0] == 'user' && $url_exploded[1] == 'register' && isset($url_exploded[2])) {
+      $contact_type = $url_exploded[2];
+    }
+    else {
+      // If a parameter was not passed, use the default contact type.
+      $contact_type = $config->get('registration_type');
+    }
+
+    // If a valid contact type was found, embed fields from the Contact Type on
+    // the user registration form.
+    $types = redhen_contact_type_options_list();
+    if (array_key_exists($contact_type, $types)) {
+      $contact_object = Contact::create(['type' => $contact_type]);
+      _redhen_contact_user_embed_contact_form($form, $form_state, $contact_object);
+      // Add a validation handler for validating the Contact form data.
+      $form['#validate'][] = 'redhen_contact_user_registration_validate';
+      // Add a submit handler for handling the Contact form data.
+      $form['actions']['submit']['#submit'][] = 'redhen_contact_user_registration_submit';
+      // Hide the Contact email field, we will use the user mail field.
+      $form['entity_' . $contact_type]['email']['#access'] = FALSE;
+    }
+    else {
+      drupal_set_message(t('Invalid RedHen contact type parameter.'));
+    }
+  }
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter() on user_form.
+ */
+function redhen_contact_form_user_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_state, $form_id) {
+
+  // Load Contact using Drupal User.
+  $user = $form_state->getFormObject()->getEntity();
+  $contact = Contact::loadByUser($user);
+  // If we find a Contact linked to the current User, alter the form in
+  // accordance with our RedHen Contact admin settings.
+  if ($contact) {
+
+    // Get Redhen Contact settings.
+    $config = \Drupal::config('redhen_contact.settings');
+
+    // If we're mirroring the Contact's email address - disable the field.
+    if ($config->get('connect_users')) {
+      $form['account']['mail']['#disabled'] = TRUE;
+      $form['account']['mail']['#description'] .= ' ' . t('The email address for this account is managed by RedHen.');
+    }
+
+    // Embed Contact form on User edit form.
+    if ($config->get('embed_on_user_form')) {
+      // If the User email field is disabled, hide it since the Contact email
+      // field syncs to the User email field and is displayed on the embedded
+      // contact form.
+      // Having a disabled email field and an enabled one is confusing.
+      if ($form['account']['mail']['#disabled']) {
+        $form['account']['mail']['#access'] = FALSE;
+      }
+      _redhen_contact_user_embed_contact_form($form, $form_state, $contact);
+      // Add a submit handler for handling the Contact form data.
+      $form['actions']['submit']['#submit'][] = 'redhen_contact_user_update_submit';
+    }
+  }
+}
+
+/**
+ * Helper function to embed a contact form on a user form.
+ *
+ * Usage note: make sure to add a submit handler, otherwise this form data will
+ * just be ignored.
+ *
+ * @param array $form
+ *   Form array.
+ * @param \Drupal\Core\Form\FormStateInterface $form_state
+ *   Form state array.
+ * @param \Drupal\redhen_contact\Entity\Contact $contact
+ *   The Contact to build the form on.
+ */
+function _redhen_contact_user_embed_contact_form(&$form, &$form_state, Contact $contact) {
+
+  // Place new Contact object in form_state - we use this if an existing Contact
+  // is not found to link the user being created to.
+  $form_state->set('redhen_contact', $contact);
+
+  // Create form element to hold Contact fields.
+  $form['entity_' . $contact->getType()] = [
+    '#type' => 'details',
+    '#title' => str_replace('!type', ContactType::load($contact->getType())->label(), '!type Contact information'),
+    '#tree' => TRUE,
+    '#parents' => ['form_display_' . $contact->getType()],
+    '#open' => TRUE,
+    '#element_validate' => ['redhen_contact_user_update_validate']
+  ];
+
+  // Add EntityFormDisplay object used to build an entity's form.
+  $form_state->set('form_display_' . $contact->getType(), EntityFormDisplay::collectRenderDisplay($contact, 'default'));
+
+  // Build the entity's form into the placeholder form element created above.
+  $form_state
+    ->get('form_display_' . $contact->getType())
+    // Add fields to the placeholder form element created above.
+    ->buildForm($contact, $form['entity_' . $contact->getType()], $form_state);
+
+  // Hide user linkage field when embedded.
+  $form['entity_' . $contact->getType()]['uid']['#access'] = FALSE;
+
+}
+
+/**
+ * User registration form RedHen Contact validation handler.
+ */
+function redhen_contact_user_registration_validate($form, &$form_state) {
+
+  // Load existing Contact by email address if one exists.
+  $existing_contacts = Contact::loadByMail($form_state->getValue('mail'));
+  // If no pre-existing Contact, use Contact created and put into the
+  // form_state array when the user_registration form was loaded.
+  $contact = $existing_contacts ? current($existing_contacts) : $form_state->get('redhen_contact');
+
+  // Check whether we should update info of an existing Contact using info
+  // provided on user_registration form.
+  $update_existing = \Drupal::config('redhen_contact.settings')
+    ->get('registration_update');
+
+  // We have an existing contact, but it's of a different type.
+  if ($existing_contacts && $contact->getType() !== $form_state->get('redhen_contact')->getType()) {
+    $form_state->setError($form['account']['mail'], str_replace(['!type', '!email'], [$contact->getType(), $form_state->getValue('mail')], 'A Contact of type "!type" is already associated with the email address "!email".'));
+  }
+
+  // We don't want to update contacts, but found an existing match.
+  if ($existing_contacts && !$update_existing) {
+    $form_state->setError($form['account']['mail'], 'A contact already exists with that email address.');
+  }
+
+  // Existing contact is already linked to a user.
+  if ($existing_contacts && !is_null($contact->getUser()) && $update_existing) {
+    $form_state->setError($form['account']['mail'], 'A contact with that email address is already linked to a Drupal user.');
+  }
+
+  // Validate submitted field values and update Contact stored in form_state
+  // to be our chosen Contact (i.e. pre-existing Contact with matching email
+  // address or new Contact) with its field values updated from the values
+  // supplied in the form.
+  _redhen_contact_user_submission_validate($form, $form_state, $contact);
+}
+
+/**
+ * User registration form RedHen Contact submit handler.
+ *
+ * Links a Contact to a Drupal user on user registration.
+ * Contact will a pre-existing Contact if Redhen Contact admin setting to link
+ * user to existing Contact is TRUE and we were able to find a Contact with an
+ * email that matches the user being created. If either of these conditions is
+ * false, the Contact will be created new.
+ *
+ * @param array $form
+ *   Form array.
+ * @param array $form_state
+ *   Form state array.
+ */
+function redhen_contact_user_registration_submit($form, &$form_state) {
+
+  // Load Contact
+  $contact = $form_state->get('redhen_contact');
+
+  // Connect Drupal user to Redhen Contact.
+  // We know this should happen on submit without checking anything because
+  // we only embed redhen_contact fields on the user_registration form if
+  // redhen_contact.settings.connect_users is TRUE.
+  // See redhen_contact_form_user_register_form_alter().
+  $contact->setUserId($form_state->getFormObject()->getEntity()->id());
+
+  // Set Contact's email address to that of the new User.
+  $contact->setEmail($form_state->getValue('mail'));
+
+  // Save Contact associated with the user being created.
+  $contact->save();
+
+  // Add message that new User was linked to a Contact.
+  $message = t('User has been linked to the contact %name.',
+    array(
+      '%name' => $contact->label(),
+    )
+  );
+
+  // Update form_state Contact for later processing.
+  $form_state->set('redhen_contact', $contact);
+
+  // Only display this message to CRM admins to avoid confusion.
+  $user = Drupal::currentUser();
+  if ($user->hasPermission('administer contact entities')) {
+    drupal_set_message($message);
+  }
+}
+
+/**
+ * User edit form RedHen Contact validation handler.
+ *
+ * @param array $form
+ * @param \Drupal\Core\Form\FormStateInterface $form_state
+ */
+function redhen_contact_user_update_validate($form, &$form_state) {
+
+  // Load Contact
+  $contact = $form_state->get('redhen_contact');
+
+  // Validate submitted field values and update Contact stored in form_state
+  // with field values from the submitted form.
+  _redhen_contact_user_submission_validate($form, $form_state, $contact);
+}
+
+/**
+ * User update form RedHen Contact submit handler.
+ *
+ * Updates a connected Contact on User update.
+ *
+ * @param array $form
+ *   Form array.
+ * @param array $form_state
+ *   Form state array.
+ */
+function redhen_contact_user_update_submit($form, &$form_state) {
+
+  // Load Contact
+  $contact = $form_state->get('redhen_contact');
+
+  // Save changes to Contact associated with User being updated.
+  $contact->save();
+}
+
+/**
+ * Helper function for validating Contact Form values submitted via User forms.
+ *
+ * @param array $form
+ * @param \Drupal\Core\Form\FormStateInterface $form_state
+ * @param \Drupal\redhen_contact\Entity\Contact $contact
+ */
+function _redhen_contact_user_submission_validate($form, &$form_state, Contact $contact) {
+
+  // Get submitted field values.
+  /** @var $form_display \Drupal\core\Entity\Entity\EntityFormDisplay */
+  $form_display = $form_state->get('form_display_' . $contact->getType());
+
+  // Update Contact entity with values submitted on the form.
+  // Do NOT overwrite fields with values with empty field values if the
+  // submitted form is user_register_form. Do overwrite fields with values with
+  // empty field values if the submitted form is the user_edit form.
+  // This allows the user registration form to remain simple (i.e. not all
+  // Contact fields shown) without clobbering existing field data for a Contact
+  // while allowing the User edit form to function as expected (i.e. you can
+  // delete field values).
+  $form_id = $form_state->getBuildInfo()['form_id'];
+  if ($form_id == 'user_register_form') {
+    $message = _redhen_contact_user_submission_apply($form, $form_state, $form_display, $contact, TRUE);
+  }
+  elseif ($form_id == 'user_form') {
+    $message = _redhen_contact_user_submission_apply($form, $form_state, $form_display, $contact);
+  }
+
+  // Validated submitted field values.
+  $form_display->validateFormValues($contact, $form, $form_state);
+  // Entity was validated in entityFormValidate(). This will prevent validation
+  // exception from being thrown.
+  $form_state->getFormObject()->getEntity()->validate();
+
+  // Update Contact stored in form_state to be our chosen Contact (i.e.
+  // pre-existing Contact with matching email address or new Contact) with its
+  // field values updated from the values supplied in the form.
+  $form_state->set('redhen_contact', $contact);
+
+  // Only display this message to CRM admins to avoid confusion.
+  $user = Drupal::currentUser();
+  if (isset($message) && $user->hasPermission('administer contact entities')) {
+    drupal_set_message($message);
+  }
+}
+
+/**
+ * Helper function for handling Contact Form values submitted via User forms.
+ *
+ * This happens when a RedHen Contact form is embedded in a User form via a form
+ * alter hook, then the from is submitted. Note that this function updates the
+ * $contact, but does not save the changes.
+ *
+ * @param array $form
+ *   Form array.
+ * @param array $form_state
+ *   Form state array.
+ * @param EntityFormDisplay $form_display
+ *   EntityFormDisplay to extract field values from.
+ * @param \Drupal\redhen_contact\Entity\Contact $contact
+ *   RedhenContact to update.
+ * @param bool $limit_values
+ *   Whether to limit updated values to non-null fields.
+ *
+ * @return string
+ *   Status message.
+ */
+function _redhen_contact_user_submission_apply($form, $form_state, $form_display, Contact $contact, $limit_values = FALSE) {
+
+  // Limit field values updated on the Contact to only the fields with non-empty
+  // values from the submitted form. Use this option if you don't want to
+  // clobber pre-existing field values with empty field values from the form.
+  if ($limit_values) {
+    $value_state = redhen_contact_user_registration_form_state($form, $form_state);
+  }
+  // If we're not limiting values, update all Contact field values for all
+  // visible fields on the form by making $value_state == $form_state.
+  else {
+    $value_state = $form_state;
+  }
+
+  // We always update fields if the User and Contact are already linked. So, if
+  // the submission came from the user_form, we apply the submitted field
+  // values.
+  // We only update fields on user registration if settings permit or the
+  // Contact is new. To determine this, we check whether the submission came
+  // from the user_register_form and if it did, we check the setting that
+  // determines whether we update fields on User registration.
+  $form_id = $form_state->getBuildInfo()['form_id'];
+  if ($form_id == 'user_form' ||
+    (\Drupal::config('redhen_contact.settings')->get('registration_update') &&
+      $form_id == 'user_register_form') ||
+    $contact->isNew()) {
+    $form_display->extractFormValues($contact, $form, $value_state);
+  }
+
+  return t('The contact was updated with the information provided.');
+}
+
+/**
+ * Return form_state that includes the values from the visible form elements.
+ *
+ * @param array $form
+ *   The RedHen contact form.
+ * @param array $form_state
+ *   The RedHen contact form state.
+ *
+ * @return array
+ *   The modified form_state array.
+ */
+function redhen_contact_user_registration_form_state($form, $form_state) {
+  // Start with form_state as passed.
+  $limited_state = clone $form_state;
+  // Reset values element since we'll be rebuilding it below.
+  $field_parent_name = 'form_display_' . $form_state->get('redhen_contact')->getType();
+  $limited_state->setValue($field_parent_name, []);
+
+  // Get Redhen Contact field definitions to determine default values.
+  $contact_fields = \Drupal::entityManager()->getFieldDefinitions('redhen_contact', 'team_member');
+
+  // Get all Redhen contact field values.
+  $field_values = $form_state->getValue($field_parent_name);
+  $limited_field_values = array();
+
+  // Loop through all Redhen contact field values.
+  foreach ($field_values as $key => $value) {
+    // Skip un-accessible children.
+    if (isset($form[$key]['#access']) && !$form[$key]['#access']) {
+      continue;
+    }
+
+    // Skip any empty fields.
+    if (!redhen_contact_form_field_has_value($contact_fields[$key], $value)) {
+      continue;
+    }
+
+    // Add fields with new values to limited field values.
+    $limited_field_values[$key] = $value;
+  }
+
+  // Rebuild form state with limited field values.
+  $limited_state->setValue($field_parent_name, $limited_field_values);
+  return $limited_state;
+}
+
+/**
+ * Determines if a form field has been submitted with a value.
+ *
+ * @param object $definition
+ *   The field definition as returned by
+ *   \Drupal::entityManager()->getFieldDefinitions
+ * @param array $value
+ *   The field value in the submitted form state.
+ *
+ * @return boolean
+ *   TRUE if the field contains a value, FALSE otherwise.
+ */
+function redhen_contact_form_field_has_value($definition, $value) {
+  if ($definition instanceof \Drupal\Core\Field\BaseFieldDefinition) {
+    // Base fields can have their values compared against the field's
+    // default value. If the value matches the default, the field is empty.
+    if ($value === $definition->getDefaultValueLiteral()) {
+      return FALSE;
+    }
+  }
+  else if ($definition instanceof \Drupal\field\Entity\FieldConfig) {
+    // Some entity fields require special logic to determine if they are empty.
+    // Start with the field type.
+    $field_type = $definition->getType();
+
+    switch ($field_type) {
+      // Test an image field.
+      case 'image':
+        if (empty($value[0]['fids'])) {
+          return FALSE;
+        }
+        break;
+      default:
+        // Default to testing the field storage definition's first column for
+        // an empty value. This works for most fields.
+        // e.g. An entity_reference field would have a "target_id" column,
+        // which is an array key that can be tested for emptiness in the
+        // field value.
+        $columns = $definition->getFieldStorageDefinition()->getColumns();
+        reset($columns);
+        $column_name = key($columns);
+        // Some field types store their values in $value[0].
+        // Example: string, entity_reference, and telephone type fields.
+        if (isset($value[0])) {
+          if (array_key_exists($column_name, $value[0]) && empty($value[0][$column_name])) {
+            return FALSE;
+          }
+        }
+        // Other field types store their values in $value[$column_name].
+        // Example: boolean and list_string type fields.
+        else {
+          if (array_key_exists($column_name, $value) && empty($value[$column_name])) {
+            return FALSE;
+          }
+        }
+        break;
+    }
+  }
+
+  return TRUE;
+}
+
+/**
+ * Implements hook_user_format_name_alter().
+ *
+ * @param $name
+ * @param $account
+ */
+function redhen_contact_user_format_name_alter(&$name, $account) {
+  // If RedHen is configured to alter the username of users linked with Contacts.
+  if (\Drupal::config('redhen_contact.settings')->get('alter_username') == TRUE) {
+    $contact = Contact::loadByUser($account);
+    if ($contact) {
+      $name = $contact->label();
+    }
+  }
 }

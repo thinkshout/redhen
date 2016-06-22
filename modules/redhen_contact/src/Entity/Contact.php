@@ -33,7 +33,7 @@ use Drupal\user\UserInterface;
  *   handlers = {
  *     "view_builder" = "Drupal\Core\Entity\EntityViewBuilder",
  *     "list_builder" = "Drupal\redhen_contact\ContactListBuilder",
- *     "views_data" = "Drupal\redhen_contact\Entity\ContactViewsData",
+ *     "views_data" = "Drupal\views\EntityViewsData",
  *
  *     "form" = {
  *       "default" = "Drupal\redhen_contact\Form\ContactForm",
@@ -54,7 +54,6 @@ use Drupal\user\UserInterface;
  *     "revision" = "revision_id",
  *     "bundle" = "type",
  *     "uuid" = "uuid",
- *     "uid" = "user_id",
  *     "langcode" = "langcode",
  *     "status" = "status",
  *   },
@@ -71,15 +70,6 @@ use Drupal\user\UserInterface;
  */
 class Contact extends ContentEntityBase implements ContactInterface {
   use EntityChangedTrait;
-  /**
-   * {@inheritdoc}
-   */
-  public static function preCreate(EntityStorageInterface $storage_controller, array &$values) {
-    parent::preCreate($storage_controller, $values);
-    $values += array(
-      'user_id' => \Drupal::currentUser()->id(),
-    );
-  }
 
   /**
    * {@inheritdoc}
@@ -149,52 +139,22 @@ class Contact extends ContentEntityBase implements ContactInterface {
   /**
    * {@inheritdoc}
    */
-  public function getRevisionCreationTime() {
-    return $this->get('revision_timestamp')->value;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function setRevisionCreationTime($timestamp) {
-    $this->set('revision_timestamp', $timestamp);
-    return $this;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function getRevisionAuthor() {
-    return $this->get('revision_uid')->entity;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function setRevisionAuthorId($uid) {
-    $this->set('revision_uid', $uid);
-    return $this;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
   public function getUser() {
-    return $this->get('user_id')->entity;
+    return $this->get('uid')->entity;
   }
 
   /**
    * {@inheritdoc}
    */
   public function getUserId() {
-    return $this->get('user_id')->target_id;
+    return $this->get('uid')->target_id;
   }
 
   /**
    * {@inheritdoc}
    */
   public function setUserId($uid) {
-    $this->set('user_id', $uid);
+    $this->set('uid', $uid);
     return $this;
   }
 
@@ -202,7 +162,7 @@ class Contact extends ContentEntityBase implements ContactInterface {
    * {@inheritdoc}
    */
   public function setUser(UserInterface $account) {
-    $this->set('user_id', $account->id());
+    $this->set('uid', $account->id());
     return $this;
   }
 
@@ -219,6 +179,107 @@ class Contact extends ContentEntityBase implements ContactInterface {
   public function setActive($active) {
     $this->set('status', $active ? REDHEN_CONTACT_INACTIVE : REDHEN_CONTACT_ACTIVE);
     return $this;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function preSave(EntityStorageInterface $storage) {
+    parent::preSave($storage);
+    $config = \Drupal::config('redhen_contact.settings');
+    $user = $this->getUser();
+    $email = $this->getEmail();
+    // Ensure we want to connect Contact to a Drupal user, there is no user
+    // connected currently, and we have an email value.
+    if ($config->get('connect_users') && !$user && $email) {
+      $user = user_load_by_mail($email);
+      if ($user) {
+        $this->setUser($user);
+      }
+    }
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function postSave(EntityStorageInterface $storage, $update = TRUE) {
+    parent::postSave($storage, $update);
+
+    // Get RedHen Contact settings.
+    $config = \Drupal::config('redhen_contact.settings');
+    $user = $this->getUser();
+    $email = $this->getEmail();
+    // If we're mirroring the Contact's email address and we have a user and
+    // email - set user's email address to that of the Contact.
+    if ($config->get('connect_users') && $user && $email) {
+      $user->setEmail($email);
+      $user->save();
+    }
+  }
+
+  /**
+   * Load a contact record from a user account.
+   *
+   * @param object $account
+   *   User object.
+   * @param bool $status
+   *   Redhen status. Defaults to active.
+   *
+   * @return mixed
+   *   Contact or FALSE if not found.
+   */
+  public static function loadByUser($account, $status = TRUE) {
+    $contact = &drupal_static(__FUNCTION__ . $account->id(), FALSE);
+
+    // If we don't have a cached Contact and we have a uid to load the Contact
+    // by, proceed.
+    if (!$contact && !empty($account->id())) {
+
+      // Find Contacts linked to the current Drupal User.
+      $query = \Drupal::entityQuery('redhen_contact');
+      $query->condition('uid', $account->id(), '=');
+      $query->condition('status', $status);
+      $results = $query->execute();
+
+      // If we find a Contact, load and return it.
+      if (!empty($results)) {
+        // There should always be only a single active user linked to an account.
+        $contact = Contact::load(reset($results));
+      }
+    }
+
+    return $contact;
+  }
+
+  /**
+   * Load all Contact entities for a given email address.
+   *
+   * @param string $email
+   *   Required: an email address.
+   * @param bool $status
+   *   RedHen status. Defaults to active.
+   *
+   * @return array|bool
+   *   An array of RedHen Contact entities or FALSE if no match found.
+   */
+  public static function loadByMail($email, $status = TRUE) {
+    $contacts = &drupal_static(__FUNCTION__ . $email, FALSE);
+
+    // If we don't have a cached Contact, try to find one with the given email.
+    if (!$contacts) {
+      $query = \Drupal::entityQuery('redhen_contact');
+      $query->condition('email', $email, '=');
+      $query->condition('status', $status);
+      $results = $query->execute();
+
+      // If we find any Contacts with emails that match our request,
+      // load and return them.
+      if (!empty($results)) {
+       $contacts = Contact::loadMultiple(array_keys($results));
+      }
+    }
+
+    return $contacts;
   }
 
   /**
@@ -293,13 +354,13 @@ class Contact extends ContentEntityBase implements ContactInterface {
       ->setDisplayConfigurable('view', TRUE)
       ->setRevisionable(TRUE);
 
-    $fields['user_id'] = BaseFieldDefinition::create('entity_reference')
+    $fields['uid'] = BaseFieldDefinition::create('entity_reference')
       ->setLabel(t('Linked user'))
       ->setDescription(t('The Drupal user this contact is linked to.'))
       ->setRevisionable(TRUE)
       ->setSetting('target_type', 'user')
-      ->setSetting('handler', 'default')
-      ->setTranslatable(TRUE)
+      ->setTranslatable(FALSE)
+      ->setRequired(FALSE)
       ->setDisplayOptions('view', array(
         'label' => 'inline',
         'type' => 'entity_reference_label',

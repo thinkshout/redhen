@@ -3,6 +3,6 @@ connect_users: FALSE
 embed_on_user_form: FALSE
 alter_username: TRUE
 registration: TRUE
-registration_types:
+registration_type:
 registration_link:
 registration_update:

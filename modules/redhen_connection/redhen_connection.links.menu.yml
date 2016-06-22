@@ -1,0 +1,23 @@
+# Connection menu items definition
+entity.redhen_connection.collection:
+  title: 'Connections'
+  route_name: entity.redhen_connection.collection
+  description: 'View RedHen CRM Connections.'
+  parent: redhen.dashboard
+  weight: 100
+
+# Connection type menu items definition
+entity.redhen_connection_type.collection:
+  title: 'Connection types'
+  route_name: entity.redhen_connection_type.collection
+  description: 'List Connection types.'
+  parent: redhen.structure
+  weight: 99
+
+redhen_connection.config.connection_form:
+  title: 'Connections'
+  description: 'Global RedHen Connection settings.'
+  route_name: redhen_connection.config.connection_form
+  parent: redhen.config
+  weight: 5
+

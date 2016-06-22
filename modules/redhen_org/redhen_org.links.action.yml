@@ -1,0 +1,10 @@
+entity.redhen_org.add_form:
+  route_name: 'redhen_org.add_page'
+  title: 'Add Organization'
+  appears_on:
+    - entity.redhen_org.collection
+entity.redhen_org_type.add_form:
+  route_name: 'entity.redhen_org_type.add_form'
+  title: 'Add Organization type'
+  appears_on:
+    - entity.redhen_org_type.collection

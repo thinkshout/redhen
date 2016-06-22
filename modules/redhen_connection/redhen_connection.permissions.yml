@@ -1,0 +1,22 @@
+add connection entities:
+  title: 'Create new Connection entities'
+
+administer connection entities:
+  title: 'Administer Connection entities'
+  description: 'Allow to access the administration form to configure Connection entities.'
+  restrict access: true
+
+delete connection entities:
+  title: 'Delete Connection entities'
+
+edit connection entities:
+  title: 'Edit Connection entities'
+
+view active connection entities:
+  title: 'View active Connection entities'
+
+view inactive connection entities:
+  title: 'View inactive Connection entities'
+
+permission_callbacks:
+  - \Drupal\redhen_connection\ConnectionPermissions::ConnectionTypePermissions

@@ -1,0 +1,11 @@
+entity.redhen_connection_type.add_form:
+  route_name: 'entity.redhen_connection_type.add_form'
+  title: 'Add Connection type'
+  appears_on:
+    - entity.redhen_connection_type.collection
+entity.redhen_connection_role.add_form:
+  route_name: 'entity.redhen_connection_role.add_form'
+  title: 'Add Connection Role'
+  appears_on:
+    - entity.redhen_connection_role.collection
+

@@ -12,6 +12,10 @@ delete contact entities:
 edit contact entities:
   title: 'Edit Contact entities'
 
+link contact entities to users:
+  title: 'Link Contact entities to Users'
+  description: 'Allow access to "Linked user" field on embedded Contact form'
+
 view active contact entities:
   title: 'View active Contact entities'
 

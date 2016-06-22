@@ -1,0 +1,110 @@
+<?php
+
+/**
+ * @file
+ * Contains redhen_org.module..
+ */
+
+use Drupal\Core\Routing\RouteMatchInterface;
+use Drupal\redhen_org\Entity\OrgType;
+
+/**
+ * Denotes that the org is not active.
+ */
+const REDHEN_ORG_INACTIVE = 0;
+
+/**
+ * Denotes that the org is active.
+ */
+const REDHEN_ORG_ACTIVE = 1;
+
+/**
+ * Implements hook_help().
+ */
+function redhen_org_help($route_name, RouteMatchInterface $route_match) {
+  switch ($route_name) {
+    // Main module help for the redhen_org module.
+    case 'help.page.redhen_org':
+      $output = '';
+      $output .= '<h3>' . t('About') . '</h3>';
+      $output .= '<p>' . t('Defines the base org entity and features.') . '</p>';
+      return $output;
+
+    default:
+  }
+}
+
+/**
+ * Implements hook_theme().
+ */
+function redhen_org_theme() {
+  $theme = [];
+  $theme['redhen_org'] = [
+    'render element' => 'elements',
+    'file' => 'redhen_org.page.inc',
+    'template' => 'redhen_org',
+  ];
+  $theme['redhen_org_content_add_list'] = [
+    'render element' => 'content',
+    'variables' => ['content' => NULL],
+    'file' => 'redhen_org.page.inc',
+  ];
+  return $theme;
+}
+
+/**
+ * Return an associative array of org types to be used as an options list.
+ *
+ * @return array
+ *   Keyed by name with a label value.
+ */
+function redhen_org_type_options_list() {
+  $options = array();
+  foreach (OrgType::loadMultiple() as $type) {
+    $options[$type->id()] = $type->label();
+  }
+
+  return $options;
+}
+
+/**
+ * Implements hook_tokens().
+ */
+function redhen_org_tokens($type, $tokens, array $data, array $options, \Drupal\Core\Render\BubbleableMetadata $bubbleable_metadata) {
+  $replacements = array();
+
+  if (($type == 'entity') && isset($data['entity_type']) && ($data['entity_type'] == 'redhen_org')) {
+
+    foreach ($tokens as $name => $original) {
+      switch ($name) {
+        case 'id':
+          $replacements[$original] = $data['entity']->id();
+          break;
+      }
+    }
+
+  }
+
+  return $replacements;
+}
+
+/**
+ * Implements hook_token_info().
+ */
+function redhen_org_token_info() {
+  $type = array(
+    'name' => t('Organization'),
+    'description' => t('Tokens related to an individual Organizations.'),
+    'needs-data' => 'redhen_org',
+  );
+
+  $redhen_org['id'] = array(
+    'name' => t('Organization ID'),
+    'description' => t('The unique ID of the Organization.'),
+  );
+
+  return array(
+    'types' => array('redhen_org' => $type),
+    'tokens' => array('redhen_org' => $redhen_org),
+  );
+}

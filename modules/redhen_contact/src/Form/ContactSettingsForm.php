@@ -45,7 +45,19 @@ class ContactSettingsForm extends ConfigFormBase {
    *   The current state of the form.
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
-    // Empty implementation of the abstract submit class.
+    \Drupal::service('config.factory')
+      ->getEditable('redhen_contact.settings')
+      ->set('unique_email', $form_state->getValue('unique_email'))
+      ->set('connect_users', $form_state->getValue('connect_users'))
+      ->set('embed_on_user_form', $form_state->getValue('embed_on_user_form'))
+      ->set('alter_username', $form_state->getValue('alter_username'))
+      ->set('registration', $form_state->getValue('registration'))
+      ->set('registration_type', $form_state->getValue('registration_type'))
+      ->set('registration_link', $form_state->getValue('registration_link'))
+      ->set('registration_update', $form_state->getValue('registration_update'))
+      ->save();
+
+    parent::submitForm($form, $form_state);
   }
 
   /**
@@ -67,7 +79,7 @@ class ContactSettingsForm extends ConfigFormBase {
         '#type' => 'checkbox',
         '#title' => t('Require contacts to have a valid email address'),
         '#description' => t('Controls the contact form validation. Must be true to enable Drupal user connections keyed on email.'),
-        '#default_value' => redhen_contact_email_unique(),
+        '#default_value' => $config->get('unique_email'),
       ),
       'connect_users' => array(
         '#type' => 'checkbox',
@@ -93,7 +105,7 @@ class ContactSettingsForm extends ConfigFormBase {
       ),
       'alter_username' => array(
         '#type' => 'checkbox',
-        '#title' => t('Display username as contact label'),
+        '#title' => t('Use contact label as username'),
         '#description' => t("If checked, RedHen will alter the display of the Drupal username to match a linked contact's label."),
         '#default_value' => $config->get('alter_username'),
       ),
@@ -107,12 +119,12 @@ class ContactSettingsForm extends ConfigFormBase {
             '#title' => t('Create a contact during user registration'),
             '#default_value' => $config->get('registration'),
           ),
-          'registration_types' => array(
+          'registration_type' => array(
             '#type' => 'select',
             '#options' => redhen_contact_type_options_list(),
             '#title' => t('Allowed contact type'),
             '#description' => t('Select the allowed contact types to create during registration. This can be overridden by appending the contact type machine name in the registration url.'),
-            '#default_value' => $config->get('registration_types'),
+            '#default_value' => $config->get('registration_type'),
             '#states' => array(
               'invisible' => array(
                 ':input[name="registration"]' => array('checked' => FALSE),

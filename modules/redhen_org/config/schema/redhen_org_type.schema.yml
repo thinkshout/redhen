@@ -1,0 +1,12 @@
+redhen_org.redhen_org_type.*:
+  type: config_entity
+  label: 'Org type config'
+  mapping:
+    id:
+      type: string
+      label: 'ID'
+    label:
+      type: label
+      label: 'Label'
+    uuid:
+      type: string

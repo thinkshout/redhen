@@ -1,0 +1,37 @@
+redhen_connection.redhen_connection_role.*:
+  type: config_entity
+  label: 'Connection Role config'
+  mapping:
+    id:
+      type: string
+      label: 'ID'
+    label:
+      type: label
+      label: 'Label'
+    connection_type:
+      type: string
+      label: 'Connection Type'
+    permissions:
+      type: mapping
+      label: 'Permissions'
+      mapping:
+        connection:
+          type: sequence
+          label: 'Connection permissions'
+          sequence:
+            type: string
+            label: 'Permissions'
+        entity:
+          type: sequence
+          label: 'Entity permissions'
+          sequence:
+            type: string
+            label: 'Permissions'
+        contact:
+          type: sequence
+          label: 'Contact permissions'
+          sequence:
+            type: string
+            label: 'Permissions'
+    uuid:
+      type: string

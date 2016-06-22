@@ -1,0 +1,22 @@
+add org entities:
+  title: 'Create new Org entities'
+
+administer org entities:
+  title: 'Administer Org entities'
+  description: 'Allow to access the administration form to configure Org entities.'
+  restrict access: true
+
+delete org entities:
+  title: 'Delete Org entities'
+
+edit org entities:
+  title: 'Edit Org entities'
+
+view active org entities:
+  title: 'View active Org entities'
+
+view inactive org entities:
+  title: 'View inactive Org entities'
+
+permission_callbacks:
+  - \Drupal\redhen_org\OrgPermissions::OrgTypePermissions

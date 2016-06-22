@@ -1,0 +1,16 @@
+# Org routing definition
+entity.redhen_org.canonical:
+  route_name: entity.redhen_org.canonical
+  base_route: entity.redhen_org.canonical
+  title: 'View'
+
+entity.redhen_org.edit_form:
+  route_name: entity.redhen_org.edit_form
+  base_route: entity.redhen_org.canonical
+  title: Edit
+
+entity.redhen_org.delete_form:
+  route_name:  entity.redhen_org.delete_form
+  base_route:  entity.redhen_org.canonical
+  title: Delete
+  weight: 10
