@@ -50,6 +50,7 @@ class ContactSettingsForm extends ConfigFormBase {
       ->set('valid_email', $form_state->getValue('valid_email'))
       ->set('connect_users', $form_state->getValue('connect_users'))
       ->set('embed_on_user_form', $form_state->getValue('embed_on_user_form'))
+      ->set('unique_email', $form_state->getValue('unique_email'))
       ->set('alter_username', $form_state->getValue('alter_username'))
       ->set('registration', $form_state->getValue('registration'))
       ->set('registration_type', $form_state->getValue('registration_type'))
@@ -105,6 +106,17 @@ class ContactSettingsForm extends ConfigFormBase {
             ':input[name="connect_users"]' => array('checked' => TRUE),
           ),
           'unchecked' => array(
+            ':input[name="connect_users"]' => array('checked' => FALSE),
+          ),
+        ),
+      ),
+      'unique_email' => array(
+        '#type' => 'checkbox',
+        '#title' => t('Require Contacts to have a unique email address.'),
+        '#description' => t('If checked, all Contacts will have unique email addresses.'),
+        '#default_value' => $config->get('unique_email'),
+        '#states' => array(
+          'visible' => array(
             ':input[name="connect_users"]' => array('checked' => FALSE),
           ),
         ),
