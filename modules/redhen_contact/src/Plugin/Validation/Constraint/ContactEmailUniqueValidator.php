@@ -22,7 +22,8 @@ class ContactEmailUniqueValidator extends ConstraintValidator {
     // ensure email is unique.
     if ($config->get('connect_users') || $config->get('unique_email')) {
       $email = $this->context->getValue()->value;
-      $id = $this->context->getValue()->getParent()->getValue()->id->value;
+      // $id must not be null or the entityQuery will never return results.
+      $id = $this->context->getValue()->getParent()->getValue()->id->value === NULL ? 0 : $this->context->getValue()->getParent()->getValue()->id->value;
       // Query to find out if email is taken.
       $email_taken = (bool) \Drupal::entityQuery('redhen_contact')
         ->condition('email', $email)
