@@ -2,7 +2,6 @@
 
 namespace Drupal\redhen_contact\Plugin\Validation\Constraint;
 
-use Drupal\Core\Access\AccessResult;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintValidator;
 
@@ -23,9 +22,12 @@ class ContactEmailUniqueValidator extends ConstraintValidator {
     // ensure email is unique.
     if ($config->get('connect_users') || $config->get('unique_email')) {
       $email = $this->context->getValue()->value;
+      $id = $this->context->getValue()->getParent()->getValue()->id->value;
       // Query to find out if email is taken.
       $email_taken = (bool) \Drupal::entityQuery('redhen_contact')
         ->condition('email', $email)
+        // Exclude current contact from query because it will have the email.
+        ->condition('id', $id, '!=')
         ->execute();
       // Validation fails if email is already taken, succeeds otherwise.
       if ($email_taken) {
