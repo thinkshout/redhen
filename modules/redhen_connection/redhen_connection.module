@@ -140,3 +140,20 @@ function redhen_connection_entity_update(EntityInterface $entity) {
     }
   }
 }
+
+/**
+ * Implements hook_entity_delete().
+ * @todo replace with event dispatcher/subscribers.
+ *
+ * @param \Drupal\Core\Entity\EntityInterface $entity
+ */
+function redhen_connection_entity_delete(EntityInterface $entity) {
+  // When deleting contacts and orgs, also delete their connections.
+  if (in_array($entity->getEntityTypeId(), ['redhen_contact', 'redhen_org'])) {
+    $connections = \Drupal::service('redhen_connection.connections')->getConnections($entity, NULL, NULL, FALSE);
+    foreach ($connections as $connection) {
+      /** @var ConnectionInterface $connection */
+      $connection->delete();
+    }
+  }
+}
