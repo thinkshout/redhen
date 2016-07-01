@@ -341,6 +341,7 @@ class Contact extends ContentEntityBase implements ContactInterface {
       ->setLabel(t('Email'))
       ->setDescription(t('The email of this contact.'))
       ->setDefaultValue('')
+      ->addConstraint('ContactEmailUnique')
       ->setDisplayOptions('view', array(
         'label' => 'inline',
         'type' => 'email_mailto',

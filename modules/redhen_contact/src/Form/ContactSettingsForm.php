@@ -47,9 +47,10 @@ class ContactSettingsForm extends ConfigFormBase {
   public function submitForm(array &$form, FormStateInterface $form_state) {
     \Drupal::service('config.factory')
       ->getEditable('redhen_contact.settings')
-      ->set('unique_email', $form_state->getValue('unique_email'))
+      ->set('valid_email', $form_state->getValue('valid_email'))
       ->set('connect_users', $form_state->getValue('connect_users'))
       ->set('embed_on_user_form', $form_state->getValue('embed_on_user_form'))
+      ->set('unique_email', $form_state->getValue('unique_email'))
       ->set('alter_username', $form_state->getValue('alter_username'))
       ->set('registration', $form_state->getValue('registration'))
       ->set('registration_type', $form_state->getValue('registration_type'))
@@ -75,11 +76,11 @@ class ContactSettingsForm extends ConfigFormBase {
     $config = $this->config('redhen_contact.settings');
 
     $form = array(
-      'unique_email' => array(
+      'valid_email' => array(
         '#type' => 'checkbox',
         '#title' => t('Require contacts to have a valid email address'),
         '#description' => t('Controls the contact form validation. Must be true to enable Drupal user connections keyed on email.'),
-        '#default_value' => $config->get('unique_email'),
+        '#default_value' => $config->get('valid_email'),
       ),
       'connect_users' => array(
         '#type' => 'checkbox',
@@ -88,7 +89,10 @@ class ContactSettingsForm extends ConfigFormBase {
         '#default_value' => $config->get('connect_users'),
         '#states' => array(
           'enabled' => array(
-            ':input[name="unique_email"]' => array('checked' => TRUE),
+            ':input[name="valid_email"]' => array('checked' => TRUE),
+          ),
+          'unchecked' => array(
+            ':input[name="valid_email"]' => array('checked' => FALSE),
           ),
         ),
       ),
@@ -100,6 +104,20 @@ class ContactSettingsForm extends ConfigFormBase {
         '#states' => array(
           'enabled' => array(
             ':input[name="connect_users"]' => array('checked' => TRUE),
+          ),
+          'unchecked' => array(
+            ':input[name="connect_users"]' => array('checked' => FALSE),
+          ),
+        ),
+      ),
+      'unique_email' => array(
+        '#type' => 'checkbox',
+        '#title' => t('Require Contacts to have a unique email address.'),
+        '#description' => t('If checked, all Contacts will have unique email addresses.'),
+        '#default_value' => $config->get('unique_email'),
+        '#states' => array(
+          'visible' => array(
+            ':input[name="connect_users"]' => array('checked' => FALSE),
           ),
         ),
       ),
