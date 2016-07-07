@@ -389,13 +389,15 @@ function redhen_relation_connections_page($entity) {
 
         // Get roles of the relation.
         $relation_role_names = array();
-        $relation_roles = $relation_wrapper->redhen_relation_roles->value();
-        foreach ($relation_roles as $relation_role) {
-          if (!empty($relation_role)) {
-            $relation_role_names[] = $relation_role->label();
+        if (isset($relation_wrapper->{REDHEN_RELATION_ROLES_FIELD})) {
+          $relation_roles = $relation_wrapper->{REDHEN_RELATION_ROLES_FIELD}->value();
+          foreach ($relation_roles as $relation_role) {
+            if (!empty($relation_role)) {
+              $relation_role_names[] = $relation_role->label();
+            }
           }
+          sort($relation_role_names);
         }
-        sort($relation_role_names);
         $relation_role_names = implode(', ', $relation_role_names);
 
         $data = array(
