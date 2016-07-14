@@ -439,7 +439,7 @@ function redhen_fields_field_formatter_view($entity_type, $entity, $field, $inst
 
     case 'redhen_email_primary':
       foreach ($items as $delta => $item) {
-        if ($item['default']) {
+        if (!empty($item['default'])) {
           $element[$delta] = array('#markup' => l($item['value'], 'mailto:' . $item['value']));
           break;
         }
