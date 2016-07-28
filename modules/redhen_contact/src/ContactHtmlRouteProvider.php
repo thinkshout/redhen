@@ -114,7 +114,7 @@ class ContactHtmlRouteProvider extends AdminHtmlRouteProvider {
    *   The generated route, if available.
    */
   protected function getAddPageRoute(EntityTypeInterface $entity_type) {
-    $route = new Route("/admin/structure/{$entity_type->id()}/add");
+    $route = new Route("/redhen/contact/add");
     $route
       ->setDefaults([
         '_controller' => 'Drupal\redhen_contact\Controller\ContactAddController::add',
@@ -137,7 +137,7 @@ class ContactHtmlRouteProvider extends AdminHtmlRouteProvider {
    */
   protected function getSettingsFormRoute(EntityTypeInterface $entity_type) {
     if (!$entity_type->getBundleEntityType()) {
-      $route = new Route("/admin/structure/{$entity_type->id()}/settings");
+      $route = new Route("/admin/structure/redhen/contact/settings");
       $route
         ->setDefaults([
           '_form' => 'Drupal\redhen_contact\Form\ContactSettingsForm',
