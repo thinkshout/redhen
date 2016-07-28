@@ -7,10 +7,21 @@ entity.redhen_connection.canonical:
 entity.redhen_connection.edit_form:
   route_name: entity.redhen_connection.edit_form
   base_route: entity.redhen_connection.canonical
-  title: Edit
+  title: 'Edit'
 
 entity.redhen_connection.delete_form:
-  route_name:  entity.redhen_connection.delete_form
-  base_route:  entity.redhen_connection.canonical
-  title: Delete
+  route_name: entity.redhen_connection.delete_form
+  base_route: entity.redhen_connection.canonical
+  title: 'Delete'
+
+entity.redhen_connection_type.edit_form:
+  route_name: entity.redhen_connection_type.edit_form
+  base_route: entity.redhen_connection_type.edit_form
+  title: 'Edit'
+
+entity.redhen_connection_role.collection:
+  route_name: entity.redhen_connection_role.collection
+  base_route: entity.redhen_connection_type.edit_form
+  title: 'Connection Roles'
+  # Make this tab show up last on Connection Type edit forms.
   weight: 10
