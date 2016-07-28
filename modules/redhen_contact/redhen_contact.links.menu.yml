@@ -4,7 +4,7 @@ entity.redhen_contact.collection:
   route_name: entity.redhen_contact.collection
   description: 'View RedHen CRM contacts.'
   parent: redhen.dashboard
-  weight: 100
+  weight: -100
 
 # Contact type menu items definition
 entity.redhen_contact_type.collection:
