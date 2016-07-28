@@ -1,0 +1,5 @@
+entity.note.add_form:
+  route_name: entity.note.add_form
+  title: 'Add RedHen Note'
+  appears_on:
+    - entity.note.collection

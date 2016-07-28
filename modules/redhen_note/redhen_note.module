@@ -1,0 +1,24 @@
+<?php
+
+/**
+ * @file
+ * Contains redhen_note.module..
+ */
+
+use Drupal\Core\Routing\RouteMatchInterface;
+
+/**
+ * Implements hook_help().
+ */
+function redhen_note_help($route_name, RouteMatchInterface $route_match) {
+  switch ($route_name) {
+    // Main module help for the redhen_note module.
+    case 'help.page.redhen_note':
+      $output = '';
+      $output .= '<h3>' . t('About') . '</h3>';
+      $output .= '<p>' . t('RedHen Notes') . '</p>';
+      return $output;
+
+    default:
+  }
+}

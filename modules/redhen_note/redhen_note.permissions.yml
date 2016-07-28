@@ -1,0 +1,19 @@
+add redhen note entities:
+  title: 'Create new RedHen Note entities'
+
+administer redhen note entities:
+  title: 'Administer RedHen Note entities'
+  description: 'Allow to access the administration form to configure RedHen Note entities.'
+  restrict access: true
+
+delete redhen note entities:
+  title: 'Delete RedHen Note entities'
+
+edit redhen note entities:
+  title: 'Edit RedHen Note entities'
+
+view published redhen note entities:
+  title: 'View published RedHen Note entities'
+
+view unpublished redhen note entities:
+  title: 'View unpublished RedHen Note entities'

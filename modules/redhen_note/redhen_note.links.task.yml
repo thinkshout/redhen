@@ -1,0 +1,21 @@
+# RedHen Note routing definition
+note.settings_tab:
+  route_name: note.settings
+  title: 'Settings'
+  base_route: note.settings
+entity.note.canonical:
+  route_name: entity.note.canonical
+  base_route: entity.note.canonical
+  title: 'View'
+
+entity.note.edit_form:
+  route_name: entity.note.edit_form
+  base_route: entity.note.canonical
+  title: Edit
+
+entity.note.delete_form:
+  route_name:  entity.note.delete_form
+  base_route:  entity.note.canonical
+  title: Delete
+  weight: 10
+
