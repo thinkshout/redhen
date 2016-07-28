@@ -10,15 +10,21 @@ use Drupal\Core\Form\FormStateInterface;
  * Configure Redhen settings for this site.
  */
 class RedhenAdminSettingsForm extends ConfigFormBase {
+
   /**
    * {@inheritdoc}
    */
   public function getFormID() {
     return 'redhen_admin_settings';
   }
+
+  /**
+   * {@inheritdoc}
+   */
   protected function getEditableConfigNames() {
     return ['redhen.settings'];
   }
+
   /**
    * {@inheritdoc}
    */
@@ -34,12 +40,14 @@ class RedhenAdminSettingsForm extends ConfigFormBase {
 
     return parent::buildForm($form, $form_state);
   }
+
   /**
    * {@inheritdoc}
    */
   public function validateForm(array &$form, FormStateInterface $form_state) {
     parent::validateForm($form, $form_state);
   }
+
   /**
    * {@inheritdoc}
    */
