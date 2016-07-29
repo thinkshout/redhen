@@ -1,11 +1,4 @@
 # RedHen Note menu items definition
-entity.note.collection:
-  title: 'RedHen Note list'
-  route_name: entity.note.collection
-  description: 'List RedHen Note entities'
-  parent: system.admin_structure
-  weight: 100
-
 note.admin.structure.settings:
   title: RedHen Note settings
   description: 'Configure RedHen Note entities'
