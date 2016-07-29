@@ -1,0 +1,7 @@
+entity.note.contact.notes:
+  path: '/redhen/contact/{redhen_contact}/notes'
+  defaults:
+    _controller: '\Drupal\redhen_note\Controller\DefaultController::contactNotes'
+    _title: 'Notes'
+  requirements:
+    _permission: 'view contact entities'
