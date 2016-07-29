@@ -20,7 +20,7 @@ entity.note.delete_form:
   title: Delete
   weight: 10
 
-entity.note.listing:
+entity.note.collection:
   route_name: entity.note.contact.notes
   base_route: entity.redhen_contact.canonical
   title: 'Notes'
