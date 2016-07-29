@@ -3,6 +3,7 @@ note.settings_tab:
   route_name: note.settings
   title: 'Settings'
   base_route: note.settings
+
 entity.note.canonical:
   route_name: entity.note.canonical
   base_route: entity.note.canonical
@@ -19,3 +20,7 @@ entity.note.delete_form:
   title: Delete
   weight: 10
 
+entity.note.listing:
+  route_name: entity.note.contact.notes
+  base_route: entity.redhen_contact.canonical
+  title: 'Notes'
