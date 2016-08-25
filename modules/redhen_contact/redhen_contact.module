@@ -20,6 +20,7 @@ define('REDHEN_CONTACT_REG', 'redhen_contact_reg');
 define('REDHEN_CONTACT_REG_TYPE', 'redhen_contact_reg_type');
 define('REDHEN_CONTACT_REG_UPDATE', 'redhen_contact_reg_update');
 define('REDHEN_CONTACT_REG_UPDATE_FIELDS', 'redhen_contact_reg_update_fields');
+define('REDHEN_CONTACT_DELETE_USER_WITH_CONTACT', 'redhen_contact_delete_user_with_contact');
 // View mode to render contact as on the user view page.
 // Not configurable via the UI.
 define('REDHEN_CONTACT_USER_VIEW_MODE', 'redhen_contact_user_view_mode');
@@ -868,6 +869,17 @@ function redhen_contact_redhen_settings() {
             ),
           ),
         ),
+        REDHEN_CONTACT_DELETE_USER_WITH_CONTACT => array(
+          '#type' => 'checkbox',
+          '#title' => t('Delete Users when their connected Redhen Contacts are deleted (WARNING: automated User deletion!)'),
+          '#description' => t('If checked, deleted Redhen Contacts will be checked for connected users, and those users will be automatically deleted as well.'),
+          '#default_value' => variable_get(REDHEN_CONTACT_DELETE_USER_WITH_CONTACT, FALSE),
+          '#states' => array(
+            'enabled' => array(
+              ':input[name="' . REDHEN_CONTACT_CONNECT_USERS . '"]' => array('checked' => TRUE),
+            ),
+          ),
+        ),
         REDHEN_CONTACT_USER_EMAIL_TYPE => array(
           '#type' => 'checkboxes',
           '#multiple' => TRUE,
@@ -997,6 +1009,21 @@ function redhen_contact_user_contact($account) {
   }
 
   return $contact;
+}
+
+/**
+ * Implements hook_entity_delete().
+ *
+ * Allow users to be deleted automatically when their associated contacts are
+ * deleted, based on a setting.
+ */
+function redhen_contact_entity_delete($entity, $type) {
+  if (variable_get(REDHEN_CONTACT_DELETE_USER_WITH_CONTACT, FALSE)) {
+    if ($type == 'redhen_contact' && !empty($entity->uid)) {
+      // Delete associated user when the contact is deleted.
+      user_delete($entity->uid);
+    }
+  }
 }
 
 /**
