@@ -148,7 +148,9 @@ function redhen_contact_contact_form_submit($form, &$form_state) {
     if (strpos($menu_item['path'], 'redhen/contact') === 0) {
       drupal_set_message(t('Contact %name saved.', array('%name' => $wrapper->full_name->value())));
     }
-    $form_state['redirect'] = $wrapper->url->value();
+    if ($form_state['build_info']['form_id'] == 'redhen_contact_contact_form') {
+      $form_state['redirect'] = $wrapper->url->value();
+    }
   }
 }
 
