@@ -4,6 +4,8 @@ status: true
 dependencies:
   module:
     - redhen_contact
+_core:
+  default_config_hash: 3syDjwSfWOe928QBGXSipdCx67bDwMzYxOWQt6mEUvQ
 id: redhen_contact_listing
 label: 'Redhen Contact List'
 module: views
@@ -469,15 +471,15 @@ display:
           entity_type: redhen_contact
           entity_field: status
           plugin_id: field
-        edit_redhen_contact:
-          id: edit_redhen_contact
+        changed:
+          id: changed
           table: redhen_contact
-          field: edit_redhen_contact
+          field: changed
           relationship: none
           group_type: group
           admin_label: ''
-          label: Edit
-          exclude: true
+          label: Changed
+          exclude: false
           alter:
             alter_text: false
             text: ''
@@ -509,7 +511,7 @@ display:
           element_class: ''
           element_label_type: ''
           element_label_class: ''
-          element_label_colon: false
+          element_label_colon: true
           element_wrapper_type: ''
           element_wrapper_class: ''
           element_default_classes: true
@@ -517,72 +519,37 @@ display:
           hide_empty: false
           empty_zero: false
           hide_alter_empty: true
-          text: edit
+          click_sort_column: value
+          type: timestamp
+          settings:
+            date_format: short
+            custom_date_format: ''
+            timezone: ''
+          group_column: value
+          group_columns: {  }
+          group_rows: true
+          delta_limit: 0
+          delta_offset: 0
+          delta_reversed: false
+          delta_first_last: false
+          multi_type: separator
+          separator: ', '
+          field_api_classes: false
           entity_type: redhen_contact
-          plugin_id: entity_link_edit
-        delete_redhen_contact:
-          id: delete_redhen_contact
+          entity_field: changed
+          plugin_id: field
+        operations:
+          id: operations
           table: redhen_contact
-          field: delete_redhen_contact
-          relationship: none
-          group_type: group
-          admin_label: ''
-          label: Delete
-          exclude: true
-          alter:
-            alter_text: false
-            text: '{{ edit_redhen_contact }} {{ delete_redhen_contact }} == Link to delete Contact'
-            make_link: false
-            path: ''
-            absolute: false
-            external: false
-            replace_spaces: false
-            path_case: none
-            trim_whitespace: false
-            alt: ''
-            rel: ''
-            link_class: ''
-            prefix: ''
-            suffix: ''
-            target: ''
-            nl2br: false
-            max_length: 0
-            word_boundary: true
-            ellipsis: true
-            more_link: false
-            more_link_text: ''
-            more_link_path: ''
-            strip_tags: false
-            trim: false
-            preserve_tags: ''
-            html: false
-          element_type: ''
-          element_class: ''
-          element_label_type: ''
-          element_label_class: ''
-          element_label_colon: false
-          element_wrapper_type: ''
-          element_wrapper_class: ''
-          element_default_classes: true
-          empty: ''
-          hide_empty: false
-          empty_zero: false
-          hide_alter_empty: true
-          text: delete
-          entity_type: redhen_contact
-          plugin_id: entity_link_delete
-        nothing:
-          id: nothing
-          table: views
-          field: nothing
+          field: operations
           relationship: none
           group_type: group
           admin_label: ''
           label: Operations
           exclude: false
           alter:
-            alter_text: true
-            text: '{{ edit_redhen_contact }} {{ delete_redhen_contact }}'
+            alter_text: false
+            text: ''
             make_link: false
             path: ''
             absolute: false
@@ -611,15 +578,17 @@ display:
           element_class: ''
           element_label_type: ''
           element_label_class: ''
-          element_label_colon: false
+          element_label_colon: true
           element_wrapper_type: ''
           element_wrapper_class: ''
           element_default_classes: true
           empty: ''
           hide_empty: false
           empty_zero: false
-          hide_alter_empty: false
-          plugin_id: custom
+          hide_alter_empty: true
+          destination: true
+          entity_type: redhen_contact
+          plugin_id: entity_operations
       filters:
         email:
           id: email
