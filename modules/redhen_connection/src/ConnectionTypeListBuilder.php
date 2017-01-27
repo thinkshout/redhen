@@ -45,7 +45,7 @@ class ConnectionTypeListBuilder extends ConfigEntityListBuilder {
 
     if ($entity->access('update') && $entity->hasLinkTemplate('edit-form')) {
       $operations['roles'] = array(
-        'title' => $this->t('Roles'),
+        'title' => $this->t('Connection Roles'),
         'weight' => 100,
         'url' => $url = Url::fromRoute('entity.redhen_connection_role.collection', ['redhen_connection_type' => $entity->id()]),
       );

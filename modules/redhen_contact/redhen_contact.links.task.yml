@@ -7,11 +7,14 @@ entity.redhen_contact.canonical:
 entity.redhen_contact.edit_form:
   route_name: entity.redhen_contact.edit_form
   base_route: entity.redhen_contact.canonical
-  title: Edit
+  title: 'Edit'
 
 entity.redhen_contact.delete_form:
-  route_name:  entity.redhen_contact.delete_form
-  base_route:  entity.redhen_contact.canonical
-  title: Delete
-  weight: 10
+  route_name: entity.redhen_contact.delete_form
+  base_route: entity.redhen_contact.canonical
+  title: 'Delete'
 
+entity.redhen_contact_type.edit_form:
+  route_name: entity.redhen_contact_type.edit_form
+  base_route: entity.redhen_contact_type.edit_form
+  title: 'Edit'

@@ -5,6 +5,7 @@
  * Contains redhen_contact.module..
  */
 
+use Drupal\Core\Access\AccessResult;
 use Drupal\Core\Entity\Entity\EntityFormDisplay;
 use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\redhen_contact\Entity\Contact;
@@ -101,7 +102,7 @@ function redhen_contact_form_user_register_form_alter(&$form, \Drupal\Core\Form\
       // Add a submit handler for handling the Contact form data.
       $form['actions']['submit']['#submit'][] = 'redhen_contact_user_registration_submit';
       // Hide the Contact email field, we will use the user mail field.
-      $form['entity_' . $contact_type]['email']['#access'] = FALSE;
+      $form['redhen_contact_' . $contact_type]['email']['#access'] = FALSE;
     }
     else {
       drupal_set_message(t('Invalid RedHen contact type parameter.'));
@@ -140,6 +141,28 @@ function redhen_contact_form_user_form_alter(&$form, \Drupal\Core\Form\FormState
         $form['account']['mail']['#access'] = FALSE;
       }
       _redhen_contact_user_embed_contact_form($form, $form_state, $contact);
+
+      // If the user isn't allowed to edit any Contact of the current type, do
+      // not allow them to edit this Contact's status because if they change it
+      // from TRUE to FALSE they won't be able to see this Contact any more.
+      //
+      // Common use case is when a user has permission to edit their own
+      // Contact, but not any Contact.
+      $contact_types = ContactType::loadMultiple();
+      foreach (array_keys($contact_types) as $contact_type) {
+        if (isset($form['redhen_contact_' . $contact_type])) {
+          $edit_access = AccessResult ::allowedIfHasPermissions($user,
+            [
+              'edit contact entities',
+              'edit any ' . $contact_type . ' contact',
+            ], 'OR'
+          );
+          if (!$edit_access->isAllowed()) {
+            $form['redhen_contact_' . $contact_type]['status']['#access'] = FALSE;
+          }
+        }
+      }
+
       // Add a submit handler for handling the Contact form data.
       $form['actions']['submit']['#submit'][] = 'redhen_contact_user_update_submit';
     }
@@ -166,7 +189,7 @@ function _redhen_contact_user_embed_contact_form(&$form, &$form_state, Contact $
   $form_state->set('redhen_contact', $contact);
 
   // Create form element to hold Contact fields.
-  $form['entity_' . $contact->getType()] = [
+  $form['redhen_contact_' . $contact->getType()] = [
     '#type' => 'details',
     '#title' => str_replace('!type', ContactType::load($contact->getType())->label(), '!type Contact information'),
     '#tree' => TRUE,
@@ -182,10 +205,10 @@ function _redhen_contact_user_embed_contact_form(&$form, &$form_state, Contact $
   $form_state
     ->get('form_display_' . $contact->getType())
     // Add fields to the placeholder form element created above.
-    ->buildForm($contact, $form['entity_' . $contact->getType()], $form_state);
+    ->buildForm($contact, $form['redhen_contact_' . $contact->getType()], $form_state);
 
   // Hide user linkage field when embedded.
-  $form['entity_' . $contact->getType()]['uid']['#access'] = FALSE;
+  $form['redhen_contact_' . $contact->getType()]['uid']['#access'] = FALSE;
 
 }
 
