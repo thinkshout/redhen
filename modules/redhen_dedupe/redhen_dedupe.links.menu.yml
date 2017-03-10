@@ -1,0 +1,7 @@
+redhen_dedupe.list_page:
+  route_name: redhen_dedupe.list_page
+  title: 'Find duplicate contacts'
+  parent: entity.redhen_contact.collection
+redhen_dedupe.merge_form:
+  route_name: redhen_dedupe.merge_form
+  title: 'Select a primary contact'
