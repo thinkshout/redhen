@@ -246,7 +246,14 @@ class RedhenDedupeMergeForm extends FormBase {
       }
     }
     unset($contacts[$master_id]);
-    $merge_status = $this->redhen_dedupe_merge($master, $contacts, $values, array_filter($form_state->getValue(['related_entities'])));
+    $related_entities = $form_state->getValue(['related_entities']);
+    if (empty($related_entities)) {
+      $related_entities = array();
+    }
+    else {
+      $related_entities = array_filter($related_entities);
+    }
+    $merge_status = $this->redhenDedupeMerge($master, $values, $related_entities, $contacts);
     if ($merge_status) {
       drupal_set_message(t('Contacts have successfully been merged into %master and deleted.', [
         '%master' => $master->label(),
