@@ -1,7 +1,7 @@
-redhen_dedupe.list_page:
+# Dedupe menu items definition
+redhen_dedupe.util.merge_form:
+  title: 'Dedupe Contacts'
   route_name: redhen_dedupe.list_page
-  title: 'Find duplicate contacts'
-  parent: entity.redhen_contact.collection
-redhen_dedupe.merge_form:
-  route_name: redhen_dedupe.merge_form
-  title: 'Select a primary contact'
+  description: 'Find & Merge Duplicate Contacts.'
+  parent: redhen.dashboard
+  weight: 0

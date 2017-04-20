@@ -1,12 +1,12 @@
 redhen_dedupe.list_page:
-  path: /redhen/dedupe
+  path: '/admin/config/redhen/dedupe'
   defaults:
     _title: 'Find duplicate contacts'
-    _controller: '\Drupal\redhen_dedupe\Controller\DefaultController::redhen_dedupe_list_page'
+    _controller: '\Drupal\redhen_dedupe\Controller\DefaultController::redhenDedupeListPage'
   requirements:
     _permission: 'administer redhen contacts'
 redhen_dedupe.merge_form:
-  path: '/redhen/dedupe/merge/{entity_ids}'
+  path: '/admin/config/redhen/dedupe/merge/{entity_ids}'
   defaults:
     _title: 'Select a primary contact'
     _form: \Drupal\redhen_dedupe\Form\RedhenDedupeMergeForm
