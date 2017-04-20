@@ -92,7 +92,7 @@ class DefaultController extends ControllerBase {
 
           $count = $result->count . ' (' . implode(', ', $id_links) . ')';
           $col[] = $count;
-          $url = \Drupal::service('path.validator')->getUrlIfValid('/redhen/dedupe/merge/' . $result->ids);
+          $url = \Drupal::service('path.validator')->getUrlIfValid('//admin/config/redhen/dedupe/merge/' . $result->ids);
           $col[] = $this->l(t('merge'), $url);
 
           $rows[] = $col;
