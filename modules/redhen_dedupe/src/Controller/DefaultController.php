@@ -53,10 +53,7 @@ class DefaultController extends ControllerBase {
 
       foreach ($fields as $field) {
         $field_config = $info['field'][$field];
-        $label = $field_info->getLabel();
-        if (count($field_pieces)) {
-          $label .= ' -- ' . $label;
-        }
+        $label = $field_config->getLabel();
         $header[] = $label;
       }
       $header[] = t('Count (IDs)');
@@ -82,9 +79,7 @@ class DefaultController extends ControllerBase {
           }
           $id_links = [];
           foreach ($ids as $id) {
-            $url = \Drupal::service('path.validator')->getUrlIfValid('redhen/contact/' . $id);
             // TODO: Output html in the table correctly.
-            // $id_links[] = $this->l($id, $url);
             $id_links[] = $id;
           }
 

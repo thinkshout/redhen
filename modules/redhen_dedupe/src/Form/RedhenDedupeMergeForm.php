@@ -380,7 +380,6 @@ class RedhenDedupeMergeForm extends FormBase {
 
               if ($results) {
 
-                $endpoints = array();
                 foreach ($results as $connection) {
                   $connection_type = ConnectionType::load($connection->bundle());
                   $contact_endpoint_fields = $connection_type->getEndpointFields('redhen_contact');
@@ -408,11 +407,6 @@ class RedhenDedupeMergeForm extends FormBase {
       // Set the new values on the master contact.
       foreach ($values as $id => $value) {
         if ($value['type'] == 'direct') {
-          // if (!isset($master->{$id}->itemType) || $master->{$id}->itemType != 'field_collection') {
-          // }
-          // else {
-          //   _redhen_dedupe_set_field_collection_value($master, $id, $value['value']);
-          // }
           $master->get($id)->setValue($value['value']);
         }
         if ($value['type'] == 'combine') {
@@ -430,22 +424,7 @@ class RedhenDedupeMergeForm extends FormBase {
           if (!is_array(reset($all_vals)) && !is_object(reset($all_vals))) {
             $all_vals = array_unique($all_vals);
           }
-          // TODO field collections.
-          // $field_info = field_info_field($id);
-          // if ($field_info['type'] != 'field_collection') {
           $master->get($id)->setValue($all_vals);
-          // }
-          // else {
-          //   // Field Collections are completely obnoxious.
-          //   $originals = array();
-          //   foreach ($master->{$id} as $original_val) {
-          //     $originals[] = $original_val->item_id->value();
-          //   }
-          //   foreach ($all_vals as $val) {
-          //     _redhen_dedupe_set_field_collection_value($master, $id, $val);
-          //   }
-          //   entity_delete_multiple('field_collection_item', $originals);
-          // }
         }
       }
 
