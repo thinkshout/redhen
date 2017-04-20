@@ -1,6 +1,11 @@
 <?php
 
 /**
+ * @file
+ * Contains redhen_dedupe.module.
+ */
+
+/**
  * Get duplicate contacts.
  *
  * @return array
@@ -84,7 +89,7 @@ function _redhen_dedupe_set_field_collection_value($entity, $field, $value) {
   $val_wrapper = entity_metadata_wrapper('field_collection_item', $value);
   $val_properties = $val_wrapper->getPropertyInfo();
   foreach ($val_properties as $property => $prop_details) {
-    if (isset($prop_details['field']) && $prop_details['field']) {//} && ($val_wrapper->{$property}->value() != NULL)) {
+    if (isset($prop_details['field']) && $prop_details['field']) {
       //@todo support multi-value fields needed?
       //@todo support additional field collections?
       $fc_item_wrapper->{$property}->set($val_wrapper->{$property}->value());

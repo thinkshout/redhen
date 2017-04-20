@@ -1,20 +1,18 @@
-<?php /**
- * @file
- * Contains \Drupal\redhen_dedupe\Controller\DefaultController.
- */
+<?php
 
 namespace Drupal\redhen_dedupe\Controller;
 
 use Drupal\Core\Controller\ControllerBase;
-use Drupal\Core\Url;
-use Drupal\Core\Link;
 
 /**
  * Default controller for the redhen_dedupe module.
  */
 class DefaultController extends ControllerBase {
 
-  public function redhen_dedupe_list_page() {
+  /**
+   * Create the listing page for duplicates.
+   */
+  public function redhenDedupeListPage() {
     $results = FALSE;
     $contacts = [];
     $base_fields = [];
@@ -112,8 +110,8 @@ class DefaultController extends ControllerBase {
     return [
       'form' => \Drupal::formBuilder()->getForm('\Drupal\redhen_dedupe\Form\RedhenDedupeFilterForm', $base_fields, $fields, $active),
       'message' => [
-        '#markup' => $message
-        ],
+        '#markup' => $message,
+      ],
       'contacts' => $contacts,
     ];
   }

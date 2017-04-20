@@ -1,17 +1,15 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\redhen_dedupe\Form\RedhenDedupeFilterForm.
- */
-
 namespace Drupal\redhen_dedupe\Form;
 
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\Core\Render\Element;
-use \Drupal\redhen_contact\Entity\Contact;
 
+/**
+ * Form controller for Dedupe search tool.
+ *
+ * @ingroup redhen_dedupe
+ */
 class RedhenDedupeFilterForm extends FormBase {
 
   /**
@@ -21,6 +19,9 @@ class RedhenDedupeFilterForm extends FormBase {
     return 'redhen_dedupe_filter_form';
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function buildForm(array $form, FormStateInterface $form_state, $base_fields = array(), $fields = array(), $active = TRUE) {
     $bundles = \Drupal::service('entity_type.bundle.info')->getBundleInfo('redhen_contact');
     $info = array();
@@ -72,10 +73,15 @@ class RedhenDedupeFilterForm extends FormBase {
     return $form;
   }
 
-  public function submitForm(array &$form, \Drupal\Core\Form\FormStateInterface $form_state) {
-    $query = array('base_fields' => array_filter($form_state->getValue(['base_fields'])),
+  /**
+   * {@inheritdoc}
+   */
+  public function submitForm(array &$form, FormStateInterface $form_state) {
+    $query = [
+      'base_fields' => array_filter($form_state->getValue(['base_fields'])),
       'fields' => array_filter($form_state->getValue(['fields'])),
-      'active' => $form_state->getValue(['active']));
+      'active' => $form_state->getValue(['active']),
+    ];
     $form_state->setRedirect('redhen_dedupe.list_page', $query);
   }
 

@@ -1,6 +1,11 @@
 <?php
 
-use \Drupal\Core\Template\Attribute;
+/**
+ * @file
+ * Contains redhen_dedupe.theme.inc.
+ */
+
+use Drupal\Core\Render\Element;
 
 /**
  * Themes the field associations on a fieldmap edit form into a table.
@@ -9,10 +14,10 @@ function template_preprocess_redhen_dedupe_form_table(&$variables) {
   $elements = $variables['elements'];
   // Build the rows array.
   $rows = array();
-  foreach (\Drupal\Core\Render\Element::children($elements) as $item_key) {
+  foreach (Element::children($elements) as $item_key) {
     $item = &$elements[$item_key];
     $data = array($item['#title']);
-    foreach (\Drupal\Core\Render\Element::children($item) as $element) {
+    foreach (Element::children($item) as $element) {
       if (isset($item['#options']) && $item['#options'][$element] === REDHEN_DEDUPE_NOT_APPLICABLE) {
         $cell_data = t('Field not applicable to this bundle');
       }

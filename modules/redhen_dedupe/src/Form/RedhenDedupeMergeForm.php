@@ -1,23 +1,24 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\redhen_dedupe\Form\RedhenDedupeMergeForm.
- */
-
 namespace Drupal\redhen_dedupe\Form;
 
+use Drupal\Component\Utility\Xss;
+use Drupal\Core\Ajax\AjaxResponse;
+use Drupal\Core\Ajax\ReplaceCommand;
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Render\Element;
-use Drupal\redhen_contact\Entity\Contact;
-use Drupal\redhen_connection\Entity\ConnectionType;
 use Drupal\Core\Template\Attribute;
-use Drupal\Core\Ajax\AjaxResponse;
-use Drupal\Core\Ajax\ReplaceCommand;
+use Drupal\redhen_connection\Entity\ConnectionType;
+use Drupal\redhen_contact\Entity\Contact;
 
 define('REDHEN_DEDUPE_NOT_APPLICABLE', 'redhen_dedupe_not_applicable');
 
+/**
+ * Form controller for Dedupe merge tool.
+ *
+ * @ingroup redhen_dedupe
+ */
 class RedhenDedupeMergeForm extends FormBase {
 
   /**
@@ -27,7 +28,10 @@ class RedhenDedupeMergeForm extends FormBase {
     return 'redhen_dedupe_merge_form';
   }
 
-  public function buildForm(array $form, \Drupal\Core\Form\FormStateInterface $form_state, $entity_ids = NULL) {
+  /**
+   * {@inheritdoc}
+   */
+  public function buildForm(array $form, FormStateInterface $form_state, $entity_ids = NULL) {
     // Load the entities we want to merge:
     $entity_ids = explode(',', $entity_ids);
     $contacts = \Drupal::entityTypeManager()->getStorage('redhen_contact')->loadMultiple($entity_ids);
@@ -52,7 +56,7 @@ class RedhenDedupeMergeForm extends FormBase {
       '#description' => $this->t('Choose a contact to merge the other contacts into.'),
       '#weight' => 0,
       '#ajax' => [
-        'callback' => '\Drupal\redhen_dedupe\Form\RedhenDedupeMergeForm::redhen_dedupe_merge_form_callback',
+        'callback' => '\Drupal\redhen_dedupe\Form\RedhenDedupeMergeForm::redhenDedupeMergeFormCallback',
         'wrapper' => 'redhen_dedupe_merge_data',
       ],
     ];
@@ -65,8 +69,8 @@ class RedhenDedupeMergeForm extends FormBase {
     ];
 
     $master_id = $form_state->getValue(['master']) ? (int) $form_state->getValue([
-      'master'
-      ]) : key($master_options);
+      'master',
+    ]) : key($master_options);
     $merge_data = &$form['merge_data'];
 
     $view_builder = \Drupal::entityTypeManager()->getViewBuilder($entity->getEntityTypeId());
@@ -75,8 +79,8 @@ class RedhenDedupeMergeForm extends FormBase {
       '#type' => 'fieldset',
       '#title' => $this->t('Master contact details'),
       'preview' => [
-        '#markup' => render($preview)
-        ],
+        '#markup' => render($preview),
+      ],
     ];
 
     // Initialize our table header:
@@ -100,8 +104,8 @@ class RedhenDedupeMergeForm extends FormBase {
 
     // Pass along the entity ID options & master ID to the form handler:
     $form_state->set([
-      'contacts'
-      ], $contacts);
+      'contacts',
+    ], $contacts);
 
     // Now we build our merge selector form fields:
     $merge_data['values'] = [
@@ -124,12 +128,12 @@ class RedhenDedupeMergeForm extends FormBase {
           continue;
         }
 
-        // Call a helper function to determine if this is a field we want to merge:
-        if ($this->redhen_dedupe_base_field_mergeable($name, $field)) {
-          if ($this->redhen_dedupe_field_is_multivalue($name, $field)) {
+        // Call a helper function to determine we want to merge this field:
+        if ($this->redhenDedupeBaseFieldMergeable($field)) {
+          if ($this->redhenDedupeFieldIsMultivalue($field)) {
             $merge_data['values'][$name] = [
               '#type' => 'checkboxes',
-              '#title' => \Drupal\Component\Utility\Xss::filter($field->getLabel()),
+              '#title' => Xss::filter($field->getLabel()),
               '#options' => [],
             ];
           }
@@ -141,12 +145,12 @@ class RedhenDedupeMergeForm extends FormBase {
             ];
           }
           $options = &$merge_data['values'][$name]['#options'];
-          // Loop through each contact to build a row element/radio button option:
+          // Loop through each contact to build a row element/radio button:
           foreach ($contacts as $ent_id => $contact) {
-            // We do some work to figure out what kind of field we are dealing with,
-            // and set our values and displays appropriately. The important factors
-            // are if it's a field or not, and whether it has a setter/getter
-            // callback that we should be using.
+            // We do some work to figure out what kind of field we are dealing
+            // with, and set our values and displays appropriately. The
+            // important factors are if it's a field or not, and whether it has
+            // a setter/getter callback that we should be using.
             $in_bundle = $bundle == $contact->bundle();
             if (!$in_bundle) {
               $options[$ent_id] = REDHEN_DEDUPE_NOT_APPLICABLE;
@@ -156,21 +160,21 @@ class RedhenDedupeMergeForm extends FormBase {
             // Set the default to match the Master record:
             if ($ent_id === $master_id) {
               $merge_data['values'][$name]['#default_value'] = $merge_data['values'][$name]['#type'] == 'radios' ? $ent_id : [
-                $ent_id
-                ];
+                $ent_id,
+              ];
             }
 
-            $options[$ent_id] = $this->redhen_dedupe_option_label($contact, $name, $field);
+            $options[$ent_id] = $this->redhenDedupeOptionLabel($contact, $name);
           }
         }
       }
     }
 
     // Exclude properties that are all the same from the merge form.
-    foreach (\Drupal\Core\Render\Element::children($merge_data['values']) as $name) {
+    foreach (Element::children($merge_data['values']) as $name) {
       $left = array_unique($merge_data['values'][$name]['#options']);
       // Filter out any remaining items that are not applicable.
-      $left = array_filter($left, function($item) {
+      $left = array_filter($left, function ($item) {
         return ($item !== REDHEN_DEDUPE_NOT_APPLICABLE);
       });
       if (empty($left) || count($left) === 1) {
@@ -209,7 +213,10 @@ class RedhenDedupeMergeForm extends FormBase {
     return $form;
   }
 
-  public function submitForm(array &$form, \Drupal\Core\Form\FormStateInterface $form_state) {
+  /**
+   * {@inheritdoc}
+   */
+  public function submitForm(array &$form, FormStateInterface $form_state) {
     $master_id = $form_state->getValue(['master']);
     $contacts = $form_state->get(['contacts']);
     $master = $contacts[$master_id];
@@ -224,7 +231,7 @@ class RedhenDedupeMergeForm extends FormBase {
           ];
           foreach ($val as $ent_id => $selected) {
             if ($selected) {
-              $contact = \Drupal\redhen_contact\Entity\Contact::load($ent_id);
+              $contact = Contact::load($ent_id);
               $values[$name]['value'][$ent_id] = $contact->get($name)->getValue();
             }
           }
@@ -242,8 +249,8 @@ class RedhenDedupeMergeForm extends FormBase {
     $merge_status = $this->redhen_dedupe_merge($master, $contacts, $values, array_filter($form_state->getValue(['related_entities'])));
     if ($merge_status) {
       drupal_set_message(t('Contacts have successfully been merged into %master and deleted.', [
-        '%master' => $master->label()
-        ]));
+        '%master' => $master->label(),
+      ]));
       $form_state->setRedirect('entity.redhen_contact.canonical',
        array('redhen_contact' => $master_id));
     }
@@ -255,7 +262,7 @@ class RedhenDedupeMergeForm extends FormBase {
   /**
    * Ajax callback for redhen_dedupe_merge_form().
    */
-  public function redhen_dedupe_merge_form_callback(array &$form, FormStateInterface $form_state) {
+  public function redhenDedupeMergeFormCallback(array &$form, FormStateInterface $form_state) {
     $ajax_response = new AjaxResponse();
 
     $ajax_response->addCommand(new ReplaceCommand('#redhen_dedupe_merge_data', \Drupal::service('renderer')->render($form['merge_data'])));
@@ -266,13 +273,15 @@ class RedhenDedupeMergeForm extends FormBase {
   /**
    * Determine if a given property can be merged.
    *
-   * @param array $property
-   *   A base_field as returned by \Drupal::service('entity_field.manager')->getBaseFieldDefinitions('redhen_contact', $bundle);
+   * @param array $base_field
+   *   A base_field as returned by
+   *   \Drupal::service('entity_field.manager')
+   *   ->getBaseFieldDefinitions('redhen_contact', $bundle).
    *
    * @return bool
    *   True is mergeable.
    */
-  private function redhen_dedupe_base_field_mergeable($name, $base_field) {
+  private function redhenDedupeBaseFieldMergeable($base_field) {
     // Don't merge computed fields:
     if ($base_field->isComputed()) {
       return FALSE;
@@ -289,7 +298,7 @@ class RedhenDedupeMergeForm extends FormBase {
   /**
    * Return an option label for the merge form.
    *
-   * @param RedhenContact $contact
+   * @param Contact $contact
    *   Contact entity.
    * @param string $field_name
    *   Contact field name we need a label for.
@@ -299,16 +308,16 @@ class RedhenDedupeMergeForm extends FormBase {
    * @return string
    *   Label to use for an option field or other purpose.
    */
-  private function redhen_dedupe_option_label(Contact $contact, $field_name, $field) {
-     $render = $contact->get($field_name)->view(array('label' => 'hidden'));
-     $display = \Drupal::service('renderer')->render($render);
-     return !$contact->get($field_name)->isEmpty() ? $display : $this->t('No value');
+  private function redhenDedupeOptionLabel(Contact $contact, $field_name) {
+    $render = $contact->get($field_name)->view(array('label' => 'hidden'));
+    $display = \Drupal::service('renderer')->render($render);
+    return !$contact->get($field_name)->isEmpty() ? $display : $this->t('No value');
   }
 
   /**
    * Determine if a property should be merged via checkboxes instead of radios.
    */
-  private function redhen_dedupe_field_is_multivalue($name, $field) {
+  private function redhenDedupeFieldIsMultivalue($field) {
     $cardinality = $field->getFieldStorageDefinition()->getCardinality();
     if ($cardinality != 1) {
       return $cardinality;
@@ -323,20 +332,20 @@ class RedhenDedupeMergeForm extends FormBase {
    *
    * @param \Drupal\redhen_contact\Entity\Contact $master
    *   The master RedHen Contact.
-   * @param array $contacts
-   *   The contacts being merged into the master.
    * @param array $values
    *   Values to update the master contact with.
    * @param array $related_entities
    *   Array of entity types to update to the master contact.
+   * @param array $contacts
+   *   The contacts being merged into the master.
    *
    * @return bool
    *   Result of the merge attempt.
    */
-  private function redhen_dedupe_merge(\Drupal\redhen_contact\Entity\Contact $master, $contacts = array(), $values, $related_entities) {
+  private function redhenDedupeMerge(Contact $master, $values, $related_entities, $contacts = array()) {
     $master_id = $master->id();
 
-    $transaction =  \Drupal::database()->startTransaction(__FUNCTION__);
+    $transaction = \Drupal::database()->startTransaction(__FUNCTION__);
     try {
       // Iterate through all contacts and update or delete related entities.
       foreach ($contacts as $contact) {
@@ -366,7 +375,7 @@ class RedhenDedupeMergeForm extends FormBase {
               break;
 
             case 'redhen_connection':
-              // Look for connections with one end point including the dupe contact.
+              // Look for connections w/ one end point including dupe contact.
               $results = \Drupal::service('redhen_connection.connections')->getConnections($contact);
 
               if ($results) {
@@ -400,11 +409,11 @@ class RedhenDedupeMergeForm extends FormBase {
       foreach ($values as $id => $value) {
         if ($value['type'] == 'direct') {
           // if (!isset($master->{$id}->itemType) || $master->{$id}->itemType != 'field_collection') {
-            $master->get($id)->setValue($value['value']);
           // }
           // else {
           //   _redhen_dedupe_set_field_collection_value($master, $id, $value['value']);
           // }
+          $master->get($id)->setValue($value['value']);
         }
         if ($value['type'] == 'combine') {
           if (isset($value['value'][$master_id])) {
@@ -450,4 +459,5 @@ class RedhenDedupeMergeForm extends FormBase {
       return FALSE;
     }
   }
+
 }
