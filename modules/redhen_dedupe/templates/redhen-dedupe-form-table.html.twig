@@ -1,0 +1,22 @@
+{#
+/**
+ * @file redhen-dedupe-form-table.html.twig
+ * Default theme implementation to present Merge Form data.
+ *
+ * This template is used when using dedupe functionality.
+ *
+ *
+ * Available variables:
+ * - content: A list of content items. Use 'content' to print all content, or
+ * - attributes: HTML attributes for the container element.
+ *
+ * @see template_preprocess_redhen_contact()
+ *
+ * @ingroup themeable
+ */
+#}
+<div{{ attributes.addClass('redhen_dedupe') }}>
+  {% if content %}
+    {{- content -}}
+  {% endif %}
+</div>

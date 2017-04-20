@@ -1,0 +1,93 @@
+<?php
+
+/**
+ * Get duplicate contacts.
+ *
+ * @return array
+ *   Array of objects containing first, last, and ids.
+ */
+function redhen_dedupe_get_duplicates($base_fields = array(), $fields = array(), $active = TRUE) {
+  $query = $query = \Drupal::database()->select('redhen_contact', 'rc');
+  $query->addTag('redhen_dedupe');
+  $query->addExpression('COUNT(*)', 'count');
+
+  // PostGres doesn't support GROUP_CONCAT and aliases can't be used in
+  // conditional clauses so we need to repeat the aggregate function.
+  if (\Drupal::service('database')->driver() == 'pgsql') {
+    $query->addExpression('array_to_string(array_agg(id), \',\')', 'ids');
+    $query->having('COUNT(*) > 1');
+
+  }
+  else {
+    $query->addExpression('GROUP_CONCAT(id SEPARATOR \',\')', 'ids');
+    $query->having('COUNT(*) > 1');
+  }
+
+  if ($active) {
+    $query->condition('status', '1');
+  }
+
+  foreach ($base_fields as $base_field) {
+    $query->addField('rc', $base_field);
+    $query->groupBy($base_field);
+  }
+  // To prevent adding the same field twice, we loop through all fields:
+  $join_fields = array();
+  foreach ($fields as $field) {
+    $field_pieces = explode(':', $field);
+    $field = array_shift($field_pieces);
+    $join_fields[$field] = $field;
+  }
+  foreach ($join_fields as $field) {
+    $query->leftJoin('redhen_contact__' . $field, $field, $field . '.entity_id = rc.id');
+  }
+  $bundles = \Drupal::service('entity_type.bundle.info')->getBundleInfo('redhen_contact');
+  $info = array();
+  foreach (array_keys($bundles) as $bundle) {
+    $info['base_field'] = \Drupal::service('entity_field.manager')->getBaseFieldDefinitions('redhen_contact', $bundle);
+    $info['field'] = array_diff_key(\Drupal::service('entity_field.manager')->getFieldDefinitions('redhen_contact', $bundle), $info['base_field']);
+  }
+
+  foreach ($fields as $field) {
+    $field_config = $info['field'][$field];
+    $columns = $field_config->getFieldStorageDefinition()->getColumns();
+    $field = $field_config->get('field_name');
+    reset($columns);
+    $column = key($columns);
+    $query->addField($field, $field . '_' . $column);
+    $query->groupBy($field . '_' . $column);
+  }
+  $query->orderBy('count', 'DESC');
+
+  return $query->execute()->fetchAll();
+}
+
+/**
+ * Implements hook_theme().
+ */
+function redhen_dedupe_theme($existing, $type, $theme, $path) {
+  return array(
+    'redhen_dedupe_form_table' => array(
+      'render element' => 'elements',
+      'file' => 'redhen_dedupe.theme.inc',
+    ),
+  );
+}
+
+/**
+ * Helper function for setting stubborn field collection fields.
+ */
+function _redhen_dedupe_set_field_collection_value($entity, $field, $value) {
+  $fc_item = \Drupal::entityManager()->getStorage('field_collection_item')->create(array('field_name' => $field));
+  $fc_item->setHostEntity('redhen_contact', $entity);
+  $fc_item_wrapper = entity_metadata_wrapper('field_collection_item', $fc_item);
+  $val_wrapper = entity_metadata_wrapper('field_collection_item', $value);
+  $val_properties = $val_wrapper->getPropertyInfo();
+  foreach ($val_properties as $property => $prop_details) {
+    if (isset($prop_details['field']) && $prop_details['field']) {//} && ($val_wrapper->{$property}->value() != NULL)) {
+      //@todo support multi-value fields needed?
+      //@todo support additional field collections?
+      $fc_item_wrapper->{$property}->set($val_wrapper->{$property}->value());
+    }
+  }
+}
