@@ -62,7 +62,7 @@ class ContactHtmlRouteProvider extends AdminHtmlRouteProvider {
           '_entity_list' => $entity_type_id,
           '_title' => "{$entity_type->getLabel()} list",
         ])
-        ->setRequirement('_permission', 'view contact entities')
+        ->setRequirement('_permission', 'view active contact entities+view inactive contact entities')
         ->setOption('_admin_route', TRUE);
 
       return $route;

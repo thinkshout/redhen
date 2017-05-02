@@ -62,7 +62,7 @@ class OrgHtmlRouteProvider extends AdminHtmlRouteProvider {
           '_entity_list' => $entity_type_id,
           '_title' => "{$entity_type->getLabel()} list",
         ])
-        ->setRequirement('_permission', 'view org entities')
+        ->setRequirement('_permission', 'view active org entities+view inactive org entities')
         ->setOption('_admin_route', TRUE);
 
       return $route;
