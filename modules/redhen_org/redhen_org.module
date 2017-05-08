@@ -80,6 +80,22 @@ function redhen_org_tokens($type, $tokens, array $data, array $options, \Drupal\
         case 'id':
           $replacements[$original] = $data['entity']->id();
           break;
+
+        case 'name':
+          $replacements[$original] = $data['entity']->getName();
+          break;
+
+        case 'type':
+          $replacements[$original] = $data['entity']->getType();
+          break;
+
+        case 'status':
+          $replacements[$original] = $data['entity']->isActive();
+          break;
+
+        case 'created':
+          $replacements[$original] = $data['entity']->getCreatedTime();
+          break;
       }
     }
 
@@ -101,6 +117,26 @@ function redhen_org_token_info() {
   $redhen_org['id'] = array(
     'name' => t('Organization ID'),
     'description' => t('The unique ID of the Organization.'),
+  );
+
+  $redhen_org['name'] = array(
+    'name' => t('Organization Name'),
+    'description' => t('The name of the Organization.'),
+  );
+
+  $redhen_org['type'] = array(
+    'name' => t('Organization Type'),
+    'description' => t('The type (bundle) of the Organization.'),
+  );
+
+  $redhen_org['status'] = array(
+    'name' => t('Organization Status'),
+    'description' => t('The status of the Organization.'),
+  );
+
+  $redhen_org['created'] = array(
+    'name' => t('Organization Created'),
+    'description' => t('The timestamp the Organization was created.'),
   );
 
   return array(
