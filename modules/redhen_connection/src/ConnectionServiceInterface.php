@@ -11,6 +11,16 @@ use Drupal\Core\Session\AccountInterface;
  */
 interface ConnectionServiceInterface {
 
+  /**
+   * Filters an entity list to just bundle definitions for entities with connection types.
+   *
+   * @param EntityTypeInterface[] $entity_types
+   *   The master entity type list filter.
+   *
+   * @return ConfigEntityTypeInterface[]
+   *   An array of only the config entities we want to modify.
+   */
+  public function getConnectionEntityTypes(array $entity_types);
 
   /**
    * Returns the connection types that can be connected to a single entity or two

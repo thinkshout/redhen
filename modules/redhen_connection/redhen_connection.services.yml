@@ -2,4 +2,6 @@ services:
   redhen_connection.connections:
     class: Drupal\redhen_connection\ConnectionService
     arguments: ['@entity_type.manager', '@entity.query', '@database']
-
+  redhen_connection.views_data:
+    class: \Drupal\redhen_connection\ViewsData
+    arguments: ['@entity_type.manager', '@redhen_connection.connections']

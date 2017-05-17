@@ -85,7 +85,7 @@ class Connection extends ContentEntityBase implements ConnectionInterface {
       '@label2' => $this->get('endpoint_2')->entity->label(),
     ));
   }
-  
+
   /**
    * {@inheritdoc}
    */
