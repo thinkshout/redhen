@@ -167,11 +167,6 @@ class ContactSettingsForm extends ConfigFormBase {
             '#title' => t('Update contact fields'),
             '#description' => t('When an existing contact is found and linked to, the submitted field values will overwrite the existing contact field values.'),
             '#default_value' => $config->get('registration_update'),
-            '#states' => array(
-              'invisible' => array(
-                ':input[name="contact_reg_link"]' => array('checked' => FALSE),
-              ),
-            ),
           ),
         ),
       ),
