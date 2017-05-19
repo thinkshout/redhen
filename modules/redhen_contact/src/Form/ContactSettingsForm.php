@@ -149,8 +149,8 @@ class ContactSettingsForm extends ConfigFormBase {
             '#description' => t('Select the allowed contact types to create during registration. This can be overridden by appending the contact type machine name in the registration url.'),
             '#default_value' => $config->get('registration_type'),
             '#states' => array(
-              'invisible' => array(
-                ':input[name="registration"]' => array('checked' => FALSE),
+              'visible' => array(
+                ':input[name="registration"]' => array('checked' => TRUE),
               ),
             ),
           ),
