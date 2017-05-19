@@ -45,12 +45,23 @@ class ContactSettingsForm extends ConfigFormBase {
    *   The current state of the form.
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
+
+    // Must require a valid email to connect Contacts and Drupal Users.
+    $connect_users = $form_state->getValue('valid_email') && $form_state->getValue('connect_users');
+
+    // Contacts must be connected to Users if we're going to embed the Contact
+    // fields on the User form.
+    $embed_on_user_form = $form_state->getValue('connect_users') && $form_state->getValue('embed_on_user_form');
+
+    // Require unique email if we're connecting Contacts to Users.
+    $unique_email = $connect_users || $form_state->getValue('unique_email');
+
     \Drupal::service('config.factory')
       ->getEditable('redhen_contact.settings')
       ->set('valid_email', $form_state->getValue('valid_email'))
-      ->set('connect_users', $form_state->getValue('connect_users'))
-      ->set('embed_on_user_form', $form_state->getValue('embed_on_user_form'))
-      ->set('unique_email', $form_state->getValue('unique_email'))
+      ->set('connect_users', $connect_users)
+      ->set('embed_on_user_form', $embed_on_user_form)
+      ->set('unique_email', $unique_email)
       ->set('alter_username', $form_state->getValue('alter_username'))
       ->set('registration', $form_state->getValue('registration'))
       ->set('registration_type', $form_state->getValue('registration_type'))
@@ -88,7 +99,7 @@ class ContactSettingsForm extends ConfigFormBase {
         '#description' => t('If checked, RedHen will attempt to connect Drupal users to RedHen contacts by matching email addresses when a contact is updated.'),
         '#default_value' => $config->get('connect_users'),
         '#states' => array(
-          'enabled' => array(
+          'visible' => array(
             ':input[name="valid_email"]' => array('checked' => TRUE),
           ),
         ),
@@ -99,7 +110,7 @@ class ContactSettingsForm extends ConfigFormBase {
         '#description' => t('If checked, the RedHen Contact tab on users will be removed, and the Contact edit fields will instead be attached to the bottom of the User Edit form.'),
         '#default_value' => $config->get('embed_on_user_form'),
         '#states' => array(
-          'enabled' => array(
+          'visible' => array(
             ':input[name="connect_users"]' => array('checked' => TRUE),
           ),
         ),
