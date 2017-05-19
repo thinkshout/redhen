@@ -91,9 +91,6 @@ class ContactSettingsForm extends ConfigFormBase {
           'enabled' => array(
             ':input[name="valid_email"]' => array('checked' => TRUE),
           ),
-          'unchecked' => array(
-            ':input[name="valid_email"]' => array('checked' => FALSE),
-          ),
         ),
       ),
       'embed_on_user_form' => array(
@@ -104,9 +101,6 @@ class ContactSettingsForm extends ConfigFormBase {
         '#states' => array(
           'enabled' => array(
             ':input[name="connect_users"]' => array('checked' => TRUE),
-          ),
-          'unchecked' => array(
-            ':input[name="connect_users"]' => array('checked' => FALSE),
           ),
         ),
       ),
