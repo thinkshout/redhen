@@ -69,25 +69,25 @@ class ViewsData {
             $data['redhen_connection']['table']['join'][$base_table] = [
               'left_field' => $entity_type->getKey('id'),
               'field' => $endpoint_id,
-              'extra' => [
-                [
-                  'field' => 'type',
-                  'value' => $connection_type_id,
-                ],
-              ],
             ];
 
-            $data['redhen_connection']["{$entity_type_id}__{$endpoint_id}"] = [
+            $data['redhen_connection']["{$entity_type_id}__{$endpoint_id}_{$connection_type_id}"] = [
               'relationship' => [
                 'id' => 'standard',
                 'label' => $this->t('@label connection', ['@label' => $entity_type->getLabel()]),
                 'title' => $entity_type->getLabel(),
-                'help' => t('The related @entity_type for @endpoint_id.', ['@entity_type' => $entity_type->getLowercaseLabel(), '@endpoint_id' => str_replace('_', ' ', $endpoint_id)]),
+                'help' => t('The related @entity_type for @endpoint_id from @connection_type.', ['@entity_type' => $entity_type->getLowercaseLabel(), '@endpoint_id' => str_replace('_', ' ', $endpoint_id), '@connection_type' => $connection_type_id]),
                 'base' => $this->getEndpointViewsTableForEntityType($entity_type),
                 'base field' => $entity_type->getKey('id'),
                 'argument table' => 'redhen_connection',
                 'argument field' => 'status',
                 'relationship field' => $endpoint_id,
+                'extra' => [
+                  [
+                    'left_field' => 'type',
+                    'value' => $connection_type_id,
+                  ],
+                ],
                 'filter' => [
                   'handler' => '\Drupal\redhen_connection\Plugin\views\HandlerFilterStatus'
                 ],
