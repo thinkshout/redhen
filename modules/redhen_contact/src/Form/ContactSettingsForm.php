@@ -59,6 +59,7 @@ class ContactSettingsForm extends ConfigFormBase {
     \Drupal::service('config.factory')
       ->getEditable('redhen_contact.settings')
       ->set('valid_email', $form_state->getValue('valid_email'))
+      ->set('required_properties', $form_state->getValue('required_properties'))
       ->set('connect_users', $connect_users)
       ->set('embed_on_user_form', $embed_on_user_form)
       ->set('unique_email', $unique_email)
@@ -90,9 +91,20 @@ class ContactSettingsForm extends ConfigFormBase {
       'valid_email' => array(
         '#type' => 'checkbox',
         '#title' => t('Require contacts to have a valid email address'),
-        '#description' => t('Controls the contact form validation. Must be true to enable Drupal user connections keyed on email.'),
+        '#description' => t('Controls the contact form validation. Must be enabled to allow Drupal user connections keyed on email. Note that changes will not take effect until cache is rebuilt.'),
         '#default_value' => $config->get('valid_email'),
       ),
+      'required_properties' => [
+        '#type' => 'checkboxes',
+        '#title' => 'Required Names',
+        '#description' => $this->t("Select which names to require on Contacts. (Requiring no names can result in unlabeled Contacts.) Note that changes will not take effect until cache is rebuilt."),
+        '#options' => [
+          'first_name' => $this->t("First Name"),
+          'middle_name' => $this->t("Middle Name"),
+          'last_name' => $this->t("Last Name"),
+        ],
+        '#default_value' => $config->get('required_properties'),
+      ],
       'connect_users' => array(
         '#type' => 'checkbox',
         '#title' => t('Connect users to RedHen contacts'),
