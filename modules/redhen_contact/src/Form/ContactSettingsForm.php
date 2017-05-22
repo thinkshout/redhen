@@ -80,7 +80,7 @@ class ContactSettingsForm extends ConfigFormBase {
       'valid_email' => array(
         '#type' => 'checkbox',
         '#title' => t('Require contacts to have a valid email address'),
-        '#description' => t('Controls the contact form validation. Must be true to enable Drupal user connections keyed on email.'),
+        '#description' => t('Controls the contact form validation. Must be enabled to allow Drupal user connections keyed on email. Note that changes will not take effect until cache is rebuilt.'),
         '#default_value' => $config->get('valid_email'),
       ),
       'required_properties' => [
