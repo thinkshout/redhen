@@ -1,4 +1,8 @@
 unique_email: TRUE
+required_properties:
+  first_name: 'first_name'
+  middle_name:
+  last_name: 'last_name'
 connect_users: FALSE
 embed_on_user_form: FALSE
 alter_username: TRUE
