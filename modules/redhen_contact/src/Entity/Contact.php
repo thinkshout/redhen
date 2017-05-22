@@ -275,7 +275,7 @@ class Contact extends ContentEntityBase implements ContactInterface {
       // If we find any Contacts with emails that match our request,
       // load and return them.
       if (!empty($results)) {
-       $contacts = Contact::loadMultiple(array_keys($results));
+        $contacts = Contact::loadMultiple(array_keys($results));
       }
     }
 
@@ -340,7 +340,6 @@ class Contact extends ContentEntityBase implements ContactInterface {
       ->setDisplayConfigurable('view', TRUE)
       ->setRequired($required_names['last_name'])
       ->setRevisionable(TRUE);
-
 
     $fields['email'] = BaseFieldDefinition::create('email')
       ->setLabel(t('Email'))
