@@ -2,8 +2,9 @@ uuid: 730aafce-d95a-4a62-b2aa-0e232eec009b
 langcode: en
 status: true
 dependencies:
-  module:
-    - redhen_connection
+  enforced:
+    module:
+      - redhen_connection
 id: redhen_connection_list
 label: 'Redhen Connection List'
 module: views

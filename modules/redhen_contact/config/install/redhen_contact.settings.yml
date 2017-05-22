@@ -1,3 +1,7 @@
+dependencies:
+  enforced:
+    module:
+      - redhen_contact
 unique_email: TRUE
 required_properties:
   first_name: 'first_name'

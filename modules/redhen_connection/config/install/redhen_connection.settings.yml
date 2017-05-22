@@ -1,1 +1,5 @@
+dependencies:
+  enforced:
+    module:
+      - redhen_connection
 auto_disable_connections: TRUE
