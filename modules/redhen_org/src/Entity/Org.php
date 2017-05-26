@@ -142,7 +142,7 @@ class Org extends ContentEntityBase implements OrgInterface {
       ->setLabel(t('Name'))
       ->setDescription(t('The name of the org.'))
       ->setSettings(array(
-        'max_length' => 50,
+        'max_length' => 255,
         'text_processing' => 0,
       ))
       ->setDefaultValue('')

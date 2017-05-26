@@ -1,0 +1,20 @@
+<?php
+
+/**
+ * @file
+ * Install & update hooks for the Redhen Org module.
+ */
+
+/**
+ * Change the redhen org name to 255 characters.
+ */
+function redhen_org_update_8101() {
+  $table = 'redhen_org';
+  $revision_table = 'redhen_org_revision';
+  $column = 'name';
+  $max_length = 255;
+  // Alter value field length in fields table:
+  db_query("ALTER TABLE `{$table}` CHANGE `{$column}` `{$column}` VARCHAR( {$max_length} )");
+  // Alter value field length in fields revision table:
+  db_query("ALTER TABLE `{$revision_table}` CHANGE `{$column}` `{$column}` VARCHAR( {$max_length} )");
+}

@@ -56,6 +56,84 @@ function redhen_contact_theme() {
 }
 
 /**
+ * Implements hook_tokens().
+ */
+function redhen_contact_tokens($type, $tokens, array $data, array $options, \Drupal\Core\Render\BubbleableMetadata $bubbleable_metadata) {
+  $replacements = array();
+
+  if (($type == 'entity') && isset($data['entity_type']) && ($data['entity_type'] == 'redhen_contact')) {
+
+    foreach ($tokens as $name => $original) {
+      switch ($name) {
+        case 'id':
+          $replacements[$original] = $data['entity']->id();
+          break;
+
+        case 'name':
+          $replacements[$original] = $data['entity']->getFullName();
+          break;
+
+        case 'type':
+          $replacements[$original] = $data['entity']->getType();
+          break;
+
+        case 'status':
+          $replacements[$original] = $data['entity']->isActive();
+          break;
+
+        case 'created':
+          $replacements[$original] = $data['entity']->getCreatedTime();
+          break;
+      }
+    }
+
+  }
+
+  return $replacements;
+}
+
+/**
+ * Implements hook_token_info().
+ */
+function redhen_contact_token_info() {
+  $type = array(
+    'name' => t('Contact'),
+    'description' => t('Tokens related to an individual Contacts.'),
+    'needs-data' => 'redhen_contact',
+  );
+
+  $redhen_contact['id'] = array(
+    'name' => t('Contact ID'),
+    'description' => t('The unique ID of the Contact.'),
+  );
+
+  $redhen_contact['name'] = array(
+    'name' => t('Contact Name'),
+    'description' => t('The name of the Contact.'),
+  );
+
+  $redhen_contact['type'] = array(
+    'name' => t('Contact Type'),
+    'description' => t('The type (bundle) of the Contact.'),
+  );
+
+  $redhen_contact['status'] = array(
+    'name' => t('Contact Status'),
+    'description' => t('The status of the Contact.'),
+  );
+
+  $redhen_contact['created'] = array(
+    'name' => t('Contact Created'),
+    'description' => t('The timestamp the Contact was created.'),
+  );
+
+  return array(
+    'types' => array('redhen_contact' => $type),
+    'tokens' => array('redhen_contact' => $redhen_contact),
+  );
+}
+
+/**
  * Return an associative array of contact types to be used as an options list.
  *
  * @return array
