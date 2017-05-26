@@ -63,6 +63,7 @@ class ConnectionHtmlRouteProvider extends DefaultHtmlRouteProvider {
           '_title' => "{$entity_type->getLabel()} list",
         ])
         ->setRequirement('_permission', 'view active connection entities+view inactive connection entities');
+        ->setOption('_admin_route', TRUE);
 
       return $route;
     }
