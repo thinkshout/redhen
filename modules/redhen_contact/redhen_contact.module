@@ -519,13 +519,15 @@ function _redhen_contact_user_submission_apply($form, $form_state, $form_display
  *
  * @param array $form
  *   The RedHen contact form.
- * @param array $form_state
+ * @param \Drupal\Core\Form\FormStateInterface $form_state
  *   The RedHen contact form state.
+ * @param string $contact_type
+ *   The RedHen Contact Type.
  *
- * @return array
- *   The modified form_state array.
+ * @return \Drupal\Core\Form\FormStateInterface
+ *   The modified form_state.
  */
-function redhen_contact_user_registration_form_state($form, $form_state) {
+function redhen_contact_user_registration_form_state(array $form, FormStateInterface $form_state, $contact_type) {
   // Start with form_state as passed.
   $limited_state = clone $form_state;
   // Reset values element since we'll be rebuilding it below.
@@ -533,7 +535,7 @@ function redhen_contact_user_registration_form_state($form, $form_state) {
   $limited_state->setValue($field_parent_name, []);
 
   // Get Redhen Contact field definitions to determine default values.
-  $contact_fields = \Drupal::entityManager()->getFieldDefinitions('redhen_contact', 'team_member');
+  $contact_fields = \Drupal::entityManager()->getFieldDefinitions('redhen_contact', $contact_type);
 
   // Get all Redhen contact field values.
   $field_values = $form_state->getValue($field_parent_name);
