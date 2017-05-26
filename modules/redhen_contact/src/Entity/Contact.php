@@ -275,7 +275,7 @@ class Contact extends ContentEntityBase implements ContactInterface {
       // If we find any Contacts with emails that match our request,
       // load and return them.
       if (!empty($results)) {
-       $contacts = Contact::loadMultiple(array_keys($results));
+        $contacts = Contact::loadMultiple(array_keys($results));
       }
     }
 
@@ -286,8 +286,10 @@ class Contact extends ContentEntityBase implements ContactInterface {
    * {@inheritdoc}
    */
   public static function baseFieldDefinitions(EntityTypeInterface $entity_type) {
+    $config = \Drupal::config('redhen_contact.settings');
     $fields = parent::baseFieldDefinitions($entity_type);
 
+    $required_names = $config->get('required_properties');
     $fields['first_name'] = BaseFieldDefinition::create('string')
       ->setLabel(t('First name'))
       ->setDescription(t('The first name of the contact.'))
@@ -302,6 +304,7 @@ class Contact extends ContentEntityBase implements ContactInterface {
       ))
       ->setDisplayConfigurable('form', TRUE)
       ->setDisplayConfigurable('view', TRUE)
+      ->setRequired($required_names['first_name'])
       ->setRevisionable(TRUE);
 
     $fields['middle_name'] = BaseFieldDefinition::create('string')
@@ -318,6 +321,7 @@ class Contact extends ContentEntityBase implements ContactInterface {
       ))
       ->setDisplayConfigurable('form', TRUE)
       ->setDisplayConfigurable('view', TRUE)
+      ->setRequired($required_names['middle_name'])
       ->setRevisionable(TRUE);
 
     $fields['last_name'] = BaseFieldDefinition::create('string')
@@ -334,8 +338,8 @@ class Contact extends ContentEntityBase implements ContactInterface {
       ))
       ->setDisplayConfigurable('form', TRUE)
       ->setDisplayConfigurable('view', TRUE)
+      ->setRequired($required_names['last_name'])
       ->setRevisionable(TRUE);
-
 
     $fields['email'] = BaseFieldDefinition::create('email')
       ->setLabel(t('Email'))
@@ -353,7 +357,8 @@ class Contact extends ContentEntityBase implements ContactInterface {
       ))
       ->setDisplayConfigurable('form', TRUE)
       ->setDisplayConfigurable('view', TRUE)
-      ->setRevisionable(TRUE);
+      ->setRevisionable(TRUE)
+      ->setRequired($config->get('valid_email'));
 
     $fields['uid'] = BaseFieldDefinition::create('entity_reference')
       ->setLabel(t('Linked user'))
