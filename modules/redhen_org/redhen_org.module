@@ -5,6 +5,7 @@
  * Contains redhen_org.module..
  */
 
+use Drupal\Core\Render\BubbleableMetadata;
 use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\redhen_org\Entity\OrgType;
 
@@ -70,7 +71,7 @@ function redhen_org_type_options_list() {
 /**
  * Implements hook_tokens().
  */
-function redhen_org_tokens($type, $tokens, array $data, array $options, \Drupal\Core\Render\BubbleableMetadata $bubbleable_metadata) {
+function redhen_org_tokens($type, $tokens, array $data, array $options, BubbleableMetadata $bubbleable_metadata) {
   $replacements = array();
 
   if (($type == 'entity') && isset($data['entity_type']) && ($data['entity_type'] == 'redhen_org')) {

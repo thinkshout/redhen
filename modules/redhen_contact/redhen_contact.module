@@ -7,6 +7,8 @@
 
 use Drupal\Core\Access\AccessResult;
 use Drupal\Core\Entity\Entity\EntityFormDisplay;
+use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Render\BubbleableMetadata;
 use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\redhen_contact\Entity\Contact;
 use Drupal\redhen_contact\Entity\ContactType;
@@ -58,7 +60,7 @@ function redhen_contact_theme() {
 /**
  * Implements hook_tokens().
  */
-function redhen_contact_tokens($type, $tokens, array $data, array $options, \Drupal\Core\Render\BubbleableMetadata $bubbleable_metadata) {
+function redhen_contact_tokens($type, $tokens, array $data, array $options, BubbleableMetadata $bubbleable_metadata) {
   $replacements = array();
 
   if (($type == 'entity') && isset($data['entity_type']) && ($data['entity_type'] == 'redhen_contact')) {
@@ -151,7 +153,7 @@ function redhen_contact_type_options_list() {
 /**
  * Implements hook_form_FORM_ID_alter() on the user_register_form.
  */
-function redhen_contact_form_user_register_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_state, $form_id) {
+function redhen_contact_form_user_register_form_alter(&$form, FormStateInterface $form_state, $form_id) {
 
   // Get Redhen Contact settings.
   $config = \Drupal::config('redhen_contact.settings');
@@ -191,7 +193,7 @@ function redhen_contact_form_user_register_form_alter(&$form, \Drupal\Core\Form\
 /**
  * Implements hook_form_FORM_ID_alter() on user_form.
  */
-function redhen_contact_form_user_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_state, $form_id) {
+function redhen_contact_form_user_form_alter(&$form, FormStateInterface $form_state, $form_id) {
 
   // Load Contact using Drupal User.
   $user = $form_state->getFormObject()->getEntity();
