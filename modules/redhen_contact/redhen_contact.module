@@ -275,7 +275,10 @@ function _redhen_contact_user_embed_contact_form(&$form, &$form_state, Contact $
     '#tree' => TRUE,
     '#parents' => ['form_display_' . $contact->getType()],
     '#open' => TRUE,
-    '#element_validate' => ['redhen_contact_user_update_validate']
+    '#element_validate' => ['redhen_contact_user_update_validate'],
+    // We would prefer to base this on weight of $form['account']['#weight'],
+    // but that value gets changed before the form renders to be "1".
+    '#weight' => 10,
   ];
 
   // Add EntityFormDisplay object used to build an entity's form.
