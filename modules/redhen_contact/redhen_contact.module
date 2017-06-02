@@ -191,10 +191,18 @@ function redhen_contact_form_user_register_form_alter(&$form, FormStateInterface
 }
 
 /**
- * Implements hook_form_FORM_ID_alter() on user_form.
+ * Implements hook_form_FORM_ID_alter().
+ *
+ * Targets user_form.
+ * Note that this also triggers on hook_form_BASE_FORM_ID_alter() for the
+ * user_register_form, which has "user_form" as its base_form_id. This is why we
+ * double-check the $form_id.
  */
 function redhen_contact_form_user_form_alter(&$form, FormStateInterface $form_state, $form_id) {
-
+  // Double-check the $form_id, as user_form is also a base_form_id for forms.
+  if ($form_id != "user_form") {
+    return;
+  }
   // Load Contact using Drupal User.
   $user = $form_state->getFormObject()->getEntity();
   $contact = Contact::loadByUser($user);
