@@ -177,7 +177,7 @@ class ContactSettingsForm extends ConfigFormBase {
             '#type' => 'select',
             '#options' => redhen_contact_type_options_list(),
             '#title' => t('Allowed contact type'),
-            '#description' => t('Select the allowed contact types to create during registration. This can be overridden by appending the contact type machine name in the registration url.'),
+            '#description' => t('Select the contact type to create during registration. (This can be overridden by appending the contact type machine name in the registration url.)'),
             '#default_value' => $config->get('registration_type'),
             '#states' => array(
               'visible' => array(
