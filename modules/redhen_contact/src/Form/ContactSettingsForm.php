@@ -8,6 +8,7 @@
 namespace Drupal\redhen_contact\Form;
 
 use Drupal\Core\Form\ConfigFormBase;
+use Drupal\Core\Entity\Entity\EntityFormDisplay;
 use Drupal\Core\Form\FormStateInterface;
 
 /**
@@ -62,11 +63,13 @@ class ContactSettingsForm extends ConfigFormBase {
       ->set('required_properties', $form_state->getValue('required_properties'))
       ->set('connect_users', $connect_users)
       ->set('embed_on_user_form', $embed_on_user_form)
+      ->set('contact_user_form', $form_state->getValue('contact_user_form'))
       ->set('unique_email', $unique_email)
       ->set('alter_username', $form_state->getValue('alter_username'))
       ->set('registration', $form_state->getValue('registration'))
       ->set('registration_type', $form_state->getValue('registration_type'))
       ->set('registration_link', $form_state->getValue('registration_link'))
+      ->set('registration_form', $form_state->getValue('registration_form'))
       ->set('registration_update', $form_state->getValue('registration_update'))
       ->save();
 
@@ -86,7 +89,11 @@ class ContactSettingsForm extends ConfigFormBase {
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
     $config = $this->config('redhen_contact.settings');
-
+    $contact_form_modes = \Drupal::entityManager()->getFormModes('redhen_contact');
+    $user_form_options = ['default' => 'Default'];
+    foreach ($contact_form_modes as $id => $values) {
+      $user_form_options[$id] = $values['label'];
+    }
     $form = array(
       'valid_email' => array(
         '#type' => 'checkbox',
@@ -127,6 +134,18 @@ class ContactSettingsForm extends ConfigFormBase {
           ),
         ),
       ),
+      'contact_user_form' => array(
+        '#type' => 'select',
+        '#options' => $user_form_options,
+        '#title' => t('User Contact Form'),
+        '#description' => t('Select the Contact Form to embed on the User form.'),
+        '#default_value' => $config->get('contact_user_form') ? $config->get('contact_user_form') : 'default',
+        '#states' => array(
+          'visible' => array(
+            ':input[name="embed_on_user_form"]' => array('checked' => TRUE),
+          ),
+        ),
+      ),
       'unique_email' => array(
         '#type' => 'checkbox',
         '#title' => t('Require Contacts to have a unique email address.'),
@@ -160,6 +179,18 @@ class ContactSettingsForm extends ConfigFormBase {
             '#title' => t('Allowed contact type'),
             '#description' => t('Select the allowed contact types to create during registration. This can be overridden by appending the contact type machine name in the registration url.'),
             '#default_value' => $config->get('registration_type'),
+            '#states' => array(
+              'visible' => array(
+                ':input[name="registration"]' => array('checked' => TRUE),
+              ),
+            ),
+          ),
+          'registration_form' => array(
+            '#type' => 'select',
+            '#options' => $user_form_options,
+            '#title' => t('Registration Contact Form'),
+            '#description' => t('Select the Contact Form to embed on the Registration form.'),
+            '#default_value' => $config->get('registration_form') ? $config->get('registration_form') : 'default',
             '#states' => array(
               'visible' => array(
                 ':input[name="registration"]' => array('checked' => TRUE),
