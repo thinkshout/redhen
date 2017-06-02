@@ -176,7 +176,7 @@ function redhen_contact_form_user_register_form_alter(&$form, FormStateInterface
     $types = redhen_contact_type_options_list();
     if (array_key_exists($contact_type, $types)) {
       $contact_object = Contact::create(['type' => $contact_type]);
-      _redhen_contact_user_embed_contact_form($form, $form_state, $contact_object);
+      _redhen_contact_user_embed_contact_form($form, $form_state, $contact_object, $config->get('registration_form'));
       // Add a validation handler for validating the Contact form data.
       $form['#validate'][] = 'redhen_contact_user_registration_validate';
       // Add a submit handler for handling the Contact form data.
@@ -228,7 +228,7 @@ function redhen_contact_form_user_form_alter(&$form, FormStateInterface $form_st
       if ($form['account']['mail']['#disabled']) {
         $form['account']['mail']['#access'] = FALSE;
       }
-      _redhen_contact_user_embed_contact_form($form, $form_state, $contact);
+      _redhen_contact_user_embed_contact_form($form, $form_state, $contact, $config->get('contact_user_form'));
 
       // If the user isn't allowed to edit any Contact of the current type, do
       // not allow them to edit this Contact's status because if they change it
@@ -270,7 +270,7 @@ function redhen_contact_form_user_form_alter(&$form, FormStateInterface $form_st
  * @param \Drupal\redhen_contact\Entity\Contact $contact
  *   The Contact to build the form on.
  */
-function _redhen_contact_user_embed_contact_form(&$form, &$form_state, Contact $contact) {
+function _redhen_contact_user_embed_contact_form(&$form, &$form_state, Contact $contact, $form_mode = 'default') {
 
   // Place new Contact object in form_state - we use this if an existing Contact
   // is not found to link the user being created to.
@@ -290,7 +290,10 @@ function _redhen_contact_user_embed_contact_form(&$form, &$form_state, Contact $
   ];
 
   // Add EntityFormDisplay object used to build an entity's form.
-  $form_state->set('form_display_' . $contact->getType(), EntityFormDisplay::collectRenderDisplay($contact, 'default'));
+  if (!$form_mode) {
+    $form_mode = 'default';
+  }
+  $form_state->set('form_display_' . $contact->getType(), EntityFormDisplay::collectRenderDisplay($contact, $form_mode));
 
   // Build the entity's form into the placeholder form element created above.
   $form_state
