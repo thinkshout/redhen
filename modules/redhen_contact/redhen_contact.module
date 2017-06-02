@@ -239,7 +239,7 @@ function redhen_contact_form_user_form_alter(&$form, FormStateInterface $form_st
       $contact_types = ContactType::loadMultiple();
       foreach (array_keys($contact_types) as $contact_type) {
         if (isset($form['redhen_contact_' . $contact_type])) {
-          $edit_access = AccessResult ::allowedIfHasPermissions($user,
+          $edit_access = AccessResult::allowedIfHasPermissions($user,
             [
               'edit contact entities',
               'edit any ' . $contact_type . ' contact',
