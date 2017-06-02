@@ -443,8 +443,6 @@ function _redhen_contact_user_submission_validate($form, &$form_state, Contact $
     $message = _redhen_contact_user_submission_apply($form, $form_state, $form_display, $contact);
   }
 
-  // Validated submitted field values.
-  $form_display->validateFormValues($contact, $form, $form_state);
   // Entity was validated in entityFormValidate(). This will prevent validation
   // exception from being thrown.
   $form_state->getFormObject()->getEntity()->validate();
