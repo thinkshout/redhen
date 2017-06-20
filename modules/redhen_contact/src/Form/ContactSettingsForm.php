@@ -137,12 +137,12 @@ class ContactSettingsForm extends ConfigFormBase {
       'contact_user_form' => array(
         '#type' => 'select',
         '#options' => $user_form_options,
-        '#title' => t('User Contact Form'),
-        '#description' => t('Select the Contact Form to embed on the User form.'),
+        '#title' => t('"My Contact" Form'),
+        '#description' => t("Select the Contact Form to use on the User's Contact tab or User form."),
         '#default_value' => $config->get('contact_user_form') ? $config->get('contact_user_form') : 'default',
         '#states' => array(
           'visible' => array(
-            ':input[name="embed_on_user_form"]' => array('checked' => TRUE),
+            ':input[name="connect_users"]' => array('checked' => TRUE),
           ),
         ),
       ),
