@@ -292,7 +292,6 @@ class Contact extends ContentEntityBase implements ContactInterface {
     $required_names = $config->get('required_properties');
     $fields['first_name'] = BaseFieldDefinition::create('string')
       ->setLabel(t('First name'))
-      ->setDescription(t('The first name of the contact.'))
       ->setSettings(array(
         'max_length' => 50,
         'text_processing' => 0,
@@ -309,7 +308,6 @@ class Contact extends ContentEntityBase implements ContactInterface {
 
     $fields['middle_name'] = BaseFieldDefinition::create('string')
       ->setLabel(t('Middle Name'))
-      ->setDescription(t('The middle name of the contact.'))
       ->setSettings(array(
         'max_length' => 50,
         'text_processing' => 0,
@@ -326,7 +324,6 @@ class Contact extends ContentEntityBase implements ContactInterface {
 
     $fields['last_name'] = BaseFieldDefinition::create('string')
       ->setLabel(t('Last Name'))
-      ->setDescription(t('The last name of the contact.'))
       ->setSettings(array(
         'max_length' => 50,
         'text_processing' => 0,
@@ -343,7 +340,6 @@ class Contact extends ContentEntityBase implements ContactInterface {
 
     $fields['email'] = BaseFieldDefinition::create('email')
       ->setLabel(t('Email'))
-      ->setDescription(t('The email of this contact.'))
       ->setDefaultValue('')
       ->addConstraint('ContactEmailUnique')
       ->setDisplayOptions('view', array(
