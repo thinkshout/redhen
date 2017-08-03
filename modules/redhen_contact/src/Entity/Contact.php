@@ -291,7 +291,7 @@ class Contact extends ContentEntityBase implements ContactInterface {
 
     $required_names = $config->get('required_properties');
     $fields['first_name'] = BaseFieldDefinition::create('string')
-      ->setLabel(t('First name'))
+      ->setLabel(t('First Name'))
       ->setSettings(array(
         'max_length' => 50,
         'text_processing' => 0,
