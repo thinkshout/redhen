@@ -451,10 +451,10 @@ function _redhen_contact_user_submission_validate($form, &$form_state, Contact $
   // delete field values).
   $form_id = $form_state->getBuildInfo()['form_id'];
   if ($form_id == 'user_register_form') {
-    $message = _redhen_contact_user_submission_apply($form, $form_state, $form_display, $contact, TRUE);
+    $contact = _redhen_contact_user_submission_apply($form, $form_state, $form_display, $contact, TRUE);
   }
   elseif ($form_id == 'user_form') {
-    $message = _redhen_contact_user_submission_apply($form, $form_state, $form_display, $contact);
+    $contact = _redhen_contact_user_submission_apply($form, $form_state, $form_display, $contact);
   }
 
   // Entity was validated in entityFormValidate(). This will prevent validation
@@ -465,12 +465,6 @@ function _redhen_contact_user_submission_validate($form, &$form_state, Contact $
   // pre-existing Contact with matching email address or new Contact) with its
   // field values updated from the values supplied in the form.
   $form_state->set('redhen_contact', $contact);
-
-  // Only display this message to CRM admins to avoid confusion.
-  $user = Drupal::currentUser();
-  if (isset($message) && $user->hasPermission('administer contact entities')) {
-    drupal_set_message($message);
-  }
 }
 
 /**
@@ -520,10 +514,13 @@ function _redhen_contact_user_submission_apply($form, $form_state, $form_display
     (\Drupal::config('redhen_contact.settings')->get('registration_update') &&
       $form_id == 'user_register_form') ||
     $contact->isNew()) {
-    $form_display->extractFormValues($contact, $form, $value_state);
+    foreach ($value_state->getValues()['form_display_' . $contact->getType()]
+             as $field => $value) {
+      $contact->set($field, $value);
+    }
   }
 
-  return t('The contact was updated with the information provided.');
+  return $contact;
 }
 
 /**
