@@ -516,7 +516,9 @@ function _redhen_contact_user_submission_apply($form, $form_state, $form_display
     $contact->isNew()) {
     foreach ($value_state->getValues()['form_display_' . $contact->getType()]
              as $field => $value) {
-      $contact->set($field, $value);
+      if ($contact->hasField($field)) {
+        $contact->set($field, $value);
+      }
     }
   }
 
@@ -558,7 +560,7 @@ function redhen_contact_user_registration_form_state(array $form, FormStateInter
     }
 
     // Skip any empty fields.
-    if (!redhen_contact_form_field_has_value($contact_fields[$key], $value)) {
+    if (!isset($contact_fields[$key]) || !redhen_contact_form_field_has_value($contact_fields[$key], $value)) {
       continue;
     }
 
