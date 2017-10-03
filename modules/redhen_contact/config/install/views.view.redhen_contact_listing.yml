@@ -5,6 +5,8 @@ dependencies:
   enforced:
     module:
       - redhen_contact
+  module:
+    - user
 _core:
   default_config_hash: 3syDjwSfWOe928QBGXSipdCx67bDwMzYxOWQt6mEUvQ
 id: redhen_contact_listing
@@ -23,8 +25,9 @@ display:
     position: 0
     display_options:
       access:
-        type: none
-        options: {  }
+        type: perm
+        options:
+          perm: 'administer contact entities'
       cache:
         type: tag
         options: {  }
@@ -767,6 +770,7 @@ display:
         - 'languages:language_interface'
         - url
         - url.query_args
+        - user.permissions
       tags: {  }
   page_1:
     display_plugin: page
@@ -783,4 +787,5 @@ display:
         - 'languages:language_interface'
         - url
         - url.query_args
+        - user.permissions
       tags: {  }

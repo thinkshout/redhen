@@ -5,6 +5,8 @@ dependencies:
   enforced:
     module:
       - redhen_connection
+  module:
+    - user
 id: redhen_connection_list
 label: 'Redhen Connection List'
 module: views
@@ -21,8 +23,9 @@ display:
     position: 0
     display_options:
       access:
-        type: none
-        options: {  }
+        type: perm
+        options:
+          perm: 'administer connection entities'
       cache:
         type: tag
         options: {  }
@@ -559,6 +562,7 @@ display:
         - 'languages:language_content'
         - 'languages:language_interface'
         - url.query_args
+        - user.permissions
       tags: {  }
   page_1:
     display_plugin: page
@@ -574,4 +578,5 @@ display:
         - 'languages:language_content'
         - 'languages:language_interface'
         - url.query_args
+        - user.permissions
       tags: {  }
