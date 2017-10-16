@@ -3,3 +3,4 @@ type: module
 description: 'Defines basic functionality common to all parts of the RedHen CRM.'
 core: 8.x
 package: RedHen
+configure: redhen.config
