@@ -202,7 +202,7 @@ class Connection extends ContentEntityBase implements ConnectionInterface {
       $fields[$field] = clone $base_field_definitions[$field];
       if ($endpoint_type) {
         $bundles = $connection_type->getEndpointBundles($x);
-        $endpoint_entity = \Drupal::entityManager()->getDefinition($endpoint_type);
+        $endpoint_entity = \Drupal::entityTypeManager()->getDefinition($endpoint_type);
         $label = (!empty($connection_type->getEndpointLabel($x))) ? $connection_type->getEndpointLabel($x) : $endpoint_entity->getLabel();
         $fields[$field]->setSetting('target_type', $endpoint_type)
           ->setLabel($label);

@@ -94,7 +94,7 @@ class ConnectionTypeForm extends EntityForm {
       ];
 
       $bundle_options = array();
-      $endpoint_entity = (!empty($endpoint_type)) ? \Drupal::entityManager()->getDefinition($endpoint_type) : FALSE;
+      $endpoint_entity = (!empty($endpoint_type)) ? \Drupal::entityTypeManager()->getDefinition($endpoint_type) : FALSE;
       if ($endpoint_entity && $endpoint_entity->hasKey('bundle')) {
         $bundle_options = $this->getBundleOptions($endpoint_type);
       }
