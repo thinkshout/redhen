@@ -543,7 +543,7 @@ function redhen_contact_user_registration_form_state(array $form, FormStateInter
   $limited_state = clone $form_state;
   // Reset values element since we'll be rebuilding it below.
   $field_parent_name = 'form_display_' . $form_state->get('redhen_contact')->getType();
-  $limited_state->setValue($field_parent_name, []);
+  $limited_state->setValues(array($field_parent_name => []));
 
   // Get Redhen Contact field definitions to determine default values.
   $contact_fields = \Drupal::entityManager()->getFieldDefinitions('redhen_contact', $contact_type);
