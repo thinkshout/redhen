@@ -127,7 +127,7 @@ class ConnectionRoleForm extends EntityForm {
           '%label' => $redhen_connection_role->label(),
         ]));
     }
-    $form_state->setRedirectUrl($redhen_connection_role->urlInfo('collection'));
+    $form_state->setRedirectUrl($redhen_connection_role->toUrl('collection'));
   }
 
 }

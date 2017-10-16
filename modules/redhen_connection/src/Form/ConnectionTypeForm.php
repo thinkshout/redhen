@@ -137,7 +137,7 @@ class ConnectionTypeForm extends EntityForm {
           '%label' => $redhen_connection_type->label(),
         ]));
     }
-    $form_state->setRedirectUrl($redhen_connection_type->urlInfo('collection'));
+    $form_state->setRedirectUrl($redhen_connection_type->toUrl('collection'));
   }
 
   /**

@@ -61,7 +61,7 @@ class ContactTypeForm extends EntityForm {
           '%label' => $redhen_contact_type->label(),
         ]));
     }
-    $form_state->setRedirectUrl($redhen_contact_type->urlInfo('collection'));
+    $form_state->setRedirectUrl($redhen_contact_type->toUrl('collection'));
   }
 
 }

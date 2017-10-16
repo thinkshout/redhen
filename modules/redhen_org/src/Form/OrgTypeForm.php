@@ -60,7 +60,7 @@ class OrgTypeForm extends EntityForm {
           '%label' => $redhen_org_type->label(),
         ]));
     }
-    $form_state->setRedirectUrl($redhen_org_type->urlInfo('collection'));
+    $form_state->setRedirectUrl($redhen_org_type->toUrl('collection'));
   }
 
 }
