@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\redhen_contact\ContactTypeListBuilder.
- */
-
 namespace Drupal\redhen_contact;
 
 use Drupal\Core\Config\Entity\ConfigEntityListBuilder;

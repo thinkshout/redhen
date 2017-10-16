@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\redhen_contact\Form\ContactTypeForm.
- */
-
 namespace Drupal\redhen_contact\Form;
 
 use Drupal\Core\Entity\EntityInterface;

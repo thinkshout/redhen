@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\redhen_connection\ConnectionTypeListBuilder.
- */
-
 namespace Drupal\redhen_connection;
 
 use Drupal\Core\Config\Entity\ConfigEntityListBuilder;

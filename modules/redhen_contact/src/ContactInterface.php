@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\redhen_contact\ContactInterface.
- */
-
 namespace Drupal\redhen_contact;
 
 use Drupal\Core\Entity\ContentEntityInterface;

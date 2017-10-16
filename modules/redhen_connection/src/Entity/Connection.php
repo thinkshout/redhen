@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\redhen_connection\Entity\Connection.
- */
-
 namespace Drupal\redhen_connection\Entity;
 
 use Drupal\Core\Field\BaseFieldDefinition;

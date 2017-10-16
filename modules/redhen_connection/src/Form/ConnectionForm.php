@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\redhen_connection\Form\ConnectionForm.
- */
-
 namespace Drupal\redhen_connection\Form;
 
 use Drupal\Core\Entity\ContentEntityForm;

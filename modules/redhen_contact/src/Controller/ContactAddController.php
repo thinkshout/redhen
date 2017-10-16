@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains Drupal\redhen_contact\Controller\ContactAddController.
- */
-
 namespace Drupal\redhen_contact\Controller;
 
 use Drupal\Core\Controller\ControllerBase;

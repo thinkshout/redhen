@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\redhen_contact\Entity\ContactType.
- */
-
 namespace Drupal\redhen_contact\Entity;
 
 use Drupal\Core\Config\Entity\ConfigEntityBundleBase;

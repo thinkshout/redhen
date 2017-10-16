@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\redhen_org\Form\OrgTypeDeleteForm.
- */
-
 namespace Drupal\redhen_org\Form;
 
 use Drupal\Core\Entity\EntityConfirmFormBase;

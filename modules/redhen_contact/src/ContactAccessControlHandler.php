@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\redhen_contact\ContactAccessControlHandler.
- */
-
 namespace Drupal\redhen_contact;
 
 use Drupal\Core\Entity\EntityAccessControlHandler;

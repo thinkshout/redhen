@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\redhen_connection\ConnectionAccessControlHandler.
- */
-
 namespace Drupal\redhen_connection;
 
 use Drupal\Core\Entity\EntityAccessControlHandler;

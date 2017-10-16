@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\redhen_org\OrgListBuilder.
- */
-
 namespace Drupal\redhen_org;
 
 use Drupal\Core\Entity\EntityInterface;

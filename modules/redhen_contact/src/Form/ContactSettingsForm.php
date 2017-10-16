@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\redhen_contact\Form\ContactSettingsForm.
- */
-
 namespace Drupal\redhen_contact\Form;
 
 use Drupal\Core\Form\ConfigFormBase;

@@ -1,9 +1,4 @@
 <?php
-/**
- * @file
- * Contains \Drupal\redhen_org\OrgPermissions.
- */
-
 
 namespace Drupal\redhen_org;
 

@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\redhen_org\OrgInterface.
- */
-
 namespace Drupal\redhen_org;
 
 use Drupal\Core\Entity\ContentEntityInterface;

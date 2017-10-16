@@ -1,9 +1,4 @@
 <?php
-/**
- * @file
- * Contains \Drupal\redhen_connection\ConnectionPermissions.
- */
-
 
 namespace Drupal\redhen_connection;
 

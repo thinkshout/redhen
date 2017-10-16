@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\redhen_connection\Form\ConnectionDeleteForm.
- */
-
 namespace Drupal\redhen_connection\Form;
 
 use Drupal\Core\Entity\ContentEntityDeleteForm;

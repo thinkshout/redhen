@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\redhen_contact\ContactTypeHtmlRouteProvider.
- */
-
 namespace Drupal\redhen_contact;
 
 use Drupal\Core\Entity\EntityTypeInterface;

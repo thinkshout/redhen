@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\redhen_org\Entity\OrgType.
- */
-
 namespace Drupal\redhen_org\Entity;
 
 use Drupal\Core\Config\Entity\ConfigEntityBundleBase;

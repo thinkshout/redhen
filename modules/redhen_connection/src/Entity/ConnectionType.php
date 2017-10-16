@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\redhen_connection\Entity\ConnectionType.
- */
-
 namespace Drupal\redhen_connection\Entity;
 
 use Drupal\Core\Config\Entity\ConfigEntityBundleBase;

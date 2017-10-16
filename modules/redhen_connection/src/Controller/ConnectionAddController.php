@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains Drupal\redhen_connection\Controller\ConnectionAddController.
- */
-
 namespace Drupal\redhen_connection\Controller;
 
 use Drupal\Core\Controller\ControllerBase;

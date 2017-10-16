@@ -1,9 +1,4 @@
 <?php
-/**
- * @file
- * Contains \Drupal\redhen_contact\ContactPermissions.
- */
-
 
 namespace Drupal\redhen_contact;
 

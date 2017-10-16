@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\redhen_org\Entity\Org.
- */
-
 namespace Drupal\redhen_org\Entity;
 
 use Drupal\Core\Field\BaseFieldDefinition;

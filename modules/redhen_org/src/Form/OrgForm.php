@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\redhen_org\Form\OrgForm.
- */
-
 namespace Drupal\redhen_org\Form;
 
 use Drupal\Core\Entity\ContentEntityForm;

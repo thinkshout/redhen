@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\redhen_org\OrgTypeInterface.
- */
-
 namespace Drupal\redhen_org;
 
 use Drupal\Core\Config\Entity\ConfigEntityInterface;

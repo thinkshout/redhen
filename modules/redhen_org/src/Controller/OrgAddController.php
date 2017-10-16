@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains Drupal\redhen_org\Controller\OrgAddController.
- */
-
 namespace Drupal\redhen_org\Controller;
 
 use Drupal\Core\Controller\ControllerBase;

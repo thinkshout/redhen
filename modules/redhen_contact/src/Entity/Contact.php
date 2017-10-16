@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\redhen_contact\Entity\Contact.
- */
-
 namespace Drupal\redhen_contact\Entity;
 
 use Drupal\Core\Entity\EntityStorageInterface;
