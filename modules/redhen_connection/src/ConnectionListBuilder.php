@@ -25,7 +25,7 @@ class ConnectionListBuilder extends EntityListBuilder {
    * {@inheritdoc}
    */
   public function buildRow(EntityInterface $entity) {
-    $bundles = entity_get_bundles($entity->getEntityType()->id());
+    $bundles = $this->entityTypeBundleInfo->getBundleInfo($entity->getEntityType()->id());
     /* @var $entity \Drupal\redhen_connection\Entity\Connection */
     $row['type'] = $bundles[$entity->getType()]['label'];
     $row['name'] = $entity->link();
