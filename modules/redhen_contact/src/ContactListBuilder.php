@@ -4,7 +4,6 @@ namespace Drupal\redhen_contact;
 
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityListBuilder;
-use Drupal\Core\Routing\LinkGeneratorTrait;
 use Drupal\Core\Url;
 
 /**
@@ -13,7 +12,7 @@ use Drupal\Core\Url;
  * @ingroup redhen_contact
  */
 class ContactListBuilder extends EntityListBuilder {
-  use LinkGeneratorTrait;
+
   /**
    * {@inheritdoc}
    */
