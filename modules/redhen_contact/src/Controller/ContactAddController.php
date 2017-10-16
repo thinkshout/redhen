@@ -6,7 +6,7 @@ use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Entity\EntityStorageInterface;
-use Drupal\Core\Url;
+use Drupal\Core\Link;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -53,7 +53,7 @@ class ContactAddController extends ControllerBase {
         return array(
           '#markup' => $this->t('You have not created any %bundle types yet. @link to add a new type.', [
             '%bundle' => 'Contact',
-            '@link' => $this->l($this->t('Go to the type creation page'), Url::fromRoute('entity.redhen_contact_type.add_form')),
+            '@link' => Link::createFromRoute($this->t('Go to the type creation page'), 'entity.redhen_contact_type.add_form'),
           ]),
         );
       }
