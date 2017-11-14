@@ -316,7 +316,7 @@ class ConnectionService implements ConnectionServiceInterface {
           // condition for the reverse structure.
           if ($x > 1) {
             $group2 = $query->orConditionGroup();
-            for ($x=count($endpoint_fields); $x >= 0; $x--) {
+            for ($x=count($endpoint_fields) - 1; $x >= 0; $x--) {
               $group2->condition($endpoint_fields[$x], $entities[$endpoint_type][$x]->id());
             }
             $group = $query->orConditionGroup()
