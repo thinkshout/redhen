@@ -6,6 +6,7 @@ use Drupal\Core\Access\AccessResultAllowed;
 use Drupal\Core\Database\Connection as DBConnection;
 use Drupal\Core\Entity\Entity;
 use Drupal\Core\Entity\EntityInterface;
+use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Entity\Query\QueryFactory;
 use Drupal\Core\Entity\Query\QueryInterface;
@@ -56,6 +57,38 @@ class ConnectionService implements ConnectionServiceInterface {
     $this->entityTypeManager = $entity_type_manager;
     $this->entityQuery = $entity_query;
     $this->connection = $connection;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getConnectionEntityTypes(array $entity_types) {
+    $all_connection_types = [];
+    foreach ($entity_types as $entity_type => $type) {
+      $query = $this->entityQuery->get('redhen_connection_type');
+      $or_group = $query->orConditionGroup();
+
+      $or_group->condition('endpoints.1.entity_type', $entity_type);
+      $or_group->condition('endpoints.2.entity_type', $entity_type);
+
+      $query->condition($or_group);
+      $results = $query->execute();
+
+      if (!empty($results)) {
+        $connection_types = ConnectionType::loadMultiple($results);
+        $all_connection_types = array_merge($all_connection_types, $connection_types);
+      }
+    }
+
+    $connected_entities = [];
+    foreach ($all_connection_types as $connection_type_id => $connection_type) {
+      $endpoint_1 = $connection_type->get('endpoints')[1]['entity_type'];
+      $endpoint_2 = $connection_type->get('endpoints')[2]['entity_type'];
+      $connected_entities[$connection_type_id]['endpoint_1'][$endpoint_1] = $entity_types[$endpoint_1];
+      $connected_entities[$connection_type_id]['endpoint_2'][$endpoint_2] = $entity_types[$endpoint_2];
+    }
+
+    return $connected_entities;
   }
 
   /**
