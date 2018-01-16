@@ -514,6 +514,12 @@ function _redhen_contact_user_submission_apply($form, $form_state, $form_display
     $values = $value_state->getValues()['form_display_' . $contact->getType()];
     foreach ($values as $field => $value) {
       if ($contact->hasField($field)) {
+        $widget = $form_display->getRenderer($field);
+        if ($widget) {
+          // Let the widget massage the submitted values.
+          $value = $widget->massageFormValues($value, $form, $form_state);
+        }
+
         $contact->set($field, $value);
       }
     }
