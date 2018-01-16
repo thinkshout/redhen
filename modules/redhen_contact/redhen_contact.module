@@ -489,7 +489,6 @@ function _redhen_contact_user_submission_validate($form, &$form_state, Contact $
  *   Status message.
  */
 function _redhen_contact_user_submission_apply($form, $form_state, $form_display, Contact $contact, $limit_values = FALSE) {
-
   // Limit field values updated on the Contact to only the fields with non-empty
   // values from the submitted form. Use this option if you don't want to
   // clobber pre-existing field values with empty field values from the form.
@@ -510,12 +509,10 @@ function _redhen_contact_user_submission_apply($form, $form_state, $form_display
   // from the user_register_form and if it did, we check the setting that
   // determines whether we update fields on User registration.
   $form_id = $form_state->getBuildInfo()['form_id'];
-  if ($form_id == 'user_form' ||
-    (\Drupal::config('redhen_contact.settings')->get('registration_update') &&
-      $form_id == 'user_register_form') ||
-    $contact->isNew()) {
-    foreach ($value_state->getValues()['form_display_' . $contact->getType()]
-             as $field => $value) {
+  $registration_update = \Drupal::config('redhen_contact.settings')->get('registration_update');
+  if ($form_id == 'user_form' || ($registration_update && $form_id == 'user_register_form') || $contact->isNew()) {
+    $values = $value_state->getValues()['form_display_' . $contact->getType()];
+    foreach ($values as $field => $value) {
       if ($contact->hasField($field)) {
         $contact->set($field, $value);
       }
