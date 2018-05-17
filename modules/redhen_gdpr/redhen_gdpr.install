@@ -1,0 +1,41 @@
+<?php
+
+/**
+ * @file
+ * Schema and installation hooks for Redhen GDPR module.
+ */
+
+/**
+ * Implements hook_install().
+ */
+function redhen_gdpr_install() {
+  if (!field_info_field('gdpr_opt_in')) {
+    $gdpr_opt_in = array(
+      'field_name' => 'gdpr_opt_in',
+      'type' => 'text',
+      'cardinality' => 1,
+    );
+
+    field_create_field($gdpr_opt_in);
+
+    $t = get_t();
+    $gdpr_opt_in_instance = array(
+      'field_name' => 'gdpr_opt_in',
+      'entity_type' => 'redhen_contact',
+      'bundle' => 'general',
+      'label' => $t('GDPR opt-in timestamp'),
+      'widget' => array(
+        'type' => 'textfield',
+      ),
+    );
+
+    field_create_instance($gdpr_opt_in_instance);
+  }
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function redhen_gdpr_uninstall() {
+  field_delete_instance('gdpr_opt_in', TRUE);
+}

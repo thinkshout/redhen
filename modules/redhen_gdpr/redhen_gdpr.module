@@ -1,0 +1,51 @@
+<?php
+
+/**
+ * @file
+ * General Data Protection Regulation (GDPR) functionality for Redhen.
+ */
+
+/**
+ * Implements hook_form_alter().
+ */
+function redhen_gdpr_form_alter(&$form, &$form_state, $form_id) {
+  // gdpr_opt_in is a text field which stores a timestamp, but should be
+  // presented to the user as a checkbox. The timestamp is inserted on submit
+  // if the user has checked the checkbox.
+  // This timestamp records the exact time the user opted-in to GDPR.
+  if (isset($form['gdpr_opt_in'])) {
+    // Disable the gdpr_opt_in field input. Will be populated automatically.
+    $form['gdpr_opt_in']['#access'] = FALSE;
+
+    // Create GDPR opt-in checkbox. Default checked if gdpr_opt_in has a value.
+    $gdpr_opt_in_value = $form['gdpr_opt_in'][LANGUAGE_NONE][0]['value']['#default_value'];
+    $form['gdpr'] = array(
+      '#type' => 'checkbox',
+      '#title' => t('GDPR opt-in'),
+      '#default_value' => (!empty($gdpr_opt_in_value)),
+    );
+
+    // Add submit handler to set GDPR opt-in timestamp.
+    array_unshift($form['actions']['submit']['#submit'], 'redhen_gdpr_form_submit_handler');
+  }
+}
+
+/**
+ * Submit handler for forms containing the redhen_contact gdpr_opt_in field.
+ *
+ * @param array $form
+ *   Drupal form array.
+ * @param array $form_state
+ *   Drupal form state array.
+ */
+function redhen_gdpr_form_submit_handler($form, &$form_state) {
+  // If the user has checked the GDPR opt-in checkbox, set the gdpr_opt_in
+  // field value to the current UNIX timestamp.
+  // Otherwise, set to an empty value.
+  if (!empty($form_state['values']['gdpr'])) {
+    $form_state['values']['gdpr_opt_in'][LANGUAGE_NONE][0]['value'] = time();
+  }
+  else {
+    $form_state['values']['gdpr_opt_in'][LANGUAGE_NONE][0]['value'] = '';
+  }
+}
