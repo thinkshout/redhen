@@ -21,8 +21,9 @@ function redhen_gdpr_form_alter(&$form, &$form_state, $form_id) {
     $gdpr_opt_in_value = $form['gdpr_opt_in'][LANGUAGE_NONE][0]['value']['#default_value'];
     $form['gdpr'] = array(
       '#type' => 'checkbox',
-      '#title' => $form['gdpr_opt_in'][LANGUAGE_NONE][0]['#title'],
+      '#title' => $form['gdpr_opt_in'][LANGUAGE_NONE]['#title'],
       '#default_value' => (!empty($gdpr_opt_in_value)),
+      '#description' => $form['gdpr_opt_in'][LANGUAGE_NONE]['#description'],
       '#weight' => $form['gdpr_opt_in']['#weight'],
     );
 
