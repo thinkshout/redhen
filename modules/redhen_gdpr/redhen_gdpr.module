@@ -21,8 +21,9 @@ function redhen_gdpr_form_alter(&$form, &$form_state, $form_id) {
     $gdpr_opt_in_value = $form['gdpr_opt_in'][LANGUAGE_NONE][0]['value']['#default_value'];
     $form['gdpr'] = array(
       '#type' => 'checkbox',
-      '#title' => t('GDPR opt-in'),
+      '#title' => $form['gdpr_opt_in'][LANGUAGE_NONE][0]['#title'],
       '#default_value' => (!empty($gdpr_opt_in_value)),
+      '#weight' => $form['gdpr_opt_in']['#weight'],
     );
 
     // Add submit handler to set GDPR opt-in timestamp.
