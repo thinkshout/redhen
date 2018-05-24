@@ -1,0 +1,6 @@
+name = Redhen Opt-In
+description = Functionality for opting in via Redhen
+package = RedHen
+core = 7.x
+
+dependencies[] = redhen_contact

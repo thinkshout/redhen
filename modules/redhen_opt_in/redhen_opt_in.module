@@ -1,0 +1,83 @@
+<?php
+
+/**
+ * @file
+ * Opt-In functionality for Redhen.
+ */
+
+/**
+ * Define variable names for Redhen Opt-In settings.
+ */
+define('REDHEN_OPT_IN_PRE_OPT_IN_TEXT', 'redhen_opt_in_pre_opt_in_text');
+define('REDHEN_OPT_IN_POST_OPT_IN_TEXT', 'redhen_opt_in_post_opt_in_text');
+
+/**
+ * Implements hook_form_alter().
+ */
+function redhen_opt_in_form_alter(&$form, &$form_state, $form_id) {
+  // opt_in is a text field which stores a timestamp, but should be
+  // presented to the user as a checkbox. The timestamp is inserted on submit
+  // if the user has checked the checkbox.
+  // This timestamp records the exact time the user opted-in.
+  if (isset($form['opt_in_timestamp'])) {
+    // Disable the opt_in_timestamp field input. Will be populated
+    // automatically.
+    $form['opt_in_timestamp']['#access'] = FALSE;
+
+    // Create opt-in checkbox. Default checked if opt_in_timestamp has a value.
+    // TODO: POST opt in text.
+    $opt_in_timestamp_value = $form['opt_in_timestamp'][LANGUAGE_NONE][0]['value']['#default_value'];
+    $form['opt_in'] = array(
+      '#type' => 'checkbox',
+      '#title' => $form['opt_in_timestamp'][LANGUAGE_NONE]['#title'],
+      '#default_value' => FALSE,
+      '#description' => variable_get(REDHEN_OPT_IN_PRE_OPT_IN_TEXT, ''),
+      '#weight' => $form['opt_in_timestamp']['#weight'],
+    );
+
+    // Add submit handler to set the opt-in timestamp.
+    array_unshift($form['actions']['submit']['#submit'], 'redhen_opt_in_form_submit_handler');
+  }
+}
+
+/**
+ * Submit handler for forms with the redhen_contact opt_in_timestamp field.
+ *
+ * @param array $form
+ *   Drupal form array.
+ * @param array $form_state
+ *   Drupal form state array.
+ */
+function redhen_opt_in_form_submit_handler($form, &$form_state) {
+  // If the user has checked the opt-in checkbox, set the opt_in_timestamp
+  // field value to the current UNIX timestamp.
+  // Otherwise, set to an empty value.
+  if (!empty($form_state['values']['opt_in'])) {
+    $form_state['values']['opt_in_timestamp'][LANGUAGE_NONE][0]['value'] = time();
+  }
+  else {
+    $form_state['values']['opt_in_timestamp'][LANGUAGE_NONE][0]['value'] = '';
+  }
+}
+
+/**
+ * Implements hook_redhen_settings().
+ */
+function redhen_opt_in_redhen_settings() {
+  return array(
+    REDHEN_OPT_IN_PRE_OPT_IN_TEXT => array(
+      '#type' => 'textarea',
+      '#title' => t('Pre-opt-in text'),
+      '#description' => t('Text displayed to the user below opt-in checkbox. Use this to explain what the user it opting into.'),
+      '#default_value' => variable_get(REDHEN_OPT_IN_PRE_OPT_IN_TEXT, ''),
+      '#weight' => 98,
+    ),
+    REDHEN_OPT_IN_POST_OPT_IN_TEXT => array(
+      '#type' => 'textarea',
+      '#title' => t('Post-opt-in text'),
+      '#description' => t('Text displayed to the user in place of the opt-in checkbox after they have opted in.'),
+      '#default_value' => variable_get(REDHEN_OPT_IN_POST_OPT_IN_TEXT, ''),
+      '#weight' => 99,
+    ),
+  );
+}

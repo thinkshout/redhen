@@ -1,0 +1,41 @@
+<?php
+
+/**
+ * @file
+ * Schema and installation hooks for Redhen Opt-In module.
+ */
+
+/**
+ * Implements hook_install().
+ */
+function redhen_opt_in_install() {
+  if (!field_info_field('opt_in_timestamp')) {
+    $opt_in_timestamp = array(
+      'field_name' => 'opt_in_timestamp',
+      'type' => 'text',
+      'cardinality' => 1,
+    );
+
+    field_create_field($opt_in_timestamp);
+
+    $t = get_t();
+    $opt_in_timestamp_instance = array(
+      'field_name' => 'opt_in_timestamp',
+      'entity_type' => 'redhen_contact',
+      'bundle' => 'general',
+      'label' => $t('Opt-In timestamp'),
+      'widget' => array(
+        'type' => 'textfield',
+      ),
+    );
+
+    field_create_instance($opt_in_timestamp_instance);
+  }
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function redhen_opt_in_uninstall() {
+  field_delete_instance('opt_in_timestamp', TRUE);
+}
