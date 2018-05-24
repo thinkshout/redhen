@@ -64,20 +64,27 @@ function redhen_opt_in_form_submit_handler($form, &$form_state) {
  * Implements hook_redhen_settings().
  */
 function redhen_opt_in_redhen_settings() {
-  return array(
-    REDHEN_OPT_IN_PRE_OPT_IN_TEXT => array(
-      '#type' => 'textarea',
-      '#title' => t('Pre-opt-in text'),
-      '#description' => t('Text displayed to the user below opt-in checkbox. Use this to explain what the user it opting into.'),
-      '#default_value' => variable_get(REDHEN_OPT_IN_PRE_OPT_IN_TEXT, ''),
-      '#weight' => 98,
-    ),
-    REDHEN_OPT_IN_POST_OPT_IN_TEXT => array(
-      '#type' => 'textarea',
-      '#title' => t('Post-opt-in text'),
-      '#description' => t('Text displayed to the user in place of the opt-in checkbox after they have opted in.'),
-      '#default_value' => variable_get(REDHEN_OPT_IN_POST_OPT_IN_TEXT, ''),
-      '#weight' => 99,
-    ),
+  $form = array();
+  $form['opt_in'] = array(
+    '#type' => 'fieldset',
+    '#title' => 'Opt-In settings',
   );
+
+  $form['opt_in'][REDHEN_OPT_IN_PRE_OPT_IN_TEXT] = array(
+    '#type' => 'textarea',
+    '#title' => t('Pre-opt-in text'),
+    '#description' => t('Text displayed to the user below opt-in checkbox. Use this to explain what the user it opting into.'),
+    '#default_value' => variable_get(REDHEN_OPT_IN_PRE_OPT_IN_TEXT, ''),
+    '#weight' => 98,
+  );
+
+  $form['opt_in'][REDHEN_OPT_IN_POST_OPT_IN_TEXT] = array(
+    '#type' => 'textarea',
+    '#title' => t('Post-opt-in text'),
+    '#description' => t('Text displayed to the user in place of the opt-in checkbox after they have opted in.'),
+    '#default_value' => variable_get(REDHEN_OPT_IN_POST_OPT_IN_TEXT, ''),
+    '#weight' => 99,
+  );
+
+  return $form;
 }
