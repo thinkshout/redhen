@@ -24,9 +24,7 @@ function redhen_opt_in_form_alter(&$form, &$form_state, $form_id) {
     // automatically.
     $form['opt_in_timestamp']['#access'] = FALSE;
 
-    // Create opt-in checkbox. Default checked if opt_in_timestamp has a value.
-    // TODO: POST opt in text.
-    $opt_in_timestamp_value = $form['opt_in_timestamp'][LANGUAGE_NONE][0]['value']['#default_value'];
+    // Create opt-in checkbox.
     $form['opt_in'] = array(
       '#type' => 'checkbox',
       '#title' => $form['opt_in_timestamp'][LANGUAGE_NONE]['#title'],
