@@ -8,6 +8,7 @@ use Drupal\Core\Entity\EntityChangedTrait;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
+use Drupal\Core\Url;
 use Drupal\redhen_connection\ConnectionInterface;
 use Drupal\redhen_contact\ContactInterface;
 use Drupal\redhen_contact\Entity\Contact;
@@ -76,8 +77,8 @@ class Connection extends ContentEntityBase implements ConnectionInterface {
   public function label() {
     $label_pattern = $this->type->entity->get('connection_label_pattern');
     return $this->t($label_pattern, array(
-      '@label1' => $this->get('endpoint_1')->entity->label(),
-      '@label2' => $this->get('endpoint_2')->entity->label(),
+      '@label1' => $this->get('endpoint_1')->entity ? $this->get('endpoint_1')->entity->label() : "[entity 1 not found]",
+      '@label2' => $this->get('endpoint_2')->entity ? $this->get('endpoint_2')->entity->label() : "[entity 2 not found]",
     ));
   }
 
@@ -101,6 +102,82 @@ class Connection extends ContentEntityBase implements ConnectionInterface {
   public function setCreatedTime($timestamp) {
     $this->set('created', $timestamp);
     return $this;
+  }
+
+  /**
+   * {@inheritdoc}
+   *
+   * This function, when inherited, crashes unexpectedly because there are some
+   * unusual arguments in the paths for connections. We duplicate with a minor
+   * tweak to the parameters.
+   */
+  public function toUrl($rel = 'canonical', array $options = []) {
+    if ($this->id() === NULL) {
+      throw new EntityMalformedException(sprintf('The "%s" entity cannot have a URI as it does not have an ID', $this->getEntityTypeId()));
+    }
+
+    // The links array might contain URI templates set in annotations.
+    $link_templates = $this->linkTemplates();
+
+    // Links pointing to the current revision point to the actual entity. So
+    // instead of using the 'revision' link, use the 'canonical' link.
+    if ($rel === 'revision' && $this instanceof RevisionableInterface && $this->isDefaultRevision()) {
+      $rel = 'canonical';
+    }
+
+    if (isset($link_templates[$rel])) {
+      $route_parameters = $this->urlRouteParameters($rel);
+      $route_name = "entity.{$this->entityTypeId}." . str_replace(['-', 'drupal:'], ['_', ''], $rel);
+      $uri = new Url($route_name, $route_parameters);
+    }
+    else {
+      $bundle = $this->bundle();
+      // A bundle-specific callback takes precedence over the generic one for
+      // the entity type.
+      $bundles = $this->entityManager()->getBundleInfo($this->getEntityTypeId());
+      if (isset($bundles[$bundle]['uri_callback'])) {
+        $uri_callback = $bundles[$bundle]['uri_callback'];
+      }
+      elseif ($entity_uri_callback = $this->getEntityType()->getUriCallback()) {
+        $uri_callback = $entity_uri_callback;
+      }
+
+      // Invoke the callback to get the URI. If there is no callback, use the
+      // default URI format.
+      if (isset($uri_callback) && is_callable($uri_callback)) {
+        $uri = call_user_func($uri_callback, $this);
+      }
+      else {
+        throw new UndefinedLinkTemplateException("No link template '$rel' found for the '{$this->getEntityTypeId()}' entity type");
+      }
+    }
+
+    // Pass the entity data through as options, so that alter functions do not
+    // need to look up this entity again.
+    $uri
+      ->setOption('entity_type', $this->getEntityTypeId())
+      ->setRouteParameter('redhen_type', $this->getFieldDefinitions()['endpoint_1']->getSetting('target_type'))
+      ->setRouteParameter('entity', $this->id())
+      ->setOption('entity', $this);
+
+    // Here is our tweak, we include values for these route parameters that are
+    // expected on the "add" form. The entity should, for accuracy, be set to
+    // the endpoint 1 target.
+    $uri
+      ->setRouteParameter('redhen_type', $this->getFieldDefinitions()['endpoint_1']->getSetting('target_type'))
+      ->setRouteParameter('entity', $this->id());
+
+    // Display links by default based on the current language.
+    // Link relations that do not require an existing entity should not be
+    // affected by this entity's language, however.
+    if (!in_array($rel, ['collection', 'add-page', 'add-form'], TRUE)) {
+      $options += ['language' => $this->language()];
+    }
+
+    $uri_options = $uri->getOptions();
+    $uri_options += $options;
+
+    return $uri->setOptions($uri_options);
   }
 
   /**
