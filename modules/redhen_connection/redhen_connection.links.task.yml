@@ -25,3 +25,7 @@ entity.redhen_connection_role.collection:
   title: 'Connection Roles'
   # Make this tab show up last on Connection Type edit forms.
   weight: 10
+
+redhen_connection.entities:
+  class: \Drupal\Core\Menu\LocalTaskDefault
+  deriver: \Drupal\redhen_connection\Plugin\Derivative\RedhenConnectionLocalTask
