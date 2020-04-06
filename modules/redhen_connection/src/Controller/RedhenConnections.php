@@ -6,6 +6,7 @@ use Drupal\Component\Render\FormattableMarkup;
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\Core\Link;
+use Drupal\Core\Url;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -49,6 +50,7 @@ class RedhenConnections extends ControllerBase {
     /** @var ConnectionServiceInterface $connection_service */
     $connection_service = \Drupal::service('redhen_connection.connections');
     $entity = $this->getRouteEntity();
+    $entity_type_key = $entity->getEntityTypeId();
     $connections = $connection_service->getConnections($entity);
 
     // Creates the table header.
@@ -61,6 +63,7 @@ class RedhenConnections extends ControllerBase {
       $view = Link::createFromRoute($connection->label()->render(), 'entity.redhen_connection.canonical', ['redhen_connection' => $connection->id()])->toString();
       $edit = Link::createFromRoute('Edit', 'entity.redhen_connection.edit_form', ['redhen_connection' => $connection->id()])->toString();
       $delete = Link::createFromRoute('Delete', 'entity.redhen_connection.delete_form', ['redhen_connection' => $connection->id()])->toString();
+      $add_url = Url::fromRoute("$entity_type_key.connection.add_page", [$entity_type_key => $entity->id()], ['absolute' => TRUE])->toString();
       $row = [
         'data' => [
           $connection->getType(),
@@ -76,7 +79,7 @@ class RedhenConnections extends ControllerBase {
     $build = [
       'table'           => [
         '#theme'         => 'table',
-        '#prefix' => "<ul class='action-links'><li><a class='button button-action button--primary button--small' href='#'>Add Connection</a></li></ul>",
+        '#prefix' => "<ul class='action-links'><li><a class='button button-action button--primary button--small' href=" . $add_url . ">Add Connection</a></li></ul>",
         '#attributes'    => [
           'data-striping' => 0,
         ],

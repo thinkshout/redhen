@@ -141,6 +141,7 @@ class ConnectionHtmlRouteProvider extends DefaultHtmlRouteProvider {
             '_controller' => 'Drupal\redhen_connection\Controller\ConnectionAddController::add',
             '_title' => 'Add ' . $entity_type->getLabel(),
           ])
+          ->setOption('_admin_route', TRUE)
           ->setRequirement('_entity_create_access', $entity_type_id);
         $routes[$type_id] = $route;
       }
