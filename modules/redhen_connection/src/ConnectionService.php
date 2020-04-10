@@ -4,16 +4,13 @@ namespace Drupal\redhen_connection;
 
 use Drupal\Core\Access\AccessResultAllowed;
 use Drupal\Core\Database\Connection as DBConnection;
-use Drupal\Core\Entity\Entity;
 use Drupal\Core\Entity\EntityInterface;
-use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Entity\Query\QueryFactory;
 use Drupal\Core\Entity\Query\QueryInterface;
 use Drupal\Core\Session\AccountInterface;
 use Drupal\redhen_connection\Entity\ConnectionType;
 use Drupal\redhen_connection\Entity\Connection;
-use Drupal\redhen_contact\ContactInterface;
 use Drupal\redhen_contact\Entity\Contact;
 
 /**
@@ -283,6 +280,40 @@ class ConnectionService implements ConnectionServiceInterface {
       }
     }
     // @todo - we should be able to return a neutral result here - test again to see if we can
+  }
+
+  /**
+   * {@inhertitdoc}
+   */
+  public function getAllConnectionEntityTypes() {
+    // Load all connection types.
+    $query = $this->entityQuery->get('redhen_connection_type');
+    $results = $query->execute();
+
+    $connection_types = [];
+    $connection_entity_types = [];
+
+    if (!empty($results)) {
+      $connection_types = ConnectionType::loadMultiple($results);
+    }
+
+    foreach ($connection_types as $type) {
+      $bundle1 = $type->getEndpointEntityTypeId(1);
+      $bundle2 = $type->getEndpointEntityTypeId(2);
+      $connection_entity_types[$bundle1] = $bundle1;
+      $connection_entity_types[$bundle2] = $bundle2;
+    }
+
+    // Get all entity types.
+    $all_entity_types = $this->entityTypeManager->getDefinitions();
+
+    // Iterate over entity types and remove if not in any connection types.
+    foreach ($all_entity_types as $key => $entity_type) {
+      if (!array_key_exists($key, $connection_entity_types)) {
+        unset($all_entity_types[$key]);
+      }
+    }
+    return $all_entity_types;
   }
 
   /**

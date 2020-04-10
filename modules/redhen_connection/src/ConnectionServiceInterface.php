@@ -116,4 +116,11 @@ interface ConnectionServiceInterface {
    */
   public function checkConnectionPermission(EntityInterface $entity, $operation, AccountInterface $account = NULL);
 
+  /**
+   * Get all entities that are used in connections.
+   *
+   * @return array
+   *   An array of entity_types.
+   */
+  public function getAllConnectionEntityTypes();
 }

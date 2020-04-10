@@ -3,7 +3,9 @@
 namespace Drupal\redhen_connection\Plugin\Derivative;
 
 use Drupal\Component\Plugin\Derivative\DeriverBase;
+use Drupal\Core\Entity\EntityLastInstalledSchemaRepositoryInterface;
 use Drupal\Core\Entity\EntityManagerInterface;
+use Drupal\redhen_connection\ConnectionService;
 use Drupal\Core\Plugin\Discovery\ContainerDeriverInterface;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\Core\StringTranslation\TranslationInterface;
@@ -21,18 +23,18 @@ class RedhenConnectionLocalTask extends DeriverBase implements ContainerDeriverI
    *
    * @var \Drupal\Core\Entity\EntityManagerInterface
    */
-  protected $entityManager;
+  protected $service;
 
   /**
    * Creates an SalesforceMappingLocalTask object.
    *
-   * @param \Drupal\Core\Entity\EntityManagerInterface $entity_manager
-   *   The entity manager.
+   * @param ConnectionService $service
+   *   The service manager.
    * @param \Drupal\Core\StringTranslation\TranslationInterface $string_translation
    *   The translation manager.
    */
-  public function __construct(EntityManagerInterface $entity_manager, TranslationInterface $string_translation) {
-    $this->entityManager = $entity_manager;
+  public function __construct(ConnectionService $service, TranslationInterface $string_translation) {
+    $this->service = $service;
     $this->stringTranslation = $string_translation;
   }
 
@@ -41,7 +43,7 @@ class RedhenConnectionLocalTask extends DeriverBase implements ContainerDeriverI
    */
   public static function create(ContainerInterface $container, $base_plugin_id) {
     return new static(
-      $container->get('entity.manager'),
+      $container->get('redhen_connection.connections'),
       $container->get('string_translation')
     );
   }
@@ -52,7 +54,7 @@ class RedhenConnectionLocalTask extends DeriverBase implements ContainerDeriverI
   public function getDerivativeDefinitions($base_plugin_definition) {
     $this->derivatives = [];
 
-    foreach ($this->entityManager->getDefinitions() as $entity_type_id => $entity_type) {
+    foreach ($this->service->getAllConnectionEntityTypes() as $entity_type_id => $entity_type) {
       if (!($entity_type->hasLinkTemplate('redhen_connection'))) {
         continue;
       }
