@@ -49,7 +49,7 @@ class RedhenConnections extends ControllerBase {
   public function list(Request $request) {
     /** @var ConnectionServiceInterface $connection_service */
     $connection_service = \Drupal::service('redhen_connection.connections');
-    $entity = $this->getRouteEntity();
+    $entity = redhen_connection_get_connection_entity_from_route();
     $entity_type_key = $entity->getEntityTypeId();
     $connections = $connection_service->getConnections($entity);
 
@@ -59,11 +59,12 @@ class RedhenConnections extends ControllerBase {
       'Name',
       'Operations',
     ];
+    $add_url = Url::fromRoute("$entity_type_key.connection.add_page", [$entity_type_key => $entity->id()], ['absolute' => TRUE])->toString();
+
     foreach ($connections as $connection) {
       $view = Link::createFromRoute($connection->label()->render(), 'entity.redhen_connection.canonical', ['redhen_connection' => $connection->id()])->toString();
       $edit = Link::createFromRoute('Edit', 'entity.redhen_connection.edit_form', ['redhen_connection' => $connection->id()])->toString();
       $delete = Link::createFromRoute('Delete', 'entity.redhen_connection.delete_form', ['redhen_connection' => $connection->id()])->toString();
-      $add_url = Url::fromRoute("$entity_type_key.connection.add_page", [$entity_type_key => $entity->id()], ['absolute' => TRUE])->toString();
       $row = [
         'data' => [
           $connection->getType(),

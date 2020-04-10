@@ -174,3 +174,20 @@ function redhen_connection_entity_type_alter(array &$entity_types) {
     }
   }
 }
+
+/**
+ * Extracts the entity for the current redhen_connection route.
+ *
+ * @return null|\Drupal\Core\Entity\EntityInterface
+ *   Entity type id.
+ */
+function redhen_connection_get_connection_entity_from_route() {
+  foreach (\Drupal::routeMatch()->getParameters() as $param) {
+    if ($param instanceof EntityInterface) {
+      if ($param->getEntityTypeId() !== 'redhen_connection_type') {
+        return $param;
+      }
+    }
+  }
+  return NULL;
+}

@@ -50,7 +50,7 @@ class RouteSubscriber extends RouteSubscriberBase {
           '_title' => 'Redhen Connections',
         ])
         ->addRequirements([
-          '_permission' => 'administer connection entities',
+          '_permission' => 'view active connection entities',
         ])
         ->setOption('_admin_route', TRUE)
         ->setOption('parameters', [

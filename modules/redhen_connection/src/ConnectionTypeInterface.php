@@ -8,6 +8,7 @@ use Drupal\Core\Config\Entity\ConfigEntityInterface;
  * Provides an interface for defining Connection type entities.
  */
 interface ConnectionTypeInterface extends ConfigEntityInterface {
+
   /**
    * Gets the connection type's entity type ID by endpoint.
    *
@@ -49,6 +50,7 @@ interface ConnectionTypeInterface extends ConfigEntityInterface {
    * Get all endpoint fields configured for $entity_type.
    *
    * @param string $entity_type
+   *   Entity type id.
    * @param string $bundle
    *   (optional) Optional bundle to filter endpoints by.
    *
@@ -71,8 +73,22 @@ interface ConnectionTypeInterface extends ConfigEntityInterface {
    * @param int $num
    *   The endpoint to return the description for.
    *
-   * @return array()
+   * @return array
    *   The array of enabled bundles.
    */
   public function getEndpointBundles($num);
+
+  /**
+   * Gets all entity types for this connection type.
+   *
+   * @param string $entity_type_id
+   *   An entity type id.
+   * @param string $bundle
+   *   Bundle name.
+   *
+   * @return array
+   *   The array of entity types.
+   */
+  public function getEndpointEntityTypes($entity_type_id, $bundle);
+
 }

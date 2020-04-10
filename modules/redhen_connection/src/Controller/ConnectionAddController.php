@@ -4,13 +4,11 @@ namespace Drupal\redhen_connection\Controller;
 
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Entity\EntityInterface;
-use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\Core\Link;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
-
 
 /**
  * Class ConnectionAddController.
@@ -19,6 +17,9 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
  */
 class ConnectionAddController extends ControllerBase {
 
+  /**
+   * Initialize entity storage.
+   */
   public function __construct(EntityStorageInterface $storage, EntityStorageInterface $type_storage) {
     $this->storage = $storage;
     $this->typeStorage = $type_storage;
@@ -28,7 +29,7 @@ class ConnectionAddController extends ControllerBase {
    * {@inheritdoc}
    */
   public static function create(ContainerInterface $container) {
-    /** @var EntityTypeManagerInterface $entity_type_manager */
+    /** @var \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager */
     $entity_type_manager = $container->get('entity_type.manager');
     return new static(
       $entity_type_manager->getStorage('redhen_connection'),
@@ -43,16 +44,17 @@ class ConnectionAddController extends ControllerBase {
    *   The current request object.
    *
    * @return array
-   *   A render array for a list of the redhen_connection bundles/types that can be added or
-   *   if there is only one type/bundle defined for the site, the function returns the add page for that bundle/type.
+   *   A render array for a list of the redhen_connection bundles/types that can
+   *   be added or if there is only one type/bundle defined for the site,
+   *   the function returns the add page for that bundle/type.
    */
   public function add(Request $request) {
-    $entity = $this->getRouteEntity();
+    $entity = redhen_connection_get_connection_entity_from_route();
 
     $types = $this->typeStorage->loadMultiple();
 
     foreach ($types as $key => $redhen_connection_type) {
-      $connection = $redhen_connection_type->getEndpointFields($entity->getEntityTypeId());
+      $connection = $redhen_connection_type->getEndpointEntityTypes($entity->getEntityTypeId(), $entity->getType());
       if (empty($connection)) {
         unset($types[$key]);
       }
@@ -63,18 +65,31 @@ class ConnectionAddController extends ControllerBase {
       return $this->addForm($request, $type, $entity);
     }
     if (count($types) === 0) {
-      return array(
+      return [
         '#markup' => $this->t('You have not created any %bundle types yet. @link to add a new type.', [
           '%bundle' => 'Connection',
           '@link' => Link::createFromRoute($this->t('Go to the type creation page'), 'entity.redhen_connection_type.add_form'),
         ]),
-      );
+      ];
     }
     return [
       '#theme' => 'redhen_connection_content_add_list',
       '#content' => $types,
       '#entity' => $entity,
     ];
+  }
+
+  /**
+   * Provides the page title for add controller.
+   *
+   * @return string
+   *   The page title.
+   */
+  public function getAddTitle() {
+    $entity_type = redhen_connection_get_connection_entity_from_route()->getEntityType();
+    return t('Select a @type Connection Type',
+      ['@type' => $entity_type->getLabel()]
+    );
   }
 
   /**
@@ -91,7 +106,7 @@ class ConnectionAddController extends ControllerBase {
    *   A form array as expected by drupal_render().
    */
   public function addForm(Request $request, EntityInterface $redhen_connection_type) {
-    $entity = $this->getRouteEntity();
+    $entity = redhen_connection_get_connection_entity_from_route();
     $endpoint_fields = $redhen_connection_type->getEndpointFields($entity->getEntityTypeId(), $entity->getType());
 
     if (empty($endpoint_fields)) {
@@ -110,7 +125,7 @@ class ConnectionAddController extends ControllerBase {
     // Set the value of the endpoint.
     $connection_entity->set($field, $entity);
 
-    return $this->entityFormBuilder()->getForm($connection_entity, 'default', array('fixed_endpoint' => $field));
+    return $this->entityFormBuilder()->getForm($connection_entity, 'default', ['fixed_endpoint' => $field]);
   }
 
   /**
@@ -125,28 +140,10 @@ class ConnectionAddController extends ControllerBase {
    *   The page title.
    */
   public function getAddFormTitle(EntityInterface $redhen_connection_type) {
-    $entity = $this->getRouteEntity();
-    return t('Create @type connection for @entity',
-      array('@type' => $redhen_connection_type->label(), '@entity' => $entity->label())
+    $entity = redhen_connection_get_connection_entity_from_route();
+    return t('Create @type Connection for @entity',
+      ['@type' => $redhen_connection_type->label(), '@entity' => $entity->label()]
     );
   }
 
-  /**
-   * Extracts the entity for the current route.
-   *
-   * @return null|\Drupal\Core\Entity\EntityInterface
-   */
-  public function getRouteEntity() {
-    $route_match = \Drupal::routeMatch();
-    // Entity will be found in the route parameters.
-    if (($route = $route_match->getRouteObject()) && ($parameters = $route->getOption('parameters'))) {
-      // Determine if the current route represents an entity.
-      foreach ($parameters as $name => $options) {
-        if (isset($options['type']) && strpos($options['type'], 'entity:') === 0) {
-          $entity = $route_match->getParameter($name);
-          return $entity;
-        }
-      }
-    }
-  }
 }

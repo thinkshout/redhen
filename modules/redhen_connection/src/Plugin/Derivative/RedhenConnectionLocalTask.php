@@ -53,7 +53,7 @@ class RedhenConnectionLocalTask extends DeriverBase implements ContainerDeriverI
     $this->derivatives = [];
 
     foreach ($this->entityManager->getDefinitions() as $entity_type_id => $entity_type) {
-      if (!($has_canonical_path = $entity_type->hasLinkTemplate('redhen_connection'))) {
+      if (!($entity_type->hasLinkTemplate('redhen_connection'))) {
         continue;
       }
       $this->derivatives["$entity_type_id.redhen_connection_tab"] = [
@@ -61,12 +61,6 @@ class RedhenConnectionLocalTask extends DeriverBase implements ContainerDeriverI
         'title' => $this->t('Connections'),
         'base_route' => "entity.$entity_type_id.canonical",
         'weight' => 200,
-      ] + $base_plugin_definition;
-      $this->derivatives["$entity_type_id.redhen_connection"] = [
-        'route_name' => "entity.$entity_type_id.redhen_connection",
-        'weight' => 200,
-        'title' => $this->t('View'),
-        'parent_id' => "redhen_connection.entities:$entity_type_id.redhen_connection_tab",
       ] + $base_plugin_definition;
     }
 
