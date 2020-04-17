@@ -62,7 +62,7 @@ class RedhenConnectionLocalTask extends DeriverBase implements ContainerDeriverI
         'route_name' => "entity.$entity_type_id.redhen_connection",
         'title' => $this->t('Connections'),
         'base_route' => "entity.$entity_type_id.canonical",
-        'weight' => 200,
+        'weight' => 20,
       ] + $base_plugin_definition;
     }
 

@@ -61,6 +61,7 @@ class RedhenConnections extends ControllerBase {
     ];
     $add_url = Url::fromRoute("$entity_type_key.connection.add_page", [$entity_type_key => $entity->id()], ['absolute' => TRUE])->toString();
 
+    $rows = [];
     foreach ($connections as $connection) {
       $view = Link::createFromRoute($connection->label()->render(), 'entity.redhen_connection.canonical', ['redhen_connection' => $connection->id()])->toString();
       $edit = Link::createFromRoute('Edit', 'entity.redhen_connection.edit_form', ['redhen_connection' => $connection->id()])->toString();

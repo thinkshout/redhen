@@ -47,7 +47,7 @@ class RouteSubscriber extends RouteSubscriberBase {
       $route
         ->addDefaults([
           '_controller' => '\Drupal\redhen_connection\Controller\RedhenConnections::list',
-          '_title' => 'Redhen Connections',
+          '_title' => 'Connections',
         ])
         ->addRequirements([
           '_permission' => 'view active connection entities',
