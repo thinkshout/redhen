@@ -150,8 +150,10 @@ class ConnectionType extends ConfigEntityBundleBase implements ConnectionTypeInt
     // If the current entity type is in a connection endpoint.
     if ($this->getEndpointEntityTypeId(1) === $entity_type_id || $this->getEndpointEntityTypeId(2) === $entity_type_id) {
       // If the current entity bundle is in a connection endpoint bundle.
-      $bundle1 = reset($this->getEndpointBundles(1));
-      $bundle2 = reset($this->getEndpointBundles(2));
+      $endBundles1 = $this->getEndpointBundles(1);
+      $bundle1 = reset($endBundles1);
+      $endBundles2 = $this->getEndpointBundles(2);
+      $bundle2 = reset($endBundles2);
       if ($bundle1 === $bundle || $bundle2 === $bundle) {
         return $entity_type_id;
       }
