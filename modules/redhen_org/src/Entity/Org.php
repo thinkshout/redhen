@@ -147,6 +147,7 @@ class Org extends ContentEntityBase implements OrgInterface {
       ))
       ->setDisplayConfigurable('form', TRUE)
       ->setDisplayConfigurable('view', TRUE)
+      ->setRequired(TRUE)
       ->setRevisionable(TRUE);
 
     $fields['status'] = BaseFieldDefinition::create('boolean')
