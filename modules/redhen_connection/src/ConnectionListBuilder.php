@@ -28,7 +28,7 @@ class ConnectionListBuilder extends EntityListBuilder {
     $bundles = \Drupal::service('entity_type.bundle.info')->getBundleInfo($entity->getEntityType()->id());
     /* @var $entity \Drupal\redhen_connection\Entity\Connection */
     $row['type'] = $bundles[$entity->getType()]['label'];
-    $row['name'] = $entity->link();
+    $row['name'] = $entity->toLink()->toString();
     $row['status'] = $entity->isActive() ? $this->t('Active') : $this->t('Inactive');
     return $row + parent::buildRow($entity);
   }

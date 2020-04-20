@@ -3,7 +3,6 @@
 namespace Drupal\redhen_contact\Form;
 
 use Drupal\Core\Form\ConfigFormBase;
-use Drupal\Core\Entity\Entity\EntityFormDisplay;
 use Drupal\Core\Form\FormStateInterface;
 
 /**
@@ -84,7 +83,8 @@ class ContactSettingsForm extends ConfigFormBase {
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
     $config = $this->config('redhen_contact.settings');
-    $contact_form_modes = \Drupal::entityManager()->getFormModes('redhen_contact');
+    $entity_display_repository = \Drupal::service('entity_display.repository');
+    $contact_form_modes = $entity_display_repository->getFormModes('redhen_contact');
     $user_form_options = ['default' => 'Default'];
     foreach ($contact_form_modes as $id => $values) {
       $user_form_options[$id] = $values['label'];
