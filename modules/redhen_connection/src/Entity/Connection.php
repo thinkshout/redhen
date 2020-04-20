@@ -46,7 +46,7 @@ use Drupal\redhen_contact\Entity\Contact;
  *   },
  *   base_table = "redhen_connection",
  *   revision_table = "redhen_connection_revision",
- *   admin_permission = "administer Connection entities",
+ *   admin_permission = "administer connection entities",
  *   entity_keys = {
  *     "id" = "id",
  *     "revision" = "revision_id",
