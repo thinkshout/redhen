@@ -27,7 +27,7 @@ display:
       access:
         type: perm
         options:
-          perm: 'administer org entities'
+          perm: 'access redhen'
       cache:
         type: tag
         options: {  }
