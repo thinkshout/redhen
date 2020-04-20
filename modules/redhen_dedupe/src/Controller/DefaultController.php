@@ -37,7 +37,7 @@ class DefaultController extends ControllerBase {
     if (!empty($results)) {
       $message = t('The following sets of duplicate contacts have been found. Select the corresponding merge action to merge contact records.');
       $bundles = \Drupal::service('entity_type.bundle.info')->getBundleInfo('redhen_contact');
-      $info = array();
+      $info = [];
       foreach (array_keys($bundles) as $bundle) {
         $info['base_field'] = \Drupal::service('entity_field.manager')->getBaseFieldDefinitions('redhen_contact', $bundle);
         $info['field'] = array_diff_key(\Drupal::service('entity_field.manager')->getFieldDefinitions('redhen_contact', $bundle), $info['base_field']);

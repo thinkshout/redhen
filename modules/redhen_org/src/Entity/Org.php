@@ -136,15 +136,15 @@ class Org extends ContentEntityBase implements OrgInterface {
     $fields['name'] = BaseFieldDefinition::create('string')
       ->setLabel(t('Name'))
       ->setDescription(t('The name of the org.'))
-      ->setSettings(array(
+      ->setSettings([
         'max_length' => 255,
         'text_processing' => 0,
-      ))
+      ])
       ->setDefaultValue('')
-      ->setDisplayOptions('form', array(
+      ->setDisplayOptions('form', [
         'type' => 'string_textfield',
         'weight' => -10,
-      ))
+      ])
       ->setDisplayConfigurable('form', TRUE)
       ->setDisplayConfigurable('view', TRUE)
       ->setRevisionable(TRUE);
@@ -153,13 +153,13 @@ class Org extends ContentEntityBase implements OrgInterface {
       ->setLabel(t('Active'))
       ->setDescription(t('A boolean indicating whether the Org is active.'))
       ->setDefaultValue(TRUE)
-      ->setDisplayOptions('form', array(
+      ->setDisplayOptions('form', [
         'type' => 'boolean_checkbox',
-        'settings' => array(
+        'settings' => [
           'display_label' => TRUE,
-        ),
+        ],
         'weight' => 16,
-      ))
+      ])
       ->setDisplayConfigurable('form', TRUE)
       ->setRevisionable(TRUE);
 

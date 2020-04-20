@@ -26,39 +26,39 @@ class ConnectionTypeForm extends EntityForm {
     $form['#tree'] = TRUE;
     /** @var \Drupal\redhen_connection\Entity\ConnectionType $redhen_connection_type */
     $redhen_connection_type = $this->entity;
-    $form['label'] = array(
+    $form['label'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Label'),
       '#maxlength' => 255,
       '#default_value' => $redhen_connection_type->label(),
       '#description' => $this->t("Label for the Connection type."),
       '#required' => TRUE,
-    );
+    ];
 
-    $form['id'] = array(
+    $form['id'] = [
       '#type' => 'machine_name',
       '#default_value' => $redhen_connection_type->id(),
-      '#machine_name' => array(
+      '#machine_name' => [
         'exists' => '\Drupal\redhen_connection\Entity\ConnectionType::load',
-      ),
+      ],
       '#disabled' => !$redhen_connection_type->isNew(),
-    );
+    ];
 
-    $form['connection_label_pattern'] = array(
+    $form['connection_label_pattern'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Connection label pattern'),
       '#maxlength' => 255,
       '#default_value' => $redhen_connection_type->get('connection_label_pattern'),
       '#description' => $this->t("Label pattern to use for connections. Use @label1 for the first entity and @label2 for the second."),
       '#required' => TRUE,
-    );
+    ];
 
     // Set bundle specific settings for each of our endpoint fields.
     for ($x = 1; $x <= REDHEN_CONNECTION_ENDPOINTS; $x++) {
       $endpoint_type = $redhen_connection_type->getEndpointEntityTypeId($x);
       $form['endpoints'][$x] = [
         '#type' => 'fieldset',
-        '#title' => $this->t('Endpoint @endpoint', array('@endpoint' => $x)),
+        '#title' => $this->t('Endpoint @endpoint', ['@endpoint' => $x]),
       ];
       $form['endpoints'][$x]['entity_type'] = [
         '#type' => 'select',
@@ -93,13 +93,13 @@ class ConnectionTypeForm extends EntityForm {
         '#empty_value' => '',
       ];
 
-      $bundle_options = array();
+      $bundle_options = [];
       $endpoint_entity = (!empty($endpoint_type)) ? \Drupal::entityTypeManager()->getDefinition($endpoint_type) : FALSE;
       if ($endpoint_entity && $endpoint_entity->hasKey('bundle')) {
         $bundle_options = $this->getBundleOptions($endpoint_type);
       }
 
-      $form['endpoints'][$x]['bundles'] = array(
+      $form['endpoints'][$x]['bundles'] = [
         '#type' => 'checkboxes',
         '#title' => $this->t('Bundles'),
         '#description' => $this->t('The allowed bundles for this endpoint.'),
@@ -111,7 +111,7 @@ class ConnectionTypeForm extends EntityForm {
         '#prefix' => '<div id="bundles-wrapper-' . $x . '">',
         '#suffix' => '</div>',
         '#disabled' => !($endpoint_entity && $endpoint_entity->hasKey('bundle')),
-      );
+      ];
     }
 
 
@@ -149,7 +149,7 @@ class ConnectionTypeForm extends EntityForm {
    */
   protected function getBundleOptions($endpoint_type) {
     $bundles = $this->entityManager->getBundleInfo($endpoint_type);
-    $bundle_options = array();
+    $bundle_options = [];
     foreach ($bundles as $bundle_name => $bundle_info) {
       $bundle_options[$bundle_name] = $bundle_info['label'];
     }

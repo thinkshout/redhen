@@ -69,7 +69,7 @@ function redhen_connection_theme() {
  *   Keyed by name with a label value.
  */
 function redhen_connection_type_options_list() {
-  $options = array();
+  $options = [];
   foreach (ConnectionType::loadMultiple() as $type) {
     $options[$type->id()] = $type->label();
   }

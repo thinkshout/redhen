@@ -287,15 +287,15 @@ class Contact extends ContentEntityBase implements ContactInterface {
     $required_names = $config->get('required_properties');
     $fields['first_name'] = BaseFieldDefinition::create('string')
       ->setLabel(t('First Name'))
-      ->setSettings(array(
+      ->setSettings([
         'max_length' => 50,
         'text_processing' => 0,
-      ))
+      ])
       ->setDefaultValue('')
-      ->setDisplayOptions('form', array(
+      ->setDisplayOptions('form', [
         'type' => 'string_textfield',
         'weight' => -10,
-      ))
+      ])
       ->setDisplayConfigurable('form', TRUE)
       ->setDisplayConfigurable('view', TRUE)
       ->setRequired($required_names['first_name'])
@@ -303,15 +303,15 @@ class Contact extends ContentEntityBase implements ContactInterface {
 
     $fields['middle_name'] = BaseFieldDefinition::create('string')
       ->setLabel(t('Middle Name'))
-      ->setSettings(array(
+      ->setSettings([
         'max_length' => 50,
         'text_processing' => 0,
-      ))
+      ])
       ->setDefaultValue('')
-      ->setDisplayOptions('form', array(
+      ->setDisplayOptions('form', [
         'type' => 'string_textfield',
         'weight' => -9,
-      ))
+      ])
       ->setDisplayConfigurable('form', TRUE)
       ->setDisplayConfigurable('view', TRUE)
       ->setRequired($required_names['middle_name'])
@@ -319,15 +319,15 @@ class Contact extends ContentEntityBase implements ContactInterface {
 
     $fields['last_name'] = BaseFieldDefinition::create('string')
       ->setLabel(t('Last Name'))
-      ->setSettings(array(
+      ->setSettings([
         'max_length' => 50,
         'text_processing' => 0,
-      ))
+      ])
       ->setDefaultValue('')
-      ->setDisplayOptions('form', array(
+      ->setDisplayOptions('form', [
         'type' => 'string_textfield',
         'weight' => -8,
-      ))
+      ])
       ->setDisplayConfigurable('form', TRUE)
       ->setDisplayConfigurable('view', TRUE)
       ->setRequired($required_names['last_name'])
@@ -337,15 +337,15 @@ class Contact extends ContentEntityBase implements ContactInterface {
       ->setLabel(t('Email'))
       ->setDefaultValue('')
       ->addConstraint('ContactEmailUnique')
-      ->setDisplayOptions('view', array(
+      ->setDisplayOptions('view', [
         'label' => 'inline',
         'type' => 'email_mailto',
         'weight' => -4,
-      ))
-      ->setDisplayOptions('form', array(
+      ])
+      ->setDisplayOptions('form', [
         'type' => 'string_textfield',
         'weight' => -4,
-      ))
+      ])
       ->setDisplayConfigurable('form', TRUE)
       ->setDisplayConfigurable('view', TRUE)
       ->setRevisionable(TRUE)
@@ -358,24 +358,24 @@ class Contact extends ContentEntityBase implements ContactInterface {
       ->setSetting('target_type', 'user')
       ->setTranslatable(FALSE)
       ->setRequired(FALSE)
-      ->setDisplayOptions('view', array(
+      ->setDisplayOptions('view', [
         'label' => 'inline',
         'type' => 'entity_reference_label',
-        'settings' => array(
+        'settings' => [
           'link' => TRUE,
-        ),
+        ],
         'weight' => 0,
-      ))
-      ->setDisplayOptions('form', array(
+      ])
+      ->setDisplayOptions('form', [
         'type' => 'entity_reference_autocomplete',
         'weight' => 5,
-        'settings' => array(
+        'settings' => [
           'match_operator' => 'CONTAINS',
           'size' => '60',
           'autocomplete_type' => 'tags',
           'placeholder' => '',
-        ),
-      ))
+        ],
+      ])
       ->setDisplayConfigurable('form', TRUE)
       ->setDisplayConfigurable('view', TRUE);
 
@@ -383,13 +383,13 @@ class Contact extends ContentEntityBase implements ContactInterface {
       ->setLabel(t('Active'))
       ->setDescription(t('A boolean indicating whether the Contact is active.'))
       ->setDefaultValue(TRUE)
-      ->setDisplayOptions('form', array(
+      ->setDisplayOptions('form', [
         'type' => 'boolean_checkbox',
-        'settings' => array(
+        'settings' => [
           'display_label' => TRUE,
-        ),
+        ],
         'weight' => 16,
-      ))
+      ])
       ->setDisplayConfigurable('form', TRUE)
       ->setRevisionable(TRUE);
 

@@ -55,7 +55,7 @@ interface ConnectionServiceInterface {
    * @return array
    *   The Connection entities connected to this entity.
    */
-  public function getConnections(EntityInterface $entity, EntityInterface $entity2 = NULL, $connection_type = NULL, $active = TRUE, $sort = array(), $offset = 0, $limit = 0);
+  public function getConnections(EntityInterface $entity, EntityInterface $entity2 = NULL, $connection_type = NULL, $active = TRUE, $sort = [], $offset = 0, $limit = 0);
 
   /**
    * Returns the number of connections to this entity.

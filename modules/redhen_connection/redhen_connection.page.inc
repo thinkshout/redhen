@@ -43,23 +43,23 @@ function template_preprocess_redhen_connection(array &$variables) {
 * @see block_content_add_page()
 */
 function template_preprocess_redhen_connection_content_add_list(&$variables) {
-  $variables['types'] = array();
+  $variables['types'] = [];
   $entity = $variables['entity'];
   $entity_type_id = $entity->getEntityType()->id();
   $query = \Drupal::request()->query->all();
   foreach ($variables['content'] as $type) {
-    $variables['types'][$type->id()] = array(
-      'link' => Link::fromTextAndUrl($type->label(), new Url($entity_type_id . '.connection.add_form', array(
+    $variables['types'][$type->id()] = [
+      'link' => Link::fromTextAndUrl($type->label(), new Url($entity_type_id . '.connection.add_form', [
         $entity_type_id => $entity->id(),
         'redhen_connection_type' => $type->id(),
-      ), array('query' => $query))),
-      'description' => array(
+      ], ['query' => $query])),
+      'description' => [
       '#markup' => $type->label(),
-      ),
+      ],
       'title' => $type->label(),
-      'localized_options' => array(
+      'localized_options' => [
       'query' => $query,
-      ),
-    );
+      ],
+    ];
   }
 }
