@@ -288,7 +288,7 @@ class Contact extends ContentEntityBase implements ContactInterface {
     $fields['first_name'] = BaseFieldDefinition::create('string')
       ->setLabel(t('First Name'))
       ->setSettings(array(
-        'max_length' => 50,
+        'max_length' => 255,
         'text_processing' => 0,
       ))
       ->setDefaultValue('')
@@ -304,7 +304,7 @@ class Contact extends ContentEntityBase implements ContactInterface {
     $fields['middle_name'] = BaseFieldDefinition::create('string')
       ->setLabel(t('Middle Name'))
       ->setSettings(array(
-        'max_length' => 50,
+        'max_length' => 255,
         'text_processing' => 0,
       ))
       ->setDefaultValue('')
@@ -320,7 +320,7 @@ class Contact extends ContentEntityBase implements ContactInterface {
     $fields['last_name'] = BaseFieldDefinition::create('string')
       ->setLabel(t('Last Name'))
       ->setSettings(array(
-        'max_length' => 50,
+        'max_length' => 255,
         'text_processing' => 0,
       ))
       ->setDefaultValue('')
