@@ -93,24 +93,4 @@ class RedhenConnections extends ControllerBase {
     return $build;
   }
 
-  /**
-   * Extracts the entity for the current route.
-   *
-   * @return null|\Drupal\Core\Entity\EntityInterface
-   *   Returns an entity, if found otherwise NULL.
-   */
-  public function getRouteEntity() {
-    $route_match = \Drupal::routeMatch();
-    // Entity will be found in the route parameters.
-    if (($route = $route_match->getRouteObject()) && ($parameters = $route->getOption('parameters'))) {
-      // Determine if the current route represents an entity.
-      foreach ($parameters as $name => $options) {
-        if (isset($options['type']) && strpos($options['type'], 'entity:') === 0) {
-          $entity = $route_match->getParameter($name);
-          return $entity;
-        }
-      }
-    }
-  }
-
 }
