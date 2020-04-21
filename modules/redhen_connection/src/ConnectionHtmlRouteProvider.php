@@ -118,7 +118,8 @@ class ConnectionHtmlRouteProvider extends DefaultHtmlRouteProvider {
   protected function getAddEntityRoutes(EntityTypeInterface $connection_entity_type) {
     $routes = [];
     $connection_entity_type_id = $connection_entity_type->id();
-    $entity_types = \Drupal::entityTypeManager()->getDefinitions();
+    $service = \Drupal::service('redhen_connection.connections');
+    $entity_types = $service->getAllConnectionEntityTypes();
 
     // Iterate over each entity type to find connectable entities.
     foreach ($entity_types as $type) {
