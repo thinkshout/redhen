@@ -170,7 +170,8 @@ function redhen_connection_entity_type_alter(array &$entity_types) {
   // mappings.
   foreach ($entity_types as $entity_type_id => $entity_type) {
     if ($entity_type->hasViewBuilderClass() && $entity_type->hasLinkTemplate('canonical')) {
-      $entity_type->setLinkTemplate('redhen_connection', "/$entity_type_id/{{$entity_type_id}}/redhen-connections");
+      $canonical = $entity_type->getLinkTemplate('canonical');
+      $entity_type->setLinkTemplate('redhen_connection', "$canonical/connections");
     }
   }
 }
