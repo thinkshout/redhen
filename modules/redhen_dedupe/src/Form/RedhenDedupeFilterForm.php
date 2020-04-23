@@ -22,17 +22,17 @@ class RedhenDedupeFilterForm extends FormBase {
   /**
    * {@inheritdoc}
    */
-  public function buildForm(array $form, FormStateInterface $form_state, $base_fields = array(), $fields = array(), $active = TRUE) {
+  public function buildForm(array $form, FormStateInterface $form_state, $base_fields = [], $fields = [], $active = TRUE) {
     $bundles = \Drupal::service('entity_type.bundle.info')->getBundleInfo('redhen_contact');
-    $info = array();
+    $info = [];
     foreach (array_keys($bundles) as $bundle) {
       $info['base_field'] = \Drupal::service('entity_field.manager')->getBaseFieldDefinitions('redhen_contact', $bundle);
       $info['field'] = array_diff_key(\Drupal::service('entity_field.manager')->getFieldDefinitions('redhen_contact', $bundle), $info['base_field']);
     }
 
-    $excluded_base_fields = array('id', 'revision_id', 'status');
-    $base_field_options = array();
-    $field_options = array();
+    $excluded_base_fields = ['id', 'revision_id', 'status'];
+    $base_field_options = [];
+    $field_options = [];
     foreach ($info['base_field'] as $name => $field) {
       if (!in_array($name, $excluded_base_fields)) {
         $base_field_options[$name] = $field->getLabel();
@@ -42,33 +42,33 @@ class RedhenDedupeFilterForm extends FormBase {
       $field_options[$name] = $field->getLabel();
     }
 
-    $form['base_fields'] = array(
+    $form['base_fields'] = [
       '#title' => t('Base fields'),
       '#type' => 'checkboxes',
       '#options' => $base_field_options,
       '#default_value' => $fields,
       '#required' => FALSE,
       '#description' => t('Selected fields will be used to query duplicates.'),
-    );
-    $form['fields'] = array(
+    ];
+    $form['fields'] = [
       '#title' => t('Contact fields'),
       '#type' => 'checkboxes',
       '#options' => $field_options,
       '#default_value' => $fields,
       '#required' => FALSE,
       '#description' => t('Selected fields will be used to query duplicates.'),
-    );
-    $form['active'] = array(
+    ];
+    $form['active'] = [
       '#title' => t('Active'),
       '#type' => 'checkbox',
       '#description' => t('Limit query to active contacts.'),
       '#default_value' => $active,
-    );
+    ];
 
-    $form['submit'] = array(
+    $form['submit'] = [
       '#type' => 'submit',
       '#value' => t('Submit'),
-    );
+    ];
 
     return $form;
   }

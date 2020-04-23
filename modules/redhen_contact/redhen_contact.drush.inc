@@ -11,17 +11,17 @@ use Drupal\redhen_contact\Entity\Contact;
  * Implements hook_drush_command().
  */
 function redhen_contact_drush_command() {
-  $items = array();
+  $items = [];
 
   // Deletes the temporary node table column created by save-moderation-states.
-  $items['redhen-contact-link-users'] = array(
+  $items['redhen-contact-link-users'] = [
     'description' => "Link Users without Contacts to existing Contacts based on email address.
 
 Arguments:
  check                                 The number of Users to check. (Default is 50).",
     'bootstrap' => DRUSH_BOOTSTRAP_DRUPAL_FULL,
-    'core' => array('8+'),
-  );
+    'core' => ['8+'],
+  ];
 
   return $items;
 }

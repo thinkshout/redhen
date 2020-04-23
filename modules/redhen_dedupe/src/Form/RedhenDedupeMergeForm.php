@@ -98,7 +98,7 @@ class RedhenDedupeMergeForm extends FormBase {
 
       $table_header[$ent_id] = [
         'data' => $this->t('@master@name (@bundle)<br/>Last Updated: @date', $header_data),
-        'class' => array(($ent_id == $master_id) ? 'redhen-dedupe-master-col' : 'redhen-dedupe-col'),
+        'class' => [($ent_id == $master_id) ? 'redhen-dedupe-master-col' : 'redhen-dedupe-col'],
       ];
     }
 
@@ -115,7 +115,7 @@ class RedhenDedupeMergeForm extends FormBase {
     ];
 
     $bundles = \Drupal::service('entity_type.bundle.info')->getBundleInfo('redhen_contact');
-    $info = array();
+    $info = [];
     foreach (array_keys($bundles) as $bundle) {
       $info[$bundle] = \Drupal::service('entity_field.manager')->getFieldDefinitions('redhen_contact', $bundle);
     }
@@ -248,7 +248,7 @@ class RedhenDedupeMergeForm extends FormBase {
     unset($contacts[$master_id]);
     $related_entities = $form_state->getValue(['related_entities']);
     if (empty($related_entities)) {
-      $related_entities = array();
+      $related_entities = [];
     }
     else {
       $related_entities = array_filter($related_entities);
@@ -259,7 +259,7 @@ class RedhenDedupeMergeForm extends FormBase {
         '%master' => $master->label(),
       ]));
       $form_state->setRedirect('entity.redhen_contact.canonical',
-       array('redhen_contact' => $master_id));
+       ['redhen_contact' => $master_id]);
     }
     else {
       drupal_set_message(t('Error attempting to merge these contacts. Check the error log for more details.'), 'error');
@@ -316,7 +316,7 @@ class RedhenDedupeMergeForm extends FormBase {
    *   Label to use for an option field or other purpose.
    */
   private function redhenDedupeOptionLabel(Contact $contact, $field_name) {
-    $render = $contact->get($field_name)->view(array('label' => 'hidden'));
+    $render = $contact->get($field_name)->view(['label' => 'hidden']);
     $display = \Drupal::service('renderer')->render($render);
     return !$contact->get($field_name)->isEmpty() ? $display : $this->t('No value');
   }
@@ -349,7 +349,7 @@ class RedhenDedupeMergeForm extends FormBase {
    * @return bool
    *   Result of the merge attempt.
    */
-  private function redhenDedupeMerge(Contact $master, $values, $related_entities, $contacts = array()) {
+  private function redhenDedupeMerge(Contact $master, $values, $related_entities, $contacts = []) {
     $master_id = $master->id();
 
     $transaction = \Drupal::database()->startTransaction(__FUNCTION__);
@@ -423,7 +423,7 @@ class RedhenDedupeMergeForm extends FormBase {
             unset($value['value'][$master_id]);
           }
           else {
-            $all_vals = array();
+            $all_vals = [];
           }
           foreach ($value['value'] as $val) {
             $all_vals = array_merge($all_vals, $val);

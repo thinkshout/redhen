@@ -13,10 +13,10 @@ use Drupal\Core\Render\Element;
 function template_preprocess_redhen_dedupe_form_table(&$variables) {
   $elements = $variables['elements'];
   // Build the rows array.
-  $rows = array();
+  $rows = [];
   foreach (Element::children($elements) as $item_key) {
     $item = &$elements[$item_key];
-    $data = array($item['#title']);
+    $data = [$item['#title']];
     foreach (Element::children($item) as $element) {
       if (isset($item['#options']) && $item['#options'][$element] === REDHEN_DEDUPE_NOT_APPLICABLE) {
         $cell_data = t('Field not applicable to this bundle');
@@ -25,7 +25,7 @@ function template_preprocess_redhen_dedupe_form_table(&$variables) {
         $cell_data = \Drupal::service("renderer")->render($item[$element]);
       }
 
-      $cell = array('data' => $cell_data);
+      $cell = ['data' => $cell_data];
       if (isset($item[$element]['#attributes'])) {
         foreach ($item[$element]['#attributes'] as $key => $value) {
           $cell[$key] = $value;
@@ -34,7 +34,7 @@ function template_preprocess_redhen_dedupe_form_table(&$variables) {
       $data[] = $cell;
 
     }
-    $row = array('data' => $data);
+    $row = ['data' => $data];
     if (isset($item_key['#attributes'])) {
       foreach ($item_key['#attributes'] as $key => $value) {
         $row[$key] = $value;
@@ -43,9 +43,9 @@ function template_preprocess_redhen_dedupe_form_table(&$variables) {
     $rows[] = $row;
   }
 
-  $config = array(
+  $config = [
     'rows' => $rows,
-  );
+  ];
   if (isset($elements['#header'])) {
     $config['header'] = $elements['#header'];
   }
@@ -53,12 +53,12 @@ function template_preprocess_redhen_dedupe_form_table(&$variables) {
     $config['attributes'] = $elements['#attributes'];
   }
 
-  $table = array(
+  $table = [
     '#type' => 'table',
     '#header' => $config['header'],
     '#attributes' => $config['attributes'],
     '#rows' => $config['rows'],
-  );
+  ];
 
   $variables['content'] = $table;
 }

@@ -69,7 +69,7 @@ function redhen_connection_theme() {
  *   Keyed by name with a label value.
  */
 function redhen_connection_type_options_list() {
-  $options = array();
+  $options = [];
   foreach (ConnectionType::loadMultiple() as $type) {
     $options[$type->id()] = $type->label();
   }
@@ -81,8 +81,9 @@ function redhen_connection_type_options_list() {
  * Implements hook_entity_access().
  *
  * @param \Drupal\Core\Entity\EntityInterface $entity
- * @param $operation
+ * @param String $operation
  * @param \Drupal\Core\Session\AccountInterface $account
+ *
  * @return mixed
  */
 function redhen_connection_entity_access(EntityInterface $entity, $operation, AccountInterface $account) {

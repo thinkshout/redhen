@@ -76,10 +76,10 @@ class Connection extends ContentEntityBase implements ConnectionInterface {
    */
   public function label() {
     $label_pattern = $this->type->entity->get('connection_label_pattern');
-    return $this->t($label_pattern, array(
+    return $this->t($label_pattern, [
       '@label1' => $this->get('endpoint_1')->entity ? $this->get('endpoint_1')->entity->label() : "[entity 1 not found]",
       '@label2' => $this->get('endpoint_2')->entity ? $this->get('endpoint_2')->entity->label() : "[entity 2 not found]",
-    ));
+    ]);
   }
 
   /**
@@ -131,7 +131,7 @@ class Connection extends ContentEntityBase implements ConnectionInterface {
       $default_type = ($x & 1) ? 'redhen_contact' : 'redhen_org';
 
       $fields["endpoint_$x"] = BaseFieldDefinition::create('entity_reference')
-        ->setLabel(t('Endpoint @x', array('@x' => $x)))
+        ->setLabel(t('Endpoint @x', ['@x' => $x]))
         ->setRequired(TRUE)
         ->setSetting('target_type', $default_type)
         ->setDisplayOptions('form', [
@@ -165,13 +165,13 @@ class Connection extends ContentEntityBase implements ConnectionInterface {
       ->setLabel(t('Active'))
       ->setDescription(t('A boolean indicating whether the connection is active.'))
       ->setDefaultValue(TRUE)
-      ->setDisplayOptions('form', array(
+      ->setDisplayOptions('form', [
         'type' => 'boolean_checkbox',
-        'settings' => array(
+        'settings' => [
           'display_label' => TRUE,
-        ),
+        ],
         'weight' => 16,
-      ))
+      ])
       ->setDisplayConfigurable('form', TRUE)
       ->setRevisionable(TRUE);
 
