@@ -60,7 +60,7 @@ function redhen_org_theme() {
  *   Keyed by name with a label value.
  */
 function redhen_org_type_options_list() {
-  $options = array();
+  $options = [];
   foreach (OrgType::loadMultiple() as $type) {
     $options[$type->id()] = $type->label();
   }
@@ -72,7 +72,7 @@ function redhen_org_type_options_list() {
  * Implements hook_tokens().
  */
 function redhen_org_tokens($type, $tokens, array $data, array $options, BubbleableMetadata $bubbleable_metadata) {
-  $replacements = array();
+  $replacements = [];
 
   if (($type == 'entity') && isset($data['entity_type']) && ($data['entity_type'] == 'redhen_org')) {
 
@@ -109,39 +109,39 @@ function redhen_org_tokens($type, $tokens, array $data, array $options, Bubbleab
  * Implements hook_token_info().
  */
 function redhen_org_token_info() {
-  $type = array(
+  $type = [
     'name' => t('Organization'),
     'description' => t('Tokens related to an individual Organizations.'),
     'needs-data' => 'redhen_org',
-  );
+  ];
 
-  $redhen_org['id'] = array(
+  $redhen_org['id'] = [
     'name' => t('Organization ID'),
     'description' => t('The unique ID of the Organization.'),
-  );
+  ];
 
-  $redhen_org['name'] = array(
+  $redhen_org['name'] = [
     'name' => t('Organization Name'),
     'description' => t('The name of the Organization.'),
-  );
+  ];
 
-  $redhen_org['type'] = array(
+  $redhen_org['type'] = [
     'name' => t('Organization Type'),
     'description' => t('The type (bundle) of the Organization.'),
-  );
+  ];
 
-  $redhen_org['status'] = array(
+  $redhen_org['status'] = [
     'name' => t('Organization Status'),
     'description' => t('The status of the Organization.'),
-  );
+  ];
 
-  $redhen_org['created'] = array(
+  $redhen_org['created'] = [
     'name' => t('Organization Created'),
     'description' => t('The timestamp the Organization was created.'),
-  );
+  ];
 
-  return array(
-    'types' => array('redhen_org' => $type),
-    'tokens' => array('redhen_org' => $redhen_org),
-  );
+  return [
+    'types' => ['redhen_org' => $type],
+    'tokens' => ['redhen_org' => $redhen_org],
+  ];
 }

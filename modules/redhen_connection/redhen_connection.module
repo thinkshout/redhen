@@ -69,7 +69,7 @@ function redhen_connection_theme() {
  *   Keyed by name with a label value.
  */
 function redhen_connection_type_options_list() {
-  $options = array();
+  $options = [];
   foreach (ConnectionType::loadMultiple() as $type) {
     $options[$type->id()] = $type->label();
   }
@@ -81,8 +81,9 @@ function redhen_connection_type_options_list() {
  * Implements hook_entity_access().
  *
  * @param \Drupal\Core\Entity\EntityInterface $entity
- * @param $operation
+ * @param String $operation
  * @param \Drupal\Core\Session\AccountInterface $account
+ *
  * @return mixed
  */
 function redhen_connection_entity_access(EntityInterface $entity, $operation, AccountInterface $account) {
@@ -156,4 +157,39 @@ function redhen_connection_entity_delete(EntityInterface $entity) {
       $connection->delete();
     }
   }
+}
+
+/**
+ * Implements hook_entity_type_alter().
+ */
+function redhen_connection_entity_type_alter(array &$entity_types) {
+  // There's no good way to add a link template based on existing mapping
+  // definitions while we're building entity type definitions. We can't load
+  // existing mappings, because to do that we need to load entity types which
+  // creates an infinite recursion. So, we set the link template on any
+  // mappable entity, and hide it for any entity types that don't have
+  // mappings.
+  foreach ($entity_types as $entity_type_id => $entity_type) {
+    if ($entity_type->hasViewBuilderClass() && $entity_type->hasLinkTemplate('canonical')) {
+      $canonical = $entity_type->getLinkTemplate('canonical');
+      $entity_type->setLinkTemplate('redhen_connection', "$canonical/connections");
+    }
+  }
+}
+
+/**
+ * Extracts the entity for the current redhen_connection route.
+ *
+ * @return null|\Drupal\Core\Entity\EntityInterface
+ *   Entity type id.
+ */
+function redhen_connection_get_connection_entity_from_route() {
+  foreach (\Drupal::routeMatch()->getParameters() as $param) {
+    if ($param instanceof EntityInterface) {
+      if ($param->getEntityTypeId() !== 'redhen_connection_type') {
+        return $param;
+      }
+    }
+  }
+  return NULL;
 }

@@ -52,14 +52,14 @@ class ContactAddController extends ControllerBase {
       return $this->addForm($type, $request);
     }
     if (count($types) === 0) {
-      return array(
+      return [
         '#markup' => $this->t('You have not created any %bundle types yet. @link to add a new type.', [
           '%bundle' => 'Contact',
           '@link' => Link::createFromRoute($this->t('Go to the type creation page'), 'entity.redhen_contact_type.add_form'),
         ]),
-      );
+      ];
     }
-    return array('#theme' => 'redhen_contact_content_add_list', '#content' => $types);
+    return ['#theme' => 'redhen_contact_content_add_list', '#content' => $types];
   }
 
   /**
@@ -74,9 +74,9 @@ class ContactAddController extends ControllerBase {
    *   A form array as expected by drupal_render().
    */
   public function addForm(EntityInterface $redhen_contact_type, Request $request) {
-    $entity = $this->storage->create(array(
+    $entity = $this->storage->create([
       'type' => $redhen_contact_type->id()
-    ));
+    ]);
     return $this->entityFormBuilder()->getForm($entity);
   }
 
@@ -91,7 +91,7 @@ class ContactAddController extends ControllerBase {
    */
   public function getAddFormTitle(EntityInterface $redhen_contact_type) {
     return t('Create of bundle @label',
-      array('@label' => $redhen_contact_type->label())
+      ['@label' => $redhen_contact_type->label()]
     );
   }
 

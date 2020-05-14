@@ -51,14 +51,14 @@ class OrgAddController extends ControllerBase {
       return $this->addForm($type, $request);
     }
     if (count($types) === 0) {
-      return array(
+      return [
         '#markup' => $this->t('You have not created any %bundle types yet. @link to add a new type.', [
           '%bundle' => 'Org',
           '@link' => Link::createFromRoute($this->t('Go to the type creation page'), 'entity.redhen_org_type.add_form'),
         ]),
-      );
+      ];
     }
-    return array('#theme' => 'redhen_org_content_add_list', '#content' => $types);
+    return ['#theme' => 'redhen_org_content_add_list', '#content' => $types];
   }
 
   /**
@@ -90,7 +90,7 @@ class OrgAddController extends ControllerBase {
    */
   public function getAddFormTitle(EntityInterface $redhen_org_type) {
     return t('Create of bundle @label',
-      array('@label' => $redhen_org_type->label())
+      ['@label' => $redhen_org_type->label()]
     );
   }
 
