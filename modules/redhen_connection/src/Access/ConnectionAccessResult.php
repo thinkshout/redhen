@@ -1,4 +1,5 @@
 <?php
+// @todo can this file be deleted after new plugin logic is in place?
 
 namespace Drupal\redhen_connection\Access;
 

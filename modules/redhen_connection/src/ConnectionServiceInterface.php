@@ -105,15 +105,17 @@ interface ConnectionServiceInterface {
   /**
    * Check access to an entity via its connections and the current users connection roles.
    *
-   * @param \Drupal\Core\Entity\EntityInterface $entity
-   *   The entity to check against.
+   * @param \Drupal\Core\Entity\EntityInterface $endpoint1
+   *   Endpoint 1 of the connection.
+   * @param \Drupal\Core\Entity\EntityInterface $endpoint2
+   *   Endpoint 2 of the connection.
    * @param $operation
    *   The entity operation (view, view label, update, delete, create)
-   * @param \Drupal\Core\Session\AccountInterface|NULL $account
-   *   The User to check against.
+   * @param string $permission_key
+   *   Key for checking permissions against.
    *
    * @return AccessResultInterface
    */
-  public function checkConnectionPermission(EntityInterface $entity, $operation, AccountInterface $account = NULL);
+  public function checkConnectionPermission(EntityInterface $endpoint1, $endpoint2, $operation, $permission_key);
 
 }

@@ -302,6 +302,7 @@ class Connection extends ContentEntityBase implements ConnectionInterface {
    * {@inheritdoc}
    */
   public function hasRolePermission(EntityInterface $entity, $operation, ContactInterface $contact = NULL) {
+    // @todo delete this method.
     if (!$contact) {
       $contact = Contact::loadByUser(\Drupal::currentUser());
     }

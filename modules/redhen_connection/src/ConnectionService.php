@@ -3,6 +3,7 @@
 namespace Drupal\redhen_connection;
 
 use Drupal\Core\Access\AccessResultAllowed;
+use Drupal\Core\Access\AccessResultNeutral;
 use Drupal\Core\Database\Connection as DBConnection;
 use Drupal\Core\Entity\Entity;
 use Drupal\Core\Entity\EntityInterface;
@@ -251,38 +252,29 @@ class ConnectionService implements ConnectionServiceInterface {
       $connections = Connection::loadMultiple($results);
     }
 
+    // This is returning the specific connection.
+    // @todo for reference connections it needs to check for plugins and determine if a connection would be made by another entity type
+    // because at this point we have a node, but the connection is to an org.
     return $connections;
   }
 
   /**
    * {@inheritdoc}
    */
-  public function checkConnectionPermission(EntityInterface $entity, $operation, AccountInterface $account = NULL) {
-    // Get connections and loop through checking for role permissions.
-    $contact = Contact::loadByUser($account);
-    if ($contact) {
-      $direct_connections = $this->getConnections($contact, $entity);
-      foreach ($direct_connections as $connection) {
-        /** @var ConnectionInterface $connection */
-        if ($result = $connection->hasRolePermission($entity, $operation, $contact)) {
-          return new AccessResultAllowed();
-        }
+  public function checkConnectionPermission(EntityInterface $endpoint1, $endpoint2, $operation, $permission_key) {
+    $connections = $this->getConnections($endpoint1, $endpoint2);
+    foreach ($connections as $connection) {
+      /** @var ConnectionInterface $connection */
+      $role = $connection->get('role')->entity;
+      if (!$role) {
+        return FALSE;
       }
-      // Separate from the direct connections check because we want to limit
-      // checking for indirect connections to only when no direct connection
-      // returned AccessResultAllowed. We also only want to check if the entity
-      // we're checking on is a Contact.
-      if ($entity->getEntityTypeId() == 'redhen_contact') {
-        $indirect_connections = $this->getIndirectConnections($contact, $entity);
-        foreach ($indirect_connections as $connection) {
-          /** @var ConnectionInterface $connection */
-          if ($result = $connection->hasRolePermission($entity, $operation, $contact)) {
-            return new AccessResultAllowed();
-          }
-        }
+      $permissions = $role->get('permissions');
+      if (is_array($permissions[$permission_key]) && in_array($operation, $permissions[$permission_key])) {
+        return new AccessResultAllowed();
       }
     }
-    // @todo - we should be able to return a neutral result here - test again to see if we can
+    return new AccessResultNeutral();
   }
 
   /**

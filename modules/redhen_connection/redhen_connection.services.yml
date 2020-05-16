@@ -5,3 +5,6 @@ services:
   redhen_connection.views_data:
     class: \Drupal\redhen_connection\ViewsData
     arguments: ['@entity_type.manager', '@redhen_connection.connections']
+  plugin.manager.connection_permission:
+    class: Drupal\redhen_connection\Plugin\ConnectionPermissionManager
+    parent: default_plugin_manager
