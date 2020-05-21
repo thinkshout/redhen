@@ -73,23 +73,6 @@ interface ConnectionServiceInterface {
   public function getConnectionCount(EntityInterface $entity, EntityInterface $entity2 = NULL, $connection_type = NULL);
 
   /**
-   * Returns the indirect connections to this entity.
-   *
-   * @param \Drupal\Core\Entity\EntityInterface $entity
-   *   The entity we're querying against.
-   * @param \Drupal\Core\Entity\EntityInterface $entity2
-   *   The second entity we're querying against.
-   * @param string $connection_type
-   *   (optional) Limit returned connections to this type.
-   * @param bool $active
-   *   (optional) Limit to active connections.
-   *
-   * @return array
-   *   The Connection entities connected to this entity.
-   */
-  public function getIndirectConnections(EntityInterface $entity, EntityInterface $entity2, $connection_type = NULL, $active = TRUE);
-
-  /**
    * Returns the other entities that are connected to this entity.
    *
    * @param \Drupal\Core\Entity\EntityInterface $entity

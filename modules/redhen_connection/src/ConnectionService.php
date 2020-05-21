@@ -198,63 +198,6 @@ class ConnectionService implements ConnectionServiceInterface {
   }
 
   /**
-   * {@inheritdoc}
-   */
-  public function getIndirectConnections(EntityInterface $entity, EntityInterface $entity2, $connection_type = NULL, $active = TRUE) {
-    $types = ($connection_type) ? [$connection_type => ConnectionType::load($connection_type)] : $this->getConnectionTypes($entity);
-
-    $results = [];
-    foreach ($types as $type_id => $connection_type) {
-      /** @var \Drupal\redhen_connection\Entity\ConnectionType $connection_type */
-      // Get endpoints (usually 1, but two possible).
-      $endpoints = $connection_type->getEndpointFields($entity->getEntityTypeId());
-      // Use first endpoint only.
-      $endpoint = current($endpoints);
-
-      // @todo Don't hardcode the endpoint names.
-      $shared_endpoint = ($endpoint == 'endpoint_1') ? 'endpoint_2' : 'endpoint_1';
-
-      // Build our subquery first.
-      $join_query = $this->connection->select('redhen_connection', 'sub');
-      $join_query->addField('sub', 'id');
-      $join_query->addField('sub', 'type');
-      $join_query->addField('sub', $endpoint);
-      $join_query->addField('sub', $shared_endpoint);
-      $join_query->condition('sub.' . $endpoint, $entity2->id());
-
-      // Base table is filtered on the first entity's id.
-      $query = $this->connection->select('redhen_connection', 'c');
-      $query->addField('c', 'id');
-      $query->condition('c. ' . $endpoint, $entity->id());
-
-      // If we're filtering on active connections (default) limit status.
-      if ($active) {
-        $join_query->condition('sub.status', 1);
-        $query->condition('c.status', 1);
-      }
-
-      // Join on type and endpoint match. Can't pass $endpoint as argument
-      // because it will be automatically wrapped in quotes and break the SQL.
-      $query->innerJoin($join_query, 'c2', 'c.type = c2.type AND c.' . $shared_endpoint . ' = c2.' . $shared_endpoint);
-
-      $result = $query->execute();
-
-      $type_results = $result->fetchCol(0);
-      $results = array_merge($results, $type_results);
-    }
-
-    $connections = [];
-    if (!empty($results)) {
-      $connections = Connection::loadMultiple($results);
-    }
-
-    // This is returning the specific connection.
-    // @todo for reference connections it needs to check for plugins and determine if a connection would be made by another entity type
-    // because at this point we have a node, but the connection is to an org.
-    return $connections;
-  }
-
-  /**
    * {@inheritDoc}
    */
   public function checkConnectionPermission(EntityInterface $endpoint1, EntityInterface $endpoint2, $operation, $permission_key) {
