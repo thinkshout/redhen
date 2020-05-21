@@ -130,7 +130,7 @@ class ConnectionService implements ConnectionServiceInterface {
   /**
    * {@inheritdoc}
    */
-  public function getConnections(EntityInterface $entity, EntityInterface $entity2 = NULL, $connection_type = NULL, $active = TRUE, $sort = [], $offset = 0, $limit = 0) {
+  public function getConnections(EntityInterface $entity, EntityInterface $entity2 = NULL, $connection_type = NULL, $active = TRUE, array $sort = [], $offset = 0, $limit = 0) {
     $connections = [];
 
     $query = $this->buildQuery($entity, $entity2, $connection_type, $active);
@@ -257,7 +257,7 @@ class ConnectionService implements ConnectionServiceInterface {
   /**
    * {@inheritDoc}
    */
-  public function checkConnectionPermission(EntityInterface $endpoint1, $endpoint2, $operation, $permission_key) {
+  public function checkConnectionPermission(EntityInterface $endpoint1, EntityInterface $endpoint2, $operation, $permission_key) {
     $connections = $this->getConnections($endpoint1, $endpoint2);
     foreach ($connections as $connection) {
       /** @var \Drupal\redhen_connection\Entity\ConnectionInterface $connection */
