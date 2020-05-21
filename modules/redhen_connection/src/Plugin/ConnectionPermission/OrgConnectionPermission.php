@@ -31,14 +31,7 @@ class OrgConnectionPermission extends ConnectionPermissionBase implements Connec
   /**
    * {@inheritdoc}
    */
-  public function getInfluencer(EntityInterface $subject_entity) {}
-
-  /**
-   * {@inheritdoc}
-   */
   public function hasRolePermissions(EntityInterface $subject_entity, $operation, Contact $contact) {
-    // @todo how to include the service in a more abstract way?
-    $redhenConnectionConnections = \Drupal::service('redhen_connection.connections');
-    return $redhenConnectionConnections->checkConnectionPermission($contact, $subject_entity, $operation, $this->getPermissionKey());
+    return $this->redhenConnectionConnections->checkConnectionPermission($contact, $subject_entity, $operation, $this->getPermissionKey());
   }
 }

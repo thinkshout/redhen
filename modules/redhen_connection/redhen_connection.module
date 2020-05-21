@@ -100,7 +100,10 @@ function redhen_connection_entity_access(EntityInterface $entity, $operation, Ac
         }
       }
       $contact = Contact::loadByUser($account);
-      return $plugin_instance->hasRolePermissions($entity, $operation, $contact);
+      // @todo do we need to return neutral if no contact exists?
+      if ($contact) {
+        return $plugin_instance->hasRolePermissions($entity, $operation, $contact);
+      }
     }
   }
 

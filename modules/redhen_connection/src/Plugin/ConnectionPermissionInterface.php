@@ -25,10 +25,10 @@ interface ConnectionPermissionInterface extends PluginInspectionInterface {
    * @param \Drupal\Core\Entity\EntityInterface $subject_entity
    *   The subject entity.
    *
-   * @return \Drupal\Core\Entity\EntityInterface
-   *   Entity that influences the access of the subject entity
+   * @return array
+   *   An array of Entities that influence the access of the subject entity.
    */
-  public function getInfluencer(EntityInterface $subject_entity);
+  public function getInfluencers(EntityInterface $subject_entity);
 
   /**
    * Determine if the contact execute the operation on the subject entity.
