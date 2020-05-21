@@ -4,8 +4,6 @@ namespace Drupal\redhen_connection;
 
 use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Entity\EntityChangedInterface;
-use Drupal\Core\Entity\EntityInterface;
-use Drupal\redhen_contact\ContactInterface;
 
 /**
  * Provides an interface for defining Connection entities.
@@ -13,6 +11,7 @@ use Drupal\redhen_contact\ContactInterface;
  * @ingroup redhen_connection
  */
 interface ConnectionInterface extends ContentEntityInterface, EntityChangedInterface {
+
   /**
    * Gets the Connection type.
    *

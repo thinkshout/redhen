@@ -4,7 +4,6 @@ namespace Drupal\redhen_connection\Plugin;
 
 use Drupal\Component\Plugin\PluginBase;
 use Drupal\Core\Entity\EntityInterface;
-use Drupal\redhen_connection\ConnectionService;
 use Drupal\redhen_contact\Entity\Contact;
 
 /**
@@ -16,10 +15,9 @@ class ConnectionPermissionBase extends PluginBase implements ConnectionPermissio
   /**
    * Connection Service.
    *
-   * @var ConnectionService
+   * @var \Drupal\redhen_connection\ConnectionService
    */
   public $redhenConnectionConnections;
-
 
   /**
    * {@inheritDoc}
@@ -48,8 +46,12 @@ class ConnectionPermissionBase extends PluginBase implements ConnectionPermissio
 
   /**
    * Get values from plugin definition.
-   * @param $value
-   * @return mixed
+   *
+   * @param string $value
+   *   The plugin definition key to check for.
+   *
+   * @return string
+   *   The definition.
    */
   public function get($value) {
     return $this->pluginDefinition[$value];

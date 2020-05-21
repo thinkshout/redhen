@@ -33,16 +33,16 @@ interface ConnectionPermissionInterface extends PluginInspectionInterface {
   /**
    * Determine if the contact execute the operation on the subject entity.
    *
-   * @param EntityInterface $subject_entity
+   * @param \Drupal\Core\Entity\EntityInterface $subject_entity
    *   The entity that is being accessed.
    * @param string $operation
    *   The operation that is being performed (view, update, delete, view label).
-   * @param Contact $contact
+   * @param \Drupal\redhen_contact\Entity\Contact $contact
    *   The Redhen contact object.
+   *
    * @return bool
    *   True is access is allowed, false if neutral.
    */
   public function hasRolePermissions(EntityInterface $subject_entity, $operation, Contact $contact);
-
 
 }

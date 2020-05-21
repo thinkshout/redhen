@@ -2,16 +2,14 @@
 
 namespace Drupal\redhen_connection\Plugin\ConnectionPermission;
 
-use Drupal\Core\Access\AccessResultAllowed;
-use Drupal\redhen_connection\ConnectionInterface;
 use Drupal\redhen_connection\Plugin\ConnectionPermissionBase;
 use Drupal\redhen_connection\Plugin\ConnectionPermissionInterface;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\redhen_contact\Entity\Contact;
-use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
+ * Provides permission for access to connected redhen_orgs.
+ *
  * @ConnectionPermission(
  *  id = "org_connection_permission",
  *  label = @Translation("Organization"),
@@ -23,7 +21,9 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  */
 class OrgConnectionPermission extends ConnectionPermissionBase implements ConnectionPermissionInterface {
 
-
+  /**
+   * {@inheritDoc}
+   */
   public function getPermissionKey() {
     return 'org';
   }
@@ -34,4 +34,5 @@ class OrgConnectionPermission extends ConnectionPermissionBase implements Connec
   public function hasRolePermissions(EntityInterface $subject_entity, $operation, Contact $contact) {
     return $this->redhenConnectionConnections->checkConnectionPermission($contact, $subject_entity, $operation, $this->getPermissionKey());
   }
+
 }

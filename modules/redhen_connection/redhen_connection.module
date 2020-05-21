@@ -8,9 +8,7 @@
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\Core\Session\AccountInterface;
-use Drupal\redhen_connection\ConnectionInterface;
 use Drupal\redhen_connection\Entity\ConnectionType;
-use Drupal\redhen_connection\Access\ConnectionAccessResult;
 use Drupal\redhen_contact\Entity\Contact;
 
 /**
@@ -64,7 +62,7 @@ function redhen_connection_theme() {
 }
 
 /**
- * Return an associative array of Connection types to be used as an options list.
+ * Return an array of Connection types to be used as an options list.
  *
  * @return array
  *   Keyed by name with a label value.
@@ -80,12 +78,6 @@ function redhen_connection_type_options_list() {
 
 /**
  * Implements hook_entity_access().
- *
- * @param \Drupal\Core\Entity\EntityInterface $entity
- * @param String $operation
- * @param \Drupal\Core\Session\AccountInterface $account
- *
- * @return mixed
  */
 function redhen_connection_entity_access(EntityInterface $entity, $operation, AccountInterface $account) {
 
@@ -111,11 +103,9 @@ function redhen_connection_entity_access(EntityInterface $entity, $operation, Ac
 
 /**
  * Implements hook_entity_update().
- * @todo replace with event dispatcher/subscribers.
- *
- * @param \Drupal\Core\Entity\EntityInterface $entity
  */
 function redhen_connection_entity_update(EntityInterface $entity) {
+  // @todo replace with event dispatcher/subscribers.
   // When updating contacts and orgs, check if they've been made inactive and
   // set their associated connections to inactive.
   if (in_array($entity->getEntityTypeId(), ['redhen_contact', 'redhen_org']) &&
@@ -125,7 +115,7 @@ function redhen_connection_entity_update(EntityInterface $entity) {
       // Get active connections for this entity.
       $connections = \Drupal::service('redhen_connection.connections')->getConnections($entity, NULL, NULL, TRUE);
       foreach ($connections as $connection) {
-        /** @var ConnectionInterface $connection */
+        /** @var \Drupal\redhen_connection\ConnectionInterface $connection */
         $connection->setActive(FALSE);
         $connection->save();
       }
@@ -135,16 +125,14 @@ function redhen_connection_entity_update(EntityInterface $entity) {
 
 /**
  * Implements hook_entity_delete().
- * @todo replace with event dispatcher/subscribers.
- *
- * @param \Drupal\Core\Entity\EntityInterface $entity
  */
 function redhen_connection_entity_delete(EntityInterface $entity) {
+  // @todo replace with event dispatcher/subscribers.
   // When deleting contacts and orgs, also delete their connections.
   if (in_array($entity->getEntityTypeId(), ['redhen_contact', 'redhen_org'])) {
     $connections = \Drupal::service('redhen_connection.connections')->getConnections($entity, NULL, NULL, FALSE);
     foreach ($connections as $connection) {
-      /** @var ConnectionInterface $connection */
+      /** @var \Drupal\redhen_connection\ConnectionInterface $connection */
       $connection->delete();
     }
   }

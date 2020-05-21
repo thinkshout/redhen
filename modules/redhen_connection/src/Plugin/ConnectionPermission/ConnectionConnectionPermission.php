@@ -9,8 +9,9 @@ use Drupal\redhen_connection\Plugin\ConnectionPermissionBase;
 use Drupal\redhen_connection\Plugin\ConnectionPermissionInterface;
 use Drupal\Core\Entity\EntityInterface;
 
-
 /**
+ * Provide permissions for the connection entity of a redhen_connection.
+ *
  * @ConnectionPermission(
  *  id = "connection_connection_permission",
  *  label = @Translation("Connection"),
@@ -20,43 +21,46 @@ use Drupal\Core\Entity\EntityInterface;
  *  influencer_entity_type = "",
  * )
  */
-class ConnectionConnectionPermission extends ConnectionPermissionBase implements ConnectionPermissionInterface{
+class ConnectionConnectionPermission extends ConnectionPermissionBase implements ConnectionPermissionInterface {
 
-    /** @var \Drupal\Core\Entity\EntityInterface */
-    private $contact;
+  /**
+   * A Redhen Contact Object.
+   *
+   * @var \Drupal\Core\Entity\EntityInterface
+   */
+  private $contact;
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getPermissionKey() {
-      return 'connection';
-    }
+  /**
+   * {@inheritdoc}
+   */
+  public function getPermissionKey() {
+    return 'connection';
+  }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getInfluencers(EntityInterface $subject_entity) {
-      // Return the connections for the current contact and any
-      return $this->redhenConnectionConnections->getConnectedEntities($this->contact, $subject_entity->getType());
-    }
+  /**
+   * {@inheritdoc}
+   */
+  public function getInfluencers(EntityInterface $subject_entity) {
+    // Return the connections for the current contact and any.
+    return $this->redhenConnectionConnections->getConnectedEntities($this->contact, $subject_entity->getType());
+  }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function hasRolePermissions(EntityInterface $subject_entity, $operation, Contact $contact) {
-      $this->contact = $contact;
-      // Only check permissions for connections that are of a type with contacts.
-      $connection_type = ConnectionType::load($subject_entity->getType());
-      if ($connection_type->getEndpointEntityTypeId(1) == 'redhen_contact' || $connection_type->getEndpointEntityTypeId(2) == 'redhen_contact') {
-        //
-        $influencers = $this->getInfluencers($subject_entity);
-        if ($influencers) {
-          $influencer = reset($influencers);
-          return $this->redhenConnectionConnections->checkConnectionPermission($contact, $influencer, $operation, $this->getPermissionKey());
-        }
+  /**
+   * {@inheritdoc}
+   */
+  public function hasRolePermissions(EntityInterface $subject_entity, $operation, Contact $contact) {
+    $this->contact = $contact;
+    // Only check permissions for connections that are of a type with contacts.
+    $connection_type = ConnectionType::load($subject_entity->getType());
+    if ($connection_type->getEndpointEntityTypeId(1) == 'redhen_contact' || $connection_type->getEndpointEntityTypeId(2) == 'redhen_contact') {
+      $influencers = $this->getInfluencers($subject_entity);
+      if ($influencers) {
+        $influencer = reset($influencers);
+        return $this->redhenConnectionConnections->checkConnectionPermission($contact, $influencer, $operation, $this->getPermissionKey());
       }
-
-      return new AccessResultNeutral();
     }
+
+    return new AccessResultNeutral();
+  }
 
 }

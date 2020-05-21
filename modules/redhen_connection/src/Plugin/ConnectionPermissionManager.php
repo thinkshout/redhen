@@ -11,7 +11,6 @@ use Drupal\Core\Extension\ModuleHandlerInterface;
  */
 class ConnectionPermissionManager extends DefaultPluginManager {
 
-
   /**
    * Constructs a new ConnectionPermissionManager object.
    *

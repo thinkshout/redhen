@@ -8,11 +8,10 @@ use Drupal\Core\Database\Connection as DBConnection;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Entity\Query\QueryFactory;
-use Drupal\Core\Entity\Query\QueryInterface;
-use Drupal\Core\Session\AccountInterface;
 use Drupal\redhen_connection\Entity\ConnectionType;
 use Drupal\redhen_connection\Entity\Connection;
-use Drupal\redhen_contact\Entity\Contact;
+use phpDocumentor\Reflection\Types\Null_;
+use phpDocumentor\Reflection\Types\Nullable;
 
 /**
  * Provides an interface for getting connections between entities.
@@ -98,7 +97,7 @@ class ConnectionService implements ConnectionServiceInterface {
     $entity_type = $entity->getEntityTypeId();
 
     if (empty($entity2)) {
-      // Single entity provided
+      // Single entity provided.
       $or_group->condition('endpoints.1.entity_type', $entity_type);
       $or_group->condition('endpoints.2.entity_type', $entity_type);
     }
@@ -206,7 +205,7 @@ class ConnectionService implements ConnectionServiceInterface {
 
     $results = [];
     foreach ($types as $type_id => $connection_type) {
-      /** @var ConnectionType $connection_type */
+      /** @var \Drupal\redhen_connection\Entity\ConnectionType $connection_type */
       // Get endpoints (usually 1, but two possible).
       $endpoints = $connection_type->getEndpointFields($entity->getEntityTypeId());
       // Use first endpoint only.
@@ -226,7 +225,7 @@ class ConnectionService implements ConnectionServiceInterface {
       // Base table is filtered on the first entity's id.
       $query = $this->connection->select('redhen_connection', 'c');
       $query->addField('c', 'id');
-      $query->condition('c. '. $endpoint, $entity->id());
+      $query->condition('c. ' . $endpoint, $entity->id());
 
       // If we're filtering on active connections (default) limit status.
       if ($active) {
@@ -256,12 +255,12 @@ class ConnectionService implements ConnectionServiceInterface {
   }
 
   /**
-   * {@inheritdoc}
+   * {@inheritDoc}
    */
   public function checkConnectionPermission(EntityInterface $endpoint1, $endpoint2, $operation, $permission_key) {
     $connections = $this->getConnections($endpoint1, $endpoint2);
     foreach ($connections as $connection) {
-      /** @var ConnectionInterface $connection */
+      /** @var \Drupal\redhen_connection\Entity\ConnectionInterface $connection */
       $role = $connection->get('role')->entity;
       if (!$role) {
         return FALSE;
@@ -275,7 +274,7 @@ class ConnectionService implements ConnectionServiceInterface {
   }
 
   /**
-   * {@inhertitdoc}
+   * {@inheritDoc}
    */
   public function getAllConnectionEntityTypes() {
     // Load all connection types.
@@ -309,21 +308,24 @@ class ConnectionService implements ConnectionServiceInterface {
   }
 
   /**
+   * Build a connection query.
+   *
    * @param \Drupal\Core\Entity\EntityInterface $entity
    *   The entity we're querying against.
    * @param \Drupal\Core\Entity\EntityInterface $entity2
    *   The second entity we're querying against.
-   * @param null $connection_type
+   * @param string $connection_type
    *   Limit query to this connection type.
    * @param bool $active
    *   Only active connections.
    *
-   * @return QueryInterface
+   * @return \Drupal\Core\Entity\Query\QueryInterface|bool
+   *   A query object or false.
    */
   private function buildQuery(EntityInterface $entity, EntityInterface $entity2 = NULL, $connection_type = NULL, $active = TRUE) {
     $types = ($connection_type) ? [$connection_type => ConnectionType::load($connection_type)] : $this->getConnectionTypes($entity, $entity2);
 
-    /** @var QueryInterface $query */
+    /** @var \Drupal\Core\Entity\Query\QueryInterface $query */
     $query = $this->entityQuery->get('redhen_connection');
 
     // Add condition for the connection status.
@@ -348,10 +350,9 @@ class ConnectionService implements ConnectionServiceInterface {
     $endpoints_group = $query->orConditionGroup();
 
     // @todo Might instead be able to query against endpoint_1.entity.type, etc.
-
     // Build endpoint groups.
     foreach ($types as $type => $connection_type) {
-      /** @var ConnectionTypeInterface $connection_type */
+      /** @var \Drupal\redhen_connection\Entity\ConnectionTypeInterface $connection_type */
       $endpoints = [];
       $endpoints[$entity_type] = $connection_type->getEndpointFields($entity_type);
 
@@ -365,14 +366,14 @@ class ConnectionService implements ConnectionServiceInterface {
         $endpoints[$entity_type2] = $connection_type->getEndpointFields($entity_type2);
 
         foreach ($endpoints as $endpoint_type => $endpoint_fields) {
-          for ($x=0; $x < count($endpoint_fields); $x++) {
+          for ($x = 0; $x < count($endpoint_fields); $x++) {
             $group->condition($endpoint_fields[$x], $entities[$endpoint_type][$x]->id());
           }
           // Endpoints are of the same type so we need to add an additional
           // condition for the reverse structure.
           if ($x > 1) {
             $group2 = $query->orConditionGroup();
-            for ($x=count($endpoint_fields) - 1; $x >= 0; $x--) {
+            for ($x = count($endpoint_fields) - 1; $x >= 0; $x--) {
               $group2->condition($endpoint_fields[$x], $entities[$endpoint_type][$x]->id());
             }
             $group = $query->orConditionGroup()

@@ -2,9 +2,7 @@
 
 namespace Drupal\redhen_connection;
 
-use Drupal\Core\Access\AccessResultInterface;
 use Drupal\Core\Entity\EntityInterface;
-use Drupal\Core\Session\AccountInterface;
 
 /**
  * Provides an interface for getting connections between entities.
@@ -12,7 +10,7 @@ use Drupal\Core\Session\AccountInterface;
 interface ConnectionServiceInterface {
 
   /**
-   * Filters an entity list to just bundle definitions for entities with connection types.
+   * Filters entity list to bundle definitions for entities w/ connection types.
    *
    * @param EntityTypeInterface[] $entity_types
    *   The master entity type list filter.
@@ -23,22 +21,24 @@ interface ConnectionServiceInterface {
   public function getConnectionEntityTypes(array $entity_types);
 
   /**
-   * Returns the connection types that can be connected to a single entity or two
-   * entities.
+   * Returns connection types that can be connected to 1 or 2 entities.
    *
    * @param \Drupal\Core\Entity\EntityInterface $entity
+   *   Entity 1.
    * @param \Drupal\Core\Entity\EntityInterface $entity2
+   *   Entity 2.
    *
    * @return array
+   *   Connection types that can be used between the 1 or 2 entities.
    */
   public function getConnectionTypes(EntityInterface $entity, EntityInterface $entity2 = NULL);
 
   /**
    * Returns the connections to this entity.
    *
-   * @param EntityInterface $entity
+   * @param \Drupal\Core\Entity\EntityInterface $entity
    *   The entity we're querying against.
-   * @param EntityInterface $entity2
+   * @param \Drupal\Core\Entity\EntityInterface $entity2
    *   The second entity we're querying against.
    * @param string $connection_type
    *   (optional) Limit returned connections to this type.
@@ -46,7 +46,7 @@ interface ConnectionServiceInterface {
    *   (optional) Return only active connections.
    * @param array $sort
    *   (optional) Associative array of field to sort by and direction:
-   *   e.g. ['field_name'] => 'DESC'
+   *   e.g. ['field_name'] => 'DESC'.
    * @param int $offset
    *   The number of records to offset results by.
    * @param int $limit
@@ -55,14 +55,14 @@ interface ConnectionServiceInterface {
    * @return array
    *   The Connection entities connected to this entity.
    */
-  public function getConnections(EntityInterface $entity, EntityInterface $entity2 = NULL, $connection_type = NULL, $active = TRUE, $sort = [], $offset = 0, $limit = 0);
+  public function getConnections(EntityInterface $entity, EntityInterface $entity2 = NULL, $connection_type = NULL, $active = TRUE, array $sort = [], $offset = 0, $limit = 0);
 
   /**
    * Returns the number of connections to this entity.
    *
-   * @param EntityInterface $entity
+   * @param \Drupal\Core\Entity\EntityInterface $entity
    *   The entity we're querying against.
-   * @param EntityInterface $entity2
+   * @param \Drupal\Core\Entity\EntityInterface $entity2
    *   The entity we're querying against.
    * @param string $connection_type
    *   (optional) Limit returned connections to this type.
@@ -75,9 +75,9 @@ interface ConnectionServiceInterface {
   /**
    * Returns the indirect connections to this entity.
    *
-   * @param EntityInterface $entity
+   * @param \Drupal\Core\Entity\EntityInterface $entity
    *   The entity we're querying against.
-   * @param EntityInterface $entity2
+   * @param \Drupal\Core\Entity\EntityInterface $entity2
    *   The second entity we're querying against.
    * @param string $connection_type
    *   (optional) Limit returned connections to this type.
@@ -92,7 +92,7 @@ interface ConnectionServiceInterface {
   /**
    * Returns the other entities that are connected to this entity.
    *
-   * @param EntityInterface $entity
+   * @param \Drupal\Core\Entity\EntityInterface $entity
    *   The entity we're querying against.
    * @param string $connection_type
    *   (optional) Limit returned entities to ones connected via this type.
@@ -103,20 +103,21 @@ interface ConnectionServiceInterface {
   public function getConnectedEntities(EntityInterface $entity, $connection_type = NULL);
 
   /**
-   * Check access to an entity via its connections and the current users connection roles.
+   * Check entity access via its connections & current user's connection roles.
    *
    * @param \Drupal\Core\Entity\EntityInterface $endpoint1
    *   Endpoint 1 of the connection.
    * @param \Drupal\Core\Entity\EntityInterface $endpoint2
    *   Endpoint 2 of the connection.
-   * @param $operation
+   * @param string $operation
    *   The entity operation (view, view label, update, delete, create)
    * @param string $permission_key
    *   Key for checking permissions against.
    *
-   * @return AccessResultInterface
+   * @return \Drupal\Core\Access\AccessResultInterface
+   *   Access result, either neutral or allowed.
    */
-  public function checkConnectionPermission(EntityInterface $endpoint1, $endpoint2, $operation, $permission_key);
+  public function checkConnectionPermission(EntityInterface $endpoint1, EntityInterface $endpoint2, $operation, $permission_key);
 
   /**
    * Get all entities that are used in connections.
@@ -125,4 +126,5 @@ interface ConnectionServiceInterface {
    *   An array of entity_types.
    */
   public function getAllConnectionEntityTypes();
+
 }

@@ -4,7 +4,6 @@ namespace Drupal\redhen_connection\Form;
 
 use Drupal\Core\Entity\EntityForm;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\redhen_connection\ConnectionTypeInterface;
 
 /**
  * Class ConnectionRoleForm.
@@ -39,7 +38,7 @@ class ConnectionRoleForm extends EntityForm {
     ];
 
     // Permissions.
-    /** @var ConnectionTypeInterface $connection_type */
+    /** @var \Drupal\redhen_connection\ConnectionTypeInterface $connection_type */
     $connection_type = $this->getEntityFromRouteMatch($this->getRouteMatch(), 'redhen_connection_type');
 
     // @todo Change getEndpointEntityTypeId to Ids and take no argument to get all endpoints.
@@ -54,11 +53,16 @@ class ConnectionRoleForm extends EntityForm {
         '#title' => $this->t('Permissions'),
       ];
       // Field operations.
-      $operations = ['view' => $this->t('View'), 'view label' => $this->t('View label'), 'update' => $this->t('Update'), 'delete' => $this->t('Delete')];
+      $operations = [
+        'view' => $this->t('View'),
+        'view label' => $this->t('View label'),
+        'update' => $this->t('Update'),
+        'delete' => $this->t('Delete'),
+      ];
       // Existing values.
       $existing_permissions = $redhen_connection_role->get('permissions');
 
-      // Load up plugin definitions
+      // Load up plugin definitions.
       $connection_plugin_manager = \Drupal::service('plugin.manager.connection_permission');
       $plugin_definitions = $connection_plugin_manager->getDefinitions();
 
@@ -89,7 +93,7 @@ class ConnectionRoleForm extends EntityForm {
     // Set connection type property based on the route param.
     $redhen_connection_role->set('connection_type', $connection_type->id());
 
-    // Load up plugin definitions
+    // Load up plugin definitions.
     $connection_plugin_manager = \Drupal::service('plugin.manager.connection_permission');
     $plugin_definitions = $connection_plugin_manager->getDefinitions();
 
