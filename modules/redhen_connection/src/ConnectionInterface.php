@@ -64,15 +64,4 @@ interface ConnectionInterface extends ContentEntityInterface, EntityChangedInter
    */
   public function setActive($active);
 
-  /**
-   * Check an operation permission against a connection.
-   *
-   * @param \Drupal\Core\Entity\EntityInterface $entity
-   * @param string $operation
-   * @param \Drupal\redhen_contact\ContactInterface|NULL $contact
-   *
-   * @return bool
-   */
-  public function hasRolePermission(EntityInterface $entity, $operation, ContactInterface $contact = NULL);
-
 }

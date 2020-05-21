@@ -107,39 +107,6 @@ function redhen_connection_entity_access(EntityInterface $entity, $operation, Ac
       }
     }
   }
-
-// @todo remove when orgs and contacts are covered by the above logic.
-//  if (in_array($entity->getEntityTypeId(), ['redhen_contact', 'redhen_org'])){
-//    // Only check/grant access to active contacts and orgs.
-//    if ($entity->isActive()) {
-//      return ConnectionAccessResult::allowedIfHasConnectionPermission($entity, $account, $operation);
-//    }
-//  }
-
-// @todo remove when connections are covered by the above.
-//  if ($entity->getEntityTypeId() == 'redhen_connection' && $entity->isActive()) {
-//    // Allow access to a connection via indirectly connected redhen_contact
-//    // entity if the contact associated with the current user is connected to
-//    // the indirectly connected contact.
-//
-//    // Get redhen_contact endpoint fields from the connection type.
-//    $connection_type = ConnectionType::load($entity->bundle());
-//    $contact_endpoint_fields = $connection_type->getEndpointFields('redhen_contact');
-//    // Loop over contact fields and get the indirectly connected contact entity.
-//    foreach ($contact_endpoint_fields as $contact_endpoint_field) {
-//      $contact = $entity->get($contact_endpoint_field)->entity;
-//      // If we get a contact, check if the contact associated with the current
-//      // user is connected to it, is active and has access.
-//      if ($contact && $contact->isActive()) {
-//        // @todo - add connection type to this call so we don't allow access if
-//        // any connection type allows the passed operation - will require
-//        // updating the function to take the additional parameter
-//        return ConnectionAccessResult::allowedIfHasConnectionPermission($contact, $account, $operation);
-//      }
-//    }
-//  }
-//
-//  return ConnectionAccessResult::neutral();
 }
 
 /**
