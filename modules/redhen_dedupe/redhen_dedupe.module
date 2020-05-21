@@ -11,7 +11,7 @@
  * @return array
  *   Array of objects containing first, last, and ids.
  */
-function redhen_dedupe_get_duplicates($base_fields = array(), $fields = array(), $active = TRUE) {
+function redhen_dedupe_get_duplicates($base_fields = [], $fields = [], $active = TRUE) {
   $query = $query = \Drupal::database()->select('redhen_contact', 'rc');
   $query->addTag('redhen_dedupe');
   $query->addExpression('COUNT(*)', 'count');
@@ -37,7 +37,7 @@ function redhen_dedupe_get_duplicates($base_fields = array(), $fields = array(),
     $query->groupBy($base_field);
   }
   // To prevent adding the same field twice, we loop through all fields:
-  $join_fields = array();
+  $join_fields = [];
   foreach ($fields as $field) {
     $field_pieces = explode(':', $field);
     $field = array_shift($field_pieces);
@@ -47,7 +47,7 @@ function redhen_dedupe_get_duplicates($base_fields = array(), $fields = array(),
     $query->leftJoin('redhen_contact__' . $field, $field, $field . '.entity_id = rc.id');
   }
   $bundles = \Drupal::service('entity_type.bundle.info')->getBundleInfo('redhen_contact');
-  $info = array();
+  $info = [];
   foreach (array_keys($bundles) as $bundle) {
     $info['base_field'] = \Drupal::service('entity_field.manager')->getBaseFieldDefinitions('redhen_contact', $bundle);
     $info['field'] = array_diff_key(\Drupal::service('entity_field.manager')->getFieldDefinitions('redhen_contact', $bundle), $info['base_field']);
@@ -71,19 +71,19 @@ function redhen_dedupe_get_duplicates($base_fields = array(), $fields = array(),
  * Implements hook_theme().
  */
 function redhen_dedupe_theme($existing, $type, $theme, $path) {
-  return array(
-    'redhen_dedupe_form_table' => array(
+  return [
+    'redhen_dedupe_form_table' => [
       'render element' => 'elements',
       'file' => 'redhen_dedupe.theme.inc',
-    ),
-  );
+    ],
+  ];
 }
 
 /**
  * Helper function for setting stubborn field collection fields.
  */
 function _redhen_dedupe_set_field_collection_value($entity, $field, $value) {
-  $fc_item = \Drupal::entityManager()->getStorage('field_collection_item')->create(array('field_name' => $field));
+  $fc_item = \Drupal::entityManager()->getStorage('field_collection_item')->create(['field_name' => $field]);
   $fc_item->setHostEntity('redhen_contact', $entity);
   $fc_item_wrapper = entity_metadata_wrapper('field_collection_item', $fc_item);
   $val_wrapper = entity_metadata_wrapper('field_collection_item', $value);

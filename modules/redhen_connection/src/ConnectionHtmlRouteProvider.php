@@ -13,6 +13,7 @@ use Symfony\Component\Routing\Route;
  * @see Drupal\Core\Entity\Routing\DefaultHtmlRouteProvider
  */
 class ConnectionHtmlRouteProvider extends DefaultHtmlRouteProvider {
+
   /**
    * {@inheritdoc}
    */
@@ -25,12 +26,17 @@ class ConnectionHtmlRouteProvider extends DefaultHtmlRouteProvider {
       $collection->add("entity.{$entity_type_id}.collection", $collection_route);
     }
 
-    if ($add_form_route = $this->getAddFormRoute($entity_type)) {
-      $collection->add("entity.{$entity_type_id}.add_form", $add_form_route);
+    // Get all connection form and add routes.
+    if ($add_entity_page_routes = $this->getAddEntityRoutes($entity_type)) {
+      foreach ($add_entity_page_routes as $entity_type_key => $entity_page_routes) {
+        if ($entity_page_routes['form']) {
+          $collection->add("$entity_type_key.connection.add_form", $entity_page_routes['form']);
+        }
+        if ($entity_page_routes['add']) {
+          $collection->add("$entity_type_key.connection.add_page", $entity_page_routes['add']);
+        }
+      }
     }
-
-    $add_page_route = $this->getAddPageRoute($entity_type);
-    $collection->add("$entity_type_id.add_page", $add_page_route);
 
     if ($settings_form_route = $this->getSettingsFormRoute($entity_type)) {
       $collection->add("$entity_type_id.settings", $settings_form_route);
@@ -101,30 +107,58 @@ class ConnectionHtmlRouteProvider extends DefaultHtmlRouteProvider {
   }
 
   /**
-   * Gets the add page route.
+   * Gets all entity type add connection routes.
    *
-   * @param \Drupal\Core\Entity\EntityTypeInterface $entity_type
+   * @param \Drupal\Core\Entity\EntityTypeInterface $connection_entity_type
    *   The entity type.
    *
-   * @return \Symfony\Component\Routing\Route|null
-   *   The generated route, if available.
+   * @return array
+   *   An array of routes keyed with "form" and "add", if available.
    */
-  protected function getAddPageRoute(EntityTypeInterface $entity_type) {
-    $route = new Route("/redhen/{redhen_type}/{entity}/connection/add");
-    $parameters = [
-      'redhen_type' => ['type' => 'redhen_type'],
-      'entity' => ['type' => 'entity:{redhen_type}'],
-    ];
-    $route
-      ->setOption('parameters', $parameters);
-    $route
-      ->setDefaults([
-        '_controller' => 'Drupal\redhen_connection\Controller\ConnectionAddController::add',
-        '_title' => "Add {$entity_type->getLabel()}",
-      ])
-      ->setRequirement('_entity_create_access', $entity_type->id());
+  protected function getAddEntityRoutes(EntityTypeInterface $connection_entity_type) {
+    $routes = [];
+    $connection_entity_type_id = $connection_entity_type->id();
+    $service = \Drupal::service('redhen_connection.connections');
+    $entity_types = $service->getAllConnectionEntityTypes();
 
-    return $route;
+    // Iterate over each entity type to find connectable entities.
+    foreach ($entity_types as $type) {
+      if ($canonical = $type->getLinkTemplate('canonical')) {
+        $type_id = $type->id();
+
+        // Skip over redhen_connection entity types.
+        if ($type_id == 'redhen_connection_type' || $type_id == 'redhen_connection_role') {
+          continue;
+        }
+
+        // Build route parameters.
+        $parameters = [
+          $type_id => ['type' => 'entity:' . $type_id],
+        ];
+
+        $route[$type_id] = [];
+
+        // Add both form and add routes to routes array.
+        foreach (['form', 'add'] as $route_type) {
+          // Set specific values for form routes.
+          if ($route_type === 'form') {
+            $path = '/connection/add/{redhen_connection_type}';
+            $parameters[$connection_entity_type_id] = ['type' => 'entity:' . $connection_entity_type_id];
+            $controller = 'Drupal\redhen_connection\Controller\ConnectionAddController::addForm';
+            $title_callback = 'Drupal\redhen_connection\Controller\ConnectionAddController::getAddFormTitle';
+            $routes[$type_id]['form'] = $this->generateRoute($canonical, $path, $parameters, $controller, $title_callback, $connection_entity_type_id);
+          }
+          else {
+            $path = "/connection/add";
+            $controller = 'Drupal\redhen_connection\Controller\ConnectionAddController::add';
+            $title_callback = 'Drupal\redhen_connection\Controller\ConnectionAddController::getAddTitle';
+            $routes[$type_id]['add'] = $this->generateRoute($canonical, $path, $parameters, $controller, $title_callback, $connection_entity_type_id);
+          }
+        }
+      }
+    }
+
+    return $routes;
   }
 
   /**
@@ -148,6 +182,38 @@ class ConnectionHtmlRouteProvider extends DefaultHtmlRouteProvider {
 
       return $route;
     }
+  }
+
+  /**
+   * Generates a route based on the provided values.
+   *
+   * @param string $canonical
+   *   Canonical path of entity type.
+   * @param string $path
+   *   Path for this route.
+   * @param array $parameters
+   *   Parameters for the route.
+   * @param string $controller
+   *   Controller method for the route.
+   * @param string $title_callback
+   *   Title callback for the route.
+   * @param string $connection_entity_type_id
+   *   Connection entity type machine name.
+   *
+   * @return \Symfony\Component\Routing\Route
+   *   Drupal route object.
+   */
+  protected function generateRoute($canonical, $path, array $parameters, $controller, $title_callback, $connection_entity_type_id) {
+    $route = new Route($canonical . $path);
+    $route->setOption('parameters', $parameters);
+    $route
+      ->setDefaults([
+        '_controller' => $controller,
+        '_title_callback' => $title_callback,
+      ])
+      ->setOption('_admin_route', TRUE)
+      ->setRequirement('_entity_create_access', $connection_entity_type_id);
+    return $route;
   }
 
 }

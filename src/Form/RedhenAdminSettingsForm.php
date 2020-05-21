@@ -28,12 +28,12 @@ class RedhenAdminSettingsForm extends ConfigFormBase {
   public function buildForm(array $form, FormStateInterface $form_state) {
     $config = $this->config('redhen.settings');
 
-    $form['redhen_admin_path'] = array(
+    $form['redhen_admin_path'] = [
       '#title' => $this->t('Treat RedHen paths as administrative'),
       '#type' => 'checkbox',
       '#description' => $this->t('This is used by other modules to, for example, use the admin theme on RedHen paths.'),
       '#default_value' => $config->get('redhen_admin_path'),
-    );
+    ];
 
     return parent::buildForm($form, $form_state);
   }

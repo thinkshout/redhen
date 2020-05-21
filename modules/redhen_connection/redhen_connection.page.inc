@@ -43,26 +43,23 @@ function template_preprocess_redhen_connection(array &$variables) {
 * @see block_content_add_page()
 */
 function template_preprocess_redhen_connection_content_add_list(&$variables) {
-  $variables['types'] = array();
+  $variables['types'] = [];
   $entity = $variables['entity'];
-  // @todo abstract deriving the {redhen_type} param from the entity itself.
-  $entity_type = explode('_', $entity->getEntityType()->id());
-  $redhen_type = array_pop($entity_type);
+  $entity_type_id = $entity->getEntityType()->id();
   $query = \Drupal::request()->query->all();
   foreach ($variables['content'] as $type) {
-    $variables['types'][$type->id()] = array(
-      'link' => Link::fromTextAndUrl($type->label(), new Url('entity.redhen_connection.add_form', array(
-        'redhen_type' => $redhen_type,
-        'entity' => $entity->id(),
+    $variables['types'][$type->id()] = [
+      'link' => Link::fromTextAndUrl($type->label(), new Url($entity_type_id . '.connection.add_form', [
+        $entity_type_id => $entity->id(),
         'redhen_connection_type' => $type->id(),
-      ), array('query' => $query))),
-      'description' => array(
+      ], ['query' => $query])),
+      'description' => [
       '#markup' => $type->label(),
-      ),
+      ],
       'title' => $type->label(),
-      'localized_options' => array(
+      'localized_options' => [
       'query' => $query,
-      ),
-    );
+      ],
+    ];
   }
 }

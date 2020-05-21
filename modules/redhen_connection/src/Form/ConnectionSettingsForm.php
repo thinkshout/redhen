@@ -62,14 +62,14 @@ class ConnectionSettingsForm extends ConfigFormBase {
   public function buildForm(array $form, FormStateInterface $form_state) {
     $config = $this->config('redhen_connection.settings');
 
-    $form = array(
-      'auto_disable_connections' => array(
+    $form = [
+      'auto_disable_connections' => [
         '#type' => 'checkbox',
         '#title' => t('Automatically mark connections inactive when either of their endpoints are marked inactive'),
         '#description' => t('When a RedHen Organization or Contact is marked inactive, all of its connections will be marked inactive.'),
         '#default_value' => $config->get('auto_disable_connections'),
-      ),
-    );
+      ],
+    ];
 
     return parent::buildForm($form, $form_state);
   }

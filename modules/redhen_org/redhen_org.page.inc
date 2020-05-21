@@ -43,20 +43,20 @@ function template_preprocess_redhen_org(array &$variables) {
 * @see block_content_add_page()
 */
 function template_preprocess_redhen_org_content_add_list(&$variables) {
-  $variables['types'] = array();
+  $variables['types'] = [];
   $query = \Drupal::request()->query->all();
   foreach ($variables['content'] as $type) {
-    $variables['types'][$type->id()] = array(
-      'link' => Link::fromTextAndUrl($type->label(), new Url('entity.redhen_org.add_form', array(
+    $variables['types'][$type->id()] = [
+      'link' => Link::fromTextAndUrl($type->label(), new Url('entity.redhen_org.add_form', [
         'redhen_org_type' => $type->id()
-      ), array('query' => $query))),
-      'description' => array(
+      ], ['query' => $query])),
+      'description' => [
       '#markup' => $type->label(),
-      ),
+      ],
       'title' => $type->label(),
-      'localized_options' => array(
+      'localized_options' => [
       'query' => $query,
-      ),
-    );
+      ],
+    ];
   }
 }
