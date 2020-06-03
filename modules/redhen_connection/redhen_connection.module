@@ -5,6 +5,7 @@
  * Contains redhen_connection.module..
  */
 
+use Drupal\Core\Access\AccessResultNeutral;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\Core\Session\AccountInterface;
@@ -93,12 +94,13 @@ function redhen_connection_entity_access(EntityInterface $entity, $operation, Ac
         }
       }
       $contact = Contact::loadByUser($account);
-      // @todo do we need to return neutral if no contact exists?
       if ($contact) {
         return $plugin_instance->hasRolePermissions($entity, $operation, $contact);
       }
     }
   }
+
+  return new AccessResultNeutral();
 }
 
 /**

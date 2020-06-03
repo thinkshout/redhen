@@ -206,7 +206,7 @@ class ConnectionService implements ConnectionServiceInterface {
       /** @var \Drupal\redhen_connection\Entity\ConnectionInterface $connection */
       $role = $connection->get('role')->entity;
       if (!$role) {
-        return FALSE;
+        return new AccessResultNeutral();
       }
       $permissions = $role->get('permissions');
       if (is_array($permissions[$permission_key]) && in_array($operation, $permissions[$permission_key])) {

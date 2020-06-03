@@ -41,7 +41,7 @@ class ConnectionConnectionPermission extends ConnectionPermissionBase implements
    * {@inheritdoc}
    */
   public function getInfluencers(EntityInterface $subject_entity) {
-    // Return the connections for the current contact and any.
+    // Return the connections for current contact and the subject.
     return $this->redhenConnectionConnections->getConnectedEntities($this->contact, $subject_entity->getType());
   }
 
@@ -50,17 +50,23 @@ class ConnectionConnectionPermission extends ConnectionPermissionBase implements
    */
   public function hasRolePermissions(EntityInterface $subject_entity, $operation, Contact $contact) {
     $this->contact = $contact;
+    $access = new AccessResultNeutral();;
+
     // Only check permissions for connections that are of a type with contacts.
     $connection_type = ConnectionType::load($subject_entity->getType());
     if ($connection_type->getEndpointEntityTypeId(1) == 'redhen_contact' || $connection_type->getEndpointEntityTypeId(2) == 'redhen_contact') {
       $influencers = $this->getInfluencers($subject_entity);
       if ($influencers) {
-        $influencer = reset($influencers);
-        return $this->redhenConnectionConnections->checkConnectionPermission($contact, $influencer, $operation, $this->getPermissionKey());
+        foreach ($influencers as $influencer) {
+          $access = $this->redhenConnectionConnections->checkConnectionPermission($contact, $influencer, $operation, $this->getPermissionKey());
+          if ($access->isAllowed()) {
+            return $access;
+          }
+        }
       }
     }
 
-    return new AccessResultNeutral();
+    return $access;
   }
 
 }
