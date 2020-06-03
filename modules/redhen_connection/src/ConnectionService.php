@@ -259,68 +259,71 @@ class ConnectionService implements ConnectionServiceInterface {
       $connection_types = $this->getConnectionTypes($entity, $entity2);
     }
     else {
-      $connection_types = [$connection_type];
+      $connection_types = [ConnectionType::load($connection_type)];
     }
 
-    foreach ($connection_types as $type) {
-      if ($endpoint_fields = $type->getEndpointFields($entity_type)) {
-        $potential_endpoints[$type->id()]['entity1'] = $endpoint_fields;
+    if (!empty($connection_types)) {
+      foreach ($connection_types as $type) {
+        if ($endpoint_fields = $type->getEndpointFields($entity_type)) {
+          $potential_endpoints[$type->id()]['entity1'] = $endpoint_fields;
+        }
+
+        if ($entity2_type) {
+          if ($endpoint2_fields = $type->getEndpointFields($entity2_type)) {
+            $potential_endpoints[$type->id()]['entity2'] = $endpoint2_fields;
+          }
+        }
       }
 
-      if ($entity2_type) {
-        if ($endpoint2_fields = $type->getEndpointFields($entity2_type)) {
-          $potential_endpoints[$type->id()]['entity2'] = $endpoint2_fields;
+      $database = \Drupal::database();
+
+      foreach ($potential_endpoints as $connection_type => $endpoint_group) {
+
+        $query = $database->select('redhen_connection', 'rc')
+          ->fields('rc', ['id'])
+          ->condition('type', $connection_type);
+
+        if ($active) {
+          $query->condition('status', $active);
+        }
+
+        // Parent condition group.
+        $entityAndGroup = $query->andConditionGroup();
+
+        // Entity 1 Group.
+        $entity1Group = $query->orConditionGroup();
+        $entity1Group->condition($endpoint_group['entity1'][0], $entity->id());
+
+        // If there are multiple potential endpoints that match entity 1 type.
+        if (isset($endpoint_group['entity1'][1])) {
+          $entity1Group->condition($endpoint_group['entity1'][1], $entity->id());
+        }
+
+        $entityAndGroup->condition($entity1Group);
+
+        // Entity 2 Group.
+        if (isset($endpoint_group['entity2'])) {
+          $entity2Group = $query->orConditionGroup()
+            ->condition($endpoint_group['entity2'][0], $entity2->id());
+
+          // If there are multiple potential endpoints that match entity 2 type.
+          if (isset($endpoint_group['entity2'][1])) {
+            $entity2Group->condition($endpoint_group['entity2'][1], $entity2->id());
+          }
+
+          $entityAndGroup->condition($entity2Group);
+        }
+
+        $query->condition($entityAndGroup);
+        $results = $query->execute()->fetchCol();
+
+        // If there are matched results merge them into the result set.
+        if ($results) {
+          $connections_matches = array_unique(array_merge($connections_matches, $results));
         }
       }
     }
 
-    $database = \Drupal::database();
-
-    foreach ($potential_endpoints as $connection_type => $endpoint_group) {
-
-      $query = $database->select('redhen_connection', 'rc')
-        ->fields('rc', ['id'])
-        ->condition('type', $connection_type);
-
-      if ($active) {
-        $query->condition('status', $active);
-      }
-
-      // Parent condition group.
-      $entityAndGroup = $query->andConditionGroup();
-
-      // Entity 1 Group.
-      $entity1Group = $query->orConditionGroup();
-      $entity1Group->condition($endpoint_group['entity1'][0], $entity->id());
-
-      // If there are multiple potential endpoints that match entity 1 type.
-      if (isset($endpoint_group['entity1'][1])) {
-        $entity1Group->condition($endpoint_group['entity1'][1], $entity->id());
-      }
-
-      $entityAndGroup->condition($entity1Group);
-
-      // Entity 2 Group.
-      if (isset($endpoint_group['entity2'])) {
-        $entity2Group = $query->orConditionGroup()
-          ->condition($endpoint_group['entity2'][0], $entity2->id());
-
-        // If there are multiple potential endpoints that match entity 2 type.
-        if (isset($endpoint_group['entity2'][1])) {
-          $entity2Group->condition($endpoint_group['entity2'][1], $entity2->id());
-        }
-
-        $entityAndGroup->condition($entity2Group);
-      }
-
-      $query->condition($entityAndGroup);
-      $results = $query->execute()->fetchCol();
-
-      // If there are matched results merge them into the result set.
-      if ($results) {
-        $connections_matches = array_unique(array_merge($connections_matches, $results));
-      }
-    }
     return $connections_matches;
   }
 
