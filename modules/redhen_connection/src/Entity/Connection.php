@@ -5,13 +5,9 @@ namespace Drupal\redhen_connection\Entity;
 use Drupal\Core\Field\BaseFieldDefinition;
 use Drupal\Core\Entity\ContentEntityBase;
 use Drupal\Core\Entity\EntityChangedTrait;
-use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
-use Drupal\Core\Url;
 use Drupal\redhen_connection\ConnectionInterface;
-use Drupal\redhen_contact\ContactInterface;
-use Drupal\redhen_contact\Entity\Contact;
 
 /**
  * Defines the Connection entity.
@@ -160,7 +156,6 @@ class Connection extends ContentEntityBase implements ConnectionInterface {
       ->setDisplayConfigurable('form', TRUE)
       ->setDisplayConfigurable('view', TRUE);
 
-
     $fields['status'] = BaseFieldDefinition::create('boolean')
       ->setLabel(t('Active'))
       ->setDescription(t('A boolean indicating whether the connection is active.'))
@@ -197,7 +192,7 @@ class Connection extends ContentEntityBase implements ConnectionInterface {
     $fields = [];
     // Set bundle specific settings for each of our endpoint fields.
     for ($x = 1; $x <= REDHEN_CONNECTION_ENDPOINTS; $x++) {
-      /** @var BaseFieldDefinition $fields[$field] */
+      /** @var \Drupal\Core\Field\BaseFieldDefinition $fields[$field] */
       $endpoint_type = $connection_type->getEndpointEntityTypeId($x);
       $field = 'endpoint_' . $x;
       $fields[$field] = clone $base_field_definitions[$field];
@@ -222,47 +217,4 @@ class Connection extends ContentEntityBase implements ConnectionInterface {
     return $fields;
   }
 
-  /**
-   * {@inheritdoc}
-   */
-  public function hasRolePermission(EntityInterface $entity, $operation, ContactInterface $contact = NULL) {
-    if (!$contact) {
-      $contact = Contact::loadByUser(\Drupal::currentUser());
-    }
-    if (!$contact) {
-      return FALSE;
-    }
-    // Make sure we have a valid entity to check against.
-    if (!($entity instanceof ConnectionInterface)) {
-      $connection_type = ConnectionType::load($this->bundle());
-      $endpoints = $connection_type->getEndpointFields($entity->getEntityTypeId());
-      if (empty($endpoints)) {
-        return FALSE;
-      }
-    }
-    $role = $this->get('role')->entity;
-    if (!$role) {
-      return FALSE;
-    }
-    $permissions = $role->get('permissions');
-
-    $entity_type = $entity->getEntityTypeId();
-    // Determine which permission set to check:
-    // $entity can be: connection, connected entity or secondary contact.
-    $permission_set = 'entity';
-
-    // Connection.
-    if ($entity instanceof ConnectionInterface) {
-      $permission_set = 'connection';
-    }
-
-    // Secondary contact.
-    if ($entity_type == 'redhen_contact') {
-      // @todo Additional connection check needed to ensure $entity is connected
-      // indirectly to $account? Currently happening in ConnectionService:getIndirectConnections().
-      $permission_set = 'contact';
-    }
-
-    return (is_array($permissions[$permission_set]) && in_array($operation, $permissions[$permission_set]));
-  }
 }

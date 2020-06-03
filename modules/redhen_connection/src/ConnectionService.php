@@ -3,15 +3,15 @@
 namespace Drupal\redhen_connection;
 
 use Drupal\Core\Access\AccessResultAllowed;
+use Drupal\Core\Access\AccessResultNeutral;
 use Drupal\Core\Database\Connection as DBConnection;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Entity\Query\QueryFactory;
-use Drupal\Core\Entity\Query\QueryInterface;
-use Drupal\Core\Session\AccountInterface;
 use Drupal\redhen_connection\Entity\ConnectionType;
 use Drupal\redhen_connection\Entity\Connection;
-use Drupal\redhen_contact\Entity\Contact;
+use phpDocumentor\Reflection\Types\Null_;
+use phpDocumentor\Reflection\Types\Nullable;
 
 /**
  * Provides an interface for getting connections between entities.
@@ -97,7 +97,7 @@ class ConnectionService implements ConnectionServiceInterface {
     $entity_type = $entity->getEntityTypeId();
 
     if (empty($entity2)) {
-      // Single entity provided
+      // Single entity provided.
       $or_group->condition('endpoints.1.entity_type', $entity_type);
       $or_group->condition('endpoints.2.entity_type', $entity_type);
     }
@@ -130,7 +130,7 @@ class ConnectionService implements ConnectionServiceInterface {
   /**
    * {@inheritdoc}
    */
-  public function getConnections(EntityInterface $entity, EntityInterface $entity2 = NULL, $connection_type = NULL, $active = TRUE, $sort = [], $offset = 0, $limit = 0) {
+  public function getConnections(EntityInterface $entity, EntityInterface $entity2 = NULL, $connection_type = NULL, $active = TRUE, array $sort = [], $offset = 0, $limit = 0) {
     $connections = [];
 
     $query = $this->buildQuery($entity, $entity2, $connection_type, $active);
@@ -198,92 +198,26 @@ class ConnectionService implements ConnectionServiceInterface {
   }
 
   /**
-   * {@inheritdoc}
+   * {@inheritDoc}
    */
-  public function getIndirectConnections(EntityInterface $entity, EntityInterface $entity2, $connection_type = NULL, $active = TRUE) {
-    $types = ($connection_type) ? [$connection_type => ConnectionType::load($connection_type)] : $this->getConnectionTypes($entity);
-
-    $results = [];
-    foreach ($types as $type_id => $connection_type) {
-      /** @var ConnectionType $connection_type */
-      // Get endpoints (usually 1, but two possible).
-      $endpoints = $connection_type->getEndpointFields($entity->getEntityTypeId());
-      // Use first endpoint only.
-      $endpoint = current($endpoints);
-
-      // @todo Don't hardcode the endpoint names.
-      $shared_endpoint = ($endpoint == 'endpoint_1') ? 'endpoint_2' : 'endpoint_1';
-
-      // Build our subquery first.
-      $join_query = $this->connection->select('redhen_connection', 'sub');
-      $join_query->addField('sub', 'id');
-      $join_query->addField('sub', 'type');
-      $join_query->addField('sub', $endpoint);
-      $join_query->addField('sub', $shared_endpoint);
-      $join_query->condition('sub.' . $endpoint, $entity2->id());
-
-      // Base table is filtered on the first entity's id.
-      $query = $this->connection->select('redhen_connection', 'c');
-      $query->addField('c', 'id');
-      $query->condition('c. '. $endpoint, $entity->id());
-
-      // If we're filtering on active connections (default) limit status.
-      if ($active) {
-        $join_query->condition('sub.status', 1);
-        $query->condition('c.status', 1);
+  public function checkConnectionPermission(EntityInterface $endpoint1, EntityInterface $endpoint2, $operation, $permission_key) {
+    $connections = $this->getConnections($endpoint1, $endpoint2);
+    foreach ($connections as $connection) {
+      /** @var \Drupal\redhen_connection\Entity\ConnectionInterface $connection */
+      $role = $connection->get('role')->entity;
+      if (!$role) {
+        return new AccessResultNeutral();
       }
-
-      // Join on type and endpoint match. Can't pass $endpoint as argument
-      // because it will be automatically wrapped in quotes and break the SQL.
-      $query->innerJoin($join_query, 'c2', 'c.type = c2.type AND c.' . $shared_endpoint . ' = c2.' . $shared_endpoint);
-
-      $result = $query->execute();
-
-      $type_results = $result->fetchCol(0);
-      $results = array_merge($results, $type_results);
+      $permissions = $role->get('permissions');
+      if (is_array($permissions[$permission_key]) && in_array($operation, $permissions[$permission_key])) {
+        return new AccessResultAllowed();
+      }
     }
-
-    $connections = [];
-    if (!empty($results)) {
-      $connections = Connection::loadMultiple($results);
-    }
-
-    return $connections;
+    return new AccessResultNeutral();
   }
 
   /**
-   * {@inheritdoc}
-   */
-  public function checkConnectionPermission(EntityInterface $entity, $operation, AccountInterface $account = NULL) {
-    // Get connections and loop through checking for role permissions.
-    $contact = Contact::loadByUser($account);
-    if ($contact) {
-      $direct_connections = $this->getConnections($contact, $entity);
-      foreach ($direct_connections as $connection) {
-        /** @var ConnectionInterface $connection */
-        if ($result = $connection->hasRolePermission($entity, $operation, $contact)) {
-          return new AccessResultAllowed();
-        }
-      }
-      // Separate from the direct connections check because we want to limit
-      // checking for indirect connections to only when no direct connection
-      // returned AccessResultAllowed. We also only want to check if the entity
-      // we're checking on is a Contact.
-      if ($entity->getEntityTypeId() == 'redhen_contact') {
-        $indirect_connections = $this->getIndirectConnections($contact, $entity);
-        foreach ($indirect_connections as $connection) {
-          /** @var ConnectionInterface $connection */
-          if ($result = $connection->hasRolePermission($entity, $operation, $contact)) {
-            return new AccessResultAllowed();
-          }
-        }
-      }
-    }
-    // @todo - we should be able to return a neutral result here - test again to see if we can
-  }
-
-  /**
-   * {@inhertitdoc}
+   * {@inheritDoc}
    */
   public function getAllConnectionEntityTypes() {
     // Load all connection types.
@@ -317,21 +251,24 @@ class ConnectionService implements ConnectionServiceInterface {
   }
 
   /**
+   * Build a connection query.
+   *
    * @param \Drupal\Core\Entity\EntityInterface $entity
    *   The entity we're querying against.
    * @param \Drupal\Core\Entity\EntityInterface $entity2
    *   The second entity we're querying against.
-   * @param null $connection_type
+   * @param string $connection_type
    *   Limit query to this connection type.
    * @param bool $active
    *   Only active connections.
    *
-   * @return QueryInterface
+   * @return \Drupal\Core\Entity\Query\QueryInterface|bool
+   *   A query object or false.
    */
   private function buildQuery(EntityInterface $entity, EntityInterface $entity2 = NULL, $connection_type = NULL, $active = TRUE) {
     $types = ($connection_type) ? [$connection_type => ConnectionType::load($connection_type)] : $this->getConnectionTypes($entity, $entity2);
 
-    /** @var QueryInterface $query */
+    /** @var \Drupal\Core\Entity\Query\QueryInterface $query */
     $query = $this->entityQuery->get('redhen_connection');
 
     // Add condition for the connection status.
@@ -356,10 +293,9 @@ class ConnectionService implements ConnectionServiceInterface {
     $endpoints_group = $query->orConditionGroup();
 
     // @todo Might instead be able to query against endpoint_1.entity.type, etc.
-
     // Build endpoint groups.
     foreach ($types as $type => $connection_type) {
-      /** @var ConnectionTypeInterface $connection_type */
+      /** @var \Drupal\redhen_connection\Entity\ConnectionTypeInterface $connection_type */
       $endpoints = [];
       $endpoints[$entity_type] = $connection_type->getEndpointFields($entity_type);
 
@@ -373,14 +309,14 @@ class ConnectionService implements ConnectionServiceInterface {
         $endpoints[$entity_type2] = $connection_type->getEndpointFields($entity_type2);
 
         foreach ($endpoints as $endpoint_type => $endpoint_fields) {
-          for ($x=0; $x < count($endpoint_fields); $x++) {
+          for ($x = 0; $x < count($endpoint_fields); $x++) {
             $group->condition($endpoint_fields[$x], $entities[$endpoint_type][$x]->id());
           }
           // Endpoints are of the same type so we need to add an additional
           // condition for the reverse structure.
           if ($x > 1) {
             $group2 = $query->orConditionGroup();
-            for ($x=count($endpoint_fields) - 1; $x >= 0; $x--) {
+            for ($x = count($endpoint_fields) - 1; $x >= 0; $x--) {
               $group2->condition($endpoint_fields[$x], $entities[$endpoint_type][$x]->id());
             }
             $group = $query->orConditionGroup()

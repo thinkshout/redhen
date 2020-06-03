@@ -1,0 +1,40 @@
+<?php
+
+/**
+ * @file
+ * Install & update hooks for the Redhen Connection module.
+ */
+
+/**
+ * Change redhen_connection permissions from entity to org.
+ */
+function redhen_connection_update_8001(&$sandbox) {
+  $config_factory = \Drupal::configFactory();
+
+  if (!isset($sandbox['role_perm_configs'])) {
+    $sandbox['role_perm_configs'] = $config_factory->listAll('redhen_connection.redhen_connection_role');
+    $sandbox['max'] = count($sandbox['role_perm_configs']);
+    $sandbox['progress'] = 0;
+  }
+
+  if (empty($sandbox['role_perm_configs'])) {
+    return;
+  }
+
+  for ($i = 0; $i < 10; ++$i) {
+    if (!empty($sandbox['role_perm_configs'])) {
+      $connection_role_config = array_pop($sandbox['role_perm_configs']);
+      $config = $config_factory->getEditable($connection_role_config);
+      $existing_perms = $config->get('permissions');
+      if (array_key_exists('entity', $existing_perms)) {
+        $entity_perms = $existing_perms['entity'];
+        $config->set('permissions.org', $entity_perms);
+        $config->clear('permissions.entity');
+        $config->save(TRUE);
+      }
+      ++$sandbox['progress'];
+    }
+  }
+
+  $sandbox['#finished'] = empty($sandbox['max']) ? 1 : $sandbox['progress'] / $sandbox['max'];
+}

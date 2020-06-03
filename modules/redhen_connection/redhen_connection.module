@@ -5,12 +5,12 @@
  * Contains redhen_connection.module..
  */
 
+use Drupal\Core\Access\AccessResultNeutral;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\Core\Session\AccountInterface;
-use Drupal\redhen_connection\ConnectionInterface;
 use Drupal\redhen_connection\Entity\ConnectionType;
-use Drupal\redhen_connection\Access\ConnectionAccessResult;
+use Drupal\redhen_contact\Entity\Contact;
 
 /**
  * Denotes that the Connection is not active.
@@ -63,7 +63,7 @@ function redhen_connection_theme() {
 }
 
 /**
- * Return an associative array of Connection types to be used as an options list.
+ * Return an array of Connection types to be used as an options list.
  *
  * @return array
  *   Keyed by name with a label value.
@@ -79,52 +79,35 @@ function redhen_connection_type_options_list() {
 
 /**
  * Implements hook_entity_access().
- *
- * @param \Drupal\Core\Entity\EntityInterface $entity
- * @param String $operation
- * @param \Drupal\Core\Session\AccountInterface $account
- *
- * @return mixed
  */
 function redhen_connection_entity_access(EntityInterface $entity, $operation, AccountInterface $account) {
-  if (in_array($entity->getEntityTypeId(), ['redhen_contact', 'redhen_org'])){
-    // Only check/grant access to active contacts and orgs.
-    if ($entity->isActive()) {
-      return ConnectionAccessResult::allowedIfHasConnectionPermission($entity, $account, $operation);
-    }
-  }
 
-  if ($entity->getEntityTypeId() == 'redhen_connection' && $entity->isActive()) {
-    // Allow access to a connection via indirectly connected redhen_contact
-    // entity if the contact associated with the current user is connected to
-    // the indirectly connected contact.
+  $connection_plugin_manager = \Drupal::service('plugin.manager.connection_permission');
+  $plugin_definitions = $connection_plugin_manager->getDefinitions();
 
-    // Get redhen_contact endpoint fields from the connection type.
-    $connection_type = ConnectionType::load($entity->bundle());
-    $contact_endpoint_fields = $connection_type->getEndpointFields('redhen_contact');
-    // Loop over contact fields and get the indirectly connected contact entity.
-    foreach ($contact_endpoint_fields as $contact_endpoint_field) {
-      $contact = $entity->get($contact_endpoint_field)->entity;
-      // If we get a contact, check if the contact associated with the current
-      // user is connected to it, is active and has access.
-      if ($contact && $contact->isActive()) {
-        // @todo - add connection type to this call so we don't allow access if
-        // any connection type allows the passed operation - will require
-        // updating the function to take the additional parameter
-        return ConnectionAccessResult::allowedIfHasConnectionPermission($contact, $account, $operation);
+  foreach ($plugin_definitions as $plugin_id => $plugin_definition) {
+    $plugin_instance = $connection_plugin_manager->createInstance($plugin_id);
+    if ($entity->getEntityTypeId() === $plugin_instance->get('subject_entity_type')) {
+      if (!empty($plugin_instance->get('subject_entity_bundle'))) {
+        if ($plugin_instance->get('subject_entity_bundle') != $entity->bundle()) {
+          continue;
+        }
+      }
+      $contact = Contact::loadByUser($account);
+      if ($contact) {
+        return $plugin_instance->hasRolePermissions($entity, $operation, $contact);
       }
     }
   }
-  return ConnectionAccessResult::neutral();
+
+  return new AccessResultNeutral();
 }
 
 /**
  * Implements hook_entity_update().
- * @todo replace with event dispatcher/subscribers.
- *
- * @param \Drupal\Core\Entity\EntityInterface $entity
  */
 function redhen_connection_entity_update(EntityInterface $entity) {
+  // @todo replace with event dispatcher/subscribers.
   // When updating contacts and orgs, check if they've been made inactive and
   // set their associated connections to inactive.
   if (in_array($entity->getEntityTypeId(), ['redhen_contact', 'redhen_org']) &&
@@ -134,7 +117,7 @@ function redhen_connection_entity_update(EntityInterface $entity) {
       // Get active connections for this entity.
       $connections = \Drupal::service('redhen_connection.connections')->getConnections($entity, NULL, NULL, TRUE);
       foreach ($connections as $connection) {
-        /** @var ConnectionInterface $connection */
+        /** @var \Drupal\redhen_connection\ConnectionInterface $connection */
         $connection->setActive(FALSE);
         $connection->save();
       }
@@ -144,16 +127,14 @@ function redhen_connection_entity_update(EntityInterface $entity) {
 
 /**
  * Implements hook_entity_delete().
- * @todo replace with event dispatcher/subscribers.
- *
- * @param \Drupal\Core\Entity\EntityInterface $entity
  */
 function redhen_connection_entity_delete(EntityInterface $entity) {
+  // @todo replace with event dispatcher/subscribers.
   // When deleting contacts and orgs, also delete their connections.
   if (in_array($entity->getEntityTypeId(), ['redhen_contact', 'redhen_org'])) {
     $connections = \Drupal::service('redhen_connection.connections')->getConnections($entity, NULL, NULL, FALSE);
     foreach ($connections as $connection) {
-      /** @var ConnectionInterface $connection */
+      /** @var \Drupal\redhen_connection\ConnectionInterface $connection */
       $connection->delete();
     }
   }

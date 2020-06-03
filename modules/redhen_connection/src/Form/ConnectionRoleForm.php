@@ -4,7 +4,6 @@ namespace Drupal\redhen_connection\Form;
 
 use Drupal\Core\Entity\EntityForm;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\redhen_connection\ConnectionTypeInterface;
 
 /**
  * Class ConnectionRoleForm.
@@ -39,7 +38,7 @@ class ConnectionRoleForm extends EntityForm {
     ];
 
     // Permissions.
-    /** @var ConnectionTypeInterface $connection_type */
+    /** @var \Drupal\redhen_connection\ConnectionTypeInterface $connection_type */
     $connection_type = $this->getEntityFromRouteMatch($this->getRouteMatch(), 'redhen_connection_type');
 
     // @todo Change getEndpointEntityTypeId to Ids and take no argument to get all endpoints.
@@ -53,43 +52,33 @@ class ConnectionRoleForm extends EntityForm {
         '#type' => 'fieldset',
         '#title' => $this->t('Permissions'),
       ];
-
-      // Standard permissions.
-      $operations = ['view' => $this->t('View'), 'view label' => $this->t('View label'), 'update' => $this->t('Update'), 'delete' => $this->t('Delete')];
+      // Field operations.
+      $operations = [
+        'view' => $this->t('View'),
+        'view label' => $this->t('View label'),
+        'update' => $this->t('Update'),
+        'delete' => $this->t('Delete'),
+      ];
+      // Existing values.
       $existing_permissions = $redhen_connection_role->get('permissions');
-      // User's connection plus other connections.
-      // @todo consider using this for connected connections and extend "own connection" to include user's own connections.
-      $form['permissions']['connection'] = [
-        '#type' => 'checkboxes',
-        '#options' => $operations,
-        '#title' => $this->t('Connection'),
-        '#default_value' => (!empty($existing_permissions['connection'])) ? $existing_permissions['connection'] : [],
-        '#description' => $this->t('Applies to both the current user\'s connection and secondary connections. Sitewide permissions will override this setting.'),
-      ];
 
-      // The non-contact endpoint entity type, if there is one.
-      $entity_type = array_diff($endpoints, ['redhen_contact']);
+      // Load up plugin definitions.
+      $connection_plugin_manager = \Drupal::service('plugin.manager.connection_permission');
+      $plugin_definitions = $connection_plugin_manager->getDefinitions();
 
-      // Other endpoint permissions.
-      $form['permissions']['entity'] = [
-        '#type' => 'checkboxes',
-        '#options' => $operations,
-        '#title' => $this->t('Entity'),
-        '#default_value' => (!empty($existing_permissions['entity'])) ? $existing_permissions['entity'] : [],
-        '#description' => $this->t('Sitewide permissions will override this setting.'),
-        '#access' => !empty($entity_type),
-      ];
-      // Connected Contact permissions.
-      $form['permissions']['contact'] = [
-        '#type' => 'checkboxes',
-        '#options' => $operations,
-        '#title' => $this->t('Secondary Contact'),
-        '#default_value' => (!empty($existing_permissions['contact'])) ? $existing_permissions['contact'] : [],
-        '#description' => $this->t('A contact connected to the same entity via connection of the same type. Sitewide permissions will override this setting.'),
-      ];
-
+      // Add permissions for each plugin definition.
+      foreach ($plugin_definitions as $plugin_id => $plugin_definition) {
+        $plugin_instance = $connection_plugin_manager->createInstance($plugin_id);
+        $permission_key = $plugin_instance->getPermissionKey();
+        $form['permissions'][$permission_key] = [
+          '#type' => 'checkboxes',
+          '#options' => $operations,
+          '#title' => $this->t(':label', [':label' => $plugin_instance->get('label')]),
+          '#default_value' => (!empty($existing_permissions[$permission_key])) ? $existing_permissions[$permission_key] : [],
+          '#description' => $this->t(':description', [':description' => $plugin_instance->get('description')]),
+        ];
+      }
     }
-
 
     return $form;
   }
@@ -104,26 +93,32 @@ class ConnectionRoleForm extends EntityForm {
     // Set connection type property based on the route param.
     $redhen_connection_role->set('connection_type', $connection_type->id());
 
+    // Load up plugin definitions.
+    $connection_plugin_manager = \Drupal::service('plugin.manager.connection_permission');
+    $plugin_definitions = $connection_plugin_manager->getDefinitions();
+
+    $permissions = [];
+
     // Build array of permissions.
-    $permissions = [
-      'connection' => is_array($form_state->getValue('connection')) ? array_filter(array_values($form_state->getValue('connection'))) : NULL,
-      'entity' => is_array($form_state->getValue('entity')) ? array_filter(array_values($form_state->getValue('entity'))) : NULL,
-      'contact' => is_array($form_state->getValue('contact')) ? array_filter(array_values($form_state->getValue('contact'))) : NULL,
-    ];
+    foreach ($plugin_definitions as $plugin_id => $plugin_definition) {
+      $plugin_instance = $connection_plugin_manager->createInstance($plugin_id);
+      $permission_key = $plugin_instance->getPermissionKey();
+      $permissions[$permission_key] = is_array($form_state->getValue($permission_key)) ? array_filter(array_values($form_state->getValue($permission_key))) : NULL;
+    }
 
     $redhen_connection_role->set('permissions', $permissions);
 
     $status = $redhen_connection_role->save();
-
+    $messenger = \Drupal::messenger();
     switch ($status) {
       case SAVED_NEW:
-        drupal_set_message($this->t('Created the %label Connection Role.', [
+        $messenger->addMessage($this->t('Created the %label Connection Role.', [
           '%label' => $redhen_connection_role->label(),
         ]));
         break;
 
       default:
-        drupal_set_message($this->t('Saved the %label Connection Role.', [
+        $messenger->addMessage($this->t('Saved the %label Connection Role.', [
           '%label' => $redhen_connection_role->label(),
         ]));
     }
