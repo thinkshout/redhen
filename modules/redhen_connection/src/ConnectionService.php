@@ -10,8 +10,6 @@ use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Entity\Query\QueryFactory;
 use Drupal\redhen_connection\Entity\ConnectionType;
 use Drupal\redhen_connection\Entity\Connection;
-use phpDocumentor\Reflection\Types\Null_;
-use phpDocumentor\Reflection\Types\Nullable;
 
 /**
  * Provides an interface for getting connections between entities.
@@ -130,26 +128,12 @@ class ConnectionService implements ConnectionServiceInterface {
   /**
    * {@inheritdoc}
    */
-  public function getConnections(EntityInterface $entity, EntityInterface $entity2 = NULL, $connection_type = NULL, $active = TRUE, array $sort = [], $offset = 0, $limit = 0) {
+  public function getConnections(EntityInterface $entity, EntityInterface $entity2 = NULL, $connection_type = NULL, $active = TRUE) {
     $connections = [];
+    $connections_matches = $this->connectionQuery($entity, $entity2, $connection_type, $active);
 
-    $query = $this->buildQuery($entity, $entity2, $connection_type, $active);
-
-    if ($query) {
-
-      foreach ($sort as $field => $direction) {
-        $query->sort($field, $direction);
-      }
-
-      if ($limit > 0) {
-        $query->range($offset, $limit);
-      }
-
-      $results = $query->execute();
-
-      if (!empty($results)) {
-        $connections = Connection::loadMultiple($results);
-      }
+    if (!empty($connections_matches)) {
+      $connections = Connection::loadMultiple($connections_matches);
     }
 
     return $connections;
@@ -159,9 +143,9 @@ class ConnectionService implements ConnectionServiceInterface {
    * {@inheritdoc}
    */
   public function getConnectionCount(EntityInterface $entity, EntityInterface $entity2 = NULL, $connection_type = NULL) {
-    $query = $this->buildQuery($entity, $entity2, $connection_type);
+    $connections = $this->connectionQuery($entity, $entity2, $connection_type);
 
-    return $query->count()->execute();
+    return count($connections);
   }
 
   /**
@@ -251,7 +235,7 @@ class ConnectionService implements ConnectionServiceInterface {
   }
 
   /**
-   * Build a connection query.
+   * Query for connections.
    *
    * @param \Drupal\Core\Entity\EntityInterface $entity
    *   The entity we're querying against.
@@ -262,88 +246,86 @@ class ConnectionService implements ConnectionServiceInterface {
    * @param bool $active
    *   Only active connections.
    *
-   * @return \Drupal\Core\Entity\Query\QueryInterface|bool
-   *   A query object or false.
+   * @return array
+   *   An array of matches.
    */
-  private function buildQuery(EntityInterface $entity, EntityInterface $entity2 = NULL, $connection_type = NULL, $active = TRUE) {
-    $types = ($connection_type) ? [$connection_type => ConnectionType::load($connection_type)] : $this->getConnectionTypes($entity, $entity2);
-
-    /** @var \Drupal\Core\Entity\Query\QueryInterface $query */
-    $query = $this->entityQuery->get('redhen_connection');
-
-    // Add condition for the connection status.
-    if ($active) {
-      $query->condition('status', 1);
-    }
-
-    if ($connection_type != NULL) {
-      $query->condition('type', $connection_type);
-    }
-
-    // Endpoint conditions.
-    $entities = [];
+  private function connectionQuery(EntityInterface $entity, EntityInterface $entity2 = NULL, $connection_type = NULL, $active = TRUE) {
     $entity_type = $entity->getEntityType()->id();
-    $entities[$entity_type][] = $entity;
-    $entity_type2 = ($entity2) ? $entity2->getEntityType()->id() : NULL;
-    if ($entity2) {
-      $entities[$entity_type2][] = $entity2;
+    $entity2_type = ($entity2) ? $entity2->getEntityType()->id() : NULL;
+    $connections_matches = [];
+    $potential_endpoints = [];
+
+    if (!$connection_type) {
+      $connection_types = $this->getConnectionTypes($entity, $entity2);
+    }
+    else {
+      $connection_types = [ConnectionType::load($connection_type)];
     }
 
-    // Overall OR group of connection_type/endpoint groupings.
-    $endpoints_group = $query->orConditionGroup();
-
-    // @todo Might instead be able to query against endpoint_1.entity.type, etc.
-    // Build endpoint groups.
-    foreach ($types as $type => $connection_type) {
-      /** @var \Drupal\redhen_connection\Entity\ConnectionTypeInterface $connection_type */
-      $endpoints = [];
-      $endpoints[$entity_type] = $connection_type->getEndpointFields($entity_type);
-
-      // Add condition for the connection_type.
-      $condition_group = $query->andConditionGroup()
-        ->condition('type', $type);
-
-      // Working with 2 endpoints.
-      if ($entity_type2) {
-        $group = $query->andConditionGroup();
-        $endpoints[$entity_type2] = $connection_type->getEndpointFields($entity_type2);
-
-        foreach ($endpoints as $endpoint_type => $endpoint_fields) {
-          for ($x = 0; $x < count($endpoint_fields); $x++) {
-            $group->condition($endpoint_fields[$x], $entities[$endpoint_type][$x]->id());
-          }
-          // Endpoints are of the same type so we need to add an additional
-          // condition for the reverse structure.
-          if ($x > 1) {
-            $group2 = $query->orConditionGroup();
-            for ($x = count($endpoint_fields) - 1; $x >= 0; $x--) {
-              $group2->condition($endpoint_fields[$x], $entities[$endpoint_type][$x]->id());
-            }
-            $group = $query->orConditionGroup()
-              ->condition($group)
-              ->condition($group2);
-          }
+    if (!empty($connection_types)) {
+      foreach ($connection_types as $type) {
+        if ($endpoint_fields = $type->getEndpointFields($entity_type)) {
+          $potential_endpoints[$type->id()]['entity1'] = $endpoint_fields;
         }
 
-        $condition_group->condition($group);
-      }
-      else {
-        // Single entity.
-        $condition_group = $query->orConditionGroup();
-        foreach ($endpoints as $endpoint_type => $endpoint_fields) {
-          for ($x = 0; $x < count($endpoint_fields); $x++) {
-            $condition_group->condition($endpoint_fields[$x], $entity->id());
+        if ($entity2_type) {
+          if ($endpoint2_fields = $type->getEndpointFields($entity2_type)) {
+            $potential_endpoints[$type->id()]['entity2'] = $endpoint2_fields;
           }
         }
       }
-      $endpoints_group->condition($condition_group);
-    }
-    if (!empty($types)) {
-      $query->condition($endpoints_group);
-      return $query;
+
+      $database = \Drupal::database();
+
+      foreach ($potential_endpoints as $connection_type => $endpoint_group) {
+
+        $query = $database->select('redhen_connection', 'rc')
+          ->fields('rc', ['id'])
+          ->condition('type', $connection_type);
+
+        if ($active) {
+          $query->condition('status', $active);
+        }
+
+        // Parent condition group.
+        $entityAndGroup = $query->andConditionGroup();
+
+        // Entity 1 Group.
+        $entity1Group = $query->orConditionGroup();
+        $entity1Group->condition($endpoint_group['entity1'][0], $entity->id());
+
+        // If there are multiple potential endpoints that match entity 1 type.
+        if (count($endpoint_group['entity1']) > 1) {
+          $additional_entities = array_slice($endpoint_group['entity1'], 1, 1, FALSE);
+          $entity1Group->condition($additional_entities[0], $entity->id());
+        }
+
+        $entityAndGroup->condition($entity1Group);
+
+        // Entity 2 Group.
+        if (isset($endpoint_group['entity2'])) {
+          $entity2Group = $query->orConditionGroup()
+            ->condition($endpoint_group['entity2'][0], $entity2->id());
+
+          // If there are multiple potential endpoints that match entity 2 type.
+          if (isset($endpoint_group['entity2'][1])) {
+            $entity2Group->condition($endpoint_group['entity2'][1], $entity2->id());
+          }
+
+          $entityAndGroup->condition($entity2Group);
+        }
+
+        $query->condition($entityAndGroup);
+        $results = $query->execute()->fetchCol();
+
+        // If there are matched results merge them into the result set.
+        if ($results) {
+          $connections_matches = array_unique(array_merge($connections_matches, $results));
+        }
+      }
     }
 
-    return FALSE;
+    return $connections_matches;
   }
 
 }
