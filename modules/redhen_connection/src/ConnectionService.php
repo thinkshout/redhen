@@ -295,8 +295,9 @@ class ConnectionService implements ConnectionServiceInterface {
         $entity1Group->condition($endpoint_group['entity1'][0], $entity->id());
 
         // If there are multiple potential endpoints that match entity 1 type.
-        if (isset($endpoint_group['entity1'][1])) {
-          $entity1Group->condition($endpoint_group['entity1'][1], $entity->id());
+        if (count($endpoint_group['entity1']) > 1) {
+          $additional_entities = array_slice($endpoint_group['entity1'], 1, 1, FALSE);
+          $entity1Group->condition($additional_entities[0], $entity->id());
         }
 
         $entityAndGroup->condition($entity1Group);
