@@ -1,4 +1,3 @@
-uuid: 730aafce-d95a-4a62-b2aa-0e232eec009b
 langcode: en
 status: true
 dependencies:
@@ -562,7 +561,7 @@ display:
         - 'languages:language_content'
         - 'languages:language_interface'
         - url.query_args
-        - user.permissions        
+        - user.permissions
       tags: {  }
   page_1:
     display_plugin: page
