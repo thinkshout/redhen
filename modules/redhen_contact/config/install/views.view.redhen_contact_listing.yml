@@ -1,4 +1,3 @@
-uuid: ffdfd5bd-a946-488e-a2eb-8bf7cffccb5d
 langcode: en
 status: true
 dependencies:
@@ -7,8 +6,6 @@ dependencies:
       - redhen_contact
   module:
     - user
-_core:
-  default_config_hash: 3syDjwSfWOe928QBGXSipdCx67bDwMzYxOWQt6mEUvQ
 id: redhen_contact_listing
 label: 'Redhen Contact List'
 module: views
