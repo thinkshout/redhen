@@ -5,3 +5,10 @@ redhen_contact.config.contact_form:
     _title: 'Contacts'
   requirements:
     _permission: 'administer contact entities'
+redhen_contact.autocomplete:
+  path: '/admin/redhen_contact/autocomplete'
+  defaults:
+    _controller: '\Drupal\redhen_contact\Controller\ContactAutocompleteController::autocomplete'
+    _format: json
+  requirements:
+    _permission: 'edit contact entities'
