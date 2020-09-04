@@ -24,14 +24,14 @@ class ChangeConnectionRole extends ChangeConnectionRoleBase {
     $entity_storage = \Drupal::service('entity_type.manager')->getStorage('redhen_connection_role');
     $roles = array_keys($entity_storage->loadByProperties(['connection_type' => $connection->getType()]));
     if ($connection !== FALSE && $connection->get('role', $role)->getString() != $role) {
-        if (in_array($role, $roles)) {
-          $connection->original = clone $connection;
-          $connection->set('role', $role);
-          $connection->save();
-        }
-        else {
-          $mismatch = TRUE;
-        }
+      if (in_array($role, $roles)) {
+        $connection->original = clone $connection;
+        $connection->set('role', $role);
+        $connection->save();
+      }
+      else {
+        $mismatch = TRUE;
+      }
     }
 
     // If there are mismatched roles/connection_types provide a warning.
