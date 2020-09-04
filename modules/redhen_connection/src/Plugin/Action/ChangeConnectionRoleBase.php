@@ -2,19 +2,19 @@
 
 namespace Drupal\redhen_connection\Plugin\Action;
 
-use Drupal\Core\Action\ConfigurableActionBase;
 use Drupal\Core\Entity\DependencyTrait;
 use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\Session\AccountInterface;
 use Drupal\redhen_connection\Entity\ConnectionRole;
+use Drupal\views_bulk_operations\Action\ViewsBulkOperationsActionBase;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Provides a base class for operations to change a connection's role.
  */
-abstract class ChangeConnectionRoleBase extends ConfigurableActionBase implements ContainerFactoryPluginInterface {
+abstract class ChangeConnectionRoleBase extends ViewsBulkOperationsActionBase implements ContainerFactoryPluginInterface {
 
   use DependencyTrait;
 
@@ -58,7 +58,7 @@ abstract class ChangeConnectionRoleBase extends ConfigurableActionBase implement
    * {@inheritdoc}
    */
   public function buildConfigurationForm(array $form, FormStateInterface $form_state) {
-    // @todo limit roles by connection type.
+    // @todo limit to only roles
     $rids = \Drupal::entityQuery('redhen_connection_role')->execute();
     $role_objects = ConnectionRole::loadMultiple($rids);
     $roles = [];
@@ -69,7 +69,7 @@ abstract class ChangeConnectionRoleBase extends ConfigurableActionBase implement
       '#type' => 'radios',
       '#title' => t('Role'),
       '#options' => $roles,
-      '#default_value' => $this->configuration['role'],
+      '#default_value' => '',
       '#required' => TRUE,
     ];
     return $form;

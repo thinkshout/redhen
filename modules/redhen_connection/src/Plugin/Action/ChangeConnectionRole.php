@@ -18,13 +18,25 @@ class ChangeConnectionRole extends ChangeConnectionRoleBase {
    */
   public function execute($connection = NULL) {
     $role = $this->configuration['role'];
-    // Skip changing the role to the user if they already have it.
+    $mismatch = FALSE;
+    // Skip changing the role for the connection if already present,
+    // OR if the role is not available for the given connection.
+    $entity_storage = \Drupal::service('entity_type.manager')->getStorage('redhen_connection_role');
+    $roles = array_keys($entity_storage->loadByProperties(['connection_type' => $connection->getType()]));
     if ($connection !== FALSE && $connection->get('role', $role)->getString() != $role) {
-      // For efficiency manually save the original account before applying
-      // any changes.
-      $connection->original = clone $connection;
-      $connection->set('role', $role);
-      $connection->save();
+        if (in_array($role, $roles)) {
+          $connection->original = clone $connection;
+          $connection->set('role', $role);
+          $connection->save();
+        }
+        else {
+          $mismatch = TRUE;
+        }
+    }
+
+    // If there are mismatched roles/connection_types provide a warning.
+    if ($mismatch) {
+      \Drupal::messenger()->addWarning($this->t('Some connections could not be updated because the selected role was not associated with the connection type.'));
     }
   }
 
