@@ -22,9 +22,6 @@ class ActivateConnection extends ActionBase {
   public function execute($connection = NULL) {
     // Skip activating the connection already active.
     if ($connection !== FALSE && !$connection->isActive()) {
-      // For efficiency manually save the original account before applying any
-      // changes.
-      $connection->original = clone $connection;
       $connection->setActive(TRUE);
       $connection->save();
     }
