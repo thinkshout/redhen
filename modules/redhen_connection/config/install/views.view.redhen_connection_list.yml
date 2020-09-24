@@ -24,7 +24,7 @@ display:
       access:
         type: perm
         options:
-          perm: 'administer org entities'
+          perm: 'view active connection entities'
       cache:
         type: tag
         options: {  }
