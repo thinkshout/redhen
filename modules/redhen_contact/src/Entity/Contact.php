@@ -270,7 +270,7 @@ class Contact extends ContentEntityBase implements ContactInterface {
       // If we find any Contacts with emails that match our request,
       // load and return them.
       if (!empty($results)) {
-        $contacts = Contact::loadMultiple(array_keys($results));
+        $contacts = Contact::loadMultiple($results);
       }
     }
 
