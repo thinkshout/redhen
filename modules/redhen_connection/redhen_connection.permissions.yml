@@ -18,5 +18,12 @@ view active connection entities:
 view inactive connection entities:
   title: 'View inactive Connection entities'
 
+administer connection role entities:
+  title: 'Administer connection role entities'
+  restrict access: true
+
+view connection role entities:
+  title: 'View connection role entities'
+
 permission_callbacks:
   - \Drupal\redhen_connection\ConnectionPermissions::ConnectionTypePermissions

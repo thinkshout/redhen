@@ -23,7 +23,7 @@ use Drupal\redhen_connection\ConnectionRoleInterface;
  *     },
  *   },
  *   config_prefix = "redhen_connection_role",
- *   admin_permission = "administer site configuration",
+ *   admin_permission = "administer connection role entities",
  *   entity_keys = {
  *     "id" = "id",
  *     "label" = "label",

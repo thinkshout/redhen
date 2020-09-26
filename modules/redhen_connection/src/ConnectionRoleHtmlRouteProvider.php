@@ -52,7 +52,7 @@ class ConnectionRoleHtmlRouteProvider extends AdminHtmlRouteProvider {
           // TitleResolver translates this string again.
           '_title' => (string) $entity_type->getLabel(),
         ])
-        ->setRequirement('_permission', $entity_type->getAdminPermission())
+        ->setRequirement('_permission', 'view connection role entities')
         ->setOption('parameters', [
           'redhen_connection_type' => ['type' => 'entity:redhen_connection_type'],
         ])
