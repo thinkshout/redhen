@@ -1,7 +1,7 @@
 name: RedHen Organizations
 type: module
 description: Defines the base organization entity and features.
-core: 8.x
+core_version_requirement: ^8.7.7 || ^9
 package: RedHen
 configure: entity.redhen_org_type.collection
 dependencies:
