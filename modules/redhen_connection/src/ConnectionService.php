@@ -7,7 +7,6 @@ use Drupal\Core\Access\AccessResultNeutral;
 use Drupal\Core\Database\Connection as DBConnection;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
-use Drupal\Core\Entity\Query\QueryFactory;
 use Drupal\redhen_connection\Entity\ConnectionType;
 use Drupal\redhen_connection\Entity\Connection;
 
@@ -25,13 +24,6 @@ class ConnectionService implements ConnectionServiceInterface {
   protected $entityTypeManager;
 
   /**
-   * The entity query.
-   *
-   * @var \Drupal\Core\Entity\Query\QueryFactory
-   */
-  protected $entityQuery;
-
-  /**
    * The database connection to use.
    *
    * @var \Drupal\Core\Database\Connection
@@ -43,14 +35,11 @@ class ConnectionService implements ConnectionServiceInterface {
    *
    * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
    *   The entity manager.
-   * @param \Drupal\Core\Entity\Query\QueryFactory $entity_query
-   *   The entity query.
    * @param \Drupal\Core\Database\Connection $connection
    *   The database connection.
    */
-  public function __construct(EntityTypeManagerInterface $entity_type_manager, QueryFactory $entity_query, DBConnection $connection) {
+  public function __construct(EntityTypeManagerInterface $entity_type_manager, DBConnection $connection) {
     $this->entityTypeManager = $entity_type_manager;
-    $this->entityQuery = $entity_query;
     $this->connection = $connection;
   }
 
@@ -60,7 +49,7 @@ class ConnectionService implements ConnectionServiceInterface {
   public function getConnectionEntityTypes(array $entity_types) {
     $all_connection_types = [];
     foreach ($entity_types as $entity_type => $type) {
-      $query = $this->entityQuery->get('redhen_connection_type');
+      $query = $this->entityTypeManager->getStorage('redhen_connection_type')->getQuery();
       $or_group = $query->orConditionGroup();
 
       $or_group->condition('endpoints.1.entity_type', $entity_type);
@@ -90,7 +79,7 @@ class ConnectionService implements ConnectionServiceInterface {
    * {@inheritdoc}
    */
   public function getConnectionTypes(EntityInterface $entity, EntityInterface $entity2 = NULL) {
-    $query = $this->entityQuery->get('redhen_connection_type');
+    $query = $this->entityTypeManager->getStorage('redhen_connection_type')->getQuery();
     $or_group = $query->orConditionGroup();
     $entity_type = $entity->getEntityTypeId();
 
@@ -205,7 +194,7 @@ class ConnectionService implements ConnectionServiceInterface {
    */
   public function getAllConnectionEntityTypes() {
     // Load all connection types.
-    $query = $this->entityQuery->get('redhen_connection_type');
+    $query = $this->entityTypeManager->getStorage('redhen_connection_type')->getQuery();
     $results = $query->execute();
 
     $connection_types = [];
