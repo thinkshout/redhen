@@ -27,7 +27,7 @@ class OrgListBuilder extends EntityListBuilder {
   public function buildRow(EntityInterface $entity) {
     /* @var $entity \Drupal\redhen_org\Entity\Org */
     $row['type'] = $entity->getType();
-    $row['name'] = $entity->link();
+    $row['name'] = $entity->toLink()->toString();
     $row['status'] = $entity->isActive() ? $this->t('Active') : $this->t('Inactive');
     return $row + parent::buildRow($entity);
   }

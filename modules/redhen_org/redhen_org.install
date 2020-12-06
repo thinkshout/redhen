@@ -14,7 +14,9 @@ function redhen_org_update_8101() {
   $column = 'name';
   $max_length = 255;
   // Alter value field length in fields table:
-  db_query("ALTER TABLE `{$table}` CHANGE `{$column}` `{$column}` VARCHAR( {$max_length} )");
+  /** @var \Drupal\Core\Database\Connection $database_replica */
+  $database_replica = \Drupal::service('database.replica');
+  $database_replica->query("ALTER TABLE `{$table}` CHANGE `{$column}` `{$column}` VARCHAR( {$max_length} )");
   // Alter value field length in fields revision table:
-  db_query("ALTER TABLE `{$revision_table}` CHANGE `{$column}` `{$column}` VARCHAR( {$max_length} )");
+  $database_replica->query("ALTER TABLE `{$revision_table}` CHANGE `{$column}` `{$column}` VARCHAR( {$max_length} )");
 }

@@ -30,7 +30,7 @@ class ContactListBuilder extends EntityListBuilder {
   public function buildRow(EntityInterface $entity) {
     /* @var $entity \Drupal\redhen_contact\Entity\Contact */
     $row['type'] = $entity->getType();
-    $row['name'] = $entity->link();
+    $row['name'] = $entity->toLink()->toString();
     $row['email'] = $entity->getEmail();
     $row['status'] = $entity->isActive() ? $this->t('Active') : $this->t('Inactive');
     return $row + parent::buildRow($entity);

@@ -3,6 +3,7 @@
 namespace Drupal\redhen_dedupe\Controller;
 
 use Drupal\Core\Controller\ControllerBase;
+use Drupal\Core\Link;
 
 /**
  * Default controller for the redhen_dedupe module.
@@ -86,7 +87,7 @@ class DefaultController extends ControllerBase {
           $count = $result->count . ' (' . implode(', ', $id_links) . ')';
           $col[] = $count;
           $url = \Drupal::service('path.validator')->getUrlIfValid('//admin/config/redhen/dedupe/merge/' . $result->ids);
-          $col[] = $this->l(t('merge'), $url);
+          $col[] = Link::fromTextAndUrl(t('merge'), $url);
 
           $rows[] = $col;
         }
