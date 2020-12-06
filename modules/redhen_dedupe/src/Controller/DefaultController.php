@@ -26,7 +26,7 @@ class DefaultController extends ControllerBase {
         $fields = $_GET['fields'];
       }
       if (empty($base_fields) && empty($fields)) {
-        drupal_set_message(t('Please select at least one Field to match on.'), 'warning', FALSE);
+        $this->messenger()->addMessage(t('Please select at least one Field to match on.'), 'warning', FALSE);
       }
       if (!empty($base_fields) || !empty($fields)) {
         $active = isset($_GET['active']) ? $_GET['active'] : TRUE;

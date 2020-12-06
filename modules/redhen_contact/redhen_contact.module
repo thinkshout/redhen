@@ -185,7 +185,7 @@ function redhen_contact_form_user_register_form_alter(&$form, FormStateInterface
       $form['redhen_contact_' . $contact_type]['email']['#access'] = FALSE;
     }
     else {
-      drupal_set_message(t('Invalid RedHen contact type parameter.'));
+      \Drupal::messenger()->addMessage(t('Invalid RedHen contact type parameter.'));
     }
   }
 }
@@ -389,7 +389,7 @@ function redhen_contact_user_registration_submit($form, &$form_state) {
   // Only display this message to CRM admins to avoid confusion.
   $user = Drupal::currentUser();
   if ($user->hasPermission('administer contact entities')) {
-    drupal_set_message($message);
+    \Drupal::messenger()->addMessage($message);
   }
 }
 

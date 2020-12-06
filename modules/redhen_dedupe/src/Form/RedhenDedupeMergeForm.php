@@ -255,14 +255,14 @@ class RedhenDedupeMergeForm extends FormBase {
     }
     $merge_status = $this->redhenDedupeMerge($master, $values, $related_entities, $contacts);
     if ($merge_status) {
-      drupal_set_message(t('Contacts have successfully been merged into %master and deleted.', [
+      $this->messenger()->addMessage(t('Contacts have successfully been merged into %master and deleted.', [
         '%master' => $master->label(),
       ]));
       $form_state->setRedirect('entity.redhen_contact.canonical',
        ['redhen_contact' => $master_id]);
     }
     else {
-      drupal_set_message(t('Error attempting to merge these contacts. Check the error log for more details.'), 'error');
+      $this->messenger()->addMessage(t('Error attempting to merge these contacts. Check the error log for more details.'), 'error');
     }
   }
 

@@ -37,13 +37,13 @@ class ConnectionForm extends ContentEntityForm {
 
     switch ($status) {
       case SAVED_NEW:
-        drupal_set_message($this->t('Created %label.', [
+        $this->messenger()->addMessage($this->t('Created %label.', [
           '%label' => $entity->label(),
         ]));
         break;
 
       default:
-        drupal_set_message($this->t('Saved %label.', [
+        $this->messenger()->addMessage($this->t('Saved %label.', [
           '%label' => $entity->label(),
         ]));
     }
