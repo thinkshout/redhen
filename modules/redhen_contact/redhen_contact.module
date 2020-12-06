@@ -549,7 +549,7 @@ function redhen_contact_user_registration_form_state(array $form, FormStateInter
   $limited_state->setValues([$field_parent_name => []]);
 
   // Get Redhen Contact field definitions to determine default values.
-  $contact_fields = \Drupal::entityManager()->getFieldDefinitions('redhen_contact', $contact_type);
+  $contact_fields = \Drupal::service('entity_field.manager')->getFieldDefinitions('redhen_contact', $contact_type);
 
   // Get all Redhen contact field values.
   $field_values = $form_state->getValue($field_parent_name);
@@ -581,7 +581,7 @@ function redhen_contact_user_registration_form_state(array $form, FormStateInter
  *
  * @param object $definition
  *   The field definition as returned by
- *   \Drupal::entityManager()->getFieldDefinitions
+ *   \Drupal::service('entity_field.manager')->getFieldDefinitions()
  * @param array $value
  *   The field value in the submitted form state.
  *
