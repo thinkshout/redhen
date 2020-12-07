@@ -10,6 +10,10 @@ services:
     arguments: ['@entity_type.manager']
     tags:
       - { name: event_subscriber }
+  redhen_connection.access_check:
+    class: Drupal\redhen_connection\Access\ConnectionAccessCheck
+    tags:
+      - { name: access_check, applies_to: _redhen_connection_access }
   plugin.manager.connection_permission:
     class: Drupal\redhen_connection\Plugin\ConnectionPermissionManager
     parent: default_plugin_manager
