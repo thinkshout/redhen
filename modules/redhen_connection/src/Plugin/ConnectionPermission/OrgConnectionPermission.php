@@ -25,7 +25,7 @@ class OrgConnectionPermission extends ConnectionPermissionBase implements Connec
    * {@inheritDoc}
    */
   public function getPermissionKey() {
-    return 'org';
+    return 'entity';
   }
 
   /**
