@@ -6,6 +6,8 @@ use Drupal\Core\Access\AccessResult;
 use Drupal\Core\Routing\Access\AccessInterface;
 use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\Core\Session\AccountInterface;
+use Drupal\redhen_connection\ConnectionInterface;
+use Drupal\redhen_connection\Entity\Connection;
 use Drupal\redhen_contact\ContactInterface;
 use Drupal\redhen_contact\Entity\Contact;
 use Drupal\redhen_org\Entity\Org;
@@ -58,6 +60,15 @@ class ConnectionAccessCheck implements AccessInterface {
    *   The entity object or NULL if there is no RedHen parameter in the route.
    */
   protected function getEntity(RouteMatchInterface $route_match) {
+    $connection = $route_match->getParameter('redhen_connection');
+    if ($connection) {
+      if ($connection instanceof ConnectionInterface) {
+        return $connection;
+      }
+
+      return Connection::load($connection);
+    }
+
     $contact = $route_match->getParameter('redhen_contact');
     if ($contact) {
       if ($contact instanceof ContactInterface) {
