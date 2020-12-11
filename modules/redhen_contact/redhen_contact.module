@@ -58,6 +58,24 @@ function redhen_contact_theme() {
 }
 
 /**
+ * Implements hook_views_data_alter().
+ *
+ * Adds a relationship from the user table to its contact entity.
+ */
+function redhen_contact_views_data_alter(&$data) {
+  $data['users_field_data']['redhen_contact']['relationship'] = [
+    'title' => t('Redhen Contact'),
+    'label' => t('Redhen Contact'),
+    'group' => 'User',
+    'help' => t('Reference to the related Redhen Contact for a User.'),
+    'id' => 'standard',
+    'base' => 'redhen_contact',
+    'base field' => 'uid',
+    'field' => 'uid',
+  ];
+}
+
+/**
  * Implements hook_tokens().
  */
 function redhen_contact_tokens($type, $tokens, array $data, array $options, BubbleableMetadata $bubbleable_metadata) {
