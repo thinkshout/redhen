@@ -36,6 +36,11 @@ use Drupal\redhen_connection\ConnectionTypeInterface;
  *     "edit-form" = "/admin/structure/redhen/connection_type/{redhen_connection_type}/edit",
  *     "delete-form" = "/admin/structure/redhen/connection_type/{redhen_connection_type}/delete",
  *     "collection" = "/admin/structure/redhen/connection_type"
+ *   },
+ *   config_export = {
+ *     "id" = "id",
+ *     "label" = "label",
+ *     "uuid" = "uuid"
  *   }
  * )
  */

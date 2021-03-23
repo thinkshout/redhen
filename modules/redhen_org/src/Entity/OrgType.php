@@ -36,6 +36,11 @@ use Drupal\redhen_org\OrgTypeInterface;
  *     "edit-form" = "/admin/structure/redhen/org_type/{redhen_org_type}/edit",
  *     "delete-form" = "/admin/structure/redhen/org_type/{redhen_org_type}/delete",
  *     "collection" = "/admin/structure/redhen/org_type"
+ *   },
+ *   config_export = {
+ *     "id" = "id",
+ *     "label" = "label",
+ *     "uuid" = "uuid"
  *   }
  * )
  */
