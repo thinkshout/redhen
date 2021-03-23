@@ -1,0 +1,6 @@
+services:
+  redhen_contact.contact_route_context:
+    class: Drupal\redhen_contact\ContextProvider\RedhenContactRouteContext
+    arguments: ['@current_route_match']
+    tags:
+      - { name: 'context_provider' }
