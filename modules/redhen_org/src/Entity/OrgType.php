@@ -38,9 +38,10 @@ use Drupal\redhen_org\OrgTypeInterface;
  *     "collection" = "/admin/structure/redhen/org_type"
  *   },
  *   config_export = {
- *     "id" = "id",
- *     "label" = "label",
- *     "uuid" = "uuid"
+ *     "uuid",
+ *     "status",
+ *     "id",
+ *     "label",
  *   }
  * )
  */

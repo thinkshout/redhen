@@ -38,9 +38,10 @@ use Drupal\redhen_contact\ContactTypeInterface;
  *     "collection" = "/admin/structure/redhen/contact_type"
  *   },
  *   config_export = {
- *     "id" = "id",
- *     "label" = "label",
- *     "uuid" = "uuid"
+ *     "uuid",
+ *     "status",
+ *     "id",
+ *     "label",
  *   }
  * )
  */

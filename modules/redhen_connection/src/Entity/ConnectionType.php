@@ -38,9 +38,12 @@ use Drupal\redhen_connection\ConnectionTypeInterface;
  *     "collection" = "/admin/structure/redhen/connection_type"
  *   },
  *   config_export = {
- *     "id" = "id",
- *     "label" = "label",
- *     "uuid" = "uuid"
+ *     "uuid",
+ *     "status",
+ *     "id",
+ *     "label",
+ *     "connection_label_pattern",
+ *     "endpoints"
  *   }
  * )
  */
