@@ -50,7 +50,7 @@ class RouteSubscriber extends RouteSubscriberBase {
           '_title' => 'Connections',
         ])
         ->addRequirements([
-          '_permission' => 'view active connection entities+view own active ' . $entity_type_id . ' connection',
+          '_custom_access' => '\Drupal\redhen_connection\Controller\RedhenConnections::access',
         ])
         ->setOption('_admin_route', TRUE)
         ->setOption('parameters', [

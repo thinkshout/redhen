@@ -9,6 +9,8 @@ use Drupal\Core\Link;
 use Drupal\Core\Url;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
+use Drupal\Core\Session\AccountInterface;
+use Drupal\Core\Access\AccessResult;
 
 /**
  * Class RedhenConnections.
@@ -93,4 +95,26 @@ class RedhenConnections extends ControllerBase {
     return $build;
   }
 
+  /**
+   * Checks access for a specific request.
+   *
+   * @param \Drupal\Core\Session\AccountInterface $account
+   *   Run access checks for this account.
+   *
+   * @return \Drupal\Core\Access\AccessResultInterface
+   *   The access result.
+   */
+  public function access(AccountInterface $account) {
+    $entity = redhen_connection_get_connection_entity_from_route();
+    $entity_type_key = $entity->getEntityTypeId();
+    $own = $entity->getUserId() == $account->id();
+    // Check permissions and combine that with any custom access checking needed. Pass forward
+    // parameters from the route and/or request as needed.
+    if ($own) {
+      return AccessResult::allowedIf($account->hasPermission('view active connection entities') || $account->hasPermission('view own active ' . $entity_type_key . ' connection'));
+    }
+    else {
+      return AccessResult::allowedIf($account->hasPermission('view active connection entities'));
+    }
+  }
 }
