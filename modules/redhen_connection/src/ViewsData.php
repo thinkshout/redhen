@@ -96,15 +96,16 @@ class ViewsData {
             // Provide a reverse relationship for the connection that references the endpoint.
             $pseudo_field_name = 'connection__' . $entity_type_id . '__' . $endpoint_id;
             $data[$this->getEndpointViewsTableForEntityType($entity_type)][$pseudo_field_name]['relationship'] = [
-              'title' => t('@connection_type Connection Entity using @endpoint_id to @entity_type.', $string_helpers),
-              'help' => t('The related @connection_type Connection using @endpoint_id on the connection to connect to a/an @entity_type.', $string_helpers),
-              'group' => $entity_type_id,
+              'title' => t('Reverse reference to a Connection entity using @endpoint_id (the @entity_type).', $string_helpers),
+              'help' => t('Reverse reference from @entity_type entities referenced by @endpoint_id on Connections.', $string_helpers),
               'id' => 'standard',
               'base' => 'redhen_connection',
               'base field' => $endpoint_id,
               'relationship table' => $entity_type->getDataTable() ?: $entity_type->getBaseTable(),
               'relationship field' => $entity_type->getKey('id'),
-              'label' => $this->t('Connection (@connection_type) via @endpoint_id', $string_helpers),
+              'label' => $this->t('Connection via @endpoint_id', $string_helpers),
+              'group' => $entity_type->getLabel(),
+              'provider' => $entity_type->getProvider(),
             ];
           }
         }
