@@ -50,8 +50,9 @@ class RouteSubscriber extends RouteSubscriberBase {
           '_title' => 'Connections',
         ])
         ->addRequirements([
-          '_entity_access' => 'redhen_connection.view',
+          '_permission' => 'view active connection entities',
         ])
+        ->setOption('_admin_route', TRUE)
         ->setOption('parameters', [
           $entity_type_id => ['type' => 'entity:' . $entity_type_id],
         ]);

@@ -28,9 +28,6 @@ class ConnectionAccessControlHandler extends EntityAccessControlHandler {
     // Get Connection bundle.
     $entity_bundle = $entity->getType();
 
-    // Check if Contact being accessed is user's own.
-    $own = $entity->getUserId() == $account->id();
-
     switch ($operation) {
       // @todo split out view label into its own permission.
       case 'view label':
@@ -38,21 +35,10 @@ class ConnectionAccessControlHandler extends EntityAccessControlHandler {
         // If Connection is active, check "view active" permissions to determine
         // access.
         if ($entity->isActive()) {
-          if ($own) {
-            $view_access = AccessResult::allowedIfHasPermissions($account, [
-              'view active connection entities',
-	      'view active ' . $entity_bundle . ' connection',
-              'view own ' . $entity_bundle . ' connection',
-            ], 'OR');
-          }
-          // If Contact is not user's own, user needs "view active" permission
-          // to view.
-          else {
-            $view_access = AccessResult::allowedIfHasPermissions($account, [
-              'view active connection entities',
-              'view active ' . $entity_bundle . ' connection',
-            ], 'OR');
-          }
+          $view_access = AccessResult::allowedIfHasPermissions($account, [
+            'view active connection entities',
+            'view active ' . $entity_bundle . ' connection',
+          ], 'OR');
         }
         // If Connection is inactive, user needs "view inactive" permission to
         // view.
