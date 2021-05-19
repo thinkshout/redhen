@@ -34,7 +34,7 @@ class RouteSubscriber extends RouteSubscriberBase {
    * {@inheritdoc}
    */
   protected function alterRoutes(RouteCollection $collection) {
-    foreach ($this->entityTypeManager->getDefinitions() as $entity_type_id => $entity_type) {
+    foreach (\Drupal::service('redhen_connection.connections')->getAllConnectionEntityTypes() as $entity_type_id => $entity_type) {
       // If the entity didn't get a redhen_connection link template added by
       // hook_entity_types_alter(), skip it.
       if (!($path = $entity_type->getLinkTemplate('redhen_connection'))) {
@@ -50,7 +50,7 @@ class RouteSubscriber extends RouteSubscriberBase {
           '_title' => 'Connections',
         ])
         ->addRequirements([
-          '_permission' => 'view active connection entities',
+          '_permission' => 'view active connection entities+view own active ' . $entity_type_id . ' connection',
         ])
         ->setOption('_admin_route', TRUE)
         ->setOption('parameters', [
