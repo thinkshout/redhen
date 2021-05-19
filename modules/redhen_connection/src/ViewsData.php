@@ -64,19 +64,18 @@ class ViewsData {
           /** @var \Drupal\views\EntityViewsDataInterface $views_data */
           // We need the views_data handler in order to get the table name later.
           if ($this->entityTypeManager->hasHandler($entity_type_id, 'views_data') && $views_data = $this->entityTypeManager->getHandler($entity_type_id, 'views_data')) {
-            // Add a join from the entity base table to the redhen connection table.
-            $base_table = $views_data->getViewsTableForEntityType($entity_type);
-            $data['redhen_connection']['table']['join'][$base_table] = [
-              'left_field' => $entity_type->getKey('id'),
-              'field' => $endpoint_id,
+            $string_helpers = [
+              '@entity_type' => $entity_type->getLabel(),
+              '@endpoint_id' => str_replace('_', ' ', $endpoint_id),
+              '@connection_type' => $connection_type_id,
             ];
-
+            // Add a join from the entity base table to the redhen connection table.
             $data['redhen_connection']["{$entity_type_id}__{$endpoint_id}_{$connection_type_id}"] = [
               'relationship' => [
                 'id' => 'standard',
                 'label' => $this->t('@label connection', ['@label' => $entity_type->getLabel()]),
-                'title' => $entity_type->getLabel(),
-                'help' => t('The related @entity_type for @endpoint_id from @connection_type.', ['@entity_type' => $entity_type->getLowercaseLabel(), '@endpoint_id' => str_replace('_', ' ', $endpoint_id), '@connection_type' => $connection_type_id]),
+                'title' => t('@entity_type via @connection_type at @endpoint_id.', $string_helpers),
+                'help' => t('The related @entity_type for @endpoint_id from @connection_type.', $string_helpers),
                 'base' => $this->getEndpointViewsTableForEntityType($entity_type),
                 'base field' => $entity_type->getKey('id'),
                 'argument table' => 'redhen_connection',
@@ -92,6 +91,21 @@ class ViewsData {
                   'handler' => '\Drupal\redhen_connection\Plugin\views\HandlerFilterStatus'
                 ],
               ],
+            ];
+
+            // Provide a reverse relationship for the connection that references the endpoint.
+            $pseudo_field_name = 'connection__' . $entity_type_id . '__' . $endpoint_id;
+            $data[$this->getEndpointViewsTableForEntityType($entity_type)][$pseudo_field_name]['relationship'] = [
+              'title' => t('Reverse reference to a Connection entity using @endpoint_id (the @entity_type).', $string_helpers),
+              'help' => t('Reverse reference from @entity_type entities referenced by @endpoint_id on Connections.', $string_helpers),
+              'id' => 'standard',
+              'base' => 'redhen_connection',
+              'base field' => $endpoint_id,
+              'relationship table' => $entity_type->getDataTable() ?: $entity_type->getBaseTable(),
+              'relationship field' => $entity_type->getKey('id'),
+              'label' => $this->t('Connection via @endpoint_id', $string_helpers),
+              'group' => $entity_type->getLabel(),
+              'provider' => $entity_type->getProvider(),
             ];
           }
         }
