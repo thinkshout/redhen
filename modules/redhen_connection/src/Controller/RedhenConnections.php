@@ -108,8 +108,6 @@ class RedhenConnections extends ControllerBase {
     $entity = redhen_connection_get_connection_entity_from_route();
     $entity_type_key = $entity->getEntityTypeId();
     $own = $entity->getUserId() == $account->id();
-    // Check permissions and combine that with any custom access checking needed. Pass forward
-    // parameters from the route and/or request as needed.
     if ($own) {
       return AccessResult::allowedIf($account->hasPermission('view active connection entities') || $account->hasPermission('view own active ' . $entity_type_key . ' connection'));
     }
