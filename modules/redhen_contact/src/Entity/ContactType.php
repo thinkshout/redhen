@@ -36,6 +36,12 @@ use Drupal\redhen_contact\ContactTypeInterface;
  *     "edit-form" = "/admin/structure/redhen/contact_type/{redhen_contact_type}/edit",
  *     "delete-form" = "/admin/structure/redhen/contact_type/{redhen_contact_type}/delete",
  *     "collection" = "/admin/structure/redhen/contact_type"
+ *   },
+ *   config_export = {
+ *     "uuid",
+ *     "status",
+ *     "id",
+ *     "label",
  *   }
  * )
  */

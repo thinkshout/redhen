@@ -58,6 +58,24 @@ function redhen_contact_theme() {
 }
 
 /**
+ * Implements hook_views_data_alter().
+ *
+ * Adds a relationship from the user table to its contact entity.
+ */
+function redhen_contact_views_data_alter(&$data) {
+  $data['users_field_data']['redhen_contact']['relationship'] = [
+    'title' => t('Redhen Contact'),
+    'label' => t('Redhen Contact'),
+    'group' => 'User',
+    'help' => t('Reference to the related Redhen Contact for a User.'),
+    'id' => 'standard',
+    'base' => 'redhen_contact',
+    'base field' => 'uid',
+    'field' => 'uid',
+  ];
+}
+
+/**
  * Implements hook_tokens().
  */
 function redhen_contact_tokens($type, $tokens, array $data, array $options, BubbleableMetadata $bubbleable_metadata) {
@@ -185,7 +203,7 @@ function redhen_contact_form_user_register_form_alter(&$form, FormStateInterface
       $form['redhen_contact_' . $contact_type]['email']['#access'] = FALSE;
     }
     else {
-      drupal_set_message(t('Invalid RedHen contact type parameter.'));
+      \Drupal::messenger()->addMessage(t('Invalid RedHen contact type parameter.'));
     }
   }
 }
@@ -389,7 +407,7 @@ function redhen_contact_user_registration_submit($form, &$form_state) {
   // Only display this message to CRM admins to avoid confusion.
   $user = Drupal::currentUser();
   if ($user->hasPermission('administer contact entities')) {
-    drupal_set_message($message);
+    \Drupal::messenger()->addMessage($message);
   }
 }
 
@@ -549,7 +567,7 @@ function redhen_contact_user_registration_form_state(array $form, FormStateInter
   $limited_state->setValues([$field_parent_name => []]);
 
   // Get Redhen Contact field definitions to determine default values.
-  $contact_fields = \Drupal::entityManager()->getFieldDefinitions('redhen_contact', $contact_type);
+  $contact_fields = \Drupal::service('entity_field.manager')->getFieldDefinitions('redhen_contact', $contact_type);
 
   // Get all Redhen contact field values.
   $field_values = $form_state->getValue($field_parent_name);
@@ -581,7 +599,7 @@ function redhen_contact_user_registration_form_state(array $form, FormStateInter
  *
  * @param object $definition
  *   The field definition as returned by
- *   \Drupal::entityManager()->getFieldDefinitions
+ *   \Drupal::service('entity_field.manager')->getFieldDefinitions()
  * @param array $value
  *   The field value in the submitted form state.
  *

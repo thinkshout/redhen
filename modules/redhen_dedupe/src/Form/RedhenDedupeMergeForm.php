@@ -39,7 +39,7 @@ class RedhenDedupeMergeForm extends FormBase {
 
     // Loop through the entities to build out our master entity options:
     foreach ($contacts as $ent_id => $entity) {
-      $updated = format_date($entity->getChangedTime(), 'short');
+      $updated = \Drupal::service('date.formatter')->format($entity->getChangedTime(), 'short');
       $master_options[$ent_id] = $this->t('@name (Updated: @date)', [
         '@date' => $updated,
         '@name' => $entity->label(),
@@ -88,7 +88,7 @@ class RedhenDedupeMergeForm extends FormBase {
     // Loop through the entities to build out our table headers and master
     // entity options:
     foreach ($contacts as $ent_id => $contact) {
-      $updated = format_date($contact->getChangedTime(), 'short');
+      $updated = \Drupal::service('date.formatter')->format($contact->getChangedTime(), 'short');
       $header_data = [
         '@date' => $updated,
         '@name' => $contact->label(),
@@ -255,14 +255,14 @@ class RedhenDedupeMergeForm extends FormBase {
     }
     $merge_status = $this->redhenDedupeMerge($master, $values, $related_entities, $contacts);
     if ($merge_status) {
-      drupal_set_message(t('Contacts have successfully been merged into %master and deleted.', [
+      $this->messenger()->addMessage(t('Contacts have successfully been merged into %master and deleted.', [
         '%master' => $master->label(),
       ]));
       $form_state->setRedirect('entity.redhen_contact.canonical',
        ['redhen_contact' => $master_id]);
     }
     else {
-      drupal_set_message(t('Error attempting to merge these contacts. Check the error log for more details.'), 'error');
+      $this->messenger()->addMessage(t('Error attempting to merge these contacts. Check the error log for more details.'), 'error');
     }
   }
 
@@ -371,7 +371,7 @@ class RedhenDedupeMergeForm extends FormBase {
               $query->propertyCondition('entity_id', $contact_id);
               $result = $query->execute();
               if (!empty($result)) {
-                $rel_entities = \Drupal::entityManager()->getStorage($entity_type);
+                $rel_entities = \Drupal::entityTypeManager()->getStorage($entity_type);
                 // Determine the property to change.
                 $entity_key = ($entity_type == 'redhen_engagement') ? 'contact_id' : 'entity_id';
                 foreach ($rel_entities as $rel_entity) {
@@ -409,7 +409,7 @@ class RedhenDedupeMergeForm extends FormBase {
       }
 
       // Delete old contacts.
-      \Drupal::entityManager()->getStorage('redhen_contact')->delete($contacts);
+      \Drupal::entityTypeManager()->getStorage('redhen_contact')->delete($contacts);
 
       // Set the new values on the master contact.
       foreach ($values as $id => $value) {

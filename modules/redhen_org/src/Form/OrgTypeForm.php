@@ -50,13 +50,13 @@ class OrgTypeForm extends EntityForm {
 
     switch ($status) {
       case SAVED_NEW:
-        drupal_set_message($this->t('Created the %label Org type.', [
+        $this->messenger()->addMessage($this->t('Created the %label Org type.', [
           '%label' => $redhen_org_type->label(),
         ]));
         break;
 
       default:
-        drupal_set_message($this->t('Saved the %label Org type.', [
+        $this->messenger()->addMessage($this->t('Saved the %label Org type.', [
           '%label' => $redhen_org_type->label(),
         ]));
     }
