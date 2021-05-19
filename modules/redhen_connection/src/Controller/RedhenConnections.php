@@ -105,14 +105,16 @@ class RedhenConnections extends ControllerBase {
    *   The access result.
    */
   public function access(AccountInterface $account) {
-    $entity = redhen_connection_get_connection_entity_from_route();
-    $entity_type_key = $entity->getEntityTypeId();
     $own = FALSE;
-    if(method_exists($entity, 'getUserId')) {
-      $own = $entity->getUserId() == $account->id();
-    }
-    elseif(method_exists($entity, 'getOwnerId')) {
-      $own = $entity->getOwnerId() == $account->id();
+
+    if ($entity = redhen_connection_get_connection_entity_from_route()) {
+      $entity_type_key = $entity->getEntityTypeId();
+      if (method_exists($entity, 'getUserId')) {
+        $own = $entity->getUserId() == $account->id();
+      }
+      elseif (method_exists($entity, 'getOwnerId')) {
+        $own = $entity->getOwnerId() == $account->id();
+      }
     }
     if ($own) {
       return AccessResult::allowedIf($account->hasPermission('view active connection entities') || $account->hasPermission('view own active ' . $entity_type_key . ' connection'));
@@ -121,4 +123,5 @@ class RedhenConnections extends ControllerBase {
       return AccessResult::allowedIf($account->hasPermission('view active connection entities'));
     }
   }
+
 }
