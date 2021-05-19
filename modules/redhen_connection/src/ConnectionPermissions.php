@@ -45,6 +45,9 @@ class ConnectionPermissions {
       "view active $type_id connection" => [
         'title' => $this->t('%type: View active connections', $type_params),
       ],
+      "view own $type_id connection" => [
+        'title' => $this->t('%type: View own active connections', $type_params),
+      ],
       "view inactive $type_id connection" => [
         'title' => $this->t('%type: View inactive connections', $type_params),
       ],
