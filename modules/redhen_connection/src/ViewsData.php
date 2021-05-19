@@ -65,12 +65,6 @@ class ViewsData {
           // We need the views_data handler in order to get the table name later.
           if ($this->entityTypeManager->hasHandler($entity_type_id, 'views_data') && $views_data = $this->entityTypeManager->getHandler($entity_type_id, 'views_data')) {
             // Add a join from the entity base table to the redhen connection table.
-            $base_table = $views_data->getViewsTableForEntityType($entity_type);
-            $data['redhen_connection']['table']['join'][$base_table] = [
-              'left_field' => $entity_type->getKey('id'),
-              'field' => $endpoint_id,
-            ];
-
             $data['redhen_connection']["{$entity_type_id}__{$endpoint_id}_{$connection_type_id}"] = [
               'relationship' => [
                 'id' => 'standard',
