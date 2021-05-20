@@ -74,8 +74,8 @@ class ViewsData {
               'relationship' => [
                 'id' => 'standard',
                 'label' => $this->t('@label connection', ['@label' => $entity_type->getLabel()]),
-                'title' => t('@entity_type via @connection_type at @endpoint_id.', $string_helpers),
-                'help' => t('The related @entity_type for @endpoint_id from @connection_type.', $string_helpers),
+                'title' => t('@entity_type at @endpoint_id on a @connection_type connection.', $string_helpers),
+                'help' => t('The related @entity_type at @endpoint_id from @connection_type connection.', $string_helpers),
                 'base' => $this->getEndpointViewsTableForEntityType($entity_type),
                 'base field' => $entity_type->getKey('id'),
                 'argument table' => 'redhen_connection',
