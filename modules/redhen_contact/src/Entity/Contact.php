@@ -164,6 +164,36 @@ class Contact extends ContentEntityBase implements ContactInterface {
   /**
    * {@inheritdoc}
    */
+  public function getOwner() {
+    return $this->getUser();
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getOwnerId() {
+    return $this->getUserId();
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setOwnerId($uid) {
+    $this->setUserId($uid);
+    return $this;
+  }
+
+  /**
+  * {@inheritdoc}
+  */
+  public function setOwner(UserInterface $account) {
+    $this->setOwnerId($account->id());
+    return $this;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function isActive() {
     return (bool) $this->getEntityKey('status');
   }

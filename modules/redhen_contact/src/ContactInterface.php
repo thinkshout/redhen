@@ -5,13 +5,14 @@ namespace Drupal\redhen_contact;
 use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Entity\EntityChangedInterface;
 use Drupal\Core\Entity\EntityTypeInterface;
+use Drupal\user\EntityOwnerInterface;
 
 /**
  * Provides an interface for defining Contact entities.
  *
  * @ingroup redhen_contact
  */
-interface ContactInterface extends ContentEntityInterface, EntityChangedInterface {
+interface ContactInterface extends ContentEntityInterface, EntityOwnerInterface, EntityChangedInterface {
   /**
    * Gets the Contact type.
    *

@@ -29,7 +29,7 @@ class ContactAccessControlHandler extends EntityAccessControlHandler {
     $entity_bundle = $entity->getType();
 
     // Check if Contact being accessed is user's own.
-    $own = $entity->getUserId() == $account->id();
+    $own = $entity->getOwnerId() == $account->id();
 
     switch ($operation) {
       // @todo split out view label into its own permission.
