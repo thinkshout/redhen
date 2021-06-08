@@ -2,6 +2,7 @@
 
 namespace Drupal\redhen_contact\ContextProvider;
 
+use Drupal\Core\Plugin\Context\EntityContext;
 use Drupal\redhen_contact\Entity\Contact;
 use Drupal\Core\Cache\CacheableMetadata;
 use Drupal\Core\Plugin\Context\Context;
@@ -62,9 +63,7 @@ class RedhenContactRouteContext implements ContextProviderInterface {
    * {@inheritdoc}
    */
   public function getAvailableContexts() {
-    $context = new Context(new ContextDefinition(
-      'entity:redhen_contact', $this->t('Contact from URL')
-    ));
+    $context = EntityContext::fromEntityTypeId('redhen_contact', $this->t('Contact from URL'));
     return ['redhen_contact' => $context];
   }
 
