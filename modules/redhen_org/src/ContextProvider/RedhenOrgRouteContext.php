@@ -2,6 +2,7 @@
 
 namespace Drupal\redhen_org\ContextProvider;
 
+use Drupal\Core\Plugin\Context\EntityContext;
 use Drupal\redhen_org\Entity\Org;
 use Drupal\Core\Cache\CacheableMetadata;
 use Drupal\Core\Plugin\Context\Context;
@@ -62,9 +63,9 @@ class RedhenOrgRouteContext implements ContextProviderInterface {
    * {@inheritdoc}
    */
   public function getAvailableContexts() {
-    $context = new Context(new ContextDefinition(
-      'entity:redhen_org', $this->t('Org from URL')
-    ));
+    $context = EntityContext::fromEntityTypeId(
+      'redhen_org', $this->t('Org from URL')
+    );
     return ['redhen_org' => $context];
   }
 
