@@ -58,6 +58,23 @@ function redhen_contact_theme() {
 }
 
 /**
+ * Implements hook_theme_suggestions_HOOK().
+ */
+function redhen_contact_theme_suggestions_redhen_contact(array $variables) {
+  $suggestions = [];
+  $contact = $variables['elements']['#redhen_contact'];
+  $sanitized_view_mode = strtr($variables['elements']['#view_mode'], '.', '_');
+
+  $suggestions[] = 'redhen_contact__' . $sanitized_view_mode;
+  $suggestions[] = 'redhen_contact__' . $contact->getType();
+  $suggestions[] = 'redhen_contact__' . $contact->getType() . '__' . $sanitized_view_mode;
+  $suggestions[] = 'redhen_contact__' . $contact->id();
+  $suggestions[] = 'redhen_contact__' . $contact->id() . '__' . $sanitized_view_mode;
+
+  return $suggestions;
+}
+
+/**
  * Implements hook_views_data_alter().
  *
  * Adds a relationship from the user table to its contact entity.

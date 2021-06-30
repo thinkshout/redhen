@@ -63,6 +63,23 @@ function redhen_connection_theme() {
 }
 
 /**
+ * Implements hook_theme_suggestions_HOOK().
+ */
+function redhen_connection_theme_suggestions_redhen_connection(array $variables) {
+  $suggestions = [];
+  $connection = $variables['elements']['#redhen_connection'];
+  $sanitized_view_mode = strtr($variables['elements']['#view_mode'], '.', '_');
+
+  $suggestions[] = 'redhen_connection__' . $sanitized_view_mode;
+  $suggestions[] = 'redhen_connection__' . $connection->getType();
+  $suggestions[] = 'redhen_connection__' . $connection->getType() . '__' . $sanitized_view_mode;
+  $suggestions[] = 'redhen_connection__' . $connection->id();
+  $suggestions[] = 'redhen_connection__' . $connection->id() . '__' . $sanitized_view_mode;
+
+  return $suggestions;
+}
+
+/**
  * Return an array of Connection types to be used as an options list.
  *
  * @return array

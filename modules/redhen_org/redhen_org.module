@@ -54,6 +54,23 @@ function redhen_org_theme() {
 }
 
 /**
+ * Implements hook_theme_suggestions_HOOK().
+ */
+function redhen_org_theme_suggestions_redhen_org(array $variables) {
+  $suggestions = [];
+  $org = $variables['elements']['#redhen_org'];
+  $sanitized_view_mode = strtr($variables['elements']['#view_mode'], '.', '_');
+
+  $suggestions[] = 'redhen_org__' . $sanitized_view_mode;
+  $suggestions[] = 'redhen_org__' . $org->getType();
+  $suggestions[] = 'redhen_org__' . $org->getType() . '__' . $sanitized_view_mode;
+  $suggestions[] = 'redhen_org__' . $org->id();
+  $suggestions[] = 'redhen_org__' . $org->id() . '__' . $sanitized_view_mode;
+
+  return $suggestions;
+}
+
+/**
  * Return an associative array of org types to be used as an options list.
  *
  * @return array
